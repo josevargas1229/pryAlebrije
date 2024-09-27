@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # PryAlebrije
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.1.
@@ -25,3 +26,7 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+=======
+# pryAlebrije
+Desarrollo de una plataforma web para Alebrije Boutique
+>>>>>>> 041c212033648b4c8b6caa5a04ddea1140d2ca6a
