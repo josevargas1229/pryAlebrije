@@ -1,0 +1,14 @@
+footer {
+  background-color: #007bff; /* Color de fondo */
+  text-align: center;
+  padding: 1rem;
+  width: 100%;
+  margin: 0; /* Elimina márgenes */
+  box-sizing: border-box; /* Incluye el padding en el ancho total */
+  position: relative; /* Posiciona elementos dentro del footer */
+}
+
+footer p {
+  color: #111; /* Color del texto */
+  margin: 0; /* Elimina márgenes */
+}

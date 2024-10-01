@@ -1,1 +1,73 @@
 /* You can add global styles to this file, and also import other style files */
+/* Estilos generales de la aplicación */
+body {
+  font-family: 'Arial', sans-serif; /* Fuente para la aplicación */
+  margin: 0; /* Elimina márgenes por defecto */
+  padding: 0; /* Elimina padding por defecto */
+  background-color: #f4f4f4; /* Color de fondo de la página */
+}
+
+/* Contenedor principal */
+.container {
+  max-width: 1200px; /* Ancho máximo del contenedor */
+  margin: auto; /* Centra el contenedor horizontalmente */
+  padding: 1rem; /* Espaciado interno del contenedor */
+}
+
+/* Estilos para botones */
+button {
+  background-color: #007BFF; /* Color de fondo del botón */
+  color: white; /* Color del texto del botón */
+  border: none; /* Sin borde */
+  padding: 0.5rem 1rem; /* Espaciado interno */
+  border-radius: 5px; /* Bordes redondeados */
+  cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+  transition: background-color 0.3s; /* Transición suave para el fondo */
+}
+
+button:hover {
+  background-color: #0056b3; /* Fondo oscuro al pasar el mouse */
+}
+
+/* Estilos para inputs */
+input[type="text"],
+input[type="number"],
+textarea {
+  width: 100%; /* Ocupa todo el ancho disponible */
+  padding: 0.5rem; /* Espaciado interno */
+  margin: 0.5rem 0; /* Espacio vertical */
+  border: 1px solid #ccc; /* Borde gris claro */
+  border-radius: 5px; /* Bordes redondeados */
+}
+
+/* Estilos para títulos */
+h1, h2, h3 {
+  color: #333; /* Color de los títulos */
+}
+
+/* Estilo de enlaces */
+a {
+  text-decoration: none; /* Sin subrayado */
+  color: #007BFF; /* Color de los enlaces */
+}
+
+a:hover {
+  text-decoration: underline; /* Subrayado al pasar el mouse */
+}
+
+/* Estilos para un layout responsivo */
+@media (max-width: 768px) {
+  .container {
+      padding: 0.5rem; /* Menos padding en pantallas pequeñas */
+  }
+
+  button {
+      width: 100%; /* Botones ocupan todo el ancho en móviles */
+  }
+
+  input[type="text"],
+  input[type="number"],
+  textarea {
+      font-size: 16px; /* Aumenta el tamaño de fuente en móviles */
+  }
+}

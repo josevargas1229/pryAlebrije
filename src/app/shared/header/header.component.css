@@ -1,0 +1,42 @@
+header {
+  background-color: #007bff;
+  padding: 2rem;
+  width: 100%;
+  margin: 0; /* Asegúrate de que no haya márgenes */
+  box-sizing: border-box; /* Incluye el padding en el ancho total */
+}
+
+nav {
+  display: flex;
+  justify-content: flex-end; /* Alinea los elementos a la derecha */
+  align-items: center; /* Centra verticalmente los elementos */
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex; /* Usamos flex para alinearlos horizontalmente */
+  margin: 0; /* Elimina márgenes */
+}
+
+nav ul li {
+  margin-right: 1rem;
+}
+
+nav ul li:last-child {
+  margin-right: 0; /* Elimina el margen derecho del último elemento */
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem; /* Espaciado interno para mejor clicabilidad */
+  border-radius: 5px; /* Bordes redondeados */
+  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s; /* Transición suave */
+}
+
+nav ul li a:hover {
+  background-color: #0056b3; /* Color de fondo al pasar el mouse */
+  color: white; /* Mantiene el color del texto */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* Sombra al pasar el mouse */
+}

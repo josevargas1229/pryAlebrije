@@ -1,0 +1,11 @@
+/* Estilos para el componente principal de la aplicación */
+:host {
+  display: flex;
+  flex-direction: column; /* Organiza los elementos en una columna */
+  min-height: 100vh; /* Asegura que el componente ocupe al menos toda la altura de la pantalla */
+}
+
+/* Espacio entre el header, el contenido y el footer */
+router-outlet {
+  flex: 1; /* Permite que el router-outlet ocupe el espacio restante */
+}
