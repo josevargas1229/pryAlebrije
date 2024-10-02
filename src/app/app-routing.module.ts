@@ -1,6 +1,9 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from '../../public/home/home.component'; // Asegúrate de que esta ruta sea correcta
+import { TerminosCondicionesComponent } from './terminos-condiciones/terminos-condiciones.component';
+import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
 
 const routes: Routes = [
   {
@@ -16,7 +19,17 @@ const routes: Routes = [
   },
   {
     path: 'home', component: HomeComponent // Cambia el path a 'home'
-  }
+  },
+  {
+    path: 'terminos-condiciones', component:TerminosCondicionesComponent
+  },
+  {
+    path: 'login', component:LoginComponent
+  },
+  {
+    path: 'register', component: RegisterComponent
+  },
+
 ];
 
 @NgModule({

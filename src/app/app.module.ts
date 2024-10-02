@@ -1,11 +1,13 @@
-import { NgModule } from "@angular/core";
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HeaderComponent } from "./shared/header/header.component";
-import { FooterComponent } from "./shared/footer/footer.component";
-
+import { FormsModule } from '@angular/forms';
+import { HeaderComponent } from './shared/header/header.component';
+import { FooterComponent } from './shared/footer/footer.component';
+import { TerminosCondicionesComponent } from './terminos-condiciones/terminos-condiciones.component';
+import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
 
 @NgModule({
   declarations: [
@@ -14,10 +16,12 @@ import { FooterComponent } from "./shared/footer/footer.component";
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule, // Asegúrate de que FormsModule esté aquí
-    CommonModule,
+    FormsModule,
     HeaderComponent,
-    FooterComponent
+    FooterComponent,
+    CommonModule,
+    TerminosCondicionesComponent,
+    RegisterComponent
   ],
   providers: [],
   bootstrap: []
