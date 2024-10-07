@@ -1,35 +1,28 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from '../../public/home/home.component'; // Asegúrate de que esta ruta sea correcta
-import { TerminosCondicionesComponent } from './terminos-condiciones/terminos-condiciones.component';
+import { HomeComponent } from '../../public/home/home.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
+import { DashboardComponent } from '../../private/dashboard/dashboard.component';
+import { TerminosCondicionesComponent } from './terminos-condiciones/terminos-condiciones.component';
 
 const routes: Routes = [
-  {
-    path: 'public',
-    loadChildren: () => import('../../public/public.module').then(m => m.PublicModule)
-  },
-  {
-    path: 'private',
-    loadChildren: () => import('../../private/private.module').then(m => m.PrivateModule)
-  },
-  {
-    path: '', redirectTo: 'public', pathMatch: 'full' // Redirecciona a 'public' por defecto
-  },
-  {
-    path: 'home', component: HomeComponent // Cambia el path a 'home'
-  },
-  {
-    path: 'terminos-condiciones', component:TerminosCondicionesComponent
-  },
-  {
-    path: 'login', component:LoginComponent
-  },
-  {
-    path: 'register', component: RegisterComponent
-  },
+  // Sección pública
+  { path: 'home', component: HomeComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
 
+  // Sección privada (puedes protegerla con un guard más tarde)
+  { path: 'dashboard', component: DashboardComponent },
+
+  // Otras páginas
+  { path: 'terminos-condiciones', component: TerminosCondicionesComponent },
+
+  // Redirección predeterminada
+  { path: '', redirectTo: '/home', pathMatch: 'full' },
+
+  // Ruta wildcard para manejar errores 404
+  { path: '**', redirectTo: '/home' }
 ];
 
 @NgModule({

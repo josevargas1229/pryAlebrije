@@ -1,18 +1,74 @@
-<div class="register-container">
-  <h2>Registro</h2>
-  <form>
-    <div class="form-group">
-      <label for="name">Nombre:</label>
-      <input type="text" id="name" name="name" required>
+<div class="registration-container">
+  <h2>Resgitro</h2>
+  <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+    <div class="section personal-info">
+      <h3>Informacion Personal</h3>
+      <div class="form-group">
+        <label for="name">Nombre</label>
+        <input type="text" id="name" formControlName="name" aria-label="Name">
+        <div *ngIf="registrationForm.get('name')?.invalid && (registrationForm.get('name')?.dirty || registrationForm.get('name')?.touched)" class="error-message">
+          Ingrese su Nombre
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="surname">Apellido</label>
+        <input type="text" id="surname" formControlName="surname" aria-label="Surname">
+        <div *ngIf="registrationForm.get('surname')?.invalid && (registrationForm.get('surname')?.dirty || registrationForm.get('surname')?.touched)" class="error-message">
+          Ingrese su Apellido
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="dob">Fecha de nacimiendo</label>
+        <input type="date" id="dob" formControlName="dob" aria-label="Date of Birth">
+        <div *ngIf="registrationForm.get('dob')?.invalid && (registrationForm.get('dob')?.dirty || registrationForm.get('dob')?.touched)" class="error-message">
+          Ingrese su fecha de nacimiento
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Genero</label>
+        <div class="radio-group">
+          <label>
+            <input type="radio" formControlName="gender" value="male" aria-label="Male"> Mujer
+          </label>
+          <label>
+            <input type="radio" formControlName="gender" value="female" aria-label="Female"> Hombre
+          </label>
+          <label>
+            <input type="radio" formControlName="gender" value="other" aria-label="Other"> Otro
+          </label>
+        </div>
+        <div *ngIf="registrationForm.get('gender')?.invalid && (registrationForm.get('gender')?.dirty || registrationForm.get('gender')?.touched)" class="error-message">
+          Ingrese su genero
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
+    <div class="section contact-details">
+      <h3>Contacto</h3>
+      <div class="form-group">
+        <label for="phone">Telefono</label>
+        <input type="tel" id="phone" formControlName="phone" aria-label="Phone Number">
+        <div *ngIf="registrationForm.get('phone')?.invalid && (registrationForm.get('phone')?.dirty || registrationForm.get('phone')?.touched)" class="error-message">
+          Ingrese un numero de telefono valido
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="email">Correro electronico</label>
+        <input type="email" id="email" formControlName="email" aria-label="Email Address">
+        <div *ngIf="registrationForm.get('email')?.invalid && (registrationForm.get('email')?.dirty || registrationForm.get('email')?.touched)" class="error-message">
+          Ingrese un correo valido
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="address">Direccion</label>
+        <textarea id="address" formControlName="address" aria-label="Physical Address"></textarea>
+        <div *ngIf="registrationForm.get('address')?.invalid && (registrationForm.get('address')?.dirty || registrationForm.get('address')?.touched)" class="error-message">
+          Ingrese su direccion
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
-    </div>
-    <button type="submit" class="btn">Registrar</button>
+    <button type="submit" [disabled]="registrationForm.invalid || isSubmitting" class="submit-btn">
+      <span *ngIf="!isSubmitting">Registrar</span>
+      <div *ngIf="isSubmitting" class="spinner"></div>
+    </button>
   </form>
 </div>

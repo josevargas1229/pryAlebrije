@@ -8,7 +8,7 @@ import { LoginComponent } from '../src/app/login/login.component';
 @NgModule({
   declarations: [
     HomeComponent,  // Declaraciones de los componentes en el módulo público
-    LoginComponent
+
   ],
   imports: [
     CommonModule,
