@@ -5,8 +5,42 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 
 export const routes: Routes = [
-  { path: '', component:HomeComponent},
-  { path: 'terminos-condiciones', component: TerminosCondicionesComponent},
-  { path: 'login', component:LoginComponent},
-  { path: 'register', component: RegisterComponent}
+  { path: "", component: HomeComponent },
+  { path: "terminos-condiciones", component: TerminosCondicionesComponent },
+  { path: "login", component: LoginComponent },
+  { path: "register", component: RegisterComponent },
+  // { path: "my-profile", component: UserProfileComponent },
+  // { path: "contact-us", component: ContactUsComponent },
+  // //admin
+  // {
+  //   path: '', children: [
+  //     { path: "admin/login", component: AdminLoginComponent }
+  //   ]
+  // },
+  // {
+  //   path: '', children: [
+  //     { path: "admin/dashboard", component: AdminDashboardComponent },
+  //     { path: "admin/user", component: UserCrudComponent },
+  //     { path: "admin/product", component: ProductComponent }
+  //   ]
+  // },
+  // {
+  //   path: '', children: [
+  //     { path: "sing-in", component: SinginSingupComponent },
+  //     { path: "sing-up", component: SinginSingupComponent },
+  //   ]
+  // },
+  // {
+  //   path: '', children: [
+  //     { path: "seller/dashboard", component: SellerDashboardComponent },
+  //     { path: "seller/product", component: ProductComponent },
+  //   ]
+  // },
+  // {
+  //   path: '', children: [
+  //     { path: "buyer/dashboard", component: BuyerDashboardComponent },
+  //     { path: "checkout", component: CheckoutComponent },
+  //   ]
+  // },
+  // { path: "**", component: PageNotFoundComponent }
 ];
