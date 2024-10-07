@@ -21,9 +21,10 @@ import { RegisterComponent } from './register/register.component';
     FooterComponent,
     CommonModule,
     TerminosCondicionesComponent,
-    RegisterComponent
+    RegisterComponent,
+    AppRoutingModule
   ],
   providers: [],
-  bootstrap: []
+  bootstrap: [AppModule]
 })
 export class AppModule { }
