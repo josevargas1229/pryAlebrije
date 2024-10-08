@@ -1,1 +1,35 @@
-<p>perfil works!</p>
+<div class="perfil-container">
+  <div class="perfil-header">
+    <div class="perfil-photo">
+      <img src="assets/user-photo.jpg" alt="User Photo">
+    </div>
+    <div class="perfil-info">
+      <h2>{{ userName }}</h2>
+      <p>{{ userEmail }}</p>
+    </div>
+  </div>
+
+  <div class="perfil-details">
+    <div class="detail-item">
+      <label>Nombre Completo:</label>
+      <p>{{ userFullName }}</p>
+    </div>
+    <div class="detail-item">
+      <label>Dirección:</label>
+      <p>{{ userAddress }}</p>
+    </div>
+    <div class="detail-item">
+      <label>Teléfono:</label>
+      <p>{{ userPhone }}</p>
+    </div>
+    <div class="detail-item">
+      <label>Fecha de Nacimiento:</label>
+      <p>{{ userBirthday }}</p>
+    </div>
+  </div>
+
+  <div class="perfil-actions">
+    <button class="edit-btn">Editar Perfil</button>
+    <button class="save-btn">Guardar Cambios</button>
+  </div>
+</div>

@@ -3,10 +3,17 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'app-recupera',
   standalone: true,
-  imports: [],
   templateUrl: './recupera.component.html',
-  styleUrl: './recupera.component.css'
+  styleUrls: ['./recupera.component.css']
 })
 export class RecuperaComponent {
+  isModalOpen = false;
 
+  openModal() {
+    this.isModalOpen = true;
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+  }
 }
