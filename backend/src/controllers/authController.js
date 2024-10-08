@@ -8,28 +8,27 @@ const { User, Account, PassHistory } = require('../models/associations');
 a breakdown of what this function does: */
 exports.login = async (req, res, next) => {
     try {
-        const { nombre_usuario, contraseña } = req.body;
-        const account = await Account.findOne({ 
-            where: { nombre_usuario },
-            include: [{ model: User, attributes: ['id', 'tipo_usuario'] }]
+        const { email, contraseña } = req.body.credenciales;
+        const user = await User.findOne({ 
+            where: { email },
+            include: [{ model: Account, attributes: ['id', 'nombre_usuario','contraseña_hash'] }]
         });
-
-        if (!account) {
+        if (!user) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
-        const isMatch = await bcrypt.compare(contraseña, account.contraseña_hash);
+        const isMatch = await bcrypt.compare(contraseña, user.Account.contraseña_hash);
         if (!isMatch) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
         const token = jwt.sign(
-            { userId: account.User.id, tipo: account.User.tipo_usuario },
+            { userId: user.id, tipo: user.tipo_usuario },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
-        res.json({ token, userId: account.User.id, tipo: account.User.tipo_usuario });
+        res.json({ token, userId: user.id, tipo: user.tipo_usuario });
     } catch (error) {
         next(error);
     }

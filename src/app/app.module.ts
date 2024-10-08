@@ -22,7 +22,8 @@ import { RegisterComponent } from './register/register.component';
     CommonModule,
     TerminosCondicionesComponent,
     RegisterComponent,
-    AppRoutingModule
+    AppRoutingModule,
+    LoginComponent
   ],
   providers: [],
   bootstrap: [AppModule]
