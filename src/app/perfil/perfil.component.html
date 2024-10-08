@@ -1,35 +1,34 @@
 <div class="perfil-container">
-  <div class="perfil-header">
-    <div class="perfil-photo">
-      <img src="assets/user-photo.jpg" alt="User Photo">
-    </div>
-    <div class="perfil-info">
-      <h2>{{ userName }}</h2>
-      <p>{{ userEmail }}</p>
-    </div>
-  </div>
-
-  <div class="perfil-details">
-    <div class="detail-item">
-      <label>Nombre Completo:</label>
-      <p>{{ userFullName }}</p>
-    </div>
-    <div class="detail-item">
-      <label>Dirección:</label>
-      <p>{{ userAddress }}</p>
-    </div>
-    <div class="detail-item">
-      <label>Teléfono:</label>
-      <p>{{ userPhone }}</p>
-    </div>
-    <div class="detail-item">
-      <label>Fecha de Nacimiento:</label>
-      <p>{{ userBirthday }}</p>
+  <!-- Sección de Perfil de Usuario -->
+  <div class="perfil-content">
+    <h1>Perfil de Usuario</h1>
+    <div class="perfil-card">
+      <div class="user-info">
+        <div class="user-photo">
+          <img src="https://via.placeholder.com/150" alt="Foto de Perfil">
+        </div>
+        <div class="user-details">
+          <h2>Nombre del Usuario</h2>
+          <p><strong>Correo:</strong> usuariocorreo.com</p>
+          <p><strong>Teléfono:</strong> +52 123 456 7890</p>
+          <p><strong>Dirección:</strong> Calle Falsa 123, Ciudad, País</p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="perfil-actions">
-    <button class="edit-btn">Editar Perfil</button>
-    <button class="save-btn">Guardar Cambios</button>
+  <!-- Sección de Servicios (manteniendo tu código) -->
+  <div class="services-container">
+    <h2 class="section-title">Configuración</h2>
+    <div class="services-grid">
+      <div class="service-card" *ngFor="let service of services">
+        <div class="service-icon">
+          <i [class]="service.icon"></i>
+        </div>
+        <h3 class="service-title">{{ service.title }}</h3>
+        <p class="service-description">{{ service.description }}</p>
+        <button class="learn-more-btn" (click)="showServiceDetails(service)">Editar</button>
+      </div>
+    </div>
   </div>
 </div>
