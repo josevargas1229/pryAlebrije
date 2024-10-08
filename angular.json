@@ -87,6 +87,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": ".env",
+                "input": ".",
+                "output": "."
               }
             ],
             "styles": [
