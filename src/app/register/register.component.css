@@ -35,6 +35,7 @@ input[type="text"],
 input[type="tel"],
 input[type="email"],
 input[type="date"],
+input[type="password"],
 textarea {
   width: 100%;
   padding: 10px;
@@ -94,6 +95,12 @@ textarea:focus {
   margin: 0 auto;
 }
 
+.password-strength {
+  margin-top: 10px;
+  font-size: 0.875em;
+  color: #4caf50; /* Cambia el color según sea necesario */
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -133,4 +140,21 @@ textarea:focus-visible {
 /* Enhance button interactivity */
 .submit-btn:active {
   transform: scale(0.98);
+}
+/* Estilos para el medidor de fortaleza de la contraseña */
+.password-strength {
+  margin-top: 5px;
+  font-size: 0.875em;
+}
+
+.password-strength.weak {
+  color: #d32f2f; /* Color rojo para 'Débil' */
+}
+
+.password-strength.medium {
+  color: #ff9800; /* Color naranja para 'Fuerte' */
+}
+
+.password-strength.strong {
+  color: #4caf50; /* Color verde para 'Muy fuerte' */
 }
