@@ -1,0 +1,39 @@
+<div class="recupera-container">
+  <div class="form-box">
+    <h2>Recuperar Contraseña</h2>
+    <p>Ingresa tu correo electrónico para recuperar tu contraseña.</p>
+
+    <form>
+      <div class="form-group">
+        <label for="email">Correo electrónico:</label>
+        <input type="email" id="email" placeholder="Ingrese su correo" />
+      </div>
+
+      <button type="button" (click)="openModal()">Recuperar Contraseña</button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" [class.active]="isModalOpen">
+  <form class="form">
+    <span class="close" (click)="closeModal()">X</span>
+
+    <div class="info">
+      <span class="title">Verification OTP</span>
+      <p class="description">Ingresa el código que le llego a su correo electronico</p>
+    </div>
+
+    <div class="input-fields">
+      <input type="tel" maxlength="1">
+      <input type="tel" maxlength="1">
+      <input type="tel" maxlength="1">
+      <input type="tel" maxlength="1">
+    </div>
+
+    <div class="action-btns">
+      <a class="verify" href="#">Verificar</a>
+      <a class="clear" href="#">Limpiar</a>
+    </div>
+  </form>
+</div>
