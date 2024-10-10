@@ -6,15 +6,16 @@ import { RegisterComponent } from './register/register.component';
 import { DashboardComponent } from '../../private/dashboard/dashboard.component';
 import { RecuperaComponent } from './recupera/recupera.component';
 import { PerfilComponent } from './perfil/perfil.component';
+import { AuthGuard } from './guards/auth/auth.guard';
 
 export const routes: Routes = [
   { path: "", component: HomeComponent },
   { path: "terminos-condiciones", component: TerminosCondicionesComponent },
   { path: "login", component: LoginComponent },
   { path: "register", component: RegisterComponent },
-  { path: 'dashboard', component: DashboardComponent},
+  { path: 'dashboard', component: DashboardComponent,canActivate:[AuthGuard]},
   { path: 'recupera', component:RecuperaComponent},
-  { path: 'perfil', component:PerfilComponent}
+  { path: 'perfil', component:PerfilComponent,canActivate:[AuthGuard]}
 
 
 

@@ -10,7 +10,7 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import {MatCommonModule} from '@angular/material/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-
+import { ToastService, AngularToastifyModule } from 'angular-toastify'; 
 @NgModule({
   declarations: [
 
@@ -26,9 +26,10 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
     RegisterComponent,
     AppRoutingModule,
     LoginComponent,
-    MatCommonModule
+    MatCommonModule,
+    AngularToastifyModule
   ],
-  providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}}],
+  providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}},ToastService],
   bootstrap: [AppModule]
 })
 export class AppModule { }

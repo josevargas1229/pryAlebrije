@@ -11,6 +11,8 @@ import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms'
 import { Usuario } from '../services/user/user.models';
 import { Cuenta } from '../services/account/account.models';
 import { AuthService } from '../services/auth/auth.service';
+import { Router } from '@angular/router';
+import { ToastService } from 'angular-toastify';
 @Component({
   selector: 'app-user-registration',
   templateUrl: './register.component.html',
@@ -26,7 +28,7 @@ export class RegisterComponent implements OnInit {
   hidePassword: boolean = true;
   hideConfirmPassword: boolean = true;
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {}
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router,private toastService: ToastService ) {}
 
   ngOnInit() {
     this.registrationForm = this.fb.group({
@@ -127,14 +129,15 @@ export class RegisterComponent implements OnInit {
 
       this.authService.register(usuario, cuenta).subscribe(
         (response) => {
-          console.log('Usuario registrado exitosamente:', response);
+          console.log(response)
+          this.toastService.success('Usuario registrado exitosamente.');
           this.isSubmitting = false;
-          // Aquí podrías redirigir al usuario o mostrar un mensaje de éxito
+          this.router.navigate(['/']);
         },
         (error) => {
-          console.error('Error al registrar el usuario:', error);
+          this.toastService.error('Error al registrar el usuario.');
           this.isSubmitting = false;
-          // Manejo de errores: mostrar un mensaje al usuario
+          console.error('Error al registrar el usuario:', error);
         }
       );
     } else {
