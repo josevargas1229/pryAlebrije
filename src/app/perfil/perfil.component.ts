@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 interface Service {
   title: string;
   description: string;
@@ -8,7 +9,7 @@ interface Service {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports:[CommonModule],
+  imports:[CommonModule, RouterLink],
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.css'],
 })

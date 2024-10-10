@@ -6,6 +6,9 @@ import { RegisterComponent } from './register/register.component';
 import { DashboardComponent } from '../../private/dashboard/dashboard.component';
 import { RecuperaComponent } from './recupera/recupera.component';
 import { PerfilComponent } from './perfil/perfil.component';
+import { EditpolitComponent } from './editpolit/editpolit.component';
+import { EditerminosComponent } from './editerminos/editerminos.component';
+import { EditperfilemComponent } from './editperfilem/editperfilem.component';
 
 export const routes: Routes = [
   { path: "", component: HomeComponent },
@@ -14,7 +17,11 @@ export const routes: Routes = [
   { path: "register", component: RegisterComponent },
   { path: 'dashboard', component: DashboardComponent},
   { path: 'recupera', component:RecuperaComponent},
-  { path: 'perfil', component:PerfilComponent}
+  { path: 'perfil', component:PerfilComponent},
+  { path: 'editpolit', component:EditpolitComponent},
+  { path: 'editerminos', component:EditerminosComponent},
+  { path: 'editdeslinde', component:EditperfilemComponent},
+  { path: 'editperfilem', component:EditperfilemComponent}
 
 
 

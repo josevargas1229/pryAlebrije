@@ -1,9 +1,9 @@
 footer {
   background-color: #007bff; /* Color de fondo */
-  padding: 3rem;
+  padding: 2rem;
   width: 100%;
   box-sizing: border-box;
-  position: relative;
+  position:absolute;
   text-align: center;
 }
 

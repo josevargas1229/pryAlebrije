@@ -1,42 +1,89 @@
 .home-container {
-  max-width: 1200px; /* Ancho máximo del contenedor */
-  margin: 18rem auto; /* Centrar el contenedor con un margen superior */
-  padding: 1rem; /* Espaciado interno */
-  background-color: #ffffff; /* Color de fondo */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra para el contenedor */
-  border-radius: 10px; /* Bordes redondeados */
+  max-width: 1200px;
+  margin: 5rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  text-align: center;
+  font-family: 'Arial', sans-serif;
 }
 
 h1 {
-  color: #333; /* Color del título principal */
-  text-align: center; /* Centrar el texto */
-  margin: 0; /* Eliminar márgenes para que se ajuste mejor */
+  font-size: 2.5rem;
+  color: #ff6f61;
 }
 
 p {
-  text-align: center; /* Centrar párrafos */
-  color: #666; /* Color del texto */
+  color: #666;
+  margin: 1rem 0;
 }
 
-/* Agrupación de tarjetas */
-.info-cards {
+.section-title {
+  margin: 3rem 0 1rem;
+}
+
+.product-showcase {
   display: flex;
-  justify-content: center; /* Centrar las tarjetas */
-  flex-wrap: wrap; /* Permitir que las tarjetas se envuelvan en filas */
-  margin-top: 1rem; /* Margen superior entre el título y las tarjetas */
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 2rem;
 }
 
-/* Estilos de cada tarjeta */
-.card {
-  flex: 1 1 300px; /* Flexibilidad en el tamaño, mínimo 300px */
-  margin: 1rem; /* Espacio entre tarjetas */
-  padding: 1rem; /* Espaciado interno */
-  background-color: #f8f9fa; /* Color de fondo de las tarjetas */
-  border-radius: 5px; /* Bordes redondeados */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Sombra para las tarjetas */
-  transition: transform 0.3s; /* Transición suave */
+.product-card {
+  flex: 1 1 300px;
+  background-color: #f9f9f9;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s;
 }
 
-.card:hover {
-  transform: translateY(-5px); /* Efecto de elevar la tarjeta al pasar el mouse */
+.product-card img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+.product-card h3 {
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.product-card p {
+  color: #777;
+  margin-bottom: 1rem;
+}
+
+.product-card button {
+  background-color: #ff6f61;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.product-card button:hover {
+  background-color: #ff4a3d;
+}
+
+/* Estilos para las secciones separadas */
+.single-card {
+  margin: 2rem 0;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.single-card h2 {
+  font-size: 2rem;
+  color: #ff6f61;
+}
+
+.single-card p {
+  color: #666;
 }
