@@ -31,6 +31,10 @@ const Account = sequelize.define('Account', {
     },
     configuracion_2fa: {
         type: DataTypes.TEXT
+    },
+    bloqueada: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     }
 }, {
     tableName: 'cuentas',

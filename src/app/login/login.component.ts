@@ -6,11 +6,13 @@ import { LoginCredentials } from '../services/auth/auth.models';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import {MatCheckboxModule} from '@angular/material/checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ToastService } from 'angular-toastify';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-login',
-  standalone:true,
-  imports:[FormsModule, CommonModule,MatFormFieldModule,FormsModule, MatInputModule,MatIconModule,MatCheckboxModule],
+  standalone: true,
+  imports: [FormsModule, CommonModule, MatFormFieldModule, FormsModule, MatInputModule, MatIconModule, MatCheckboxModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -22,7 +24,7 @@ export class LoginComponent {
   errorMessage: string | null = null;
   hidePassword: boolean = true;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private toastService: ToastService, private router: Router) { }
 
   ngOnInit(): void {
     // Verifica si hay credenciales guardadas si se usó "remember me" anteriormente
@@ -48,12 +50,13 @@ export class LoginComponent {
         next: (response) => {
           console.log('Login successful:', response);
           this.isLoading = false;
-          // Redirigir al usuario a la página de inicio u otra página después del inicio de sesión exitoso
+          this.toastService.success('¡Bienvenido! Inicio de sesión exitoso.');
+          this.router.navigate(['/'])
         },
         error: (error) => {
           console.error('Login error:', error);
-          this.errorMessage = 'Error al iniciar sesión. Verifique sus credenciales.';
           this.isLoading = false;
+          this.toastService.error(error.message); // Muestra el mensaje de error lanzado por AuthService
         },
       });
     }

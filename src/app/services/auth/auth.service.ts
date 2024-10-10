@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { Usuario } from '../user/user.models';
 import { Cuenta } from '../account/account.models';
 import { AuthResponse, LoginCredentials } from './auth.models';
@@ -26,18 +26,31 @@ export class AuthService {
    * the login function.
    * @returns An Observable is being returned.
    */
-  login(credenciales:LoginCredentials, rememberMe: boolean): Observable<any> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { credenciales })
-    .pipe(
-      tap(response => {
-        this.setToken(response.token);
-        if (rememberMe) {
-          this.setRememberMe(credenciales);
-        } else {
-          this.clearRememberMe();
-        }
-      })
+  login(credenciales: LoginCredentials, rememberMe: boolean): Observable<any> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { credenciales }, {
+        withCredentials: true
+    }).pipe(
+        tap(response => {
+            this.setToken(response.token);
+            if (rememberMe) {
+                this.setRememberMe(credenciales);
+            } else {
+                this.clearRememberMe();
+            }
+        }),
+        catchError(this.handleLoginError)
     );
+}
+
+
+  private handleLoginError(error: HttpErrorResponse) {
+    if (error.status === 401) {
+      return throwError(() => new Error('Credenciales inválidas. Por favor, verifique su email y contraseña.'));
+    } else if (error.status === 403) {
+      return throwError(() => new Error('Su cuenta está bloqueada debido a demasiados intentos fallidos.'));
+    } else {
+      return throwError(() => new Error('Ocurrió un error inesperado. Inténtelo de nuevo más tarde.'));
+    }
   }
 
   /**
