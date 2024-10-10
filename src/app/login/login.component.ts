@@ -3,11 +3,14 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth/auth.service';
 import { LoginCredentials } from '../services/auth/auth.models';
-
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 @Component({
   selector: 'app-login',
   standalone:true,
-  imports:[FormsModule, CommonModule],
+  imports:[FormsModule, CommonModule,MatFormFieldModule,FormsModule, MatInputModule,MatIconModule,MatCheckboxModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -17,6 +20,7 @@ export class LoginComponent {
   rememberMe: boolean = false;
   isLoading: boolean = false;
   errorMessage: string | null = null;
+  hidePassword: boolean = true;
 
   constructor(private authService: AuthService) {}
 

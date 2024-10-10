@@ -1,43 +1,44 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { AbstractControl, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
 import * as passwordStrength from 'owasp-password-strength-test';
-
+import {MatSelectModule} from '@angular/material/select';
+import {MatInputModule} from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatIconModule} from '@angular/material/icon';
+import {MatGridListModule} from '@angular/material/grid-list';
+import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
+import { Usuario } from '../services/user/user.models';
+import { Cuenta } from '../services/account/account.models';
+import { AuthService } from '../services/auth/auth.service';
 @Component({
   selector: 'app-user-registration',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [CommonModule, ReactiveFormsModule,MatFormFieldModule,FormsModule, MatInputModule, MatSelectModule,MatIconModule,MatGridListModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent implements OnInit {
   registrationForm!: FormGroup;
   isSubmitting = false;
-  passwordStrengthMessage: string = ''; // Cambiado a passwordStrengthMessage
-  passwordMismatch: boolean = false;
+  passwordStrengthMessage: string = '';
+  hidePassword: boolean = true;
+  hideConfirmPassword: boolean = true;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private authService: AuthService) {}
 
   ngOnInit() {
     this.registrationForm = this.fb.group({
-      name: ['', [Validators.required]],
-      surname: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
+      name: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
+      surname: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
+      email: ['', [Validators.required, Validators.email, Validators.pattern(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)]],
       phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', [Validators.required]]
+      confirmPassword: ['', [Validators.required, this.matchPassword.bind(this)]],
     });
-
-    // Observa los cambios en el campo de la contraseña
     this.registrationForm.get('password')?.valueChanges.subscribe((password) => {
       this.checkPasswordStrength(password);
-      this.checkPasswordMatch();
-    });
-
-    // Observa los cambios en el campo de confirmación de contraseña
-    this.registrationForm.get('confirmPassword')?.valueChanges.subscribe(() => {
-      this.checkPasswordMatch();
     });
   }
 
@@ -83,21 +84,59 @@ export class RegisterComponent implements OnInit {
     }
   }
 
-  checkPasswordMatch() {
+  matchPassword(control: AbstractControl): ValidationErrors | null {
+    if (!this.registrationForm) {
+      return null;
+    }
     const password = this.registrationForm.get('password')?.value;
-    const confirmPassword = this.registrationForm.get('confirmPassword')?.value;
-    this.passwordMismatch = password !== confirmPassword;
+    const confirmPassword = control.value;
+    
+    if (password !== confirmPassword) {
+      return { 'passwordMismatch': true };
+    }
+    
+    return null;
   }
-
+  getConfirmPasswordErrorMessage(): string {
+    const confirmPasswordControl = this.registrationForm.get('confirmPassword');
+    if (confirmPasswordControl?.hasError('required')) {
+      return 'Este campo es requerido';
+    }
+    if (confirmPasswordControl?.hasError('passwordMismatch')) {
+      return 'Las contraseñas no coinciden';
+    }
+    return '';
+  }
   onSubmit() {
-    if (this.registrationForm.valid && !this.passwordMismatch) {
+    if (this.registrationForm.valid) {
       this.isSubmitting = true;
-      // Simular llamada a la API
-      setTimeout(() => {
-        console.log(this.registrationForm.value);
-        this.isSubmitting = false;
-        // Aquí enviarías los datos del formulario a tu backend
-      }, 2000);
+
+      const usuario: Partial<Usuario> = {
+        nombre: this.registrationForm.value.name,
+        email: this.registrationForm.value.email,
+        telefono: this.registrationForm.value.phone,
+        tipo_usuario: 'Cliente'
+      };
+
+      const cuenta: Partial<Cuenta> = {
+        nombre_usuario: this.registrationForm.value.name,
+        contraseña_hash: this.registrationForm.value.password,
+        fecha_creacion: new Date(),
+        ultimo_acceso: new Date()
+      };
+
+      this.authService.register(usuario, cuenta).subscribe(
+        (response) => {
+          console.log('Usuario registrado exitosamente:', response);
+          this.isSubmitting = false;
+          // Aquí podrías redirigir al usuario o mostrar un mensaje de éxito
+        },
+        (error) => {
+          console.error('Error al registrar el usuario:', error);
+          this.isSubmitting = false;
+          // Manejo de errores: mostrar un mensaje al usuario
+        }
+      );
     } else {
       Object.values(this.registrationForm.controls).forEach(control => {
         if (control.invalid) {

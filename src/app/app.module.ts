@@ -8,6 +8,8 @@ import { FooterComponent } from './shared/footer/footer.component';
 import { TerminosCondicionesComponent } from './terminos-condiciones/terminos-condiciones.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
+import {MatCommonModule} from '@angular/material/core';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
 @NgModule({
   declarations: [
@@ -23,9 +25,10 @@ import { RegisterComponent } from './register/register.component';
     TerminosCondicionesComponent,
     RegisterComponent,
     AppRoutingModule,
-    LoginComponent
+    LoginComponent,
+    MatCommonModule
   ],
-  providers: [],
+  providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}}],
   bootstrap: [AppModule]
 })
 export class AppModule { }

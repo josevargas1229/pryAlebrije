@@ -33,7 +33,7 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING(15),
         allowNull: false,
         validate: {
-            isIn: [['cliente', 'empleado', 'administrador']]
+            isIn: [['Cliente', 'Empleado', 'Administrador']]
         }
     }
 }, {

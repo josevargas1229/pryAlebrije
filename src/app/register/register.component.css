@@ -21,41 +21,6 @@ h2 {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.form-group {
-  margin-bottom: 20px;
-}
-
-label {
-  display: block;
-  margin-bottom: 5px;
-  color: #555;
-}
-
-input[type="text"],
-input[type="tel"],
-input[type="email"],
-input[type="date"],
-input[type="password"],
-textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
-  transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-input:focus,
-textarea:focus {
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-  outline: none;
-}
-
-.radio-group {
-  display: flex;
-  gap: 15px;
-}
 
 .error-message {
   color: #d32f2f;
@@ -121,21 +86,6 @@ textarea:focus {
   }
 }
 
-/* Accessibility enhancements */
-input:focus-visible,
-textarea:focus-visible {
-  outline: 2px solid #4a90e2;
-  outline-offset: 2px;
-}
-
-/* Animation for form elements */
-.form-group {
-  transition: transform 0.3s ease;
-}
-
-.form-group:hover {
-  transform: translateY(-2px);
-}
 
 /* Enhance button interactivity */
 .submit-btn:active {
@@ -147,14 +97,53 @@ textarea:focus-visible {
   font-size: 0.875em;
 }
 
-.password-strength.weak {
-  color: #d32f2f; /* Color rojo para 'Débil' */
+.password-strength.veryWeak {
+  color: #8b0f07;
 }
-
+.password-strength.weak {
+  color: #f44336;
+}
 .password-strength.medium {
-  color: #ff9800; /* Color naranja para 'Fuerte' */
+  color: #ff9800;
 }
 
 .password-strength.strong {
-  color: #4caf50; /* Color verde para 'Muy fuerte' */
+  color: #4caf50;
+}
+.password-strength.veryStrong {
+  color: #20239e;
+}
+
+.section mat-form-field  {
+  margin-left: 8px;
+}
+
+.full-width {
+  width: calc(100% - 16px); /* Ajusta el ancho del campo para tener en cuenta los márgenes */
+  max-width: 680px; /* Limita el ancho máximo si es necesario */
+  margin-bottom: 10px;
+}
+
+.passButton {
+  background-color: white;
+  color: black;
+  position: relative;
+  right: 8px; 
+  max-height: 50px;
+}
+input {
+  height: 48px; /* Ajusta la altura según sea necesario */
+  max-height: 50px;
+}
+
+input[type="text"]{
+  max-height: 50px;
+  margin: 0;
+  padding: 0;
+}
+form{
+  padding: 5px;
+}
+mat-error{
+  padding-bottom: 5px;
 }

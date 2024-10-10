@@ -96,24 +96,18 @@ h2 {
   margin-bottom: 20px;
 }
 
-label {
-  display: block;
-  margin-bottom: 5px;
-  color: #666;
+input[type="text"]{
+  max-height: 50px;
+  margin: 0;
+  padding: 0;
 }
 
-input[type="email"], input[type="password"] {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 1em;
-  transition: border-color 0.3s ease;
-}
-
-input[type="email"]:focus, input[type="password"]:focus {
-  border-color: #6e8efb;
-  outline: none;
+.passButton {
+  background-color: white;
+  color: black;
+  position: relative;
+  right: 8px; /* Ajusta la posición del botón si es necesario */
+  max-height: 50px;
 }
 
 .error-message {

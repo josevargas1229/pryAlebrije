@@ -39,20 +39,20 @@ exports.getUserById = async (req, res, next) => {
 breakdown of what it does: */
 exports.createUser = async (req, res, next) => {
     try {
-        const { nombre, email, telefono, tipo_usuario, nombre_usuario, contraseña } = req.body;
+        const { usuario, cuenta } = req.body;
 
         const user = await User.create({
-            nombre,
-            email,
-            telefono,
-            tipo_usuario
+            nombre: usuario.nombre,
+            email: usuario.email,
+            telefono: usuario.telefono,
+            tipo_usuario: usuario.tipo_usuario
         });
 
-        const hashedPassword = await bcrypt.hash(contraseña, 10);
+        const hashedPassword = await bcrypt.hash(cuenta.contraseña_hash, 10);
 
         const account = await Account.create({
             user_id: user.id,
-            nombre_usuario,
+            nombre_usuario: cuenta.nombre_usuario,
             contraseña_hash: hashedPassword
         });
 
