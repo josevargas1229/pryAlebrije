@@ -140,7 +140,7 @@ exports.checkAuth = async (req, res, next) => {
             return res.status(403).json({ message: 'Cuenta bloqueada' });
         }
 
-        // Renovar el token si está cerca de expirar (opcional)
+        // Renovar el token si está cerca de expirar 
         const expirationThreshold = 15 * 60; // 15 minutos en segundos
         if (decoded.exp - (Date.now() / 1000) < expirationThreshold) {
             const newToken = jwt.sign(
@@ -178,6 +178,6 @@ exports.logout = (req, res, next) => {
 
         res.status(200).json({ message: 'Logout exitoso' });
     } catch (error) {
-        next(error); // Manejador de errores genérico para errores inesperados
+        next(error);
     }
 };

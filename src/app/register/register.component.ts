@@ -2,23 +2,24 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
 import DOMPurify from 'dompurify';
-import {MatButtonModule} from '@angular/material/button';
-import {MatInputModule} from '@angular/material/input';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatIconModule} from '@angular/material/icon';
-import {MatGridListModule} from '@angular/material/grid-list';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { Usuario } from '../services/user/user.models';
 import { Cuenta } from '../services/account/account.models';
 import { AuthService } from '../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { ToastService } from 'angular-toastify';
+import { AccountService } from '../services/account/account.service';
 @Component({
   selector: 'app-user-registration',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule,MatFormFieldModule,FormsModule, MatInputModule, MatButtonModule ,MatIconModule,MatGridListModule],
+  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, FormsModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent implements OnInit {
@@ -27,8 +28,14 @@ export class RegisterComponent implements OnInit {
   passwordStrengthMessage: string = '';
   hidePassword: boolean = true;
   hideConfirmPassword: boolean = true;
-
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router,private toastService: ToastService ) {}
+  feedbackMessage: string = '';
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private toastService: ToastService,
+    private accountService: AccountService
+  ) { }
 
   ngOnInit() {
     this.registrationForm = this.fb.group({
@@ -94,11 +101,11 @@ export class RegisterComponent implements OnInit {
     }
     const password = this.registrationForm.get('password')?.value;
     const confirmPassword = control.value;
-    
+
     if (password !== confirmPassword) {
       return { 'passwordMismatch': true };
     }
-    
+
     return null;
   }
   getConfirmPasswordErrorMessage(): string {
@@ -114,39 +121,26 @@ export class RegisterComponent implements OnInit {
   onSubmit() {
     if (this.registrationForm.valid) {
       this.isSubmitting = true;
-
-      // Sanitizar los valores del formulario antes de procesarlos
-      const sanitizedNombre = this.sanitizeInput(this.registrationForm.value.name);
-      const sanitizedEmail = this.sanitizeInput(this.registrationForm.value.email);
-      const sanitizedTelefono = this.sanitizeInput(this.registrationForm.value.phone);
-
-      const usuario: Partial<Usuario> = {
-        nombre: sanitizedNombre,
-        email: sanitizedEmail,
-        telefono: sanitizedTelefono,
-        tipo_usuario: 'Cliente'
-      };
-
-      const cuenta: Partial<Cuenta> = {
-        nombre_usuario: sanitizedNombre,
-        contraseña_hash: this.registrationForm.value.password,
-        fecha_creacion: new Date(),
-        ultimo_acceso: new Date()
-      };
-
-      this.authService.register(usuario, cuenta).subscribe(
+      const password = this.registrationForm.value.password;
+      this.accountService.checkPassword(password).subscribe(
         (response) => {
-          this.toastService.success('Usuario registrado exitosamente.');
-          this.isSubmitting = false;
-          this.router.navigate(['/']);
-          // Aquí se puede agregar lógica para enviar un correo de verificación
+          // Mostrar el mensaje de advertencia si la contraseña ha sido filtrada
+          if (response.message.includes('filtrada')) {
+            this.feedbackMessage = response.message; // Guarda el mensaje de advertencia
+            this.toastService.error(this.feedbackMessage)
+            this.isSubmitting = false; // Permite que el usuario vuelva a intentarlo
+          } else {
+            this.registerUser(); // Procede con el registro si la contraseña no está filtrada
+          }
         },
         (error) => {
-          this.toastService.error('Error al registrar el usuario.');
+          // Manejar cualquier otro error
+          this.feedbackMessage = 'Ocurrió un error al verificar la contraseña.';
+          this.toastService.error(this.feedbackMessage)
           this.isSubmitting = false;
-          console.error('Error al registrar el usuario:', error);
         }
       );
+      
     } else {
       Object.values(this.registrationForm.controls).forEach(control => {
         if (control.invalid) {
@@ -155,5 +149,39 @@ export class RegisterComponent implements OnInit {
         }
       });
     }
+  }
+  private registerUser(){
+    // Sanitizar los valores del formulario antes de procesarlos
+    const sanitizedNombre = this.sanitizeInput(this.registrationForm.value.name);
+    const sanitizedEmail = this.sanitizeInput(this.registrationForm.value.email);
+    const sanitizedTelefono = this.sanitizeInput(this.registrationForm.value.phone);
+
+    const usuario: Partial<Usuario> = {
+      nombre: sanitizedNombre,
+      email: sanitizedEmail,
+      telefono: sanitizedTelefono,
+      tipo_usuario: 'Cliente'
+    };
+
+    const cuenta: Partial<Cuenta> = {
+      nombre_usuario: sanitizedNombre,
+      contraseña_hash: this.registrationForm.value.password,
+      fecha_creacion: new Date(),
+      ultimo_acceso: new Date()
+    };
+
+    this.authService.register(usuario, cuenta).subscribe(
+      (response) => {
+        this.toastService.success('Usuario registrado exitosamente.');
+        this.isSubmitting = false;
+        this.router.navigate(['/']);
+        // Aquí se puede agregar lógica para enviar un correo de verificación
+      },
+      (error) => {
+        this.toastService.error('Error al registrar el usuario.');
+        this.isSubmitting = false;
+        console.error('Error al registrar el usuario:', error);
+      }
+    );
   }
 }

@@ -4,11 +4,11 @@ import { AuthService } from '../../services/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { NavigationComponent } from "../../navigation/navigation.component";
-
+import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, CommonModule, MatButtonModule, NavigationComponent],
+  imports: [RouterLink, RouterLinkActive, CommonModule, MatButtonModule, NavigationComponent,MatIconModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
@@ -19,7 +19,6 @@ export class HeaderComponent {
     // Verifica el estado de autenticación del usuario
     this.authService.isLoggedIn().subscribe((loggedIn: boolean) => {
       this.isLoggedIn = loggedIn;
-      console.log(loggedIn)
     });
   }
   logout(): void {
