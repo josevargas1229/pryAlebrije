@@ -6,65 +6,37 @@ import { RegisterComponent } from './register/register.component';
 import { DashboardComponent } from '../../private/dashboard/dashboard.component';
 import { RecuperaComponent } from './recupera/recupera.component';
 import { PerfilComponent } from './perfil/perfil.component';
-<<<<<<< HEAD
 import { EditpolitComponent } from './editpolit/editpolit.component';
 import { EditerminosComponent } from './editerminos/editerminos.component';
 import { EditperfilemComponent } from './editperfilem/editperfilem.component';
-=======
 import { AuthGuard } from './guards/auth/auth.guard';
->>>>>>> 796a42e0af2586c288a07339c1a2ba9b9c386b41
+import { PagenotfoundComponent } from './pagenotfound/pagenotfound.component';
+import { NoAuthGuard } from './guards/auth/no-auth.guard';
 
 export const routes: Routes = [
+  //rutas públicas
   { path: "", component: HomeComponent },
   { path: "terminos-condiciones", component: TerminosCondicionesComponent },
-  { path: "login", component: LoginComponent },
-  { path: "register", component: RegisterComponent },
-  { path: 'dashboard', component: DashboardComponent,canActivate:[AuthGuard]},
-  { path: 'recupera', component:RecuperaComponent},
-<<<<<<< HEAD
-  { path: 'perfil', component:PerfilComponent},
-  { path: 'editpolit', component:EditpolitComponent},
-  { path: 'editerminos', component:EditerminosComponent},
-  { path: 'editdeslinde', component:EditperfilemComponent},
-  { path: 'editperfilem', component:EditperfilemComponent}
-=======
-  { path: 'perfil', component:PerfilComponent,canActivate:[AuthGuard]}
->>>>>>> 796a42e0af2586c288a07339c1a2ba9b9c386b41
+  { path: 'editpolit', component: EditpolitComponent },
+  { path: 'editerminos', component: EditerminosComponent },
+  { path: 'editdeslinde', component: EditperfilemComponent },
+  { path: 'editperfilem', component: EditperfilemComponent },
 
-
-
-  // { path: "my-profile", component: UserProfileComponent },
-  // { path: "contact-us", component: ContactUsComponent },
-  // //admin
-  // {
-  //   path: '', children: [
-  //     { path: "admin/login", component: AdminLoginComponent }
-  //   ]
-  // },
-  // {
-  //   path: '', children: [
-  //     { path: "admin/dashboard", component: AdminDashboardComponent },
-  //     { path: "admin/user", component: UserCrudComponent },
-  //     { path: "admin/product", component: ProductComponent }
-  //   ]
-  // },
-  // {
-  //   path: '', children: [
-  //     { path: "sing-in", component: SinginSingupComponent },
-  //     { path: "sing-up", component: SinginSingupComponent },
-  //   ]
-  // },
-  // {
-  //   path: '', children: [
-  //     { path: "seller/dashboard", component: SellerDashboardComponent },
-  //     { path: "seller/product", component: ProductComponent },
-  //   ]
-  // },
-  // {
-  //   path: '', children: [
-  //     { path: "buyer/dashboard", component: BuyerDashboardComponent },
-  //     { path: "checkout", component: CheckoutComponent },
-  //   ]
-  // },
-  // { path: "**", component: PageNotFoundComponent }
+  //rutas para usuarios autenticados
+  {
+    path: '', children: [
+      { path: 'perfil', component: PerfilComponent },
+      { path: 'dashboard', component: DashboardComponent },
+    ], canActivate: [AuthGuard]
+  },
+  //rutas para usuarios no autenticados
+  {
+    path: '', children: [
+      { path: "login", component: LoginComponent },
+      { path: "register", component: RegisterComponent },
+      { path: 'recupera', component:RecuperaComponent},
+    ],canActivate:[NoAuthGuard]
+  },
+  //error 404
+  { path: "**", component: PagenotfoundComponent }
 ];

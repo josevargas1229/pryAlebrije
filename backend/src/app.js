@@ -5,10 +5,12 @@ const corsConfig = require('./config/corsConfig');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const errorHandler = require('./middlewares/errorHandler');
+const cookieParser = require('cookie-parser');
 const app = express();
 // Middleware, rutas, etc.
 app.use(corsConfig);
 app.use(express.json());
+app.use(cookieParser());
 app.use('/users', userRoutes);
 app.use('/auth', authRoutes);
 // Ejemplo de ruta

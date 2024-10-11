@@ -42,21 +42,6 @@ h1 {
   line-height: 1.6;
 }
 
-.watch-video-btn {
-  background-color: transparent;
-  border: 2px solid #ffffff;
-  color: #ffffff;
-  padding: 10px 20px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 30px;
-}
-
-.watch-video-btn:hover {
-  background-color: #ffffff;
-  color: #6e8efb;
-}
 
 .user-stats {
   display: flex;
@@ -110,12 +95,6 @@ input[type="text"]{
   max-height: 50px;
 }
 
-.error-message {
-  color: #ff0000;
-  font-size: 0.9em;
-  margin-top: 5px;
-}
-
 .remember-me {
   display: flex;
   align-items: center;
@@ -126,25 +105,6 @@ input[type="text"]{
   margin-right: 10px;
 }
 
-.login-btn {
-  background-color: #6e8efb;
-  color: #ffffff;
-  border: none;
-  padding: 12px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  border-radius: 5px;
-}
-
-.login-btn:hover {
-  background-color: #5c7cfa;
-}
-
-.login-btn:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
 
 .spinner {
   display: inline-block;
@@ -173,34 +133,13 @@ input[type="text"]{
   font-size: 0.9em;
 }
 
-.social-login {
-  margin-top: 30px;
-}
-
-.google-btn, .facebook-btn {
-  width: 100%;
-  padding: 10px;
+mat-form-field{
   margin-bottom: 10px;
-  border: none;
-  border-radius: 5px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+}
+mat-error{
+  margin-top: -15px;
 }
 
-.google-btn {
-  background-color: #db4437;
-  color: #ffffff;
-}
-
-.facebook-btn {
-  background-color: #4267B2;
-  color: #ffffff;
-}
-
-.google-btn:hover, .facebook-btn:hover {
-  opacity: 0.9;
-}
 
 @media (max-width: 768px) {
   .content-wrapper {

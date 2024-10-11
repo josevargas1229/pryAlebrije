@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
-import * as passwordStrength from 'owasp-password-strength-test';
-import {MatSelectModule} from '@angular/material/select';
+import DOMPurify from 'dompurify';
+import {MatButtonModule} from '@angular/material/button';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatIconModule} from '@angular/material/icon';
@@ -18,7 +18,7 @@ import { ToastService } from 'angular-toastify';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule,MatFormFieldModule,FormsModule, MatInputModule, MatSelectModule,MatIconModule,MatGridListModule],
+  imports: [CommonModule, ReactiveFormsModule,MatFormFieldModule,FormsModule, MatInputModule, MatButtonModule ,MatIconModule,MatGridListModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent implements OnInit {
@@ -43,7 +43,9 @@ export class RegisterComponent implements OnInit {
       this.checkPasswordStrength(password);
     });
   }
-
+  sanitizeInput(input: string): string {
+    return DOMPurify.sanitize(input); // Sanitizamos la entrada para eliminar cualquier script o carácter peligroso
+  }
   checkPasswordStrength(password: string) {
     // Evaluar la fortaleza de la contraseña
     if (password.length === 0) {
@@ -113,15 +115,20 @@ export class RegisterComponent implements OnInit {
     if (this.registrationForm.valid) {
       this.isSubmitting = true;
 
+      // Sanitizar los valores del formulario antes de procesarlos
+      const sanitizedNombre = this.sanitizeInput(this.registrationForm.value.name);
+      const sanitizedEmail = this.sanitizeInput(this.registrationForm.value.email);
+      const sanitizedTelefono = this.sanitizeInput(this.registrationForm.value.phone);
+
       const usuario: Partial<Usuario> = {
-        nombre: this.registrationForm.value.name,
-        email: this.registrationForm.value.email,
-        telefono: this.registrationForm.value.phone,
+        nombre: sanitizedNombre,
+        email: sanitizedEmail,
+        telefono: sanitizedTelefono,
         tipo_usuario: 'Cliente'
       };
 
       const cuenta: Partial<Cuenta> = {
-        nombre_usuario: this.registrationForm.value.name,
+        nombre_usuario: sanitizedNombre,
         contraseña_hash: this.registrationForm.value.password,
         fecha_creacion: new Date(),
         ultimo_acceso: new Date()
@@ -129,10 +136,10 @@ export class RegisterComponent implements OnInit {
 
       this.authService.register(usuario, cuenta).subscribe(
         (response) => {
-          console.log(response)
           this.toastService.success('Usuario registrado exitosamente.');
           this.isSubmitting = false;
           this.router.navigate(['/']);
+          // Aquí se puede agregar lógica para enviar un correo de verificación
         },
         (error) => {
           this.toastService.error('Error al registrar el usuario.');

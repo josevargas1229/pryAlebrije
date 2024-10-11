@@ -5,6 +5,9 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   border-radius: 10px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 h2 {
@@ -19,6 +22,10 @@ h2 {
   margin-bottom: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  max-width: 580px;
+  width: calc(90% - 50px);
 }
 
 
@@ -120,7 +127,7 @@ h2 {
 
 .full-width {
   width: calc(100% - 16px); /* Ajusta el ancho del campo para tener en cuenta los márgenes */
-  max-width: 680px; /* Limita el ancho máximo si es necesario */
+  max-width: 600px; /* Limita el ancho máximo si es necesario */
   margin-bottom: 10px;
 }
 
@@ -143,7 +150,14 @@ input[type="text"]{
 }
 form{
   padding: 5px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 mat-error{
   padding-bottom: 5px;
+}
+.submitButton{
+  display: flex;
+  align-self: center;
 }
