@@ -9,10 +9,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ToastService } from 'angular-toastify';
 import { Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule, MatFormFieldModule, FormsModule, MatInputModule, MatIconModule, MatCheckboxModule],
+  imports: [FormsModule, CommonModule, MatFormFieldModule, FormsModule, MatInputModule, MatIconModule, MatCheckboxModule,MatButtonModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })

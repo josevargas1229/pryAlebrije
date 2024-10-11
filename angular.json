@@ -30,11 +30,9 @@
                 "input": "src/assets",
                 "output": "/assets"
               }
-
             ],
             "styles": [
-              "src/styles.css",
-              "@angular/material/prebuilt-themes/azure-blue.css"
+              "src/styles.css"
             ],
             "scripts": [],
             "server": "src/main.server.ts",
@@ -102,8 +100,7 @@
               }
             ],
             "styles": [
-              "src/styles.css",
-              "@angular/material/prebuilt-themes/azure-blue.css"
+              "src/styles.css"
             ],
             "scripts": []
           }

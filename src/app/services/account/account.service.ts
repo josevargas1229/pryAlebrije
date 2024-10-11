@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class AccountService {
-  private apiUrl = 'http://localhost:3000/check-password'; // Cambia la URL si es necesario
+  private apiUrl = 'http://localhost:3000/check-password';
 
   constructor(private http: HttpClient) {}
 

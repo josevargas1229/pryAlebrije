@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from "./shared/header/header.component";
 import { FooterComponent } from "./shared/footer/footer.component";
@@ -10,7 +10,8 @@ import { AuthService } from './services/auth/auth.service';
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, FooterComponent, AngularToastifyModule],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class AppComponent {
   title = 'pryAlebrije';

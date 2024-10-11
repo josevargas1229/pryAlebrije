@@ -1,0 +1,9 @@
+<mat-form-field appearance="fill">
+    <mat-label>Seleccione un tema</mat-label>
+    <mat-select (selectionChange)="changeTheme($event.value)">
+      <mat-option value="azure-blue">Azure Blue</mat-option>
+      <mat-option value="rose-red">Rose Red</mat-option>
+      <mat-option value="cyan-orange">Cyan Orange</mat-option>
+      <mat-option value="magenta-violet">Magenta Violet</mat-option>
+    </mat-select>
+  </mat-form-field>

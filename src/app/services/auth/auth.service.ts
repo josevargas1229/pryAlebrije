@@ -85,17 +85,24 @@ export class AuthService {
   }
 
   getRememberMe(): { credenciales: LoginCredentials } | null {
-    const rememberMe = localStorage.getItem('remember_me');
-    return rememberMe ? JSON.parse(rememberMe) : null;
-  }
+    if (typeof localStorage !== 'undefined') {
+        const rememberMe = localStorage.getItem('remember_me');
+        return rememberMe ? JSON.parse(rememberMe) : null;
+    }
+    return null; // o manejar el caso donde localStorage no está disponible
+}
 
-  private setRememberMe(credenciales: LoginCredentials): void {
-    localStorage.setItem('remember_me', JSON.stringify({ credenciales }));
-  }
+private setRememberMe(credenciales: LoginCredentials): void {
+    if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('remember_me', JSON.stringify({ credenciales }));
+    }
+}
 
-  private clearRememberMe(): void {
-    localStorage.removeItem('remember_me');
-  }
+private clearRememberMe(): void {
+    if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('remember_me');
+    }
+}
 
   cambiarContraseña(accountId: number, nuevaContraseña: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/cambiar-contraseña`, { account_id: accountId, nueva_contraseña: nuevaContraseña }, { withCredentials: true });

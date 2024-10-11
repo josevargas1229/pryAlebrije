@@ -11,6 +11,7 @@ import { RegisterComponent } from './register/register.component';
 import {MatCommonModule} from '@angular/material/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { ToastService, AngularToastifyModule } from 'angular-toastify'; 
+import { ThemeSwitcherComponent } from './theme-switcher/theme-switcher.component';
 @NgModule({
   declarations: [
 
@@ -27,7 +28,8 @@ import { ToastService, AngularToastifyModule } from 'angular-toastify';
     AppRoutingModule,
     LoginComponent,
     MatCommonModule,
-    AngularToastifyModule
+    AngularToastifyModule,
+    ThemeSwitcherComponent
   ],
   providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}},ToastService],
   bootstrap: [AppModule]

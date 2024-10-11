@@ -36,7 +36,7 @@
         <mat-checkbox [(ngModel)]="rememberMe" name="rememberMe">Recuérdame</mat-checkbox>
 
         <!-- Botón de inicio de sesión -->
-        <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.form.valid || isLoading" class="login-btn">
+        <button mat-raised-button  type="submit" [disabled]="!loginForm.form.valid || isLoading" class="login-btn">
           <span *ngIf="!isLoading">Iniciar Sesión</span>
           <span *ngIf="isLoading" class="spinner"></span>
         </button>
