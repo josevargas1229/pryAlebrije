@@ -4,7 +4,7 @@ body {
   font-family: 'Arial', sans-serif; /* Fuente para la aplicación */
   margin: 0; /* Elimina márgenes por defecto */
   padding: 0; /* Elimina padding por defecto */
-  background-color: #f4f4f4; /* Color de fondo de la página */
+  background-color: var(--mat-app-background-color); /* Color de fondo de la página */
 }
 
 /* Contenedor principal */
@@ -15,14 +15,14 @@ body {
 }
 
 /* Estilos para títulos */
-h1, h2, h3 {
-  color: #333; /* Color de los títulos */
+h1, h2, h3,h4,h5,h6,p {
+  color: var(--mat-app-text-color); /* Color de los títulos */
 }
 
 /* Estilo de enlaces */
 a {
   text-decoration: none; /* Sin subrayado */
-  color: #007BFF; /* Color de los enlaces */
+  color: var(--mdc-filled-button-container-color); /* Color de los enlaces */
 }
 
 a:hover {
@@ -32,4 +32,10 @@ a:hover {
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
+/* Color para el toolbar */
+.mat-toolbar{
+  background-color: var(--mdc-fab-container-color) !important;
+}
+/* Color de fondo para cards: 
+background-color: var(--mat-select-panel-background-color);
+*/

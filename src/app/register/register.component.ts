@@ -14,12 +14,13 @@ import { AuthService } from '../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { ToastService } from 'angular-toastify';
 import { AccountService } from '../services/account/account.service';
+import { MatCardModule } from '@angular/material/card';
 @Component({
   selector: 'app-user-registration',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, FormsModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule],
+  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, FormsModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,MatCardModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent implements OnInit {

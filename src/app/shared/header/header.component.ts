@@ -6,10 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { NavigationComponent } from "../../navigation/navigation.component";
 import { MatIconModule } from '@angular/material/icon';
 import { ThemeSwitcherComponent } from "../../theme-switcher/theme-switcher.component";
+import { MatToolbarModule } from '@angular/material/toolbar';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, CommonModule, MatButtonModule, NavigationComponent, MatIconModule, ThemeSwitcherComponent],
+  imports: [RouterLink, RouterLinkActive, CommonModule, MatButtonModule, NavigationComponent, MatIconModule, ThemeSwitcherComponent,MatToolbarModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })

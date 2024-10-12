@@ -9,9 +9,10 @@
 
 .content-wrapper {
   display: flex;
+  flex-direction: row;
   width: 80%;
   max-width: 1200px;
-  background: rgba(255, 255, 255, 0.9);
+  background-color: var(--mat-select-panel-background-color);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
@@ -30,11 +31,6 @@
   justify-content: center;
 }
 
-h1 {
-  font-size: 2.5em;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(255, 254, 254, 0.5);
-}
 
 .description {
   font-size: 1.1em;
@@ -63,19 +59,13 @@ h1 {
   opacity: 0.8;
 }
 
-.right-section {
-  background-color: #ffffff;
-}
 
 form {
   display: flex;
   flex-direction: column;
 }
 
-h2 {
-  color: #030303;
-  margin-bottom: 20px;
-}
+
 
 .form-group {
   margin-bottom: 20px;
@@ -85,14 +75,6 @@ input[type="text"]{
   max-height: 50px;
   margin: 0;
   padding: 0;
-}
-
-.passButton {
-  background-color: white;
-  color: black;
-  position: relative;
-  right: 8px; /* Ajusta la posición del botón si es necesario */
-  max-height: 50px;
 }
 
 .remember-me {
@@ -106,21 +88,6 @@ input[type="text"]{
 }
 
 
-.spinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ffffff;
-  border-top: 2px solid #6e8efb;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .form-links {
   display: flex;
   justify-content: space-between;
@@ -128,7 +95,7 @@ input[type="text"]{
 }
 
 .form-links a {
-  color: #6e8efb;
+  color: var(--mdc-filled-button-container-color);
   text-decoration: none;
   font-size: 0.9em;
 }

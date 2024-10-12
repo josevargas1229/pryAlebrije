@@ -39,7 +39,6 @@
 .main-content {
   flex-grow: 1;
   padding: 20px;
-  background-color: #ecf0f1;
 }
 
 /* Sección de saludo */
@@ -50,12 +49,10 @@
 
 .greeting h1 {
   font-size: 32px;
-  color: #34495e;
 }
 
 .greeting p {
   font-size: 18px;
-  color: #7f8c8d;
 }
 
 /* Sección de tarjetas de progreso */
@@ -76,7 +73,6 @@
 
 .card h3 {
   font-size: 22px;
-  color: #34495e;
 }
 
 .card p {
@@ -106,7 +102,6 @@
 
 .tasks h2 {
   font-size: 24px;
-  color: #34495e;
   margin-bottom: 15px;
 }
 
@@ -135,7 +130,6 @@
 
 .statistics h2 {
   font-size: 24px;
-  color: #34495e;
   margin-bottom: 15px;
 }
 
@@ -154,7 +148,6 @@
 
 .stat-card h3 {
   font-size: 18px;
-  color: #34495e;
   margin-bottom: 10px;
 }
 
@@ -173,7 +166,6 @@
 
 .calendar h2 {
   font-size: 24px;
-  color: #34495e;
 }
 
 .calendar-view {
@@ -182,5 +174,4 @@
   justify-content: center;
   align-items: center;
   font-size: 18px;
-  color: #7f8c8d;
 }

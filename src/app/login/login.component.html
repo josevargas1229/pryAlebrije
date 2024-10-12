@@ -1,15 +1,20 @@
 <div class="login-container">
-  <div class="content-wrapper">
-    <div class="left-section">
+  <mat-card class="content-wrapper">
+    <!-- Sección izquierda (descripción) -->
+    <mat-card-content class="left-section">
       <h1>Descubre Una Nueva Experiencia en Alebrije Boutique</h1>
-      <p class="description">Bienvenido a Alebrije Boutique, esperemos que estemos a tus expectativas en nuestra plataforma Eccomerce.</p>
+      <p class="description">
+        Bienvenido a Alebrije Boutique, esperemos que estemos a tus expectativas en nuestra plataforma Eccomerce.
+      </p>
       <div class="user-stats"></div>
-    </div>
-    <div class="right-section">
+    </mat-card-content>
+
+    <!-- Sección derecha (formulario de login) -->
+    <mat-card-content class="right-section">
       <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
         <h2>Inicia Sesión</h2>
-        
-        <!-- Campo de correo electrónico usando Angular Material -->
+
+        <!-- Campo de correo electrónico -->
         <mat-form-field class="full-width" appearance="outline">
           <mat-label>Correo electrónico</mat-label>
           <input matInput type="email" id="email" name="email" [(ngModel)]="email" required email #emailInput="ngModel">
@@ -19,11 +24,11 @@
           </mat-error>
         </mat-form-field>
 
-        <!-- Campo de contraseña usando Angular Material -->
+        <!-- Campo de contraseña -->
         <mat-form-field class="full-width" appearance="outline">
           <mat-label>Contraseña</mat-label>
           <input matInput [type]="hidePassword ? 'password' : 'text'" id="password" name="password" [(ngModel)]="password" required minlength="8" #passwordInput="ngModel">
-          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword" class="passButton">
+          <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event)" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword">
             <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
           <mat-error *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)">
@@ -32,21 +37,23 @@
           </mat-error>
         </mat-form-field>
 
-        <!-- Checkbox de "Recuerda Me" -->
+        <!-- Checkbox "Recuérdame" -->
         <mat-checkbox [(ngModel)]="rememberMe" name="rememberMe">Recuérdame</mat-checkbox>
 
         <!-- Botón de inicio de sesión -->
-        <button mat-raised-button  type="submit" [disabled]="!loginForm.form.valid || isLoading" class="login-btn">
-          <span *ngIf="!isLoading">Iniciar Sesión</span>
-          <span *ngIf="isLoading" class="spinner"></span>
-        </button>
+        <div class="button-container">
+          <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.form.valid || isLoading" class="login-btn">
+            <span *ngIf="!isLoading">Iniciar Sesión</span>
+            <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
+          </button>
+        </div>
 
+        <!-- Enlaces de "Olvidaste tu contraseña" y "Crear cuenta" -->
         <div class="form-links">
           <a href="/recupera" class="forgot-password">¿Olvidaste tu Contraseña?</a>
           <a href="/register" class="create-account">Crea una Cuenta</a>
         </div>
-
       </form>
-    </div>
-  </div>
+    </mat-card-content>
+  </mat-card>
 </div>

@@ -1,9 +1,15 @@
-<mat-form-field appearance="fill">
-    <mat-label>Seleccione un tema</mat-label>
-    <mat-select (selectionChange)="changeTheme($event.value)">
-      <mat-option value="azure-blue">Azure Blue</mat-option>
-      <mat-option value="rose-red">Rose Red</mat-option>
-      <mat-option value="cyan-orange">Cyan Orange</mat-option>
-      <mat-option value="magenta-violet">Magenta Violet</mat-option>
-    </mat-select>
-  </mat-form-field>
+<mat-menu #themeMenu="matMenu" class="mat-toolbar">
+    <mat-radio-group [(ngModel)]="selectedTheme" (change)="changeTheme(selectedTheme)">
+      <mat-radio-button class="theme-option" *ngFor="let theme of themes" [value]="theme.value">
+        <div class="theme-info">
+          <span class="theme-color" [ngStyle]="{'background-color': theme.color}"></span>
+          {{ theme.name }}
+        </div>
+      </mat-radio-button>
+    </mat-radio-group>
+</mat-menu>
+
+<!-- Icon button to open the theme menu -->
+<button mat-icon-button [matMenuTriggerFor]="themeMenu" aria-label="Select Theme">
+  <mat-icon>palette</mat-icon>
+</button>

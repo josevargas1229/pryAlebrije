@@ -2,11 +2,10 @@
 .perfil-content {
   flex-grow: 1;
   padding: 40px;
-  background-color: #fff;
 }
 
 .perfil-card {
-  background-color: #fff;
+  background-color: var(--mat-select-panel-background-color);
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
@@ -31,18 +30,13 @@
 
 .user-details h2 {
   font-size: 1.8rem;
-  color: #2c3e50;
 }
 
 .user-details p {
   font-size: 1rem;
-  color: #7f8c8d;
   margin: 5px 0;
 }
 
-.user-details p strong {
-  color: #34495e;
-}
 
 /* Código existente */
 .services-container {
@@ -56,7 +50,6 @@
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 40px;
-  color: #333;
 }
 
 .services-grid {
@@ -66,7 +59,8 @@
 }
 
 .service-card {
-  background-color: #fff;
+  /* Color de fondo para cards */
+  background-color: var(--mat-select-panel-background-color);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   padding: 30px;
@@ -81,18 +75,15 @@
 .service-icon {
   font-size: 3rem;
   margin-bottom: 20px;
-  color: #007bff;
 }
 
 .service-title {
   font-size: 1.5rem;
   margin-bottom: 15px;
-  color: #333;
 }
 
 .service-description {
   font-size: 1rem;
-  color: #666;
   margin-bottom: 20px;
 }
 
@@ -121,7 +112,6 @@
 .seo-details h3 {
   font-size: 1.8rem;
   margin-bottom: 20px;
-  color: #333;
 }
 
 .seo-details ul {
@@ -131,7 +121,6 @@
 
 .seo-details li {
   font-size: 1rem;
-  color: #666;
   margin-bottom: 10px;
   position: relative;
   padding-left: 20px;
@@ -146,7 +135,6 @@
 
 .seo-details p {
   font-size: 1rem;
-  color: #666;
   margin-top: 20px;
 }
 
