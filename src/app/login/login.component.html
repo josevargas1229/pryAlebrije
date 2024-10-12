@@ -42,7 +42,7 @@
 
         <!-- Botón de inicio de sesión -->
         <div class="button-container">
-          <button mat-raised-button color="primary" type="submit" [disabled]="!loginForm.form.valid || isLoading" class="login-btn">
+          <button mat-stroked-button color="primary" type="submit" [disabled]="!loginForm.form.valid || isLoading" class="login-btn">
             <span *ngIf="!isLoading">Iniciar Sesión</span>
             <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
           </button>

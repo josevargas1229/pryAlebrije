@@ -8,42 +8,66 @@
   <div class="section-title">
     <h2>Productos Destacados</h2>
   </div>
+  
   <div class="product-showcase">
-    <div class="product-card">
-      <img src="assets/img/producto1.jpg" alt="Producto 1">
-      <h3>Vestido Floral</h3>
-      <p>Perfecto para cualquier ocasión especial.</p>
-      <button>Ver más</button>
-    </div>
-    <div class="product-card">
-      <img src="assets/img/producto2.jpg" alt="Producto 2">
-      <h3>Conjunto Deportivo</h3>
-      <p>Cómodo y moderno para los pequeños exploradores.</p>
-      <button>Ver más</button>
-    </div>
-    <div class="product-card">
-      <img src="assets/img/producto3.jpg" alt="Producto 3">
-      <h3>Chamarra de Invierno</h3>
-      <p>Mantén a tu bebé abrigado en los días fríos.</p>
-      <button>Ver más</button>
-    </div>
+    <!-- Producto 1 -->
+    <mat-card class="product-card">
+      <img mat-card-image src="assets/img/producto1.jpg" alt="Producto 1">
+      <mat-card-title><h3>Vestido Floral</h3></mat-card-title>
+      <mat-card-content>
+        <p>Perfecto para cualquier ocasión especial.</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary">Ver más</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Producto 2 -->
+    <mat-card class="product-card">
+      <img mat-card-image src="assets/img/producto2.jpg" alt="Producto 2">
+      <mat-card-title><h3>Conjunto Deportivo</h3></mat-card-title>
+      <mat-card-content>
+        <p>Cómodo y moderno para los pequeños exploradores.</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary">Ver más</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <!-- Producto 3 -->
+    <mat-card class="product-card">
+      <img mat-card-image src="assets/img/producto3.jpg" alt="Producto 3">
+      <mat-card-title><h3>Chamarra de Invierno</h3></mat-card-title>
+      <mat-card-content>
+        <p>Mantén a tu bebé abrigado en los días fríos.</p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary">Ver más</button>
+      </mat-card-actions>
+    </mat-card>
   </div>
 
   <!-- Sección "Sobre Nosotros" -->
-  <div class="single-card">
-    <h2>Sobre Nosotros</h2>
-    <p>En Alebrije, nos dedicamos a crear prendas llenas de estilo y comodidad para tus pequeños. ¡Conócenos!</p>
-  </div>
+  <mat-card class="single-card">
+    <mat-card-title><h3>Sobre Nosotros</h3></mat-card-title>
+    <mat-card-content>
+      <p>En Alebrije, nos dedicamos a crear prendas llenas de estilo y comodidad para tus pequeños. ¡Conócenos!</p>
+    </mat-card-content>
+  </mat-card>
 
   <!-- Sección "Contacto" -->
-  <div class="single-card">
-    <h2>Contacto</h2>
-    <p>¿Tienes alguna duda? ¡Ponte en contacto con nosotros y te ayudaremos con mucho gusto!</p>
-  </div>
+  <mat-card class="single-card">
+    <mat-card-title><h3>Contacto</h3></mat-card-title>
+    <mat-card-content>
+      <p>¿Tienes alguna duda? ¡Ponte en contacto con nosotros y te ayudaremos con mucho gusto!</p>
+    </mat-card-content>
+  </mat-card>
 
   <!-- Sección "Ofertas y Promociones" -->
-  <div class="single-card">
-    <h2>Ofertas y Promociones</h2>
-    <p>No te pierdas nuestras ofertas exclusivas y promociones especiales para vestir a tus niños con lo mejor.</p>
-  </div>
+  <mat-card class="single-card">
+    <mat-card-title><h3>Ofertas y Promociones</h3></mat-card-title>
+    <mat-card-content>
+      <p>No te pierdas nuestras ofertas exclusivas y promociones especiales para vestir a tus niños con lo mejor.</p>
+    </mat-card-content>
+  </mat-card>
 </div>

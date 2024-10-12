@@ -24,7 +24,9 @@ a {
   text-decoration: none; /* Sin subrayado */
   color: var(--mdc-filled-button-container-color); /* Color de los enlaces */
 }
-
+li a{
+  color: var(--mdc-filled-button-container-color);
+}
 a:hover {
   text-decoration: underline; /* Subrayado al pasar el mouse */
 }
