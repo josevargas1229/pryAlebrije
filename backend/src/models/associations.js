@@ -1,12 +1,15 @@
-/* This code snippet is setting up associations between different models in a Node.js application using
-Sequelize, which is an ORM for Node.js. Here's a breakdown of what each part is doing: */
+const Rol = require('./Rol');
+const User = require('./User');
 const Categoria = require('./Categoria');
 const Product = require('./Product');
-const User = require('./User');
 const Account = require('./Account');
 const PassHistory = require('./PasswordHistory');
 const PerfilEmpresa = require('./PerfilEmpresa');
 const IntentoFallido = require('./IntentoFallido');
+
+// Definir la asociación entre User y Rol
+Rol.hasMany(User, { foreignKey: 'rol_id' });
+User.belongsTo(Rol, { foreignKey: 'rol_id' });
 
 // Asociaciones de Categoria
 Categoria.hasMany(Product, { foreignKey: 'categoria_id' });
@@ -29,5 +32,6 @@ module.exports = {
     Account,
     PassHistory,
     PerfilEmpresa,
-    IntentoFallido
+    IntentoFallido,
+    Rol
 };

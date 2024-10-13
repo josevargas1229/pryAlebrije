@@ -1,17 +1,33 @@
-/* This code snippet is defining a Sequelize model for a User entity in a Node.js application. Here's a
-breakdown of what each part of the code is doing: */
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const Rol = require('./Rol');
 
 const User = sequelize.define('User', {
     id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
     nombre: {
-        type: DataTypes.STRING(100),
-        allowNull: false
+        type: DataTypes.STRING(50),
+        allowNull: false,
+        validate: {
+            is: /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/
+        }
+    },
+    apellido_paterno: {
+        type: DataTypes.STRING(20),
+        allowNull: false,
+        validate: {
+            is: /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$/
+        }
+    },
+    apellido_materno: {
+        type: DataTypes.STRING(20),
+        allowNull: false,
+        validate: {
+            is: /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$/
+        }
     },
     email: {
         type: DataTypes.STRING(255),
@@ -20,26 +36,25 @@ const User = sequelize.define('User', {
         validate: {
             isEmail: true
         }
-    }
-    ,
+    },
     telefono: {
         type: DataTypes.STRING(15),
-        unique:true,
-        validate:{
-            is:/^[0-9+]+$/
+        unique: true,
+        validate: {
+            is: /^[0-9+]+$/
         }
     },
-    tipo_usuario: {
-        type: DataTypes.STRING(15),
+    rol_id: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-        validate: {
-            isIn: [['Cliente', 'Empleado', 'Administrador']]
+        references: {
+            model: Rol,
+            key: 'id'
         }
     }
 }, {
     tableName: 'usuarios',
     timestamps: false
 });
-
 
 module.exports = User;

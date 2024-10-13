@@ -5,12 +5,12 @@ const sequelize = require('../config/database');
 
 const IntentoFallido = sequelize.define('IntentoFallido', {
     id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
     user_id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     fecha: {

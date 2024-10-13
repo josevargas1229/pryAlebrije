@@ -43,9 +43,11 @@ exports.createUser = async (req, res, next) => {
 
         const user = await User.create({
             nombre: usuario.nombre,
+            apellido_paterno: usuario.apellido_paterno,
+            apellido_materno: usuario.apellido_materno,
             email: usuario.email,
             telefono: usuario.telefono,
-            tipo_usuario: usuario.tipo_usuario
+            rol_id: usuario.rol_id
         });
 
         const hashedPassword = await bcrypt.hash(cuenta.contraseña_hash, 10);

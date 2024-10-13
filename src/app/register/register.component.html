@@ -3,7 +3,7 @@
     <mat-card-header>
       <mat-card-title><h2>Registro de Usuario</h2></mat-card-title>
     </mat-card-header>
-    
+
     <mat-card-content>
       <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
         <!-- Nombre -->
@@ -15,11 +15,20 @@
           </mat-error>
         </mat-form-field>
 
-        <!-- Apellido -->
+        <!-- Apellido Paterno -->
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Apellido</mat-label>
-          <input matInput formControlName="surname" />
-          <mat-error *ngIf="registrationForm.get('surname')?.invalid && (registrationForm.get('surname')?.dirty || registrationForm.get('surname')?.touched)">
+          <mat-label>Apellido Paterno</mat-label>
+          <input matInput formControlName="surnamePaterno" />
+          <mat-error *ngIf="registrationForm.get('surnamePaterno')?.invalid && (registrationForm.get('surnamePaterno')?.dirty || registrationForm.get('surnamePaterno')?.touched)">
+            Este campo es requerido
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Apellido Materno -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Apellido Materno</mat-label>
+          <input matInput formControlName="surnameMaterno" />
+          <mat-error *ngIf="registrationForm.get('surnameMaterno')?.invalid && (registrationForm.get('surnameMaterno')?.dirty || registrationForm.get('surnameMaterno')?.touched)">
             Este campo es requerido
           </mat-error>
         </mat-form-field>

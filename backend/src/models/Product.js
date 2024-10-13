@@ -5,7 +5,7 @@ const sequelize = require('../config/database');
 
 const Product = sequelize.define('Product', {
     id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
@@ -25,7 +25,7 @@ const Product = sequelize.define('Product', {
         allowNull: false
     },
     categoria_id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         allowNull: false
     }
 }, {

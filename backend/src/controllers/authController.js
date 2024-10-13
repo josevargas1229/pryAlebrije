@@ -13,7 +13,7 @@ exports.login = async (req, res, next) => {
         const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
         // Busca al usuario y su cuenta asociada
-        const user = await User.findOne({ 
+        const user = await User.findOne({
             where: { email },
             include: [{ model: Account, attributes: ['id', 'nombre_usuario', 'contraseña_hash', 'bloqueada'] }]
         });
@@ -57,7 +57,10 @@ exports.login = async (req, res, next) => {
 
         // Si el inicio de sesión es exitoso, puedes restablecer intentos fallidos (opcional)
         await IntentoFallido.destroy({ where: { user_id: user.id } }); // Limpiar intentos fallidos
-
+        
+        // Actualizar el último acceso
+        await user.Account.update({ ultimo_acceso: new Date() });
+        
         // Generar el token de autenticación
         const token = jwt.sign(
             { userId: user.id, tipo: user.tipo_usuario },
@@ -66,7 +69,7 @@ exports.login = async (req, res, next) => {
         );
 
         res.cookie('token', token, {
-            httpOnly: true, 
+            httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'Strict',
             maxAge: 3600000
@@ -125,8 +128,8 @@ exports.checkAuth = async (req, res, next) => {
 
         const user = await User.findOne({
             where: { id: decoded.userId },
-            include: [{ 
-                model: Account, 
+            include: [{
+                model: Account,
                 attributes: ['id', 'nombre_usuario', 'bloqueada']
             }],
             attributes: ['id', 'email', 'tipo_usuario']
@@ -150,7 +153,7 @@ exports.checkAuth = async (req, res, next) => {
             );
 
             res.cookie('token', newToken, {
-                httpOnly: true, 
+                httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'Strict',
                 maxAge: 3600000

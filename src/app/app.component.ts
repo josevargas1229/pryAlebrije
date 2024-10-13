@@ -4,11 +4,12 @@ import { HeaderComponent } from "./shared/header/header.component";
 import { FooterComponent } from "./shared/footer/footer.component";
 import { AngularToastifyModule, ToastService } from 'angular-toastify';
 import { AuthService } from './services/auth/auth.service';
+import { ScrollToTopComponent } from "./scroll-to-top/scroll-to-top.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, AngularToastifyModule],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, AngularToastifyModule, ScrollToTopComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css',
   encapsulation: ViewEncapsulation.None

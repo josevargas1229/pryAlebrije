@@ -41,7 +41,8 @@ export class RegisterComponent implements OnInit {
   ngOnInit() {
     this.registrationForm = this.fb.group({
       name: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
-      surname: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
+      surnamePaterno: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$/)]],
+      surnameMaterno: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+$/)]],
       email: ['', [Validators.required, Validators.email, Validators.pattern(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)]],
       phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
       password: ['', [Validators.required, Validators.minLength(8)]],
@@ -151,31 +152,33 @@ export class RegisterComponent implements OnInit {
       });
     }
   }
-  private registerUser(){
+  private registerUser() {
     // Sanitizar los valores del formulario antes de procesarlos
     const sanitizedNombre = this.sanitizeInput(this.registrationForm.value.name);
+    const sanitizedApellidoPaterno = this.sanitizeInput(this.registrationForm.value.surnamePaterno);
+    const sanitizedApellidoMaterno = this.sanitizeInput(this.registrationForm.value.surnameMaterno);
     const sanitizedEmail = this.sanitizeInput(this.registrationForm.value.email);
     const sanitizedTelefono = this.sanitizeInput(this.registrationForm.value.phone);
-
+  
     const usuario: Partial<Usuario> = {
       nombre: sanitizedNombre,
+      apellido_paterno: sanitizedApellidoPaterno,
+      apellido_materno: sanitizedApellidoMaterno,
       email: sanitizedEmail,
       telefono: sanitizedTelefono,
-      tipo_usuario: 'Cliente'
+      rol_id: 2
     };
-
+  
     const cuenta: Partial<Cuenta> = {
       nombre_usuario: sanitizedNombre,
-      contraseña_hash: this.registrationForm.value.password,
-      fecha_creacion: new Date(),
-      ultimo_acceso: new Date()
+      contraseña_hash: this.registrationForm.value.password
     };
-
+  
     this.authService.register(usuario, cuenta).subscribe(
       (response) => {
         this.toastService.success('Usuario registrado exitosamente.');
         this.isSubmitting = false;
-        this.router.navigate(['/']);
+        this.router.navigate(['/login']);
         // Aquí se puede agregar lógica para enviar un correo de verificación
       },
       (error) => {
@@ -185,4 +188,5 @@ export class RegisterComponent implements OnInit {
       }
     );
   }
+  
 }

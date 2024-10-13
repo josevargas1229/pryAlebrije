@@ -5,12 +5,12 @@ const sequelize = require('../config/database');
 
 const Account = sequelize.define('Account', {
     id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
     user_id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     nombre_usuario: {
@@ -30,7 +30,7 @@ const Account = sequelize.define('Account', {
         type: DataTypes.DATE
     },
     configuracion_2fa: {
-        type: DataTypes.TEXT
+        type: DataTypes.BOOLEAN
     },
     bloqueada: {
         type: DataTypes.BOOLEAN,

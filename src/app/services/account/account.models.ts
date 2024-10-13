@@ -4,10 +4,10 @@ export interface Cuenta {
     nombre_usuario: string;
     contraseña_hash: string;
     fecha_creacion: Date;
-    ultimo_acceso: Date;
-    configuracion_2fa: boolean;
+    ultimo_acceso?: Date;
+    configuracion_2fa?: boolean;
+    bloqueada?: boolean;
 }
-
 export interface HistorialPass {
     id: number;
     account_id: number;
