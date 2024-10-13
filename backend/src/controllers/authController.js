@@ -63,7 +63,7 @@ exports.login = async (req, res, next) => {
         
         // Generar el token de autenticación
         const token = jwt.sign(
-            { userId: user.id, tipo: user.tipo_usuario },
+            { userId: user.id, tipo: user.rol_id },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
@@ -76,7 +76,7 @@ exports.login = async (req, res, next) => {
         });
 
         // Responder con los datos del usuario (sin el token)
-        res.json({ userId: user.id, tipo: user.tipo_usuario });
+        res.json({ userId: user.id, tipo: user.rol_id });
     } catch (error) {
         next(error);
     }
@@ -132,7 +132,7 @@ exports.checkAuth = async (req, res, next) => {
                 model: Account,
                 attributes: ['id', 'nombre_usuario', 'bloqueada']
             }],
-            attributes: ['id', 'email', 'tipo_usuario']
+            attributes: ['id', 'email', 'rol_id']
         });
 
         if (!user) {
@@ -147,7 +147,7 @@ exports.checkAuth = async (req, res, next) => {
         const expirationThreshold = 15 * 60; // 15 minutos en segundos
         if (decoded.exp - (Date.now() / 1000) < expirationThreshold) {
             const newToken = jwt.sign(
-                { userId: user.id, tipo: user.tipo_usuario },
+                { userId: user.id, tipo: user.rol_id },
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }
             );
@@ -163,7 +163,7 @@ exports.checkAuth = async (req, res, next) => {
         res.json({
             userId: user.id,
             email: user.email,
-            tipo: user.tipo_usuario,
+            tipo: user.rol_id,
             nombreUsuario: user.Account.nombre_usuario
         });
     } catch (error) {

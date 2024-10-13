@@ -5,13 +5,13 @@ const bcrypt = require('bcrypt');
 
 /* The `exports.getAllUsers` function is an asynchronous function that handles the retrieval of all
 users from the database. It uses the `User` model to perform a `findAll` operation with specific
-attributes such as `id`, `nombre`, `email`, `telefono`, and `tipo_usuario`. If the operation is
+attributes such as `id`, `nombre`, `email`, `telefono`, and `rol_id`. If the operation is
 successful, it responds with a JSON representation of the users. If an error occurs during the
 operation, it forwards the error to the `next` middleware function. */
 exports.getAllUsers = async (req, res, next) => {
     try {
         const users = await User.findAll({
-            attributes: ['id', 'nombre', 'email', 'telefono', 'tipo_usuario']
+            attributes: ['id', 'nombre', 'email', 'telefono', 'rol_id']
         });
         res.json(users);
     } catch (error) {
@@ -24,7 +24,7 @@ specific user from the database based on the user's ID. */
 exports.getUserById = async (req, res, next) => {
     try {
         const user = await User.findByPk(req.params.id, {
-            attributes: ['id', 'nombre', 'email', 'telefono', 'tipo_usuario']
+            attributes: ['id', 'nombre', 'email', 'telefono', 'rol_id']
         });
         if (!user) {
             return res.status(404).json({ message: 'Usuario no encontrado' });
@@ -73,12 +73,12 @@ exports.createUser = async (req, res, next) => {
 on the user's ID. Here's a breakdown of what it does: */
 exports.updateUser = async (req, res, next) => {
     try {
-        const { nombre, email, telefono, tipo_usuario } = req.body;
+        const { nombre, email, telefono, rol_id } = req.body;
         const [updated] = await User.update({
             nombre,
             email,
             telefono,
-            tipo_usuario
+            rol_id
         }, {
             where: { id: req.params.id }
         });
@@ -125,7 +125,7 @@ exports.updateProfile = async (req, res, next) => {
 
         if (updated) {
             const updatedUser = await User.findByPk(req.user.userId, {
-                attributes: ['id', 'nombre', 'email', 'telefono', 'tipo_usuario']
+                attributes: ['id', 'nombre', 'email', 'telefono', 'rol_id']
             });
             return res.json(updatedUser);
         }
