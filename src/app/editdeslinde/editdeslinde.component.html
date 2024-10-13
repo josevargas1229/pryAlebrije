@@ -1,1 +1,26 @@
-<p>editdeslinde works!</p>
+<div class="crud-modal-container">
+  <div class="modal" [ngClass]="{'show': isModalOpen}" role="dialog" aria-labelledby="modalTitle">
+    <div class="modal-content">
+      <h2 id="modalTitle">{{ modalTitle }}</h2>
+      <form (ngSubmit)="onSubmit()" #crudForm="ngForm">
+        <div class="form-group">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" [(ngModel)]="entity.name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" [(ngModel)]="entity.email" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone:</label>
+          <input type="tel" id="phone" name="phone" [(ngModel)]="entity.phone" required>
+        </div>
+        <div class="button-group">
+          <button type="submit" [disabled]="!crudForm.form.valid || isLoading">{{ submitButtonText }}</button>
+          <button type="button" (click)="closeModal()">Cancel</button>
+        </div>
+      </form>
+      <div *ngIf="isLoading" class="spinner"></div>
+    </div>
+  </div>
+</div>

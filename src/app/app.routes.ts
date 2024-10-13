@@ -6,13 +6,11 @@ import { RegisterComponent } from './register/register.component';
 import { DashboardComponent } from '../../private/dashboard/dashboard.component';
 import { RecuperaComponent } from './recupera/recupera.component';
 import { PerfilComponent } from './perfil/perfil.component';
-<<<<<<< HEAD
 import { EditpolitComponent } from './editpolit/editpolit.component';
 import { EditerminosComponent } from './editerminos/editerminos.component';
 import { EditperfilemComponent } from './editperfilem/editperfilem.component';
-=======
 import { AuthGuard } from './guards/auth/auth.guard';
->>>>>>> 796a42e0af2586c288a07339c1a2ba9b9c386b41
+
 
 export const routes: Routes = [
   { path: "", component: HomeComponent },
@@ -21,15 +19,13 @@ export const routes: Routes = [
   { path: "register", component: RegisterComponent },
   { path: 'dashboard', component: DashboardComponent,canActivate:[AuthGuard]},
   { path: 'recupera', component:RecuperaComponent},
-<<<<<<< HEAD
   { path: 'perfil', component:PerfilComponent},
   { path: 'editpolit', component:EditpolitComponent},
   { path: 'editerminos', component:EditerminosComponent},
   { path: 'editdeslinde', component:EditperfilemComponent},
-  { path: 'editperfilem', component:EditperfilemComponent}
-=======
+  { path: 'editperfilem', component:EditperfilemComponent},
   { path: 'perfil', component:PerfilComponent,canActivate:[AuthGuard]}
->>>>>>> 796a42e0af2586c288a07339c1a2ba9b9c386b41
+
 
 
 
