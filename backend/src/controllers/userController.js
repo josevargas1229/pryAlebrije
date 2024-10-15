@@ -1,7 +1,7 @@
 /* This code snippet is a set of functions that handle CRUD operations for users in a Node.js
 application. Here's a breakdown of what each function does: */
 const { User, Account, PassHistory } = require('../models/associations');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 /* The `exports.getAllUsers` function is an asynchronous function that handles the retrieval of all
 users from the database. It uses the `User` model to perform a `findAll` operation with specific

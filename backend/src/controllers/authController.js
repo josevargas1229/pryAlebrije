@@ -1,6 +1,6 @@
 /* This JavaScript code snippet is defining two functions: `login` and `changePassword`, which are part
 of an authentication system. Here is a breakdown of what each function does: */
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User, Account, PassHistory, IntentoFallido } = require('../models/associations');
 const { Op } = require('sequelize');
