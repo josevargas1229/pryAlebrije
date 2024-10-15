@@ -8,6 +8,7 @@ const morgan = require('morgan');
 const {generateToken,doubleCsrfProtection} = require('./config/csrfConfig');
 const corsConfig = require('./config/corsConfig');
 const logger = require('./config/logger');
+const rateLimit = require('./config/rateLimitConfig');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const passwordRoutes = require('./routes/passwordRoutes');
@@ -23,6 +24,7 @@ app.use(corsConfig);
 app.use(express.json());
 app.use(cookieParser());
 
+app.use(rateLimit);
 
 // Ruta para obtener el token CSRF
 app.get('/csrf-token', (req, res) => {
