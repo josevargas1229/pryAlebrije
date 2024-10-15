@@ -12,6 +12,7 @@ import {MatCommonModule} from '@angular/material/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { ToastService, AngularToastifyModule } from 'angular-toastify'; 
 import { ThemeSwitcherComponent } from './theme-switcher/theme-switcher.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
 @NgModule({
   declarations: [
 
@@ -29,7 +30,8 @@ import { ThemeSwitcherComponent } from './theme-switcher/theme-switcher.componen
     LoginComponent,
     MatCommonModule,
     AngularToastifyModule,
-    ThemeSwitcherComponent
+    ThemeSwitcherComponent,
+    MatTooltipModule
   ],
   providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}},ToastService],
   bootstrap: [AppModule]

@@ -10,11 +10,12 @@ import { FormsModule } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-theme-switcher',
   standalone: true,
-  imports: [MatFormFieldModule, MatOptionModule, MatLabel, MatSelectModule, MatRadioModule, CommonModule, FormsModule, MatMenuModule, MatIconButton, MatIcon],
+  imports: [MatFormFieldModule, MatOptionModule, MatLabel, MatSelectModule, MatRadioModule, CommonModule, FormsModule, MatMenuModule, MatIconButton, MatIcon,MatTooltip],
   templateUrl: './theme-switcher.component.html',
   styleUrls: ['./theme-switcher.component.css']
 })

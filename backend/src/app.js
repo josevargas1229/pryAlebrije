@@ -5,8 +5,9 @@ const errorHandler = require('./middlewares/errorHandler');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const {generateToken,doubleCsrfProtection} = require('./config/csrfConfig');
 const corsConfig = require('./config/corsConfig');
-const logger =require('./config/logger');
+const logger = require('./config/logger');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const passwordRoutes = require('./routes/passwordRoutes');
@@ -22,6 +23,15 @@ app.use(corsConfig);
 app.use(express.json());
 app.use(cookieParser());
 
+
+// Ruta para obtener el token CSRF
+app.get('/csrf-token', (req, res) => {
+    const csrfToken = generateToken(req, res);
+    res.json({ csrfToken });
+});
+// Middleware de protección CSRF
+app.use(doubleCsrfProtection);
+
 // Integrar Morgan con Winston para el registro de solicitudes HTTP
 app.use(morgan('combined', {
     stream: {
@@ -35,6 +45,6 @@ app.get('/', (req, res) => {
 });
 app.use('/users', userRoutes);
 app.use('/auth', authRoutes);
-app.use('/check-password',passwordRoutes)
+app.use('/check-password', passwordRoutes)
 app.use(errorHandler);
 module.exports = app;
