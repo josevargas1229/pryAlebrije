@@ -6,24 +6,26 @@ import { Usuario } from '../user/user.models';
 import { Cuenta } from '../account/account.models';
 import { AuthResponse, LoginCredentials } from './auth.models';
 import { CsrfService } from '../csrf.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000/auth';
+  private apiUrl = `${environment.API_URL}/auth`;
   private currentUserSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public currentUser: Observable<any>;
+  private isCheckingAuth: boolean = false;
 
   constructor(private http: HttpClient, private csrfService: CsrfService) {
     this.checkAuthStatus();
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
-  login(credenciales: LoginCredentials, rememberMe: boolean): Observable<any> {
+  login(credenciales: LoginCredentials, captchaToken: string, rememberMe: boolean): Observable<any> {
     return this.csrfService.getCsrfToken().pipe(
       switchMap(csrfToken => {
-        return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { credenciales }, {
+        return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { credenciales, captchaToken }, {
           withCredentials: true,
           headers: {
             'x-csrf-token': csrfToken
@@ -41,6 +43,7 @@ export class AuthService {
       catchError(this.handleLoginError)
     );
   }
+  
   private handleLoginError(error: HttpErrorResponse) {
     if (error.status === 401) {
       return throwError(() => new Error('Credenciales inválidas. Por favor, verifique su email y contraseña.'));
@@ -94,6 +97,8 @@ export class AuthService {
   }
 
   async checkAuthStatus(): Promise<any> {
+    if (this.isCheckingAuth) return; // Si ya se está comprobando, salir
+    this.isCheckingAuth = true; 
     try {
       const user = await this.csrfService.getCsrfToken().pipe(
         switchMap(csrfToken => {
@@ -111,6 +116,8 @@ export class AuthService {
     } catch {
       this.currentUserSubject.next(null);
       return null;
+    }finally {
+      this.isCheckingAuth = false; // Restablecer el flag al final
     }
   }
 

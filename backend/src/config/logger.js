@@ -1,5 +1,5 @@
 const { createLogger, format, transports } = require('winston');
-
+require('dotenv').config();
 const logger = createLogger({
     level: 'info', // Nivel mínimo de log que se registrará
     format: format.combine(

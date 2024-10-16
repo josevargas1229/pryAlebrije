@@ -1,5 +1,5 @@
 const { doubleCsrf } = require('csrf-csrf');
-
+require('dotenv').config();
 const doubleCsrfOptions = {
     getSecret: () => 'yourSecretKey', // Configura una clave secreta para generar el token
     cookieName: 'x-csrf-token', // Nombre de la cookie que almacenará el token CSRF

@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map, Observable, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CsrfService {
-  private csrfTokenUrl = 'http://localhost:3000/csrf-token';
+  private csrfTokenUrl = `${environment.API_URL}/csrf-token`;
   public csrfToken: string = '';
 
   constructor(private http: HttpClient) {

@@ -13,6 +13,7 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { ToastService, AngularToastifyModule } from 'angular-toastify'; 
 import { ThemeSwitcherComponent } from './theme-switcher/theme-switcher.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import { RecaptchaModule,RecaptchaFormsModule   } from 'ng-recaptcha-2';
 @NgModule({
   declarations: [
 
@@ -31,7 +32,9 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     MatCommonModule,
     AngularToastifyModule,
     ThemeSwitcherComponent,
-    MatTooltipModule
+    MatTooltipModule,
+    RecaptchaModule,
+    RecaptchaFormsModule
   ],
   providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}},ToastService],
   bootstrap: [AppModule]

@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, switchMap } from 'rxjs';
 import { CsrfService } from '../csrf.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AccountService {
-  private apiUrl = 'http://localhost:3000/check-password';
+  private apiUrl = `${environment.API_URL}/check-password`;
 
   constructor(private http: HttpClient, private csrfService: CsrfService) {}
 

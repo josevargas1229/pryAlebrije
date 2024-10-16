@@ -79,7 +79,7 @@
             </button>
             <mat-error
               *ngIf="registrationForm.get('password')?.invalid && (registrationForm.get('password')?.dirty || registrationForm.get('password')?.touched)">
-              Ingrese una contraseña válida
+              Ingrese una contraseña de al menos 8 caracteres
             </mat-error>
             <div class="password-strength" [ngClass]="{ 
               'veryWeak': passwordStrengthMessage === 'Muy débil',
