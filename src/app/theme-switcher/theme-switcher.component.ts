@@ -17,7 +17,7 @@ import { MatTooltip } from '@angular/material/tooltip';
   standalone: true,
   imports: [MatFormFieldModule, MatOptionModule, MatLabel, MatSelectModule, MatRadioModule, CommonModule, FormsModule, MatMenuModule, MatIconButton, MatIcon,MatTooltip],
   templateUrl: './theme-switcher.component.html',
-  styleUrls: ['./theme-switcher.component.css']
+  styleUrls: ['./theme-switcher.component.scss']
 })
 export class ThemeSwitcherComponent implements AfterViewInit {
   themes = [

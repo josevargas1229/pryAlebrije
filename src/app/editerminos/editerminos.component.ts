@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './editerminos.component.html',
-  styleUrl: './editerminos.component.css'
+  styleUrl: './editerminos.component.scss'
 })
 export class EditerminosComponent {
 

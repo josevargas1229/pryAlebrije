@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './editpolit.component.html',
-  styleUrl: './editpolit.component.css'
+  styleUrl: './editpolit.component.scss'
 })
 export class EditpolitComponent {
 

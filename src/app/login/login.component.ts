@@ -31,7 +31,7 @@ import { environment } from '../../environments/environment';
     RecaptchaModule
   ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: './login.component.scss'
 })
 export class LoginComponent {
   email: string = '';

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, switchMap } from 'rxjs';
-import { CsrfService } from '../csrf.service';
+import { CsrfService } from '../csrf/csrf.service';
 import { environment } from '../../../environments/environment';
 
 @Injectable({

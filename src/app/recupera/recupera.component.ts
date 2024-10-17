@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
   selector: 'app-recupera',
   standalone: true,
   templateUrl: './recupera.component.html',
-  styleUrls: ['./recupera.component.css']
+  styleUrls: ['./recupera.component.scss']
 })
 export class RecuperaComponent {
   isModalOpen = false;

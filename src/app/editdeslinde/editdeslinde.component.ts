@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './editdeslinde.component.html',
-  styleUrl: './editdeslinde.component.css'
+  styleUrl: './editdeslinde.component.scss'
 })
 export class EditdeslindeComponent {
 

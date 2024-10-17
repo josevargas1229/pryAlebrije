@@ -11,7 +11,7 @@ interface Service {
   standalone: true,
   imports:[CommonModule, RouterLink],
   templateUrl: './perfil.component.html',
-  styleUrls: ['./perfil.component.css'],
+  styleUrls: ['./perfil.component.scss'],
 })
 
 

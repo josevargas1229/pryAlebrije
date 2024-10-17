@@ -5,7 +5,7 @@ import { catchError, tap, map, switchMap } from 'rxjs/operators';
 import { Usuario } from '../user/user.models';
 import { Cuenta } from '../account/account.models';
 import { AuthResponse, LoginCredentials } from './auth.models';
-import { CsrfService } from '../csrf.service';
+import { CsrfService } from '../csrf/csrf.service';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -97,7 +97,7 @@ export class AuthService {
   }
 
   async checkAuthStatus(): Promise<any> {
-    if (this.isCheckingAuth) return; // Si ya se está comprobando, salir
+    if (this.isCheckingAuth) return;
     this.isCheckingAuth = true; 
     try {
       const user = await this.csrfService.getCsrfToken().pipe(
@@ -117,7 +117,7 @@ export class AuthService {
       this.currentUserSubject.next(null);
       return null;
     }finally {
-      this.isCheckingAuth = false; // Restablecer el flag al final
+      this.isCheckingAuth = false;
     }
   }
 

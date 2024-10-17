@@ -5,7 +5,7 @@ import { Component } from '@angular/core';
   standalone: true,
   imports: [],
   templateUrl: './editperfilem.component.html',
-  styleUrl: './editperfilem.component.css'
+  styleUrl: './editperfilem.component.scss'
 })
 export class EditperfilemComponent {
 
