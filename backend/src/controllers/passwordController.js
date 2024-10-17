@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const VerificationCode = require('../models/VerificationCode');
 const User = require('../models/User');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 
 // Cargar la lista de contraseñas al iniciar el controlador

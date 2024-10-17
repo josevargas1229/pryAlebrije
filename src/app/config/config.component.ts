@@ -9,11 +9,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatStepperModule } from '@angular/material/stepper';
 import { CommonModule } from '@angular/common';
 import { AsyncPipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { PasswordService } from '../services/password/password.service';
 
-/**
- * @title Configuración del Usuario
- */
 @Component({
   selector: 'app-config',
   standalone: true,
@@ -31,13 +28,12 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ConfigComponent {
   isModalOpen = false;
-  isCodeVerified = false; // Estado para verificar el código
-  errorMessage: string | null = null; // Mensaje de error
+  isCodeVerified = false;
+  errorMessage: string | null = null;
 
   private _formBuilder = inject(FormBuilder);
-  private http = inject(HttpClient); // Inyectar HttpClient
+  private passwordService = inject(PasswordService);
 
-  // Definición de formularios
   emailFormGroup = this._formBuilder.group({
     email: ['', [Validators.required, Validators.email]],
   });
@@ -51,82 +47,55 @@ export class ConfigComponent {
     newPassword: ['', [Validators.required, Validators.minLength(6)]],
     confirmPassword: ['', Validators.required],
   });
-
-  // Formularios del stepper
-  firstFormGroup = this._formBuilder.group({
-    name: ['', Validators.required],
-  });
-
-  secondFormGroup = this._formBuilder.group({
-    address: ['', Validators.required],
-  });
-
-  thirdFormGroup = this._formBuilder.group({
-    phone: ['', Validators.required],
-  });
-
   stepperOrientation: Observable<string>;
-
   constructor() {
     const breakpointObserver = inject(BreakpointObserver);
-
     this.stepperOrientation = breakpointObserver
       .observe('(min-width: 800px)')
       .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
   }
 
-  // Abrir el modal
   openModal() {
     this.isModalOpen = true;
-    this.errorMessage = null; // Reiniciar mensaje de error al abrir el modal
+    this.errorMessage = null;
   }
 
-  // Cerrar el modal
   closeModal() {
     this.isModalOpen = false;
   }
 
-  // Métodos para manejar el envío de formularios
   onSubmitEmail() {
     if (this.emailFormGroup.valid) {
-      const email = this.emailFormGroup.value.email;
-      this.http.post('http://localhost:3000/check-password/send-code', { email })
-        .subscribe({
-          next: (response) => {
-            console.log('Correo enviado', response);
-          },
-          error: (error) => {
-            this.errorMessage = 'Error al enviar el correo. Por favor, inténtelo de nuevo.';
-            console.error('Error al enviar correo', error);
-          }
-        });
+      const email= this.emailFormGroup.value.email?? '';;
+      this.passwordService.sendVerificationCode(email).subscribe({
+        next: (response) => {
+          console.log('Correo enviado', response);
+        },
+        error: (error) => {
+          this.errorMessage = 'Error al enviar el correo. Por favor, inténtelo de nuevo.';
+          console.error('Error al enviar correo', error);
+        }
+      });
     } else {
-      this.errorMessage = 'Por favor, ingrese un correo electrónico válido.'; // Mensaje para el usuario
+      this.errorMessage = 'Por favor, ingrese un correo electrónico válido.';
     }
   }
 
   onSubmitVerification() {
     if (this.emailFormGroup.valid && this.verificationFormGroup.valid) {
-      const email = this.emailFormGroup.value.email;
-      const verificationCode = this.verificationFormGroup.value.verificationCode;
-
-      const verificationData = {
-        email: email,
-        verificationCode: verificationCode
-      };
-
-      this.http.post('http://localhost:3000/check-password/verify-code', verificationData)
-        .subscribe({
-          next: (response) => {
-            this.isCodeVerified = true;
-            console.log('Código verificado', response);
-          },
-          error: (error) => {
-            this.isCodeVerified = false;
-            this.errorMessage = 'Error al verificar el código. Por favor, inténtelo de nuevo.';
-            console.error('Error al verificar código', error.error || 'Error desconocido');
-          }
-        });
+      const email = this.emailFormGroup.value.email?? '';;
+      const verificationCode = this.verificationFormGroup.value.verificationCode?? '';;
+      this.passwordService.verifyCode(email, verificationCode).subscribe({
+        next: (response) => {
+          this.isCodeVerified = true;
+          console.log('Código verificado', response);
+        },
+        error: (error) => {
+          this.isCodeVerified = false;
+          this.errorMessage = 'Error al verificar el código. Por favor, inténtelo de nuevo.';
+          console.error('Error al verificar código', error);
+        }
+      });
     }
   }
 
@@ -137,24 +106,20 @@ export class ConfigComponent {
 
       if (newPassword !== confirmPassword) {
         this.errorMessage = 'Las contraseñas no coinciden.';
-        return; // No continuar si no coinciden
+        return;
       }
 
-      const passwordData = {
-        email: this.emailFormGroup.value.email,
-        newPassword: newPassword
-      };
-      this.http.post('http://localhost:3000/check-password/change-password', passwordData)
-        .subscribe({
-          next: (response) => {
-            console.log('Contraseña cambiada', response);
-            this.closeModal(); // Cerrar el modal aquí
-          },
-          error: (error) => {
-            this.errorMessage = 'Error al cambiar la contraseña. Por favor, inténtelo de nuevo.';
-            console.error('Error al cambiar contraseña', error);
-          }
-        });
+      const email = this.emailFormGroup.value.email;
+      this.passwordService.changePassword(email?? '', newPassword?? '').subscribe({
+        next: (response) => {
+          console.log('Contraseña cambiada', response);
+          this.closeModal();
+        },
+        error: (error) => {
+          this.errorMessage = 'Error al cambiar la contraseña. Por favor, inténtelo de nuevo.';
+          console.error('Error al cambiar contraseña', error);
+        }
+      });
     } else if (!this.isCodeVerified) {
       this.errorMessage = 'El código de verificación no ha sido validado.';
     }

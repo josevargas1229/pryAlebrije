@@ -77,7 +77,7 @@ export class RecuperaComponent {
   // Métodos para manejar el envío de formularios
   onSubmitEmail() {
     if (this.email) {
-      this.http.post('http://localhost:3000/check-password/send-code', { email: this.email })
+      this.http.post('http://localhost:3000/password/send-code', { email: this.email })
         .subscribe({
           next: (response) => {
             console.log('Correo enviado', response);
@@ -102,7 +102,7 @@ export class RecuperaComponent {
         email: this.email,
         verificationCode: verificationCode
       };
-      this.http.post('http://localhost:3000/check-password/verify-code', verificationData)
+      this.http.post('http://localhost:3000/password/verify-code', verificationData)
         .subscribe({
           next: (response) => {
             console.log('Código verificado', response);
@@ -121,7 +121,7 @@ export class RecuperaComponent {
         email: this.email,
         newPassword: this.newPassword
       };
-      this.http.post('http://localhost:3000/check-password/change-password', passwordData)
+      this.http.post('http://localhost:3000/password/change-password', passwordData)
         .subscribe({
           next: (response) => {
             console.log('Contraseña cambiada', response);

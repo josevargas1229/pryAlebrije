@@ -13,7 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha-2';
-import { environment } from '../../environments/environment.example';
+import { environment } from '../../environments/environment';
 @Component({
   selector: 'app-login',
   standalone: true,
