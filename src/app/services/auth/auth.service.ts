@@ -6,7 +6,7 @@ import { Usuario } from '../user/user.models';
 import { Cuenta } from '../account/account.models';
 import { AuthResponse, LoginCredentials } from './auth.models';
 import { CsrfService } from '../csrf.service';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.example';
 
 @Injectable({
   providedIn: 'root'
@@ -43,7 +43,7 @@ export class AuthService {
       catchError(this.handleLoginError)
     );
   }
-  
+
   private handleLoginError(error: HttpErrorResponse) {
     if (error.status === 401) {
       return throwError(() => new Error('Credenciales inválidas. Por favor, verifique su email y contraseña.'));
@@ -83,10 +83,6 @@ export class AuthService {
       catchError(this.handleError)
     );
   }
-<<<<<<< HEAD
-
-=======
->>>>>>> 22b771e68e4465978bbef8d7f07c24479e930864
 
   isLoggedIn(): Observable<boolean> {
     return this.currentUser.pipe(
@@ -102,7 +98,7 @@ export class AuthService {
 
   async checkAuthStatus(): Promise<any> {
     if (this.isCheckingAuth) return; // Si ya se está comprobando, salir
-    this.isCheckingAuth = true; 
+    this.isCheckingAuth = true;
     try {
       const user = await this.csrfService.getCsrfToken().pipe(
         switchMap(csrfToken => {
@@ -114,7 +110,7 @@ export class AuthService {
           });
         })
       ).toPromise();
-      
+
       this.currentUserSubject.next(user);
       return user;
     } catch {
@@ -172,14 +168,10 @@ export class AuthService {
           break;
       }
     }
-<<<<<<< HEAD
+
 
     return throwError(() => new Error(errorMessage));
   }
 
 }
-=======
-    return throwError(() => new Error(errorMessage));
-  }
-}
->>>>>>> 22b771e68e4465978bbef8d7f07c24479e930864
+
