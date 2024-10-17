@@ -1,1 +1,44 @@
-<p>pagenotfound works!</p>
+<div class="not-found-container">
+    <mat-card class="not-found-card">
+      <mat-card-header>
+        <mat-card-title>
+          <h1 class="error-code">404</h1>
+        </mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content>
+        <div class="content-container">
+          <mat-icon class="large-icon">sentiment_dissatisfied</mat-icon>
+          <h2>¡Ups! Parece que te has perdido</h2>
+          <p>La página que estás buscando no existe o ha sido movida a otro lugar.</p>
+          <p>No te preocupes, estas cosas pasan. ¿Qué tal si intentamos algo de esto?</p>
+          
+          <mat-list>
+            <mat-list-item>
+              <mat-icon matListItemIcon>arrow_right</mat-icon>
+              <span matListItemTitle>Verificar que la URL esté bien escrita</span>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>arrow_right</mat-icon>
+              <span matListItemTitle>Regresar a la página anterior</span>
+            </mat-list-item>
+            <mat-list-item>
+              <mat-icon matListItemIcon>arrow_right</mat-icon>
+              <span matListItemTitle>Ir al inicio y empezar de nuevo</span>
+            </mat-list-item>
+          </mat-list>
+
+          <div class="buttons-container">
+            <button mat-stroked-button color="primary" (click)="goBack()">
+              <mat-icon>arrow_back</mat-icon>
+              Regresar
+            </button>
+            <button mat-raised-button color="primary" (click)="goHome()">
+              <mat-icon>home</mat-icon>
+              Ir al inicio
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>

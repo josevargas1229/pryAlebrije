@@ -31,6 +31,7 @@ app.get('/csrf-token', (req, res) => {
     const csrfToken = generateToken(req, res);
     res.json({ csrfToken });
 });
+
 // Middleware de protección CSRF
 app.use(doubleCsrfProtection);
 

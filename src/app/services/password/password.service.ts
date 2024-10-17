@@ -25,10 +25,10 @@ export class PasswordService {
     );
   }
 
-  verifyCode(email: string, verificationCode: string): Observable<any> {
+  verifyCode(email: string, code: string): Observable<any> {
     return this.csrfService.getCsrfToken().pipe(
       switchMap(csrfToken => {
-        const verificationData = { email, verificationCode };
+        const verificationData = { email, code };
         return this.http.post(`${this.apiUrl}/verify-code`, verificationData, {
           withCredentials: true,
           headers: {

@@ -40,7 +40,7 @@
         <!-- Checkbox "Recuérdame" -->
         <mat-checkbox [(ngModel)]="rememberMe" name="rememberMe">Recuérdame</mat-checkbox>
 
-        <re-captcha (resolved)="resolved($event)" [siteKey]="captchaSiteKey" data-action="LOGIN" required></re-captcha>
+        <re-captcha #captchaRef (resolved)="resolved($event)" [siteKey]="captchaSiteKey" data-action="LOGIN" required></re-captcha>
 
         <!-- Botón de inicio de sesión -->
         <div class="button-container">

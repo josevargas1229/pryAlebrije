@@ -1,66 +1,60 @@
 <div class="recupera-container">
-  <div class="form-box">
-    <h2>Recuperar Contraseña</h2>
-    <p>Ingresa tu correo electrónico para recuperar tu contraseña.</p>
+  <h2>Recuperar Contraseña</h2>
+  <mat-stepper #stepper linear>
+    <!-- Paso 1: Introducir correo -->
+    <mat-step [stepControl]="emailFormGroup" label="Introducir Correo">
+      <form [formGroup]="emailFormGroup" (ngSubmit)="onSubmitEmail(stepper)">
+        <mat-form-field>
+          <mat-label>Correo Electrónico</mat-label>
+          <input matInput formControlName="email" placeholder="Ingrese su correo" required />
+        </mat-form-field>
+        <div>
+          <button mat-button (click)="stepper.next()" [disabled]="!emailFormGroup.valid">Enviar</button>
+        </div>
+      </form>
+    </mat-step>
 
-    <form (ngSubmit)="onSubmitEmail()">
-      <div class="form-group">
-        <label for="email">Correo electrónico:</label>
-        <input type="email" id="email" placeholder="Ingrese su correo" (input)="onEmailInput($event)" required />
+    <!-- Paso 2: Verificación -->
+    <mat-step [stepControl]="verificationFormGroup" label="Verificación">
+      <form [formGroup]="verificationFormGroup" (ngSubmit)="onSubmitVerification(stepper)">
+        <mat-form-field>
+          <mat-label>Código de Verificación</mat-label>
+          <input matInput formControlName="verificationCode" maxlength="8" required
+            placeholder="Código de verificación" />
+        </mat-form-field>
+        <div>
+          <button mat-button (click)="stepper.previous()">Atrás</button>
+          <button mat-button [disabled]="!verificationFormGroup.valid">Verificar</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Paso 3: Cambiar contraseña -->
+    <mat-step [stepControl]="passwordFormGroup" label="Cambiar Contraseña">
+      <form [formGroup]="passwordFormGroup" (ngSubmit)="onSubmitPassword(stepper)">
+        <mat-form-field>
+          <mat-label>Nueva Contraseña</mat-label>
+          <input matInput type="password" formControlName="newPassword" required placeholder="Nueva contraseña" />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Confirmar Nueva Contraseña</mat-label>
+          <input matInput type="password" formControlName="confirmPassword" required
+            placeholder="Confirmar contraseña" />
+        </mat-form-field>
+        <div>
+          <button mat-button (click)="stepper.previous()">Atrás</button>
+          <button mat-button type="submit" [disabled]="!passwordFormGroup.valid">Guardar Cambios</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Paso final -->
+    <mat-step>
+      <ng-template matStepLabel>Hecho</ng-template>
+      <p>¡Cambios guardados exitosamente!</p>
+      <div>
+        <button mat-button (click)="closeModal()">Cerrar</button>
       </div>
-
-      <button type="submit">Recuperar Contraseña</button>
-    </form>
-  </div>
-</div>
-
-<!-- Modal de verificación -->
-<div class="modal" [class.active]="isModalOpen">
-  <form class="form" (ngSubmit)="onSubmitVerification()">
-    <span class="close" (click)="closeModal()">X</span>
-
-    <div class="info">
-      <span class="title">Verification OTP</span>
-      <p class="description">Ingresa el código que le llegó a su correo electrónico</p>
-    </div>
-
-    <div class="input-fields">
-      <!-- Input de código de verificación de 8 dígitos -->
-      <input type="tel" maxlength="1" (input)="onVerificationCodeInput($event, 1)" required>
-      <input type="tel" maxlength="1" (input)="onVerificationCodeInput($event, 2)" required>
-      <input type="tel" maxlength="1" (input)="onVerificationCodeInput($event, 3)" required>
-      <input type="tel" maxlength="1" (input)="onVerificationCodeInput($event, 4)" required>
-      <input type="tel" maxlength="1" (input)="onVerificationCodeInput($event, 5)" required>
-      <input type="tel" maxlength="1" (input)="onVerificationCodeInput($event, 6)" required>
-      <input type="tel" maxlength="1" (input)="onVerificationCodeInput($event, 7)" required>
-      <input type="tel" maxlength="1" (input)="onVerificationCodeInput($event, 8)" required>
-    </div>
-
-    <div class="action-btns">
-      <button type="submit" class="verify">Verificar</button>
-      <a class="clear" (click)="closeModal()">Limpiar</a>
-    </div>
-  </form>
-</div>
-
-<!-- Modal de cambio de contraseña -->
-<div class="modal" [class.active]="isChangePasswordModalOpen">
-  <form class="form" (ngSubmit)="onSubmitPassword()">
-    <span class="close" (click)="closeChangePasswordModal()">X</span>
-
-    <div class="info">
-      <span class="title">Cambiar Contraseña</span>
-      <p class="description">Ingresa una nueva contraseña y confírmala.</p>
-    </div>
-
-    <div class="input-fields">
-      <input type="password" placeholder="Nueva contraseña" (input)="onNewPasswordInput($event)" required>
-      <input type="password" placeholder="Confirmar contraseña" (input)="onConfirmPasswordInput($event)" required>
-    </div>
-
-    <div class="action-btns">
-      <button type="submit">Cambiar Contraseña</button>
-      <a class="clear" (click)="closeChangePasswordModal()">Cancelar</a>
-    </div>
-  </form>
+    </mat-step>
+  </mat-stepper>
 </div>

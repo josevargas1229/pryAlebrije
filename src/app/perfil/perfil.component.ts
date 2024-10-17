@@ -47,8 +47,7 @@ export class PerfilComponent implements OnInit {
   constructor(private userService: UserService) { }
 
   ngOnInit(): void {
-    const userId = 1; // Reemplaza con el ID real del usuario (quizás desde un token o contexto)
-    this.userService.getUser(userId).subscribe(
+    this.userService.getUserInfo().subscribe(
       (data) => {
         this.user = data; // Asigna la información del usuario a la variable
       },

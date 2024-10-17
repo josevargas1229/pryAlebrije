@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root'
 })
 export class AccountService {
-  private apiUrl = `${environment.API_URL}/check-password`;
+  private apiUrl = `${environment.API_URL}/password/check`;
 
   constructor(private http: HttpClient, private csrfService: CsrfService) {}
 
