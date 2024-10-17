@@ -6,7 +6,7 @@ import { Usuario } from '../user/user.models';
 import { Cuenta } from '../account/account.models';
 import { AuthResponse, LoginCredentials } from './auth.models';
 
-import { CsrfService } from '../csrf.service';
+import { CsrfService } from '../csrf/csrf.service';
 import { environment } from '../../../environments/environment.example';
 
 
