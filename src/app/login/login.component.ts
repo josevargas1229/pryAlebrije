@@ -9,10 +9,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ToastService } from 'angular-toastify';
 import { Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatCardModule} from '@angular/material/card';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule, MatFormFieldModule, FormsModule, MatInputModule, MatIconModule, MatCheckboxModule],
+  imports: [FormsModule, CommonModule, MatFormFieldModule, FormsModule, MatInputModule, MatIconModule, MatCheckboxModule,MatButtonModule,MatProgressSpinnerModule,MatCardModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -61,4 +64,9 @@ export class LoginComponent {
       });
     }
   }
+  togglePasswordVisibility(event: Event): void {
+    event.preventDefault(); // Evita el submit del formulario
+    this.hidePassword = !this.hidePassword;
+  }
+  
 }

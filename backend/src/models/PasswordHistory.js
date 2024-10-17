@@ -5,12 +5,12 @@ const sequelize = require('../config/database');
 
 const PassHistory = sequelize.define('PassHistory', {
     id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
     account_id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         allowNull: false
     },
     contraseña_hash: {

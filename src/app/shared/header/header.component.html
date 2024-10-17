@@ -1,14 +1,38 @@
 <header>
-  <nav>
+  <mat-toolbar color="warn">
     <div class="logo-title">
-      <img src="assets/images/logoAleb.png" class="logo" />
+      <img src="assets/images/logoAleb.png" class="logo" alt="Logo" />
     </div>
-    <ul>
-      <li><a routerLink="/" routerLinkActive="active">Home</a></li>
-      <li><a routerLink="/login" routerLinkActive="active">Login</a></li>
-      <li><a routerLink="/register" routerLinkActive="active">Registro</a></li>
-      <li><a routerLink="/dashboard" routerLinkActive="active">Dashboard</a></li>
-      <li><a routerLink="/perfil" routerLinkActive="active">Perfil</a></li>
-    </ul>
-  </nav>
+
+    <!-- Tema switcher -->
+    <span class="spacer"></span> <!-- Para empujar los elementos a la derecha -->
+    
+    <div class="nav-buttons">
+      <app-theme-switcher></app-theme-switcher>
+      
+      <!-- Botón Home con icono -->
+      <button mat-icon-button routerLink="/" routerLinkActive="active" aria-label="Home">
+        <mat-icon>home</mat-icon>
+      </button>
+      
+      <!-- Login y Registro con texto -->
+      <ng-container *ngIf="!isLoggedIn">
+        <button mat-flat-button routerLink="/login" routerLinkActive="active">Login</button>
+        <button mat-flat-button routerLink="/register" routerLinkActive="active">Registro</button>
+      </ng-container>
+
+      <!-- Botones para usuario logueado -->
+      <ng-container *ngIf="isLoggedIn">
+        <button mat-mini-fab routerLink="/dashboard" routerLinkActive="active" aria-label="Dashboard">
+          <mat-icon>dashboard</mat-icon>
+        </button>
+        <button mat-mini-fab routerLink="/perfil" routerLinkActive="active" aria-label="Perfil">
+          <mat-icon>person</mat-icon>
+        </button>
+        <button mat-mini-fab aria-label="Logout" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+        </button>
+      </ng-container>
+    </div>
+  </mat-toolbar>
 </header>

@@ -1,16 +1,31 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from "./shared/header/header.component";
 import { FooterComponent } from "./shared/footer/footer.component";
-import { AngularToastifyModule } from 'angular-toastify';
+import { AngularToastifyModule, ToastService } from 'angular-toastify';
+import { AuthService } from './services/auth/auth.service';
+import { ScrollToTopComponent } from "./scroll-to-top/scroll-to-top.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent,AngularToastifyModule],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, AngularToastifyModule, ScrollToTopComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
+  encapsulation: ViewEncapsulation.None
 })
 export class AppComponent {
   title = 'pryAlebrije';
+  constructor(private authService: AuthService, private toastService: ToastService) { }
+  ngOnInit() {
+    this.authService.checkAuthStatus()
+      .then(() => {
+        // Usuario autenticado, redirigir a la página principal si es necesario
+      })
+      .catch(error => {
+        if (error.message !== 'No autenticado') {
+          this.toastService.error('Error de autenticación: ' + error.message);
+        }
+      });
+  }
 }

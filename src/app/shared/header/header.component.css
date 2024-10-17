@@ -1,15 +1,5 @@
 header {
-  background-color: #007bff;
-  padding: 1rem 2rem;
   width: 100%;
-  margin: 0;
-  box-sizing: border-box;
-}
-
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
 .logo-title {
@@ -17,42 +7,20 @@ nav {
   align-items: center;
 }
 
-.logo-title h1 {
-  color: white;
-  margin-left: 10px;
-  font-size: 1.5rem;
-}
-
 .logo {
-  width: 250px; /* Ajusta el tamaño del logo */
-  height: auto;
+  height: 40px;
+  margin-right: 16px;
 }
 
-nav ul {
-  list-style: none;
-  padding: 0;
+.nav-buttons {
   display: flex;
-  margin: 0;
+  align-items: center;
 }
 
-nav ul li {
-  margin-right: 1rem;
+.nav-buttons button {
+  margin-left: 16px;
 }
 
-nav ul li:last-child {
-  margin-right: 0;
-}
-
-nav ul li a {
-  color: white;
-  text-decoration: none;
-  padding: 0.5rem;
-  border-radius: 5px;
-  transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
-}
-
-nav ul li a:hover {
-  background-color: #0056b3;
-  color: white;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+.spacer {
+  flex: 1 1 auto;
 }

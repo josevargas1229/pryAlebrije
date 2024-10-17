@@ -1,0 +1,29 @@
+.theme-switcher {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.theme-option {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.theme-info {
+    display: flex;
+    align-items: center;
+    padding-right: 5px;
+}
+
+.theme-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 6px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--mdc-filled-button-container-color);
+    position: relative;
+    right: 0;
+}

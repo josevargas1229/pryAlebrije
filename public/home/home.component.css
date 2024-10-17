@@ -2,7 +2,7 @@
   max-width: 1200px;
   margin: 5rem auto;
   padding: 2rem;
-  background-color: #ffffff;
+  background-color: var(--mat-select-panel-background-color);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-radius: 15px;
   text-align: center;
@@ -11,11 +11,9 @@
 
 h1 {
   font-size: 2.5rem;
-  color: #ff6f61;
 }
 
 p {
-  color: #666;
   margin: 1rem 0;
 }
 
@@ -32,12 +30,13 @@ p {
 
 .product-card {
   flex: 1 1 300px;
-  background-color: #f9f9f9;
+  background-color: var(--mat-app-background-color);
   padding: 1rem;
   border-radius: 10px;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
   text-align: center;
   transition: transform 0.3s;
+  align-items: center;
 }
 
 .product-card img {
@@ -48,42 +47,22 @@ p {
 
 .product-card h3 {
   font-size: 1.5rem;
-  color: #333;
 }
 
 .product-card p {
-  color: #777;
   margin-bottom: 1rem;
 }
 
-.product-card button {
-  background-color: #ff6f61;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.product-card button:hover {
-  background-color: #ff4a3d;
-}
 
 /* Estilos para las secciones separadas */
 .single-card {
   margin: 2rem 0;
   padding: 2rem;
-  background-color: #f8f9fa;
+  background-color: var(--mat-app-background-color);
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .single-card h2 {
   font-size: 2rem;
-  color: #ff6f61;
-}
-
-.single-card p {
-  color: #666;
 }

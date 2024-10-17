@@ -9,9 +9,10 @@
 
 .content-wrapper {
   display: flex;
+  flex-direction: row;
   width: 80%;
   max-width: 1200px;
-  background: rgba(255, 255, 255, 0.9);
+  background-color: var(--mat-select-panel-background-color);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
@@ -30,11 +31,6 @@
   justify-content: center;
 }
 
-h1 {
-  font-size: 2.5em;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(255, 254, 254, 0.5);
-}
 
 .description {
   font-size: 1.1em;
@@ -42,21 +38,6 @@ h1 {
   line-height: 1.6;
 }
 
-.watch-video-btn {
-  background-color: transparent;
-  border: 2px solid #ffffff;
-  color: #ffffff;
-  padding: 10px 20px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-bottom: 30px;
-}
-
-.watch-video-btn:hover {
-  background-color: #ffffff;
-  color: #6e8efb;
-}
 
 .user-stats {
   display: flex;
@@ -78,19 +59,13 @@ h1 {
   opacity: 0.8;
 }
 
-.right-section {
-  background-color: #ffffff;
-}
 
 form {
   display: flex;
   flex-direction: column;
 }
 
-h2 {
-  color: #030303;
-  margin-bottom: 20px;
-}
+
 
 .form-group {
   margin-bottom: 20px;
@@ -100,20 +75,6 @@ input[type="text"]{
   max-height: 50px;
   margin: 0;
   padding: 0;
-}
-
-.passButton {
-  background-color: white;
-  color: black;
-  position: relative;
-  right: 8px; /* Ajusta la posición del botón si es necesario */
-  max-height: 50px;
-}
-
-.error-message {
-  color: #ff0000;
-  font-size: 0.9em;
-  margin-top: 5px;
 }
 
 .remember-me {
@@ -126,40 +87,6 @@ input[type="text"]{
   margin-right: 10px;
 }
 
-.login-btn {
-  background-color: #6e8efb;
-  color: #ffffff;
-  border: none;
-  padding: 12px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  border-radius: 5px;
-}
-
-.login-btn:hover {
-  background-color: #5c7cfa;
-}
-
-.login-btn:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.spinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ffffff;
-  border-top: 2px solid #6e8efb;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
 
 .form-links {
   display: flex;
@@ -168,39 +95,18 @@ input[type="text"]{
 }
 
 .form-links a {
-  color: #6e8efb;
+  color: var(--mdc-filled-button-container-color);
   text-decoration: none;
   font-size: 0.9em;
 }
 
-.social-login {
-  margin-top: 30px;
-}
-
-.google-btn, .facebook-btn {
-  width: 100%;
-  padding: 10px;
+mat-form-field{
   margin-bottom: 10px;
-  border: none;
-  border-radius: 5px;
-  font-size: 1em;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+}
+mat-error{
+  margin-top: -15px;
 }
 
-.google-btn {
-  background-color: #db4437;
-  color: #ffffff;
-}
-
-.facebook-btn {
-  background-color: #4267B2;
-  color: #ffffff;
-}
-
-.google-btn:hover, .facebook-btn:hover {
-  opacity: 0.9;
-}
 
 @media (max-width: 768px) {
   .content-wrapper {
