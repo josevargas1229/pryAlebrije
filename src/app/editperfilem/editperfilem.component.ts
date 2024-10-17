@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './editperfilem.component.html',
-  styleUrl: './editperfilem.component.css'
+  styleUrl: './editperfilem.component.scss'
 })
 export class EditperfilemComponent  implements OnInit{
   isModalOpen = false;

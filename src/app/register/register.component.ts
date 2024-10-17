@@ -18,7 +18,7 @@ import { MatCardModule } from '@angular/material/card';
 @Component({
   selector: 'app-user-registration',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css'],
+  styleUrls: ['./register.component.scss'],
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, FormsModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,MatCardModule],
   changeDetection: ChangeDetectionStrategy.OnPush,

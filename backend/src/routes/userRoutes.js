@@ -17,7 +17,5 @@ router.get('/:id', authenticateToken, authorize('administrador', 'empleado'), us
 router.put('/:id', authenticateToken, authorize('administrador'), userController.updateUser);
 router.delete('/:id', authenticateToken, authorize('administrador'), userController.deleteUser);
 
-// Ruta para editar el perfil propio
-router.put('/profile/edit', authenticateToken, userController.updateProfile);
 
 module.exports = router;

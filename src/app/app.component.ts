@@ -11,7 +11,7 @@ import { ScrollToTopComponent } from "./scroll-to-top/scroll-to-top.component";
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, FooterComponent, AngularToastifyModule, ScrollToTopComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css',
+  styleUrl: './app.component.scss',
   encapsulation: ViewEncapsulation.None
 })
 export class AppComponent {

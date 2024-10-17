@@ -14,6 +14,7 @@ import { AuthGuard } from './guards/auth/auth.guard';
 
 import { PagenotfoundComponent } from './pagenotfound/pagenotfound.component';
 import { NoAuthGuard } from './guards/auth/no-auth.guard';
+import { ConfigComponent } from './config/config.component';
 
 export const routes: Routes = [
   //rutas públicas
@@ -33,6 +34,7 @@ export const routes: Routes = [
   { path: 'editerminos', component: EditerminosComponent },
   { path: 'editdeslinde', component: EditperfilemComponent },
   { path: 'editperfilem', component: EditperfilemComponent },
+  { path: 'config', component:ConfigComponent},
 
   //rutas para usuarios autenticados
   {

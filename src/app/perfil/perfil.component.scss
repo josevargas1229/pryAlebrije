@@ -10,6 +10,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
   margin-bottom: 40px; /* Añadido para separarlo de la siguiente sección */
+  position: relative;
 }
 
 .user-info {
@@ -159,5 +160,52 @@
 
   .user-photo {
     margin-bottom: 20px;
+  }
+}
+/* Estilo del botón de settings */
+.settings-button-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* Estilo del botón de settings (reutilizado) */
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 12px;
+  gap: 8px;
+  height: 36px;
+  width: 120px;
+  border: none;
+  background: black;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.lable {
+  line-height: 20px;
+  font-size: 17px;
+  color: white;
+  font-family: sans-serif;
+  letter-spacing: 1px;
+}
+
+.button:hover {
+  background: grey;
+}
+
+.button:hover .svg-icon {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
   }
 }

@@ -59,7 +59,7 @@ export class AuthService {
       catchError(this.handleError)
     );
   }
-  
+
 
   isLoggedIn(): Observable<boolean> {
     return this.currentUser.pipe(
@@ -110,7 +110,7 @@ private clearRememberMe(): void {
 
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Ocurrió un error inesperado. Inténtelo de nuevo más tarde.';
-  
+
     if (error.error instanceof ErrorEvent) {
       // Error del lado del cliente o de la red
       errorMessage = `Error de red: ${error.error.message}`;
@@ -131,8 +131,8 @@ private clearRememberMe(): void {
           break;
       }
     }
-  
+
     return throwError(() => new Error(errorMessage));
   }
-  
+
 }

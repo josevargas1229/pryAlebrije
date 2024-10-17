@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [MatButtonModule,MatIconModule,CommonModule],
   templateUrl: './scroll-to-top.component.html',
-  styleUrl: './scroll-to-top.component.css'
+  styleUrl: './scroll-to-top.component.scss'
 })
 export class ScrollToTopComponent {
   isVisible = false;

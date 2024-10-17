@@ -1,20 +1,20 @@
 <header>
   <mat-toolbar color="warn">
     <div class="logo-title">
-      <img src="assets/images/logoAleb.png" class="logo" alt="Logo" />
+      <img src="assets/images/logoAle.png" class="logo" alt="Logo" />
     </div>
 
     <!-- Tema switcher -->
     <span class="spacer"></span> <!-- Para empujar los elementos a la derecha -->
-    
+
     <div class="nav-buttons">
       <app-theme-switcher></app-theme-switcher>
-      
+
       <!-- Botón Home con icono -->
       <button mat-icon-button routerLink="/" routerLinkActive="active" aria-label="Home">
         <mat-icon>home</mat-icon>
       </button>
-      
+
       <!-- Login y Registro con texto -->
       <ng-container *ngIf="!isLoggedIn">
         <button mat-flat-button routerLink="/login" routerLinkActive="active">Login</button>

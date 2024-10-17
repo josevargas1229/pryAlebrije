@@ -17,7 +17,7 @@ import {MatCardModule} from '@angular/material/card';
   standalone: true,
   imports: [FormsModule, CommonModule, MatFormFieldModule, FormsModule, MatInputModule, MatIconModule, MatCheckboxModule,MatButtonModule,MatProgressSpinnerModule,MatCardModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: './login.component.scss'
 })
 export class LoginComponent {
   email: string = '';

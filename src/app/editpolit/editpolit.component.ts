@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './editpolit.component.html',
-  styleUrl: './editpolit.component.css'
+  styleUrl: './editpolit.component.scss'
 })
 export class EditpolitComponent implements OnInit{
   isModalOpen = false;

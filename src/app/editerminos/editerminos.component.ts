@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './editerminos.component.html',
-  styleUrl: './editerminos.component.css'
+  styleUrl: './editerminos.component.scss'
 })
 export class EditerminosComponent implements OnInit{
   isModalOpen = false;

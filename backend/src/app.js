@@ -26,6 +26,7 @@ app.get('/', (req, res) => {
 });
 app.use('/users', userRoutes);
 app.use('/auth', authRoutes);
-app.use('/check-password',passwordRoutes)
+app.use('/check-password',passwordRoutes);
+app.use('/password', passwordRoutes);
 app.use(errorHandler);
 module.exports = app;

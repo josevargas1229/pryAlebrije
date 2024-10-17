@@ -12,7 +12,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule, MatButtonModule, NavigationComponent, MatIconModule, ThemeSwitcherComponent,MatToolbarModule],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
   isLoggedIn: boolean = false;

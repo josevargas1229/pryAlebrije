@@ -30,7 +30,8 @@ const Account = sequelize.define('Account', {
         type: DataTypes.DATE
     },
     configuracion_2fa: {
-        type: DataTypes.BOOLEAN
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     },
     bloqueada: {
         type: DataTypes.BOOLEAN,
