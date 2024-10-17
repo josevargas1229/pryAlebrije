@@ -1,11 +1,9 @@
-/* This code snippet is a Node.js error handling middleware function. It defines an `errorHandler`
-function that takes four parameters: `err`, `req`, `res`, and `next`. The purpose of this function
-is to handle different types of errors that may occur in a Node.js application and send appropriate
-responses back to the client. */
 const { ValidationError } = require('sequelize');
+const logger = require('../config/logger');
 
 const errorHandler = (err, req, res, next) => {
-    console.error(err);
+    // Loguear el error usando Winston
+    logger.error(`Error: ${err.message}`, { stack: err.stack });
 
     if (err instanceof ValidationError) {
         return res.status(400).json({
@@ -26,12 +24,10 @@ const errorHandler = (err, req, res, next) => {
         return res.status(404).json({ message: 'Recurso no encontrado' });
     }
 
-    // Para errores de base de datos u otros errores específicos de tu aplicación
     if (err.name === 'SequelizeUniqueConstraintError') {
         return res.status(409).json({ message: 'El recurso ya existe' });
     }
 
-    // Error por defecto
     res.status(500).json({
         message: 'Error interno del servidor',
         ...(process.env.NODE_ENV === 'development' && { error: err.message })

@@ -11,8 +11,8 @@
 
     <!-- Sección derecha (formulario de login) -->
     <mat-card-content class="right-section">
-      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-        <h2>Inicia Sesión</h2>
+      <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)">
+        <h2>Inicia sesión</h2>
 
         <!-- Campo de correo electrónico -->
         <mat-form-field class="full-width" appearance="outline">
@@ -40,9 +40,11 @@
         <!-- Checkbox "Recuérdame" -->
         <mat-checkbox [(ngModel)]="rememberMe" name="rememberMe">Recuérdame</mat-checkbox>
 
+        <re-captcha (resolved)="resolved($event)" [siteKey]="captchaSiteKey" data-action="LOGIN" required></re-captcha>
+
         <!-- Botón de inicio de sesión -->
         <div class="button-container">
-          <button mat-stroked-button color="primary" type="submit" [disabled]="!loginForm.form.valid || isLoading" class="login-btn">
+          <button mat-stroked-button color="primary" type="submit" [disabled]="!loginForm.form.valid || isLoading || !captchaToken" class="login-btn">
             <span *ngIf="!isLoading">Iniciar Sesión</span>
             <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
           </button>

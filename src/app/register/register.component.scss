@@ -1,14 +1,20 @@
-.registration-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: var(--mat-select-panel-background-color);
-  border-radius: 10px;
+.register-container {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  min-height: 100vh;
+  margin: 1rem 0;
 }
-
+.content-wrapper {
+  display: flex;
+  flex-direction: row;
+  width: 80%;
+  max-width: 1200px;
+  background-color: var(--mat-select-panel-background-color);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
 
 .section {
   padding: 20px;
@@ -34,23 +40,6 @@
   font-size: 0.875em;
   color: #4caf50; /* Cambia el color según sea necesario */
 }
-
-
-@media (max-width: 600px) {
-  .registration-container {
-    padding: 10px;
-  }
-
-  .section {
-    padding: 15px;
-  }
-
-  .radio-group {
-    flex-direction: column;
-    gap: 10px;
-  }
-}
-
 
 /* Estilos para el medidor de fortaleza de la contraseña */
 .password-strength {
@@ -107,4 +96,59 @@ mat-error{
 .submitButton{
   display: flex;
   align-self: center;
+}
+
+
+.content-wrapper {
+  display: flex;
+  flex-direction: row;
+  width: 80%;
+  max-width: 1200px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.left-section {
+  flex: 1;
+  padding: 20px;
+  background: linear-gradient(to left, var(--mdc-filled-button-container-color), var(--mdc-fab-container-color));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.left-section h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.left-section .description {
+  font-size: 1.2rem;
+}
+
+.right-section {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.submitButton {
+  margin-top: 20px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+  .left-section,
+  .right-section {
+    padding: 20px;
+  }
 }

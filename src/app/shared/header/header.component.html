@@ -11,25 +11,58 @@
       <app-theme-switcher></app-theme-switcher>
 
       <!-- Botón Home con icono -->
-      <button mat-icon-button routerLink="/" routerLinkActive="active" aria-label="Home">
+      <button 
+        mat-icon-button 
+        routerLink="/" 
+        routerLinkActive="active" 
+        aria-label="Home" 
+        matTooltip="Ir a la página principal">
         <mat-icon>home</mat-icon>
       </button>
 
       <!-- Login y Registro con texto -->
       <ng-container *ngIf="!isLoggedIn">
-        <button mat-flat-button routerLink="/login" routerLinkActive="active">Login</button>
-        <button mat-flat-button routerLink="/register" routerLinkActive="active">Registro</button>
+        <button 
+          mat-flat-button 
+          routerLink="/login" 
+          routerLinkActive="active" 
+          aria-label="Login" 
+          matTooltip="Iniciar sesión">
+          Login
+        </button>
+        <button 
+          mat-flat-button 
+          routerLink="/register" 
+          routerLinkActive="active" 
+          aria-label="Registro" 
+          matTooltip="Crear una nueva cuenta">
+          Registro
+        </button>
       </ng-container>
 
       <!-- Botones para usuario logueado -->
       <ng-container *ngIf="isLoggedIn">
-        <button mat-mini-fab routerLink="/dashboard" routerLinkActive="active" aria-label="Dashboard">
+        <button 
+          mat-mini-fab 
+          routerLink="/dashboard" 
+          routerLinkActive="active" 
+          aria-label="Dashboard" 
+          matTooltip="Ir al panel de control">
           <mat-icon>dashboard</mat-icon>
         </button>
-        <button mat-mini-fab routerLink="/perfil" routerLinkActive="active" aria-label="Perfil">
+        <button 
+          mat-mini-fab 
+          routerLink="/perfil" 
+          routerLinkActive="active" 
+          aria-label="Perfil" 
+          matTooltip="Ir a mi perfil">
           <mat-icon>person</mat-icon>
         </button>
-        <button mat-mini-fab aria-label="Logout" (click)="logout()">
+        <button 
+          mat-mini-fab 
+          aria-label="Logout" 
+          (click)="logout()" 
+          matTooltip="Cerrar sesión">
           <mat-icon>logout</mat-icon>
         </button>
       </ng-container>

@@ -1,7 +1,7 @@
 /* This JavaScript code snippet is defining two functions that are commonly used in web applications
 for handling authentication and authorization using JSON Web Tokens (JWT). */
 const jwt = require('jsonwebtoken');
-
+require('dotenv').config();
 /**
  * The `exports.authenticateToken` function is a middleware function used for authenticating JWT tokens
  * in a Node.js application. It ensures that the request contains a valid token in the 'Authorization' header

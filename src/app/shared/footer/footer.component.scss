@@ -1,119 +1,35 @@
 footer {
-  background-color: #007bff; /* Color de fondo */
-  padding: 2rem;
   width: 100%;
-  box-sizing: border-box;
-  position:absolute;
-  text-align: center;
+}
+
+.footer-toolbar {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .footer-links {
+  background-color: var(--mdc-fab-container-color);
   display: flex;
-  justify-content: space-between; /* Distribuye los enlaces a los extremos */
-  align-items: center;
-  margin-bottom: 1rem; /* Espacio entre los enlaces y el texto de derechos */
-}
-
-.footer-left,
-.footer-right {
-  flex: 1; /* Los enlaces ocupan espacio igual en cada lado */
-}
-
-footer a {
-  color: white; /* Color de los enlaces */
-  text-decoration: none; /* Sin subrayado */
-  padding: 0.5rem 1rem;
-  border-radius: 5px; /* Bordes redondeados */
-  transition: background-color 0.3s, color 0.3s;
-}
-
-footer a:hover {
-  background-color: #0056b3; /* Color de fondo al pasar el ratón */
-}
-
-.footer-bottom {
-  text-align: center; /* Centra el texto de derechos reservados */
-}
-
-.footer-bottom p {
-  color: #fff; /* Color del texto de derechos reservados */
-  margin: 0;
-}
-/* Estilos para los íconos de redes sociales */
-.wrapper {
-  display: inline-flex;
-  list-style: none;
-  height: 100px;
-  width: 100%;
-  padding-top: 20px;
-  font-family: "Poppins", sans-serif;
-  justify-content: center;
-}
-
-.wrapper .icon {
-  position: relative;
-  background: #807f7f;
-  border-radius: 50%;
-  margin: 5px;
-  width: 40px;
-  height: 40px;
-  font-size: 18px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
-  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  align-items: center;
+  padding-bottom: 1rem;
+  width: 100%;
+  padding: 16px;
 }
 
-.wrapper .tooltip {
-  position: absolute;
-  top: 0;
-  font-size: 14px;
-  background: #fff;
-  color: #fff;
-  padding: 5px 8px;
-  border-radius: 5px;
-  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+.footer-links button {
+  margin: 0.5rem 0;
 }
 
-.wrapper .tooltip::before {
-  position: absolute;
-  content: "";
-  height: 8px;
-  width: 8px;
-  background: #fff;
-  bottom: -3px;
-  left: 50%;
-  transform: translate(-50%) rotate(45deg);
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.wrapper .icon:hover .tooltip {
-  top: -30px;
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-
-.wrapper .icon:hover span,
-.wrapper .icon:hover .tooltip {
-  text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.1);
-}
-
-.wrapper .facebook:hover,
-.wrapper .facebook:hover .tooltip,
-.wrapper .facebook:hover .tooltip::before {
-  background: #1877f2;
-  color: #fff;
-}
-.wrapper .instagram:hover,
-.wrapper .instagram:hover .tooltip,
-.wrapper .instagram:hover .tooltip::before {
-  background: #e4405f;
-  color: #fff;
+.footer-text {
+  margin: 0;
+  text-align: center;
+  font-size: 0.8rem;
 }

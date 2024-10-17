@@ -1,7 +1,7 @@
 /* This code snippet is setting up CORS (Cross-Origin Resource Sharing) configuration for a Node.js
 application using the `cors` package. Here's a breakdown of what the code is doing: */
 const cors = require('cors');
-
+require('dotenv').config();
 const corsOptions = {
     origin: function (origin, callback) {
         const whitelist = process.env.CORS_WHITELIST ? process.env.CORS_WHITELIST.split(',') : [];
@@ -12,7 +12,7 @@ const corsOptions = {
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization','Access-Control-Allow-Origin'],
+    allowedHeaders: ['Content-Type', 'Authorization','Access-Control-Allow-Origin','x-csrf-token'],
     credentials: true,
     optionsSuccessStatus: 200
 };
