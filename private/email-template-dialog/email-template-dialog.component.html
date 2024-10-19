@@ -1,0 +1,57 @@
+<mat-dialog-content class="dialog-content">
+    <h2 class="dialog-title">{{ dialogTitle }}</h2>
+
+    <form [formGroup]="emailTemplateForm" (ngSubmit)="onSubmit()" class="email-form">
+        <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Nombre</mat-label>
+            <input matInput formControlName="nombre" required placeholder="Ingrese el nombre de la plantilla">
+            <mat-error *ngIf="emailTemplateForm.get('nombre')?.hasError('required')">
+                El nombre es requerido
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Tipo de correo</mat-label>
+            <mat-select formControlName="tipo_id" required>
+                <mat-option *ngFor="let type of emailTypes" [value]="type.id">{{ type.nombre }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="emailTemplateForm.get('tipo_id')?.hasError('required')">
+                El tipo de correo es requerido
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Asunto</mat-label>
+            <input matInput formControlName="asunto" required placeholder="Ingrese el asunto">
+            <mat-error *ngIf="emailTemplateForm.get('asunto')?.hasError('required')">
+                El asunto es requerido
+            </mat-error>
+        </mat-form-field>
+
+        <!-- Campo de Contenido HTML -->
+        <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Contenido HTML</mat-label>
+            <textarea matInput formControlName="contenido_html" placeholder="Ingrese el contenido en HTML"></textarea>
+            <mat-hint>Puedes usar variables como: <code>&#123;&#123;&#36;'code&#125;&#125;, &#123;&#123;$nombre&#125;&#125;</code> en el contenido HTML</mat-hint>
+        </mat-form-field>
+
+        <!-- Campo de Contenido en Texto -->
+        <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Contenido en texto</mat-label>
+            <textarea matInput formControlName="contenido_texto" placeholder="Ingrese el contenido en texto"></textarea>
+            <mat-hint>Puedes usar variables como: <code>&#123;&#123;&#36;'code&#125;&#125;, &#123;&#123;$nombre&#125;&#125;</code> en el contenido de texto</mat-hint>
+        </mat-form-field>
+
+        <!-- Campo de Variables -->
+        <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Variables</mat-label>
+            <textarea matInput formControlName="variables" placeholder="Ingrese las variables separadas por comas"></textarea>
+            <mat-hint>Las variables deben ser como: <code>code</code>,<code>code</code> separadas por comas</mat-hint>
+        </mat-form-field>
+
+        <div class="action-buttons">
+            <button mat-button mat-dialog-close>Cancelar</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="isViewMode">Guardar</button>
+        </div>
+    </form>
+</mat-dialog-content>

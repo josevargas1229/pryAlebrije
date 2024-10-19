@@ -70,6 +70,7 @@ export class LoginComponent {
           console.log('Login successful:', response);
           this.isLoading = false;
           this.toastService.success('¡Bienvenido! Inicio de sesión exitoso.');
+          this.authService.setUserRole(response.tipo);
           const redirectUrl = localStorage.getItem('redirectUrl') || '/';
           this.router.navigate([redirectUrl]).then(() => {
             localStorage.removeItem('redirectUrl');

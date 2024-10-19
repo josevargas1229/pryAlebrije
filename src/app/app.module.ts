@@ -13,6 +13,9 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { ToastService, AngularToastifyModule } from 'angular-toastify';
 import { ThemeSwitcherComponent } from './theme-switcher/theme-switcher.component';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { PrivateModule } from '../../private/private.module';
+import { RouterModule } from '@angular/router';
+import { DashboardComponent } from '../../private/dashboard/dashboard.component';
 @NgModule({
   declarations: [
 
@@ -32,9 +35,11 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
     AngularToastifyModule,
     ThemeSwitcherComponent,
     ReactiveFormsModule,
-    HttpClientModule
-
-
+    HttpClientModule,
+    PrivateModule,
+    RouterModule.forChild([
+      { path: '/admin', component: DashboardComponent } 
+    ])
   ],
   providers: [{provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: {appearance: 'outline'}},ToastService],
   bootstrap: [AppModule]

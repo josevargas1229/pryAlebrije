@@ -42,22 +42,67 @@
 
       <!-- Botones para usuario logueado -->
       <ng-container *ngIf="isLoggedIn">
-        <button 
-          mat-mini-fab 
-          routerLink="/dashboard" 
-          routerLinkActive="active" 
-          aria-label="Dashboard" 
-          matTooltip="Ir al panel de control">
-          <mat-icon>dashboard</mat-icon>
-        </button>
-        <button 
-          mat-mini-fab 
-          routerLink="/perfil" 
-          routerLinkActive="active" 
-          aria-label="Perfil" 
-          matTooltip="Ir a mi perfil">
-          <mat-icon>person</mat-icon>
-        </button>
+        
+
+        <!-- Opciones basadas en el rol -->
+        <ng-container *ngIf="userRole === 1">
+          <button 
+            mat-mini-fab 
+            routerLink="/admin" 
+            routerLinkActive="active" 
+            aria-label="Admin" 
+            matTooltip="Ir al panel de administrador">
+            <mat-icon>admin_panel_settings</mat-icon>
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="userRole === 2">
+          <button 
+            mat-mini-fab 
+            routerLink="/ventas" 
+            routerLinkActive="active" 
+            aria-label="Ventas" 
+            matTooltip="Ir a ventas">
+            <mat-icon>monetization_on</mat-icon>
+          </button>
+        </ng-container>
+
+        <ng-container *ngIf="userRole === 3">
+          <button 
+            mat-mini-fab 
+            routerLink="/mis-compras" 
+            routerLinkActive="active" 
+            aria-label="Mis Compras" 
+            matTooltip="Ver mis compras">
+            <mat-icon>shopping_basket</mat-icon>
+          </button>
+          <button 
+            mat-mini-fab 
+            routerLink="/ofertas" 
+            routerLinkActive="active" 
+            aria-label="Ofertas" 
+            matTooltip="Ver ofertas disponibles">
+            <mat-icon>local_offer</mat-icon>
+          </button>
+          <button 
+            mat-mini-fab 
+            routerLink="/creditos" 
+            routerLinkActive="active" 
+            aria-label="Créditos" 
+            matTooltip="Ver mis créditos">
+            <mat-icon>credit_card</mat-icon>
+          </button>
+        </ng-container>
+
+      <button 
+        mat-mini-fab 
+        routerLink="/perfil" 
+        routerLinkActive="active" 
+        aria-label="Perfil" 
+        matTooltip="Ir a mi perfil">
+        <mat-icon>person</mat-icon>
+      </button>
+
         <button 
           mat-mini-fab 
           aria-label="Logout" 

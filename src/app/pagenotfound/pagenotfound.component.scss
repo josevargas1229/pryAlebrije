@@ -1,0 +1,75 @@
+.not-found-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+
+  .not-found-card {
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .error-code {
+    font-size: 72px;
+    margin: 0;
+    color: #3f51b5;
+    font-weight: bold;
+  }
+
+  .content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .large-icon {
+    font-size: 72px;
+    height: 72px;
+    width: 72px;
+    color: #3f51b5;
+    position: relative;
+    top: 10px;
+  }
+
+  h2 {
+    color: #333;
+    margin: 0;
+  }
+
+  p {
+    color: #666;
+  }
+
+  mat-list {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .buttons-container {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+  }
+
+  button {
+    min-width: 120px;
+  }
+
+  @media (max-width: 600px) {
+    .error-code {
+      font-size: 48px;
+    }
+
+    .large-icon {
+      font-size: 48px;
+      height: 48px;
+      width: 48px;
+    }
+
+    .buttons-container {
+      flex-direction: column;
+    }
+  }

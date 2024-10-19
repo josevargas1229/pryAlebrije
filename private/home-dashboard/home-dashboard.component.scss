@@ -1,0 +1,72 @@
+.admin-dashboard {
+    text-align: center;
+    height: 100%;
+
+    h1 {
+        font-size: 2em;
+    }
+
+    h1,
+    h3 {
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    p {
+        padding-top: 10px;
+    }
+
+    .config-card-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 10px;
+        gap: 20px;
+    }
+
+    .config-card {
+        width: 250px;
+        padding: 20px;
+        cursor: pointer;
+        transition: transform 0.3s ease-in-out;
+        background: var(--mat-select-panel-background-color);
+        &:hover {
+            transform: translateY(-5px);
+        }
+
+        mat-icon {
+            color: var(--mdc-filled-button-container-color);
+            position: relative;
+            top: 5px;
+            margin-right: 5px;
+        }
+
+        h3 {
+            font-size: 1.2em;
+        }
+
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+        .config-card {
+            width: 200px;
+        }
+        .sidenav {
+            width: 100%;
+        }
+        h1 {
+            font-size: 1.5em;
+        }
+        p {
+            font-size: 0.9em;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .config-card {
+            width: 100%;
+            margin: 0 10px;
+        }
+    }
+}

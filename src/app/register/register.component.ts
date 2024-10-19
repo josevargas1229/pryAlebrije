@@ -166,7 +166,7 @@ export class RegisterComponent implements OnInit {
       apellido_materno: sanitizedApellidoMaterno,
       email: sanitizedEmail,
       telefono: sanitizedTelefono,
-      rol_id: 2
+      rol_id: 3
     };
   
     const cuenta: Partial<Cuenta> = {

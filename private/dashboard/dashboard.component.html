@@ -1,86 +1,35 @@
-<div class="dashboard">
+<div class="admin-dashboard">
+  <lib-toastify-toast-container></lib-toastify-toast-container>
   <!-- Barra lateral de navegación -->
-  <nav class="sidebar">
-    <h2>Menú</h2>
-    <ul>
-      <li><a href="">Inicio</a></li>
-      <li><a href="">Proyectos</a></li>
-      <li><a href="">Tareas</a></li>
-      <li><a href="">Estadísticas</a></li>
-      <li><a href="">Calendario</a></li>
-      <li><a href="">Configuraciones</a></li>
-    </ul>
-  </nav>
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #sidenav mode="side" class="sidenav" [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile">
+      <h2>Menú</h2>
+      <mat-nav-list>
+        <mat-list-item routerLink="/admin/inicio" routerLinkActive="active-link">Inicio</mat-list-item>
+        <mat-list-item routerLink="/admin/legal" routerLinkActive="active-link">Legalidades</mat-list-item>
+        <mat-list-item routerLink="/admin/sistema" routerLinkActive="active-link">Configuración del Sistema</mat-list-item>
+        <mat-list-item routerLink="/admin/empresa" routerLinkActive="active-link">Información de la Empresa</mat-list-item>
+        <mat-list-item routerLink="/admin/correos" routerLinkActive="active-link">Gestión de Correos </mat-list-item>
+      </mat-nav-list>
+    </mat-sidenav>
 
-  <!-- Contenido principal -->
-  <div class="main-content">
-    <!-- Sección de saludo -->
-    <section class="greeting">
-      <h1>¡Hola, Brandon!</h1>
-      <p>Bienvenido de nuevo. Aquí tienes un resumen de tu progreso.</p>
-    </section>
+    <!-- Contenido principal -->
+    <mat-sidenav-content class="main-content">
+      <mat-toolbar color="primary" *ngIf="isMobile">
+        <button mat-icon-button (click)="sidenav.toggle()" *ngIf="isMobile">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <span>Menú</span>
+      </mat-toolbar>
+      
+      <section class="greeting mat-elevation-z4">
+        <h1>Bienvenido Administrador</h1>
+        <p>Administra todas las configuraciones del sistema desde este panel.</p>
+      </section>
 
-    <!-- Sección de tarjetas de progreso -->
-    <section class="progress-cards">
-      <div class="card">
-        <h3>Proyecto A</h3>
-        <p>Progreso: 80%</p>
-        <div class="progress-bar">
-          <div class="progress" style="width: 80%"></div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Proyecto B</h3>
-        <p>Progreso: 60%</p>
-        <div class="progress-bar">
-          <div class="progress" style="width: 60%"></div>
-        </div>
-      </div>
-      <div class="card">
-        <h3>Proyecto C</h3>
-        <p>Progreso: 40%</p>
-        <div class="progress-bar">
-          <div class="progress" style="width: 40%"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Sección de lista de tareas -->
-    <section class="tasks">
-      <h2>Tareas del Día</h2>
-      <ul>
-        <li><input type="checkbox"> Finalizar diseño del dashboard</li>
-        <li><input type="checkbox"> Revisar los progresos del proyecto A</li>
-        <li><input type="checkbox"> Preparar reunión de equipo</li>
-      </ul>
-    </section>
-
-    <!-- Sección de estadísticas -->
-    <section class="statistics">
-      <h2>Estadísticas</h2>
-      <div class="stats-cards">
-        <div class="stat-card">
-          <h3>Tareas Completadas</h3>
-          <p>12/15</p>
-        </div>
-        <div class="stat-card">
-          <h3>Proyectos Activos</h3>
-          <p>3</p>
-        </div>
-        <div class="stat-card">
-          <h3>Horas Trabajadas</h3>
-          <p>40h</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Sección de calendario -->
-    <section class="calendar">
-      <h2>Calendario</h2>
-      <div class="calendar-view">
-        <!-- Aquí se podría agregar un calendario interactivo más adelante -->
-        <p>Vista de calendario aquí.</p>
-      </div>
-    </section>
-  </div>
+      <main class="main-content router">
+        <router-outlet></router-outlet>
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </div>
