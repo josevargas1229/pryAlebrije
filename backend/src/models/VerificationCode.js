@@ -1,11 +1,20 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database'); // Asegúrate de tener una conexión configurada
+const sequelize = require('../config/database');
+const Account = require('./Account'); // Importamos el modelo Account
 
-// Definir el modelo VerificationCode
 const VerificationCode = sequelize.define('VerificationCode', {
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    account_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'cuentas',
+            key: 'id'
+        }
     },
     code: {
         type: DataTypes.STRING,
@@ -14,10 +23,19 @@ const VerificationCode = sequelize.define('VerificationCode', {
     expiresAt: {
         type: DataTypes.DATE,
         allowNull: false
+    },
+    tipo: {
+        type: DataTypes.ENUM('2fa', 'recovery','pass_recovery', 'email_verification'),
+        allowNull: false,
+        defaultValue: 'email_verification'
+    },
+    usado: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     }
 }, {
-    tableName: 'verification_codes', // Nombre de la tabla en la base de datos
-    timestamps: false // Desactiva las marcas de tiempo automáticas (createdAt, updatedAt)
+    tableName: 'verification_codes',
+    timestamps: false
 });
 
 module.exports = VerificationCode;

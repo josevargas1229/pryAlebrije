@@ -17,16 +17,29 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 })
 export class HeaderComponent {
   isLoggedIn: boolean = false;
+  userRole: number | null = null;
+
   constructor(private authService: AuthService, private router: Router) {}
+
   ngOnInit(): void {
     // Verifica el estado de autenticación del usuario
     this.authService.isLoggedIn().subscribe((loggedIn: boolean) => {
       this.isLoggedIn = loggedIn;
+      if (this.isLoggedIn) {
+        // Obtiene el rol del usuario si está autenticado
+        this.authService.getUserRole().subscribe((role: number | null) => {
+          if(role!==null){
+            this.userRole = role;
+          }
+        });
+      }
     });
   }
+
   logout(): void {
     this.authService.logout().subscribe(() => {
       this.isLoggedIn = false;
+      this.userRole = null; // Resetea el rol del usuario al cerrar sesión
       this.router.navigate(['/']);
     });
   }

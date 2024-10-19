@@ -1,0 +1,41 @@
+.admin-dashboard {
+  .sidenav-container {
+    height: 100vh;
+  }
+
+  .sidenav {
+    width: 250px;
+    background-color: var(--mat-select-panel-background-color);
+  }
+
+  .main-content {
+    padding: 20px;
+  }
+  .main-content .router{
+    padding-bottom: 5%;
+  }
+
+  .greeting {
+    background: var(--mat-select-panel-background-color);
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  h1{
+    margin: 0;
+    line-height: 1.2;
+}
+  /* Oculta el sidenav en móviles y ajusta el ancho */
+  @media (max-width: 768px) {
+    .sidenav {
+      width: 100%;
+    }
+    h1 {
+      font-size: 1.5em; /* Reduce el tamaño de la fuente en pantallas móviles */
+    }
+    
+    p {
+      font-size: 0.9em; /* Texto más pequeño en móviles */
+    }
+  }
+}

@@ -19,8 +19,10 @@ export class AppComponent {
   constructor(private authService: AuthService, private toastService: ToastService) { }
   ngOnInit() {
     this.authService.checkAuthStatus()
-      .then(() => {
-        // Usuario autenticado, redirigir a la página principal si es necesario
+      .then((response) => {
+        if(response && response.tipo){
+          this.authService.setUserRole(response.tipo);
+        }
       })
       .catch(error => {
         if (error.message !== 'No autenticado') {

@@ -1,0 +1,112 @@
+$spacing-unit: 8px;
+$border-radius: 4px;
+$breakpoint-mobile: 600px;
+
+@mixin flex-container($direction: row, $justify: flex-start, $align: stretch, $gap: 0) {
+    display: flex;
+    flex-direction: $direction;
+    justify-content: $justify;
+    align-items: $align;
+
+    @if $gap !=0 {
+        gap: $gap;
+    }
+}
+
+@mixin mobile {
+    @media (max-width: $breakpoint-mobile) {
+        @content;
+    }
+}
+
+.dialog-content {
+    padding: $spacing-unit * 3;
+    min-width: 400px;
+    max-width: 600px;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        /* Ancho de la barra de desplazamiento */
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--mdc-filled-button-container-color);
+        /* Color del "pulgar" de la barra de desplazamiento */
+        border-radius: 10px;
+        /* Bordes redondeados */
+    }
+
+    &::-webkit-scrollbar-track {
+        background: var(--mat-select-panel-background-color);
+        /* Color del fondo de la barra de desplazamiento */
+        border-radius: 10px;
+        /* Bordes redondeados para el fondo */
+    }
+
+    @include mobile {
+        min-width: 100%;
+        padding: $spacing-unit * 2;
+    }
+}
+
+.dialog-title {
+    $title-spacing: $spacing-unit * 3;
+
+    margin: 0 0 $title-spacing 0;
+    font-size: 24px;
+    font-weight: 500;
+
+    &::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 3px;
+        margin-top: $spacing-unit;
+        border-radius: $border-radius;
+    }
+}
+
+.email-form {
+    @include flex-container(column, flex-start, stretch, $spacing-unit * 2);
+
+    .form-row {
+        @include flex-container(row, flex-start, stretch, $spacing-unit * 2);
+
+        @include mobile {
+            flex-direction: column;
+        }
+    }
+
+    .form-field {
+        width: 100%;
+
+        // Estilos específicos para textareas
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+
+            &:focus {
+                outline: none;
+            }
+        }
+
+        // Estilos para el estado de error
+        &.mat-form-field-invalid {
+            .mat-form-field-label {
+                color: darken(#f44336, 10%);
+            }
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    h2 {
+        font-size: 1.5em;
+        /* Reduce el tamaño de la fuente en pantallas móviles */
+    }
+
+    p {
+        font-size: 0.9em;
+        /* Texto más pequeño en móviles */
+    }
+}

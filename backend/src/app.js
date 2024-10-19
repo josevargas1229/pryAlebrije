@@ -12,6 +12,8 @@ const rateLimit = require('./config/rateLimitConfig');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const passwordRoutes = require('./routes/passwordRoutes');
+const emailTypeRoutes = require('./routes/emailTypeRoutes');
+const emailTemplateRoutes = require('./routes/emailTemplateRoutes');
 const app = express();
 
 // Middleware de seguridad
@@ -49,6 +51,7 @@ app.get('/', (req, res) => {
 app.use('/users', userRoutes);
 app.use('/auth', authRoutes);
 app.use('/password',passwordRoutes);
-
+app.use('/email-types', emailTypeRoutes);
+app.use('/email-templates', emailTemplateRoutes);
 app.use(errorHandler);
 module.exports = app;

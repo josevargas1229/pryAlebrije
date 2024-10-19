@@ -3,7 +3,6 @@ import { HomeComponent } from '../../public/home/home.component';
 import { TerminosCondicionesComponent } from './terminos-condiciones/terminos-condiciones.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
-import { DashboardComponent } from '../../private/dashboard/dashboard.component';
 import { RecuperaComponent } from './recupera/recupera.component';
 import { PerfilComponent } from './perfil/perfil.component';
 import { EditpolitComponent } from './editpolit/editpolit.component';
@@ -15,6 +14,7 @@ import { AuthGuard } from './guards/auth/auth.guard';
 import { PagenotfoundComponent } from './pagenotfound/pagenotfound.component';
 import { NoAuthGuard } from './guards/auth/no-auth.guard';
 import { ConfigComponent } from './config/config.component';
+import { PrivateModule } from '../../private/private.module';
 
 export const routes: Routes = [
   //rutas públicas
@@ -39,7 +39,7 @@ export const routes: Routes = [
           { path: 'config', component: ConfigComponent }
         ]
       },
-      { path: 'dashboard', component: DashboardComponent },
+      { path: 'admin',loadChildren: () => import('../../private/private.module').then(m => m.PrivateModule) },
     ], canActivate: [AuthGuard]
   },
   //rutas para usuarios no autenticados

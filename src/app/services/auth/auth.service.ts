@@ -20,9 +20,8 @@ export class AuthService {
   public currentUserSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public currentUser: Observable<any>;
   private isCheckingAuth: boolean = false;
-
+  private userRoleSubject = new BehaviorSubject<number | null>(null);
   constructor(private http: HttpClient, private csrfService: CsrfService) {
-    this.checkAuthStatus();
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
@@ -94,10 +93,12 @@ export class AuthService {
     );
   }
 
-  getUserRole(): Observable<string | null> {
-    return this.currentUser.pipe(
-      map(user => user ? user.tipo : null)
-    );
+  setUserRole(role: number): void {
+    this.userRoleSubject.next(role);
+  }
+
+  getUserRole(): Observable<number | null> {
+    return this.userRoleSubject.asObservable();
   }
 
   async checkAuthStatus(): Promise<any> {

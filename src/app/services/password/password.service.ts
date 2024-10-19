@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, switchMap } from 'rxjs';
 import { CsrfService } from '../csrf/csrf.service';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PasswordService {
-  private apiUrl = 'http://localhost:3000/password';
+  private apiUrl = `${environment.API_URL}/password`;
 
   constructor(private http: HttpClient, private csrfService: CsrfService) {}
 
@@ -15,7 +16,7 @@ export class PasswordService {
     return this.csrfService.getCsrfToken().pipe(
       switchMap(csrfToken => {
         console.log(csrfToken)
-        return this.http.post(`${this.apiUrl}/send-code`, { email }, {
+        return this.http.post(`${this.apiUrl}/send-code`, { email, tipo_id:1 }, {
           withCredentials: true,
           headers: {
             'x-csrf-token': csrfToken
