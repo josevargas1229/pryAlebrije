@@ -12,21 +12,21 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING(50),
         allowNull: false,
         validate: {
-            is: /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/
+            is: /^[a-zA-ZáéíóúÁÉÍÓÚñÑäöüÄÖÜ\s]+$/
         }
     },
     apellido_paterno: {
         type: DataTypes.STRING(20),
         allowNull: false,
         validate: {
-            is: /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$/
+            is: /^[a-zA-ZáéíóúÁÉÍÓÚñÑäöüÄÖÜ\s]+$/
         }
     },
     apellido_materno: {
         type: DataTypes.STRING(20),
         allowNull: false,
         validate: {
-            is: /^[A-Za-zÁÉÍÓÚáéíóúÑñ]+$/
+            is: /^[a-zA-ZáéíóúÁÉÍÓÚñÑäöüÄÖÜ\s]+$/
         }
     },
     email: {

@@ -8,4 +8,5 @@
 /* Espacio entre el header, el contenido y el footer */
 router-outlet {
   flex: 1; /* Permite que el router-outlet ocupe el espacio restante */
+  border: 1px solid red;
 }

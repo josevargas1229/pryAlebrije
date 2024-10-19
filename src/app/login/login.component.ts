@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AuthService } from '../services/auth/auth.service';
 import { LoginCredentials } from '../services/auth/auth.models';
@@ -12,8 +12,8 @@ import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
-import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha-2';
-import { environment } from '../../environments/environment.example';
+import { RecaptchaModule, RecaptchaFormsModule, RecaptchaComponent } from 'ng-recaptcha-2';
+import { environment } from '../../environments/environment';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -34,6 +34,7 @@ import { environment } from '../../environments/environment.example';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
+  @ViewChild('captchaRef') captchaRef!: RecaptchaComponent;
   email: string = '';
   password: string = '';
   rememberMe: boolean = false;
@@ -55,9 +56,9 @@ export class LoginComponent {
   }
 
   onSubmit(form: NgForm): void {
-    if (form.valid && this.captchaToken){
+    if (form.valid && this.captchaToken) {
       this.isLoading = true;
-      this.errorMessage = null; // Reinicia el mensaje de error
+      this.errorMessage = null;
 
       const credenciales: LoginCredentials = {
         email: this.email,
@@ -69,11 +70,16 @@ export class LoginComponent {
           console.log('Login successful:', response);
           this.isLoading = false;
           this.toastService.success('¡Bienvenido! Inicio de sesión exitoso.');
-          this.router.navigate(['/']);
+          const redirectUrl = localStorage.getItem('redirectUrl') || '/';
+          this.router.navigate([redirectUrl]).then(() => {
+            localStorage.removeItem('redirectUrl');
+          });
         },
         error: (error) => {
           console.error('Login error:', error);
           this.isLoading = false;
+          this.captchaToken = null;
+          this.captchaRef.reset(); 
           this.toastService.error(error.message);
         },
       });

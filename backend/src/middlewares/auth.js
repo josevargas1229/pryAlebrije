@@ -27,15 +27,18 @@ require('dotenv').config();
  * - 403 Forbidden: If the token is invalid or cannot be verified.
  */
 exports.authenticateToken = (req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (token == null) return res.sendStatus(401); // No token provided
+    const token = req.cookies['token']; // Asume que la cookie se llama 'token'
+    console.log(req.cookies['token'])
+    if (token == null) {
+        return res.sendStatus(401); // No se proporcionó el token
+    }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403); // Token invalid or verification failed
-        req.user = user; // Save the decoded user in the request object
-        next(); // Proceed to the next middleware
+        if (err) {
+            return res.sendStatus(403); // Token inválido o error de verificación
+        }
+        req.user = user; // Guarda el usuario decodificado en el objeto de la solicitud
+        next(); // Continúa con el siguiente middleware
     });
 };
 

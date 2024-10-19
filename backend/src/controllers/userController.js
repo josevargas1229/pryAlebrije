@@ -3,37 +3,41 @@ application. Here's a breakdown of what each function does: */
 const { User, Account, PassHistory } = require('../models/associations');
 const bcrypt = require('bcryptjs');
 
-/* The `exports.getAllUsers` function is an asynchronous function that handles the retrieval of all
-users from the database. It uses the `User` model to perform a `findAll` operation with specific
-attributes such as `id`, `nombre`, `email`, `telefono`, and `rol_id`. If the operation is
-successful, it responds with a JSON representation of the users. If an error occurs during the
-operation, it forwards the error to the `next` middleware function. */
-exports.getAllUsers = async (req, res, next) => {
+// Obtener información del usuario por ID
+exports.getUserInfo = async (req, res) => {
     try {
-        const users = await User.findAll({
-            attributes: ['id', 'nombre', 'email', 'telefono', 'rol_id']
+        const userId = req.user.userId; // Obtener el ID del usuario autenticado desde el token
+        const user = await User.findByPk(userId, {
+            attributes: ['id', 'nombre', 'apellido_paterno', 'apellido_materno', 'email', 'telefono', 'rol_id']
         });
-        res.json(users);
+        if (user) {
+            res.status(200).json(user);
+        } else {
+            res.status(404).json({ message: 'Usuario no encontrado' });
+        }
     } catch (error) {
-        next(error);
+        res.status(500).json({ message: 'Error al obtener la información del usuario', error: error.message });
     }
 };
 
-/* The `exports.getUserById` function is an asynchronous function that handles the retrieval of a
-specific user from the database based on the user's ID. */
-exports.getUserById = async (req, res, next) => {
+// Actualizar información del usuario autenticado
+exports.updateUserInfo = async (req, res) => {
     try {
-        const user = await User.findByPk(req.params.id, {
-            attributes: ['id', 'nombre', 'email', 'telefono', 'rol_id']
-        });
-        if (!user) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
+        const userId = req.user.id; // Obtener el ID del usuario autenticado desde el token
+        const { nombre, apellido_paterno, apellido_materno, email, telefono } = req.body;
+
+        const user = await User.findByPk(userId);
+        if (user) {
+            await user.update({ nombre, apellido_paterno, apellido_materno, email, telefono });
+            res.status(200).json({ message: 'Información del usuario actualizada con éxito' });
+        } else {
+            res.status(404).json({ message: 'Usuario no encontrado' });
         }
-        res.json(user);
     } catch (error) {
-        next(error);
+        res.status(500).json({ message: 'Error al actualizar la información del usuario', error: error.message });
     }
 };
+
 
 /* The `exports.createUser` function is responsible for creating a new user in the database. Here's a
 breakdown of what it does: */
@@ -69,29 +73,7 @@ exports.createUser = async (req, res, next) => {
     }
 };
 
-/* The `exports.updateUser` function is responsible for updating an existing user in the database based
-on the user's ID. Here's a breakdown of what it does: */
-exports.updateUser = async (req, res, next) => {
-    try {
-        const { nombre, email, telefono, rol_id } = req.body;
-        const [updated] = await User.update({
-            nombre,
-            email,
-            telefono,
-            rol_id
-        }, {
-            where: { id: req.params.id }
-        });
 
-        if (updated) {
-            const updatedUser = await User.findByPk(req.params.id);
-            return res.json(updatedUser);
-        }
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-    } catch (error) {
-        next(error);
-    }
-};
 
 /* The `exports.deleteUser` function is an asynchronous function that handles the deletion of a user
 from the database based on the user's ID. */
@@ -110,27 +92,3 @@ exports.deleteUser = async (req, res, next) => {
     }
 };
 
-/* The `exports.updateProfile` function is responsible for updating the profile information of a user
-in the database based on the user's ID. Here's a breakdown of what it does: */
-exports.updateProfile = async (req, res, next) => {
-    try {
-        const { nombre, email, telefono } = req.body;
-        const [updated] = await User.update({
-            nombre,
-            email,
-            telefono
-        }, {
-            where: { id: req.user.userId }
-        });
-
-        if (updated) {
-            const updatedUser = await User.findByPk(req.user.userId, {
-                attributes: ['id', 'nombre', 'email', 'telefono', 'rol_id']
-            });
-            return res.json(updatedUser);
-        }
-        return res.status(404).json({ message: 'Usuario no encontrado' });
-    } catch (error) {
-        next(error);
-    }
-};

@@ -11,12 +11,13 @@ import { environment } from '../../../environments/environment.example';
 
 
 
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private apiUrl = `${environment.API_URL}/auth`;
-  private currentUserSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  public currentUserSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public currentUser: Observable<any>;
   private isCheckingAuth: boolean = false;
 
@@ -100,11 +101,6 @@ export class AuthService {
   }
 
   async checkAuthStatus(): Promise<any> {
-
-    if (this.isCheckingAuth) return; // Si ya se está comprobando, salir
-    this.isCheckingAuth = true;
-
-    if (this.isCheckingAuth) return;
     this.isCheckingAuth = true;
     try {
       const user = await this.csrfService.getCsrfToken().pipe(

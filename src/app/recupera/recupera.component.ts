@@ -1,136 +1,155 @@
-import { Component } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { map, Observable } from 'rxjs';
+import { UserService } from '../services/user/user.service';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { ToastService } from 'angular-toastify';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Usuario } from '../services/user/user.models';
+import { PasswordService } from '../services/password/password.service';
+import { AsyncPipe, CommonModule } from '@angular/common';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-recupera',
   standalone: true,
+  imports:[
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatStepperModule,
+    AsyncPipe,
+    MatIconModule
+  ],
   templateUrl: './recupera.component.html',
   styleUrls: ['./recupera.component.scss']
 })
 export class RecuperaComponent {
-  email: string = '';
-  verificationCode1: string = '';
-  verificationCode2: string = '';
-  verificationCode3: string = '';
-  verificationCode4: string = '';
-  verificationCode5: string = '';
-  verificationCode6: string = '';
-  verificationCode7: string = '';
-  verificationCode8: string = '';
-  newPassword: string = '';
-  confirmPassword: string = '';
+  @ViewChild('stepper') stepper!: MatStepper;
   isModalOpen = false;
-  isChangePasswordModalOpen = false;
+  isCodeVerified = false;
+  isEmailSent = false;
+  errorMessage: string | null = null;
+  usuario: Usuario | null = null;
+  private _formBuilder = inject(FormBuilder);
+  private passwordService = inject(PasswordService);
 
-  constructor(private http: HttpClient) {}
+  emailFormGroup = this._formBuilder.group({
+    email: ['', [Validators.required, Validators.email]],
+  });
+
+  verificationFormGroup = this._formBuilder.group({
+    verificationCode: ['', Validators.required],
+  });
+
+  passwordFormGroup = this._formBuilder.group({
+    newPassword: ['', [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', Validators.required],
+  });
+  stepperOrientation: Observable<string>;
+
+  constructor(private userService: UserService, private toastService:ToastService) {
+    const breakpointObserver = inject(BreakpointObserver);
+    this.stepperOrientation = breakpointObserver
+      .observe('(min-width: 800px)')
+      .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
+  }
 
   openModal() {
     this.isModalOpen = true;
+    this.errorMessage = null;
   }
 
   closeModal() {
     this.isModalOpen = false;
   }
-
-  openChangePasswordModal() {
-    this.isModalOpen = false; // Cerrar el modal de verificación
-    this.isChangePasswordModalOpen = true; // Abrir el modal de cambio de contraseña
+  ngOnInit(): void {
+    this.userService.getUserInfo().subscribe(
+      (data) => {
+        this.usuario = data;
+      },
+      (error) => {
+        console.error('Error al obtener el usuario:', error);
+      }
+    );
   }
-
-  closeChangePasswordModal() {
-    this.isChangePasswordModalOpen = false;
+  editarCampo(campo: string): void {
+    // Lógica para editar el campo (mostrar modal o formulario de edición)
+    console.log(`Editando el campo: ${campo}`);
   }
-
-  // Métodos para manejar las entradas
-  onEmailInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    this.email = target.value;
-  }
-
-  onVerificationCodeInput(event: Event, codePosition: number) {
-    const target = event.target as HTMLInputElement;
-    const value = target.value;
-
-    // Guardar cada dígito en la posición correspondiente
-    switch (codePosition) {
-      case 1: this.verificationCode1 = value; break;
-      case 2: this.verificationCode2 = value; break;
-      case 3: this.verificationCode3 = value; break;
-      case 4: this.verificationCode4 = value; break;
-      case 5: this.verificationCode5 = value; break;
-      case 6: this.verificationCode6 = value; break;
-      case 7: this.verificationCode7 = value; break;
-      case 8: this.verificationCode8 = value; break;
-    }
-  }
-
-  onNewPasswordInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    this.newPassword = target.value;
-  }
-
-  onConfirmPasswordInput(event: Event) {
-    const target = event.target as HTMLInputElement;
-    this.confirmPassword = target.value;
-  }
-
-  // Métodos para manejar el envío de formularios
-  onSubmitEmail() {
-    if (this.email) {
-      this.http.post('http://localhost:3000/check-password/send-code', { email: this.email })
-        .subscribe({
-          next: (response) => {
-            console.log('Correo enviado', response);
-            this.openModal();
-          },
-          error: (error) => {
-            console.error('Error al enviar correo', error);
-            alert('Ocurrió un error al intentar enviar el correo. Por favor, intenta nuevamente.');
-          }
-        });
-    }
-  }
-
-
-
-  onSubmitVerification() {
-    const verificationCode = this.verificationCode1 + this.verificationCode2 + this.verificationCode3 + this.verificationCode4 +
-                             this.verificationCode5 + this.verificationCode6 + this.verificationCode7 + this.verificationCode8;
-
-    if (verificationCode.length === 8) {
-      const verificationData = {
-        email: this.email,
-        verificationCode: verificationCode
-      };
-      this.http.post('http://localhost:3000/check-password/verify-code', verificationData)
-        .subscribe({
-          next: (response) => {
-            console.log('Código verificado', response);
-            this.openChangePasswordModal(); // Abrir el modal de cambio de contraseña
-          },
-          error: (error) => console.error('Error en la verificación', error)
-        });
+  onSubmitEmail(stepper: MatStepper) {
+    if (this.emailFormGroup.valid) {
+      const email = this.emailFormGroup.value.email ?? '';
+      this.passwordService.sendVerificationCode(email).subscribe({
+        next: (response) => {
+          console.log('Correo enviado', response);
+          this.toastService.success('Correo enviado correctamente');
+          stepper.next(); // Avanza al siguiente paso solo si el correo se envió exitosamente
+        },
+        error: (error) => {
+          this.errorMessage = 'Error al enviar el correo. Por favor, inténtelo de nuevo.';
+          this.toastService.error(this.errorMessage);
+          console.error('Error al enviar correo', error);
+        }
+      });
     } else {
-      console.error('El código de verificación debe tener 8 dígitos.');
+      this.errorMessage = 'Por favor, ingrese un correo electrónico válido.';
     }
   }
-
-  onSubmitPassword() {
-    if (this.newPassword && this.newPassword === this.confirmPassword) {
-      const passwordData = {
-        email: this.email,
-        newPassword: this.newPassword
-      };
-      this.http.post('http://localhost:3000/check-password/change-password', passwordData)
-        .subscribe({
-          next: (response) => {
-            console.log('Contraseña cambiada', response);
-            this.closeChangePasswordModal(); // Cierra el modal de cambio de contraseña
-          },
-          error: (error) => console.error('Error al cambiar la contraseña', error)
-        });
-    } else {
-      console.error('Las contraseñas no coinciden.');
+  
+  onSubmitVerification(stepper: MatStepper) {
+    if (this.emailFormGroup.valid && this.verificationFormGroup.valid) {
+      const email = this.emailFormGroup.value.email ?? '';
+      const verificationCode = this.verificationFormGroup.value.verificationCode ?? '';
+      this.passwordService.verifyCode(email, verificationCode).subscribe({
+        next: (response) => {
+          this.isCodeVerified = true;
+          console.log('Código verificado', response);
+          this.toastService.success('Código verificado');
+          stepper.next(); // Avanza al siguiente paso solo si el código es correcto
+        },
+        error: (error) => {
+          this.isCodeVerified = false;
+          this.errorMessage = 'Error al verificar el código. Por favor, inténtelo de nuevo.';
+          this.toastService.error(this.errorMessage);
+          console.error('Error al verificar código', error);
+        }
+      });
+    }
+  }
+  
+  onSubmitPassword(stepper: MatStepper) {
+    if (this.passwordFormGroup.valid && this.isCodeVerified) {
+      const newPassword = this.passwordFormGroup.value.newPassword;
+      const confirmPassword = this.passwordFormGroup.value.confirmPassword;
+  
+      if (newPassword !== confirmPassword) {
+        this.errorMessage = 'Las contraseñas no coinciden.';
+        return;
+      }
+  
+      const email = this.emailFormGroup.value.email;
+      this.passwordService.changePassword(email ?? '', newPassword ?? '').subscribe({
+        next: (response) => {
+          console.log('Contraseña cambiada', response);
+          this.closeModal();
+          this.toastService.success('Contraseña cambiada exitosamente');
+          stepper.next(); // Avanza al paso final si la contraseña se cambió exitosamente
+        },
+        error: (error) => {
+          const errorMessage = error?.error?.error || 'Error al cambiar la contraseña. Inténtalo de nuevo.';
+        this.toastService.error(errorMessage); // Mostrar el mensaje de error específico
+        console.error('Error al cambiar contraseña', error);
+        }
+      });
+    } else if (!this.isCodeVerified) {
+      this.errorMessage = 'El código de verificación no ha sido validado.';
     }
   }
 }

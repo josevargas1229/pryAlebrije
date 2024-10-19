@@ -20,26 +20,25 @@ export const routes: Routes = [
   //rutas públicas
   { path: "", component: HomeComponent },
   { path: "terminos-condiciones", component: TerminosCondicionesComponent },
-  { path: "login", component: LoginComponent },
-  { path: "register", component: RegisterComponent },
-  { path: 'dashboard', component: DashboardComponent,canActivate:[AuthGuard]},
-  { path: 'recupera', component:RecuperaComponent},
-  { path: 'perfil', component:PerfilComponent},
   { path: 'editpolit', component:EditpolitComponent},
   { path: 'editerminos', component:EditerminosComponent},
   { path: 'editdeslinde', component:EditperfilemComponent},
   { path: 'editperfilem', component:EditperfilemComponent},
-  { path: 'perfil', component:PerfilComponent,canActivate:[AuthGuard]},
   { path: 'editpolit', component: EditpolitComponent },
   { path: 'editerminos', component: EditerminosComponent },
   { path: 'editdeslinde', component: EditperfilemComponent },
   { path: 'editperfilem', component: EditperfilemComponent },
-  { path: 'config', component:ConfigComponent},
 
   //rutas para usuarios autenticados
   {
     path: '', children: [
-      { path: 'perfil', component: PerfilComponent },
+      { 
+        path: 'perfil', 
+        children: [
+          { path: '', component: PerfilComponent },
+          { path: 'config', component: ConfigComponent }
+        ]
+      },
       { path: 'dashboard', component: DashboardComponent },
     ], canActivate: [AuthGuard]
   },

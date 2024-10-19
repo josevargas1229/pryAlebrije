@@ -4,11 +4,13 @@ import { Observable, switchMap } from 'rxjs';
 import { CsrfService } from '../csrf/csrf.service';
 import { environment } from '../../../environments/environment.example';
 
+
+
 @Injectable({
   providedIn: 'root'
 })
 export class AccountService {
-  private apiUrl = `${environment.API_URL}/check-password`;
+  private apiUrl = `${environment.API_URL}/password/check`;
 
   constructor(private http: HttpClient, private csrfService: CsrfService) {}
 
