@@ -1,0 +1,24 @@
+.logs-container {
+    padding: 20px;
+    background-color: var(--mat-select-panel-background-color);
+
+}
+
+.log-entry {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-wrap: break-word; /* Permitir que las palabras se dividan */
+    word-wrap: break-word; /* Para compatibilidad con navegadores antiguos */
+    white-space: normal; /* Permitir que el texto se divida en múltiples líneas */
+}
+
+pre {
+    white-space: pre-wrap; /* Mantiene el formato del texto, pero permite el ajuste */
+    overflow-x: auto; /* Agrega desplazamiento horizontal si el contenido es demasiado largo */
+}
+
+hr {
+    margin: 10px 0;
+}

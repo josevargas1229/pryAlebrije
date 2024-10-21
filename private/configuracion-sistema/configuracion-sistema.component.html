@@ -1,0 +1,28 @@
+<div class="config-container" *ngIf="!loading; else loadingTemplate">
+    <h2>Configuración del Sistema</h2>
+    <form [formGroup]="configForm" (ngSubmit)="onSubmit()">
+      
+      <mat-form-field appearance="outline">
+        <mat-label>Máximos Intentos de Login</mat-label>
+        <input matInput type="number" formControlName="max_intentos_login">
+        <mat-error *ngIf="configForm.get('max_intentos_login')?.hasError('min')">
+          El número mínimo de intentos es 3.
+        </mat-error>
+      </mat-form-field>
+  
+      <mat-form-field appearance="outline">
+        <mat-label>Tiempo de Bloqueo (Minutos)</mat-label>
+        <input matInput type="number" formControlName="tiempo_bloqueo_minutos">
+        <mat-error *ngIf="configForm.get('tiempo_bloqueo_minutos')?.hasError('min')">
+          El tiempo mínimo de bloqueo es 1 minuto.
+        </mat-error>
+      </mat-form-field>
+  
+      <button mat-raised-button color="primary" type="submit" [disabled]="configForm.invalid">Guardar Configuración</button>
+    </form>
+  </div>
+  
+  <ng-template #loadingTemplate>
+    <mat-spinner></mat-spinner>
+  </ng-template>
+  

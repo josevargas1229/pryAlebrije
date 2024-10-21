@@ -1,4 +1,5 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { FocusMonitor } from '@angular/cdk/a11y';
+import { AfterViewInit, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
@@ -7,15 +8,17 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   templateUrl: './email-type-dialog.component.html',
   styleUrls: ['./email-type-dialog.component.scss']
 })
-export class EmailTypeDialogComponent implements OnInit {
+export class EmailTypeDialogComponent implements OnInit, AfterViewInit, OnDestroy {
   emailTypeForm!: FormGroup;
   isViewMode: boolean = false; // Para manejar el modo de vista
   isEditMode: boolean = false; // Para manejar el modo de edición
   dialogTitle: string = '';
+  @ViewChild('dialogTop') dialogTop!: ElementRef;
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<EmailTypeDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any // Aquí se inyectan los datos
+    @Inject(MAT_DIALOG_DATA) public data: any, // Aquí se inyectan los datos
+    private focusMonitor: FocusMonitor
   ) {}
 
   ngOnInit(): void {
@@ -38,7 +41,19 @@ export class EmailTypeDialogComponent implements OnInit {
       variables_requeridas: [{ value: this.data?.variables_requeridas || '', disabled: this.isViewMode }, Validators.required]
     });
   }
+  ngAfterViewInit() {
+    if (this.isViewMode) {
+      setTimeout(() => {
+        this.focusMonitor.focusVia(this.dialogTop, 'program');
+      });
+    }
+  }
 
+  ngOnDestroy() {
+    if (this.dialogTop) {
+      this.focusMonitor.stopMonitoring(this.dialogTop);
+    }
+  }
   onSubmit() {
     if (this.emailTypeForm.valid) {
       this.dialogRef.close(this.emailTypeForm.value); // Devuelve el formulario al componente principal

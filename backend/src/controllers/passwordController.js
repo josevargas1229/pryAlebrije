@@ -93,7 +93,7 @@ exports.sendVerificationCode = async (req, res) => {
             account_id: account.id,
             code,
             expiresAt,
-            tipo_id,
+            tipo:'pass_recovery',
             usado: false
         });
 

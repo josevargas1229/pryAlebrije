@@ -89,8 +89,7 @@ export class LoginComponent {
     }
   }
   resolved(captchaResponse: string | null): void {
-    this.captchaToken = captchaResponse; // Almacena el token del reCAPTCHA
-    console.log(`Resolved captcha with response: ${captchaResponse}`);
+    this.captchaToken = captchaResponse;
   }
   togglePasswordVisibility(event: Event): void {
     event.preventDefault(); // Evita el submit del formulario

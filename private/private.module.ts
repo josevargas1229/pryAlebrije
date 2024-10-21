@@ -34,6 +34,11 @@ import { AngularToastifyModule, ToastService } from 'angular-toastify';
 import { EmailTemplateDialogComponent } from './email-template-dialog/email-template-dialog.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSelectModule } from '@angular/material/select';
+import { ConfiguracionSistemaComponent } from './configuracion-sistema/configuracion-sistema.component';
+import { MatSpinner } from '@angular/material/progress-spinner';
+import { A11yModule } from '@angular/cdk/a11y';
+import { BloqueosComponent } from './bloqueos/bloqueos.component';
+import { LogsComponent } from './logs/logs.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +48,10 @@ import { MatSelectModule } from '@angular/material/select';
     EmailTemplatesComponent,
     EmailTemplateDialogComponent,
     EmailTypesComponent,
-    EmailTypeDialogComponent
+    EmailTypeDialogComponent,
+    ConfiguracionSistemaComponent,
+    BloqueosComponent,
+    LogsComponent
   ],
   imports: [
     CommonModule,
@@ -75,12 +83,16 @@ import { MatSelectModule } from '@angular/material/select';
     MatTooltipModule,
     AngularToastifyModule,
     MatCheckboxModule,
-    MatSelectModule
+    MatSelectModule,
+    MatSpinner,
+    A11yModule
   ],
   exports:[
     DashboardComponent,
     HomeDashboardComponent,
-    EmailManagementComponent
+    EmailManagementComponent,
+    BloqueosComponent,
+    LogsComponent
   ],
   providers:[ToastService]
 })

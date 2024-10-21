@@ -10,10 +10,9 @@ const ConfiguracionSistema = sequelize.define('ConfiguracionSistema', {
     max_intentos_login: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        defaultValue: 3,
+        defaultValue: 5,
         validate: {
-            min: 1,
-            max: 10
+            min: 3
         }
     },
     tiempo_bloqueo_minutos: {

@@ -36,7 +36,11 @@ const Account = sequelize.define('Account', {
     bloqueada: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
-    }
+    },
+    bloqueada_desde: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
 }, {
     tableName: 'cuentas',
     timestamps: false

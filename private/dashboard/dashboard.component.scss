@@ -1,18 +1,88 @@
 .admin-dashboard {
+  
   .sidenav-container {
     height: 100vh;
   }
 
   .sidenav {
-    width: 250px;
+    width: 180px;
+    padding: 16px;
     background-color: var(--mat-select-panel-background-color);
+
+    // Estilo para el título del menú
+    h2 {
+      margin: 0 0 16px;
+      padding: 8px;
+      text-align: center;
+      font-size: 1.2rem;
+      color: var(--mat-primary);
+    }
+
+    // Estilos para la lista de navegación
+    mat-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    // Estilos para los botones
+    .example-button-container {
+      width: calc(100% - 4px);
+      height: auto;
+      padding: 12px;
+      border-radius: 8px;
+      background-color: transparent;
+      color: var(--mat-primary);
+      transition: all 0.3s ease;
+      box-shadow: none;
+
+      // Alineación del ícono y texto
+      mat-icon {
+        margin-right: 8px;
+      }
+
+      // Hover state
+      &:hover {
+        background-color: var(--mat-primary);
+        transform: translateX(4px);
+      }
+
+      // Active state
+      &.active-link {
+        background-color: var(--mdc-fab-container-color);
+        color: var(--mat-app-text-color);
+
+        &:hover {
+          background-color: var(--mat-primary);
+        }
+      }
+    }
   }
 
   .main-content {
     padding: 20px;
-  }
-  .main-content .router{
-    padding-bottom: 5%;
+
+    &.router {
+      padding-bottom: 5%;
+    }
+    &::-webkit-scrollbar {
+      width: 6px;
+      /* Ancho de la barra de desplazamiento */
+    }
+  
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--mdc-filled-button-container-color);
+      /* Color del "pulgar" de la barra de desplazamiento */
+      border-radius: 10px;
+      /* Bordes redondeados */
+    }
+  
+    &::-webkit-scrollbar-track {
+      background: var(--mat-select-panel-background-color);
+      /* Color del fondo de la barra de desplazamiento */
+      border-radius: 10px;
+      /* Bordes redondeados para el fondo */
+    }
   }
 
   .greeting {
@@ -20,22 +90,34 @@
     padding: 20px;
     margin-bottom: 20px;
     text-align: center;
+
+    h1 {
+      margin: 0;
+      line-height: 1.2;
+    }
   }
-  h1{
-    margin: 0;
-    line-height: 1.2;
-}
-  /* Oculta el sidenav en móviles y ajusta el ancho */
+
   @media (max-width: 768px) {
     .sidenav {
       width: 100%;
+
+      .example-button-container {
+        padding: 8px;
+        
+        &:hover {
+          transform: none; // Eliminar el efecto de desplazamiento en móvil
+        }
+      }
     }
-    h1 {
-      font-size: 1.5em; /* Reduce el tamaño de la fuente en pantallas móviles */
-    }
-    
-    p {
-      font-size: 0.9em; /* Texto más pequeño en móviles */
+
+    .greeting {
+      h1 {
+        font-size: 1.5em;
+      }
+
+      p {
+        font-size: 0.9em;
+      }
     }
   }
 }

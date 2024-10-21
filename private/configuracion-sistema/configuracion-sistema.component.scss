@@ -1,0 +1,12 @@
+.config-container {
+  max-width: 500px;
+  margin: auto;
+  background: var(--mat-select-panel-background-color); /* Agrega el color de fondo */
+  padding: 24px; /* Añadir un poco de padding para el contenido */
+  border-radius: 8px; /* Opcional: añadir bordes redondeados */
+}
+
+mat-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}

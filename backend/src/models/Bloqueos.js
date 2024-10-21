@@ -1,9 +1,7 @@
-/* This code snippet is defining a Sequelize model named `IntentoFallido` for a table called
-`intentos_fallidos` in a database. Here's a breakdown of what each part of the code is doing: */
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const IntentoFallido = sequelize.define('IntentoFallido', {
+const HistorialBloqueos = sequelize.define('HistorialBloqueos', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -11,18 +9,23 @@ const IntentoFallido = sequelize.define('IntentoFallido', {
     },
     account_id: {
         type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'cuentas',
+            key: 'id'
+        }
+    },
+    intentos: {
+        type: DataTypes.INTEGER,
         allowNull: false
     },
-    fecha: {
+    fechaBloqueo: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
-    },
-    ip: {
-        type: DataTypes.STRING(39)
     }
 }, {
-    tableName: 'intentos_fallidos',
+    tableName: 'historial_bloqueos',
     timestamps: false
 });
 
-module.exports = IntentoFallido;
+module.exports = HistorialBloqueos;

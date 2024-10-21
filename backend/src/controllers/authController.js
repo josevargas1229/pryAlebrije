@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User, Account, PassHistory, IntentoFallido } = require('../models/associations');
+const { User, Account, PassHistory, IntentoFallido, ConfiguracionSistema, HistorialBloqueos } = require('../models/associations');
 const { Op } = require('sequelize');
 require('dotenv').config();
 const { RecaptchaEnterpriseServiceClient } = require('@google-cloud/recaptcha-enterprise');
@@ -70,69 +70,86 @@ async function createAssessment({ projectID, recaptchaKey, token, recaptchaActio
 exports.login = async (req, res, next) => {
     try {
         const { email, contraseña } = req.body.credenciales;
-        const { captchaToken } = req.body
+        const { captchaToken } = req.body;
         const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
-        // Verificar el token de reCAPTCHA antes de proceder
-        const projectID = process.env.PROJECT_ID;
-        const recaptchaKey = process.env.RECAPTCHA_KEY;
-        const recaptchaAction = "LOGIN";
+        // Obtener la configuración del sistema
+        const configuracion = await ConfiguracionSistema.findOne();
 
-        const score = await createAssessment({ projectID, recaptchaKey, token: captchaToken, recaptchaAction });
-        console.log(score)
-        if (score === null || score < 0.5) {
-            return res.status(400).json({ message: 'Fallo en la verificación de reCAPTCHA. Por favor, intente nuevamente.' });
+        if (!configuracion) {
+            return res.status(500).json({ message: 'No se pudo obtener la configuración del sistema.' });
         }
 
-        // Busca al usuario y su cuenta asociada
+        const { max_intentos_login, tiempo_bloqueo_minutos } = configuracion;
+
+        // Verificar el token de reCAPTCHA antes de proceder
+        const score = await createAssessment({ 
+            projectID: process.env.PROJECT_ID, 
+            recaptchaKey: process.env.RECAPTCHA_KEY, 
+            token: captchaToken, 
+            recaptchaAction: "LOGIN" 
+        });
+
+        if (score === null || score < 0.5) {
+            return res.status(400).json({ message: 'Fallo en la verificación de reCAPTCHA. Intente nuevamente.' });
+        }
+
+        // Buscar el usuario y su cuenta asociada
         const user = await User.findOne({
             where: { email },
-            include: [{ model: Account, attributes: ['id', 'nombre_usuario', 'contraseña_hash', 'bloqueada'] }]
+            include: [{ model: Account, attributes: ['id', 'nombre_usuario', 'contraseña_hash', 'bloqueada', 'bloqueada_desde'] }]
         });
-        // Si no se encuentra el usuario, responde con un error
+
         if (!user) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
-        // Verifica si la cuenta está bloqueada
-        if (user.Account.bloqueada) {
-            return res.status(403).json({ message: 'Cuenta bloqueada debido a demasiados intentos fallidos.' });
+        const { bloqueada, bloqueada_desde } = user.Account;
+
+        // Verificar si la cuenta está bloqueada
+        if (bloqueada) {
+            const tiempoDesbloqueo = new Date(bloqueada_desde);
+            tiempoDesbloqueo.setMinutes(tiempoDesbloqueo.getMinutes() + tiempo_bloqueo_minutos);
+
+            if (new Date() < tiempoDesbloqueo) {
+                return res.status(403).json({ message: `Cuenta bloqueada. Intente nuevamente después de ${tiempoDesbloqueo.toLocaleTimeString()}` });
+            } else {
+                // Desbloquear la cuenta si ha pasado el tiempo de bloqueo
+                await user.Account.update({ bloqueada: false, bloqueada_desde: null });
+                await IntentoFallido.destroy({ where: { account_id: user.Account.id } });
+            }
         }
 
-        const maxIntentosFallidos = 5;
         const intentosFallidos = await IntentoFallido.count({
             where: {
-                user_id: user.id,
-                fecha: {
-                    [Op.gte]: new Date(Date.now() - 60 * 60 * 1000) // Contar intentos en la última hora
-                }
+                account_id: user.Account.id
             }
         });
 
-        if (intentosFallidos >= maxIntentosFallidos) {
-            // Bloquear la cuenta si supera el límite de intentos fallidos
-            await user.Account.update({ bloqueada: true });
+        if (intentosFallidos >= max_intentos_login) {
+            // Bloquear la cuenta y registrar el momento del bloqueo
+            await user.Account.update({ bloqueada: true, bloqueada_desde: new Date() });
+
+            // Registrar el bloqueo en el historial de bloqueos
+            await HistorialBloqueos.create({
+                account_id: user.Account.id,
+                intentos: intentosFallidos,
+                fechaBloqueo: new Date()
+            });
+
             return res.status(403).json({ message: 'Cuenta bloqueada debido a demasiados intentos fallidos.' });
         }
 
-        // Compara la contraseña ingresada con la contraseña almacenada
         const isMatch = await bcrypt.compare(contraseña, user.Account.contraseña_hash);
         if (!isMatch) {
-            await IntentoFallido.create({
-                user_id: user.id,
-                ip: ip,
-                fecha: new Date()
-            });
+            await IntentoFallido.create({ account_id: user.Account.id, ip, fecha: new Date() });
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
-        // Si el inicio de sesión es exitoso, puedes restablecer intentos fallidos
-        await IntentoFallido.destroy({ where: { user_id: user.id } }); // Limpiar intentos fallidos
-
-        // Actualizar el último acceso
+        // Resetear intentos fallidos y desbloquear la cuenta
+        await IntentoFallido.destroy({ where: { account_id: user.Account.id } });
         await user.Account.update({ ultimo_acceso: new Date() });
 
-        // Generar el token de autenticación
         const token = jwt.sign(
             { userId: user.id, tipo: user.rol_id },
             process.env.JWT_SECRET,
@@ -146,8 +163,8 @@ exports.login = async (req, res, next) => {
             maxAge: 3600000
         });
 
-        // Responder con los datos del usuario (sin el token)
         res.json({ userId: user.id, tipo: user.rol_id });
+
     } catch (error) {
         next(error);
     }

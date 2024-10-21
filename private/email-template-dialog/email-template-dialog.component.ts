@@ -1,25 +1,27 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { EmailManagementService } from '../services/email-management/email-management.service.service';
+import { FocusMonitor } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-email-template-dialog',
   templateUrl: './email-template-dialog.component.html',
   styleUrls: ['./email-template-dialog.component.scss']
 })
-export class EmailTemplateDialogComponent implements OnInit {
+export class EmailTemplateDialogComponent implements OnInit, AfterViewInit, OnDestroy {
   emailTemplateForm!: FormGroup;
   emailTypes: any[] = []; // Lista de tipos de correos cargados
   isViewMode: boolean = false;
   isEditMode: boolean = false;
   dialogTitle: string = '';
-
+  @ViewChild('dialogTop') dialogTop!: ElementRef;
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<EmailTemplateDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,  // Inyectar datos (crear, editar, ver)
-    private emailService: EmailManagementService  // Servicio para cargar tipos de correos
+    private emailService: EmailManagementService,  // Servicio para cargar tipos de correos
+    private focusMonitor: FocusMonitor
   ) {}
 
   ngOnInit(): void {
@@ -54,7 +56,19 @@ export class EmailTemplateDialogComponent implements OnInit {
       this.emailTemplateForm.disable();
     }
   }
+  ngAfterViewInit() {
+    if (this.isViewMode) {
+      setTimeout(() => {
+        this.focusMonitor.focusVia(this.dialogTop, 'program');
+      });
+    }
+  }
 
+  ngOnDestroy() {
+    if (this.dialogTop) {
+      this.focusMonitor.stopMonitoring(this.dialogTop);
+    }
+  }
   // Método para cargar los tipos de correo
   loadEmailTypes(): void {
     this.emailService.getAllTypes().subscribe((response: any) => {

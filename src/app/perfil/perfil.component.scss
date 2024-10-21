@@ -103,65 +103,6 @@
   background-color: #0056b3;
 }
 
-.seo-details {
-  margin-top: 40px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  padding: 30px;
-}
-
-.seo-details h3 {
-  font-size: 1.8rem;
-  margin-bottom: 20px;
-}
-
-.seo-details ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.seo-details li {
-  font-size: 1rem;
-  margin-bottom: 10px;
-  position: relative;
-  padding-left: 20px;
-}
-
-.seo-details li::before {
-  content: '✓';
-  position: absolute;
-  left: 0;
-  color: #007bff;
-}
-
-.seo-details p {
-  font-size: 1rem;
-  margin-top: 20px;
-}
-
-@media (max-width: 768px) {
-  .services-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .section-title {
-    font-size: 2rem;
-  }
-
-  .service-card {
-    padding: 20px;
-  }
-
-  /* Responsivo para la sección de perfil */
-  .user-info {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .user-photo {
-    margin-bottom: 20px;
-  }
-}
 /* Estilo del botón de settings */
 .settings-button-container {
   position: absolute;
@@ -207,5 +148,29 @@
 
   100% {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .service-card {
+    padding: 20px;
+  }
+
+  /* Responsivo para la sección de perfil */
+  .user-info {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .user-photo {
+    margin-bottom: 20px;
   }
 }
