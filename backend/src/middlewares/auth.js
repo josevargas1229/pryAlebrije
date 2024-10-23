@@ -28,7 +28,6 @@ require('dotenv').config();
  */
 exports.authenticateToken = (req, res, next) => {
     const token = req.cookies['token']; // Asume que la cookie se llama 'token'
-    console.log(req.cookies['token'])
     if (token == null) {
         return res.sendStatus(401); // No se proporcionó el token
     }
