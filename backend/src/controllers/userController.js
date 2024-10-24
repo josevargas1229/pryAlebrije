@@ -44,7 +44,8 @@ breakdown of what it does: */
 exports.createUser = async (req, res, next) => {
     try {
         const { usuario, cuenta } = req.body;
-
+        console.log(usuario)
+        console.log('cuenta: ',cuenta.contraseña_hash)
         const user = await User.create({
             nombre: usuario.nombre,
             apellido_paterno: usuario.apellido_paterno,
@@ -53,6 +54,7 @@ exports.createUser = async (req, res, next) => {
             telefono: usuario.telefono,
             rol_id: usuario.rol_id
         });
+        console.log(user)
 
         const hashedPassword = await bcrypt.hash(cuenta.contraseña_hash, 10);
 
@@ -69,6 +71,7 @@ exports.createUser = async (req, res, next) => {
 
         res.status(201).json({ message: 'Usuario creado exitosamente' });
     } catch (error) {
+        console.log(error)
         next(error);
     }
 };

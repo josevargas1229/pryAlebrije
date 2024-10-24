@@ -1,0 +1,14 @@
+<div class="verification-container card" *ngIf="!isVerified">
+    <h2>¡Verifica tu correo!</h2>
+    <p>
+        Se ha enviado un correo a <strong>{{ userEmail }}</strong>. Por favor, revisa tu bandeja de entrada y sigue el
+        enlace de activación para completar el proceso de verificación de tu cuenta.
+    </p>
+    <p>Si no recibes el correo en unos minutos, revisa también tu carpeta de spam.</p>
+    <button mat-button color="primary" (click)="resendEmail()">Reenviar correo</button>
+</div>
+
+<div class="verification-success card" *ngIf="isVerified">
+    <h2>¡Verificación Exitosa!</h2>
+    <p>Tu cuenta ha sido verificada correctamente. Serás redirigido al login.</p>
+</div>

@@ -1,0 +1,11 @@
+<div class="logs-container" *ngIf="!cargando">
+    <h2>Incidencias del sistema</h2>
+    <div *ngFor="let log of logs" class="log-entry">
+        <p><strong>Fecha:</strong> {{ log.timestamp }}</p>
+        <p><strong>Nivel:</strong> {{ log.level }}</p>
+        <p><strong>Mensaje:</strong> {{ log.message }}</p>
+        <pre><strong>Stack Trace:</strong> {{ log.stack }}</pre>
+        <hr>
+    </div>
+</div>
+<div *ngIf="cargando">Cargando logs...</div>

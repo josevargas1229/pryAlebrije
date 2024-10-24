@@ -29,7 +29,7 @@ export class PasswordService {
   verifyCode(email: string, code: string): Observable<any> {
     return this.csrfService.getCsrfToken().pipe(
       switchMap(csrfToken => {
-        const verificationData = { email, code };
+        const verificationData = { email, code, tipo:'pass_recovery' };
         return this.http.post(`${this.apiUrl}/verify-code`, verificationData, {
           withCredentials: true,
           headers: {

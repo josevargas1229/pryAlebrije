@@ -28,7 +28,6 @@ require('dotenv').config();
  */
 exports.authenticateToken = (req, res, next) => {
     const token = req.cookies['token']; // Asume que la cookie se llama 'token'
-    console.log(req.cookies['token'])
     if (token == null) {
         return res.sendStatus(401); // No se proporcionó el token
     }
@@ -57,4 +56,22 @@ exports.authorize = (...allowedRoles) => {
             res.status(403).json({ message: 'No autorizado' });
         }
     };
+};
+
+exports.verifyEmailToken = (req, res,next) => {
+    const { token } = req.query;
+    console.log(token)
+    if (!token) {
+        return res.status(400).json({ error: 'Token es requerido' });
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ error: 'Token inválido o expirado' });
+        }
+
+        req.user = decoded; // Guarda el usuario decodificado en el objeto de la solicitud
+        console.log(decoded)
+        next(); // Continúa con el siguiente middleware
+    });
 };

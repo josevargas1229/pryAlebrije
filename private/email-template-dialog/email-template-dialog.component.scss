@@ -68,40 +68,51 @@ $breakpoint-mobile: 600px;
 
 .email-form {
     @include flex-container(column, flex-start, stretch, $spacing-unit * 2);
-
-    .form-row {
-        @include flex-container(row, flex-start, stretch, $spacing-unit * 2);
-
-        @include mobile {
-            flex-direction: column;
-        }
-    }
-
+  
     .form-field {
-        width: 100%;
-
-        // Estilos específicos para textareas
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-
-            &:focus {
-                outline: none;
-            }
+      width: 100%;
+  
+      // Estilos específicos para textareas
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+  
+        &:focus {
+          outline: none;
         }
-
-        textarea{
-            margin-bottom: 5px;
+      }
+  
+      // Ajustar el espaciado del mat-hint
+      ::ng-deep .mat-mdc-form-field-hint-wrapper {
+        padding-bottom: $spacing-unit * 2; // Aumentar el espacio después del hint
+      }
+  
+      // Estilos para el contenedor del hint
+      ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+        margin-bottom: $spacing-unit; // Espacio adicional después del contenedor del hint
+      }
+  
+      // Estilo para el texto del hint
+      ::ng-deep .mat-mdc-form-field-hint {
+        font-size: 0.85em; // Ajustar tamaño del texto
+        line-height: 1.4; // Mejorar la altura de línea
+        
+        code {
+          background-color: rgba(0, 0, 0, 0.04);
+          padding: 2px 4px;
+          border-radius: 3px;
+          font-size: 0.9em;
         }
-
-        // Estilos para el estado de error
-        &.mat-form-field-invalid {
-            .mat-form-field-label {
-                color: darken(#f44336, 10%);
-            }
+      }
+  
+      // Estilos para el estado de error
+      &.mat-form-field-invalid {
+        .mat-form-field-label {
+          color: darken(#f44336, 10%);
         }
+      }
     }
-}
+  }
 
 @media (max-width: 768px) {
     h2 {

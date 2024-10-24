@@ -9,7 +9,7 @@ const IntentoFallido = sequelize.define('IntentoFallido', {
         primaryKey: true,
         autoIncrement: true
     },
-    user_id: {
+    account_id: {
         type: DataTypes.INTEGER,
         allowNull: false
     },

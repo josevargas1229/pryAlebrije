@@ -1,4 +1,10 @@
 .email-management-container {
-    padding: 24px;
+  padding: 24px;
+  background: var(--mat-select-panel-background-color); /* Agrega el color de fondo */
+}
+
+@media (max-width: 768px) {
+  h1 {
+      font-size: 1.5em; /* Reduce el tamaño de la fuente en pantallas móviles */
   }
-  
+}

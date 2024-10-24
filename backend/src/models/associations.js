@@ -9,6 +9,7 @@ const IntentoFallido = require('./IntentoFallido');
 const EmailType = require('./EmailType');
 const EmailTemplate = require('./EmailTemplate');
 const ConfiguracionSistema = require('./Configuration');
+const HistorialBloqueos = require('./Bloqueos');
 
 // Definir la asociación entre User y Rol
 Rol.hasMany(User, { foreignKey: 'rol_id' });
@@ -21,9 +22,11 @@ Product.belongsTo(Categoria, { foreignKey: 'categoria_id' });
 User.hasOne(Account, { foreignKey: 'user_id' });
 Account.belongsTo(User, { foreignKey: 'user_id' });
 
-User.hasMany(IntentoFallido, { foreignKey: 'user_id' });
-IntentoFallido.belongsTo(User, { foreignKey: 'user_id' });
+Account.hasMany(IntentoFallido, { foreignKey: 'account_id' });
+IntentoFallido.belongsTo(Account, { foreignKey: 'account_id' });
 
+Account.hasMany(HistorialBloqueos, { foreignKey: 'account_id' });
+HistorialBloqueos.belongsTo(Account, { foreignKey: 'account_id', as: 'cuenta' });
 // Asociaciones de Account
 Account.hasMany(PassHistory, { foreignKey: 'account_id' });
 PassHistory.belongsTo(Account, { foreignKey: 'account_id' });
@@ -45,5 +48,6 @@ module.exports = {
     Rol,
     EmailType,
     EmailTemplate,
-    ConfiguracionSistema
+    ConfiguracionSistema,
+    HistorialBloqueos
 };

@@ -1,10 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User, Account, PassHistory, IntentoFallido } = require('../models/associations');
+const { User, Account, PassHistory, IntentoFallido, ConfiguracionSistema, HistorialBloqueos } = require('../models/associations');
 const { Op } = require('sequelize');
 require('dotenv').config();
 const { RecaptchaEnterpriseServiceClient } = require('@google-cloud/recaptcha-enterprise');
-
+const nodemailer = require('nodemailer');
+const EmailTemplate = require('../models/EmailTemplate');
 /**
  * The `createAssessment` function uses the Google reCAPTCHA Enterprise API to assess the validity of 
  * a CAPTCHA token provided by the client during a user action (e.g., login). It returns the score 
@@ -70,69 +71,86 @@ async function createAssessment({ projectID, recaptchaKey, token, recaptchaActio
 exports.login = async (req, res, next) => {
     try {
         const { email, contraseña } = req.body.credenciales;
-        const { captchaToken } = req.body
+        const { captchaToken } = req.body;
         const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
-        // Verificar el token de reCAPTCHA antes de proceder
-        const projectID = process.env.PROJECT_ID;
-        const recaptchaKey = process.env.RECAPTCHA_KEY;
-        const recaptchaAction = "LOGIN";
+        // Obtener la configuración del sistema
+        const configuracion = await ConfiguracionSistema.findOne();
 
-        const score = await createAssessment({ projectID, recaptchaKey, token: captchaToken, recaptchaAction });
-        console.log(score)
-        if (score === null || score < 0.5) {
-            return res.status(400).json({ message: 'Fallo en la verificación de reCAPTCHA. Por favor, intente nuevamente.' });
+        if (!configuracion) {
+            return res.status(500).json({ message: 'No se pudo obtener la configuración del sistema.' });
         }
 
-        // Busca al usuario y su cuenta asociada
+        const { max_intentos_login, tiempo_bloqueo_minutos } = configuracion;
+
+        // Verificar el token de reCAPTCHA antes de proceder
+        const score = await createAssessment({ 
+            projectID: process.env.PROJECT_ID, 
+            recaptchaKey: process.env.RECAPTCHA_KEY, 
+            token: captchaToken, 
+            recaptchaAction: "LOGIN" 
+        });
+
+        if (score === null || score < 0.5) {
+            return res.status(400).json({ message: 'Fallo en la verificación de reCAPTCHA. Intente nuevamente.' });
+        }
+
+        // Buscar el usuario y su cuenta asociada
         const user = await User.findOne({
             where: { email },
-            include: [{ model: Account, attributes: ['id', 'nombre_usuario', 'contraseña_hash', 'bloqueada'] }]
+            include: [{ model: Account, attributes: ['id', 'nombre_usuario', 'contraseña_hash', 'bloqueada', 'bloqueada_desde','verified'] }]
         });
-        // Si no se encuentra el usuario, responde con un error
+
         if (!user) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
-        // Verifica si la cuenta está bloqueada
-        if (user.Account.bloqueada) {
-            return res.status(403).json({ message: 'Cuenta bloqueada debido a demasiados intentos fallidos.' });
+        const { bloqueada, bloqueada_desde } = user.Account;
+
+        // Verificar si la cuenta está bloqueada
+        if (bloqueada) {
+            const tiempoDesbloqueo = new Date(bloqueada_desde);
+            tiempoDesbloqueo.setMinutes(tiempoDesbloqueo.getMinutes() + tiempo_bloqueo_minutos);
+
+            if (new Date() < tiempoDesbloqueo) {
+                return res.status(403).json({ message: `Cuenta bloqueada. Intente nuevamente después de ${tiempoDesbloqueo.toLocaleTimeString()}` });
+            } else {
+                // Desbloquear la cuenta si ha pasado el tiempo de bloqueo
+                await user.Account.update({ bloqueada: false, bloqueada_desde: null });
+                await IntentoFallido.destroy({ where: { account_id: user.Account.id } });
+            }
         }
 
-        const maxIntentosFallidos = 5;
         const intentosFallidos = await IntentoFallido.count({
             where: {
-                user_id: user.id,
-                fecha: {
-                    [Op.gte]: new Date(Date.now() - 60 * 60 * 1000) // Contar intentos en la última hora
-                }
+                account_id: user.Account.id
             }
         });
 
-        if (intentosFallidos >= maxIntentosFallidos) {
-            // Bloquear la cuenta si supera el límite de intentos fallidos
-            await user.Account.update({ bloqueada: true });
+        if (intentosFallidos >= max_intentos_login) {
+            // Bloquear la cuenta y registrar el momento del bloqueo
+            await user.Account.update({ bloqueada: true, bloqueada_desde: new Date() });
+
+            // Registrar el bloqueo en el historial de bloqueos
+            await HistorialBloqueos.create({
+                account_id: user.Account.id,
+                intentos: intentosFallidos,
+                fechaBloqueo: new Date()
+            });
+
             return res.status(403).json({ message: 'Cuenta bloqueada debido a demasiados intentos fallidos.' });
         }
 
-        // Compara la contraseña ingresada con la contraseña almacenada
         const isMatch = await bcrypt.compare(contraseña, user.Account.contraseña_hash);
         if (!isMatch) {
-            await IntentoFallido.create({
-                user_id: user.id,
-                ip: ip,
-                fecha: new Date()
-            });
+            await IntentoFallido.create({ account_id: user.Account.id, ip, fecha: new Date() });
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
-        // Si el inicio de sesión es exitoso, puedes restablecer intentos fallidos
-        await IntentoFallido.destroy({ where: { user_id: user.id } }); // Limpiar intentos fallidos
-
-        // Actualizar el último acceso
+        // Resetear intentos fallidos y desbloquear la cuenta
+        await IntentoFallido.destroy({ where: { account_id: user.Account.id } });
         await user.Account.update({ ultimo_acceso: new Date() });
 
-        // Generar el token de autenticación
         const token = jwt.sign(
             { userId: user.id, tipo: user.rol_id },
             process.env.JWT_SECRET,
@@ -142,12 +160,12 @@ exports.login = async (req, res, next) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'Strict',
+            sameSite: process.env.NODE_ENV === 'production'?'None':'Strict',
             maxAge: 3600000
         });
 
-        // Responder con los datos del usuario (sin el token)
-        res.json({ userId: user.id, tipo: user.rol_id });
+        res.json({ userId: user.id, tipo: user.rol_id, verified: user.Account.verified });
+
     } catch (error) {
         next(error);
     }
@@ -228,7 +246,7 @@ exports.checkAuth = async (req, res, next) => {
             where: { id: decoded.userId },
             include: [{
                 model: Account,
-                attributes: ['id', 'nombre_usuario', 'bloqueada']
+                attributes: ['id', 'nombre_usuario', 'bloqueada','verified']
             }],
             attributes: ['id', 'email', 'rol_id']
         });
@@ -240,7 +258,15 @@ exports.checkAuth = async (req, res, next) => {
         if (user.Account.bloqueada) {
             return res.status(403).json({ message: 'Cuenta bloqueada' });
         }
-
+        if(!user.Account.verified){
+            res.clearCookie('token', {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production'?'None':'Strict'
+            });
+            return res.status(403).json({isVerified:false})
+        }
+        console.log(user.Account.verified)
         // Renovar el token si está cerca de expirar 
         const expirationThreshold = 15 * 60; // 15 minutos en segundos
         if (decoded.exp - (Date.now() / 1000) < expirationThreshold) {
@@ -253,7 +279,7 @@ exports.checkAuth = async (req, res, next) => {
             res.cookie('token', newToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: 'Strict',
+                sameSite: process.env.NODE_ENV === 'production'?'None':'Strict',
                 maxAge: 3600000
             });
         }
@@ -288,11 +314,110 @@ exports.logout = (req, res, next) => {
         res.clearCookie('token', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'Strict'
+            sameSite: process.env.NODE_ENV === 'production'?'None':'Strict'
         });
 
         res.status(200).json({ message: 'Logout exitoso' });
     } catch (error) {
         next(error);
+    }
+};
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
+
+// Función para enviar el enlace de verificación
+exports.sendVerificationLink = async (req, res) => {
+    const { email, tipo_id = 2 } = req.body;
+    if (!email) {
+        return res.status(400).json({ error: 'Email es requerido' });
+    }
+
+    try {
+        // 1. Encontrar el usuario
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ error: 'El email no está registrado' });
+        }
+
+        // 2. Encontrar la cuenta asociada
+        const account = await Account.findOne({ where: { user_id: user.id } });
+        if (!account) {
+            return res.status(404).json({ error: 'No se encontró una cuenta asociada' });
+        }
+
+        // 3. Buscar la plantilla de correo según el tipo de correo (tipo_id)
+        const emailTemplate = await EmailTemplate.findOne({ where: { tipo_id } });
+        if (!emailTemplate) {
+            return res.status(404).json({ error: 'No se encontró una plantilla de correo para este tipo' });
+        }
+
+        // 4. Generar un token JWT para la verificación
+        const token = jwt.sign({ userId: user.id, tipo: user.rol_id  }, process.env.JWT_SECRET, { expiresIn: '30m' });
+
+        // 5. Crear el enlace de verificación
+        const verificationLink = `${process.env.URL_DOMAIN}/verificacion?token=${token}`;
+
+        // 6. Preparar el contenido del correo
+        const variables = { verificationLink }; // Puedes agregar más variables si es necesario
+        let contenidoHtml = emailTemplate.contenido_html;
+        let contenidoTexto = emailTemplate.contenido_texto;
+
+        // Reemplazar las variables en el contenido HTML y Texto
+        for (const [key, value] of Object.entries(variables)) {
+            const regex = new RegExp(`\\$\\{${key}\\}`, 'g');
+            contenidoHtml = contenidoHtml.replace(regex, value);
+            contenidoTexto = contenidoTexto.replace(regex, value);
+        }
+
+        // 7. Enviar el correo
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: emailTemplate.asunto,
+            text: contenidoTexto,
+            html: contenidoHtml,
+        };
+
+        transporter.sendMail(mailOptions, (error) => {
+            if (error) {
+                console.error('Error al enviar el correo:', error);
+                return res.status(500).json({ error: 'Error al enviar el correo' });
+            }
+            res.json({ message: 'Enlace de verificación enviado' });
+        });
+    } catch (error) {
+        console.error('Error al generar y enviar el enlace de verificación:', error);
+        return res.status(500).json({ error: 'Error interno al procesar la solicitud' });
+    }
+};
+exports.completeEmailVerification = async (req, res,next) => {
+    const decoded=req.user; // Obteniendo el id de la cuenta del middleware
+
+    try {
+        const user = await User.findOne({
+            where: { id: decoded.userId },
+            include: [{
+                model: Account,
+                attributes: ['id', 'nombre_usuario', 'bloqueada']
+            }],
+            attributes: ['id', 'email', 'rol_id']
+        });
+        if (!user || !user.Account) {
+            return res.status(404).json({ error: 'Usuario o cuenta no encontrada' });
+        }
+
+        // Marcar la cuenta como verificada
+        await user.Account.update({ verified: true });
+
+        return res.json({ message: 'Correo verificado con éxito' });
+    } catch (error) {
+        console.error('Error al verificar el correo:', error);
+        return res.status(500).json({ error: 'Error interno al verificar el correo' });
     }
 };

@@ -1,5 +1,7 @@
 <mat-dialog-content class="dialog-content">
-    <h2 class="dialog-title">{{ dialogTitle }}</h2>
+    <div #dialogTop tabindex="0" class="dialog-focus-trap">
+        <h2 class="dialog-title">{{ dialogTitle }}</h2>
+    </div>
 
     <form [formGroup]="emailTypeForm" (ngSubmit)="onSubmit()" class="email-form">
         <div class="form-row">
@@ -36,8 +38,27 @@
         </mat-form-field>
 
         <div class="action-buttons">
-            <button mat-button mat-dialog-close>Cancelar</button>
-            <button mat-raised-button color="primary" type="submit" [disabled]="isViewMode">Guardar</button>
+            <!-- Si estamos en modo vista, mostramos solo el botón de cerrar -->
+            <button *ngIf="isViewMode" 
+                    mat-raised-button 
+                    color="primary" 
+                    mat-dialog-close >
+                Cerrar
+            </button>
+
+            <!-- Si estamos en modo edición o creación -->
+            <ng-container *ngIf="!isViewMode">
+                <button mat-button 
+                        type="button" 
+                        mat-dialog-close>
+                    Cancelar
+                </button>
+                <button mat-raised-button 
+                        color="primary" 
+                        type="submit" >
+                    Guardar
+                </button>
+            </ng-container>
         </div>
     </form>
 </mat-dialog-content>

@@ -6,4 +6,5 @@ export interface Usuario {
     email: string;
     telefono: string;
     rol_id: number;
+    isVerified?:boolean;
 }

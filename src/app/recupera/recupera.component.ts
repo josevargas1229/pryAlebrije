@@ -13,6 +13,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-recupera',
@@ -40,6 +41,12 @@ export class RecuperaComponent {
   private _formBuilder = inject(FormBuilder);
   private passwordService = inject(PasswordService);
 
+  stepPermissions = {
+    emailStep: true,      // Primer paso siempre accesible
+    verificationStep: false,
+    passwordStep: false,
+    doneStep: false
+  };
   emailFormGroup = this._formBuilder.group({
     email: ['', [Validators.required, Validators.email]],
   });
@@ -52,104 +59,120 @@ export class RecuperaComponent {
     newPassword: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', Validators.required],
   });
+
   stepperOrientation: Observable<string>;
 
-  constructor(private userService: UserService, private toastService:ToastService) {
+  constructor(
+    private userService: UserService, 
+    private toastService: ToastService,
+    private router: Router
+  ) {
     const breakpointObserver = inject(BreakpointObserver);
     this.stepperOrientation = breakpointObserver
       .observe('(min-width: 800px)')
       .pipe(map(({ matches }) => (matches ? 'horizontal' : 'vertical')));
   }
 
-  openModal() {
-    this.isModalOpen = true;
-    this.errorMessage = null;
+  // Método para controlar la navegación del stepper
+  selectionChange(event: any): void {
+    const selectedIndex = event.selectedIndex;
+    const previousIndex = event.previouslySelectedIndex;
+
+    // Si intenta avanzar sin permiso, regresa al paso anterior
+    if (!this.canAccessStep(selectedIndex)) {
+      setTimeout(() => {
+        this.stepper.selectedIndex = previousIndex;
+      });
+    }
   }
 
-  closeModal() {
-    this.isModalOpen = false;
+  // Método para verificar si se puede acceder a un paso específico
+  canAccessStep(stepIndex: number): boolean {
+    switch (stepIndex) {
+      case 0: // Email step
+        return this.stepPermissions.emailStep;
+      case 1: // Verification step
+        return this.stepPermissions.verificationStep;
+      case 2: // Password step
+        return this.stepPermissions.passwordStep;
+      case 3: // Done step
+        return this.stepPermissions.doneStep;
+      default:
+        return false;
+    }
   }
-  ngOnInit(): void {
-    this.userService.getUserInfo().subscribe(
-      (data) => {
-        this.usuario = data;
-      },
-      (error) => {
-        console.error('Error al obtener el usuario:', error);
-      }
-    );
-  }
-  editarCampo(campo: string): void {
-    // Lógica para editar el campo (mostrar modal o formulario de edición)
-    console.log(`Editando el campo: ${campo}`);
-  }
-  onSubmitEmail(stepper: MatStepper) {
+
+  onSubmitEmail(event: Event) {
+    event.preventDefault();
     if (this.emailFormGroup.valid) {
       const email = this.emailFormGroup.value.email ?? '';
       this.passwordService.sendVerificationCode(email).subscribe({
         next: (response) => {
-          console.log('Correo enviado', response);
+          this.isEmailSent = true;
+          this.stepPermissions.verificationStep = true; // Habilita el siguiente paso
           this.toastService.success('Correo enviado correctamente');
-          stepper.next(); // Avanza al siguiente paso solo si el correo se envió exitosamente
+          this.stepper.next();
         },
         error: (error) => {
-          this.errorMessage = 'Error al enviar el correo. Por favor, inténtelo de nuevo.';
-          this.toastService.error(this.errorMessage);
-          console.error('Error al enviar correo', error);
+          this.isEmailSent = false;
+          this.stepPermissions.verificationStep = false;
+          const errorMessage = error.error?.error || 'Error al enviar el correo. Por favor, inténtelo de nuevo.';
+        this.toastService.error(errorMessage);
         }
       });
-    } else {
-      this.errorMessage = 'Por favor, ingrese un correo electrónico válido.';
     }
   }
-  
-  onSubmitVerification(stepper: MatStepper) {
-    if (this.emailFormGroup.valid && this.verificationFormGroup.valid) {
+
+  onSubmitVerification(event: Event) {
+    event.preventDefault();
+    if (this.verificationFormGroup.valid) {
       const email = this.emailFormGroup.value.email ?? '';
       const verificationCode = this.verificationFormGroup.value.verificationCode ?? '';
       this.passwordService.verifyCode(email, verificationCode).subscribe({
         next: (response) => {
           this.isCodeVerified = true;
-          console.log('Código verificado', response);
-          this.toastService.success('Código verificado');
-          stepper.next(); // Avanza al siguiente paso solo si el código es correcto
+          this.stepPermissions.passwordStep = true; // Habilita el siguiente paso
+          this.toastService.success('Código verificado correctamente');
+          this.stepper.next();
         },
         error: (error) => {
           this.isCodeVerified = false;
-          this.errorMessage = 'Error al verificar el código. Por favor, inténtelo de nuevo.';
-          this.toastService.error(this.errorMessage);
-          console.error('Error al verificar código', error);
+          this.stepPermissions.passwordStep = false;
+          const errorMessage = error.error?.error || 'Código de verificación inválido';
+        this.toastService.error(errorMessage);
         }
       });
     }
   }
-  
-  onSubmitPassword(stepper: MatStepper) {
+
+  onSubmitPassword(event: Event) {
+    event.preventDefault();
     if (this.passwordFormGroup.valid && this.isCodeVerified) {
       const newPassword = this.passwordFormGroup.value.newPassword;
       const confirmPassword = this.passwordFormGroup.value.confirmPassword;
-  
+
       if (newPassword !== confirmPassword) {
         this.errorMessage = 'Las contraseñas no coinciden.';
+        this.toastService.error(this.errorMessage);
         return;
       }
-  
+
       const email = this.emailFormGroup.value.email;
       this.passwordService.changePassword(email ?? '', newPassword ?? '').subscribe({
         next: (response) => {
-          console.log('Contraseña cambiada', response);
-          this.closeModal();
+          this.stepPermissions.doneStep = true; // Habilita el paso final
           this.toastService.success('Contraseña cambiada exitosamente');
-          stepper.next(); // Avanza al paso final si la contraseña se cambió exitosamente
+          this.stepper.next();
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 2000);
         },
         error: (error) => {
+          this.stepPermissions.doneStep = false;
           const errorMessage = error?.error?.error || 'Error al cambiar la contraseña. Inténtalo de nuevo.';
-        this.toastService.error(errorMessage); // Mostrar el mensaje de error específico
-        console.error('Error al cambiar contraseña', error);
+          this.toastService.error(errorMessage);
         }
       });
-    } else if (!this.isCodeVerified) {
-      this.errorMessage = 'El código de verificación no ha sido validado.';
     }
   }
 }

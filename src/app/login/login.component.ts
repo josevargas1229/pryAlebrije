@@ -67,7 +67,8 @@ export class LoginComponent {
 
       this.authService.login(credenciales, this.captchaToken, this.rememberMe).subscribe({
         next: (response) => {
-          console.log('Login successful:', response);
+          if (response.verified) {
+          
           this.isLoading = false;
           this.toastService.success('¡Bienvenido! Inicio de sesión exitoso.');
           this.authService.setUserRole(response.tipo);
@@ -75,6 +76,10 @@ export class LoginComponent {
           this.router.navigate([redirectUrl]).then(() => {
             localStorage.removeItem('redirectUrl');
           });
+        }
+        else{
+          this.router.navigate(['/verificacion'], { queryParams: { email: credenciales.email } });
+        }
         },
         error: (error) => {
           console.error('Login error:', error);
@@ -89,8 +94,7 @@ export class LoginComponent {
     }
   }
   resolved(captchaResponse: string | null): void {
-    this.captchaToken = captchaResponse; // Almacena el token del reCAPTCHA
-    console.log(`Resolved captcha with response: ${captchaResponse}`);
+    this.captchaToken = captchaResponse;
   }
   togglePasswordVisibility(event: Event): void {
     event.preventDefault(); // Evita el submit del formulario

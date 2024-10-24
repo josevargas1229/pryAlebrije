@@ -1,5 +1,5 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { HeaderComponent } from "./shared/header/header.component";
 import { FooterComponent } from "./shared/footer/footer.component";
 import { AngularToastifyModule, ToastService } from 'angular-toastify';
@@ -16,12 +16,18 @@ import { ScrollToTopComponent } from "./scroll-to-top/scroll-to-top.component";
 })
 export class AppComponent {
   title = 'pryAlebrije';
-  constructor(private authService: AuthService, private toastService: ToastService) { }
+  constructor(private authService: AuthService, private toastService: ToastService, private router:Router) { }
   ngOnInit() {
     this.authService.checkAuthStatus()
       .then((response) => {
-        if(response && response.tipo){
-          this.authService.setUserRole(response.tipo);
+        
+        if(response&&response.isValid&&response.isValid===false){
+          this.toastService.info('Por favor, verifique su cuenta.');
+          this.router.navigate(['/verificacion']);
+        }else{
+          if(response && response.tipo){
+            this.authService.setUserRole(response.tipo);
+          }
         }
       })
       .catch(error => {
