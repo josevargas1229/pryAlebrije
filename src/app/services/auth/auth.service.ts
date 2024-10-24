@@ -7,9 +7,7 @@ import { Cuenta } from '../account/account.models';
 import { AuthResponse, LoginCredentials } from './auth.models';
 import { CsrfService } from '../csrf/csrf.service';
 import { environment } from '../../../environments/environment';
-
-
-
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +18,7 @@ export class AuthService {
   public currentUser: Observable<any>;
   private isCheckingAuth: boolean = false;
   private userRoleSubject = new BehaviorSubject<number | null>(null);
-  constructor(private http: HttpClient, private csrfService: CsrfService) {
+  constructor(private http: HttpClient, private csrfService: CsrfService, private router: Router) {
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
@@ -35,11 +33,16 @@ export class AuthService {
         });
       }),
       tap(response => {
-        this.currentUserSubject.next(response);
-        if (rememberMe) {
-          this.setRememberMe(credenciales);
-        } else {
-          this.clearRememberMe();
+        if (response.verified) {
+          this.currentUserSubject.next(response);
+          if (rememberMe) {
+            this.setRememberMe(credenciales);
+          } else {
+            this.clearRememberMe();
+          }
+        }
+        else{
+          this.router.navigate(['/verificacion'], { queryParams: { email: credenciales.email } });
         }
       }),
       catchError(this.handleLoginError)
@@ -113,13 +116,12 @@ export class AuthService {
           });
         })
       ).toPromise();
-
       this.currentUserSubject.next(user);
       return user;
     } catch {
       this.currentUserSubject.next(null);
       return null;
-    }finally {
+    } finally {
       this.isCheckingAuth = false;
     }
   }
@@ -143,6 +145,46 @@ export class AuthService {
       localStorage.removeItem('remember_me');
     }
   }
+  sendVerificationCode(email: string): Observable<any> {
+    return this.csrfService.getCsrfToken().pipe(
+      switchMap(csrfToken => {
+        return this.http.post(`${this.apiUrl}/send-link`, { email, tipo_id: 2 }, {
+          withCredentials: true,
+          headers: {
+            'x-csrf-token': csrfToken
+          }
+        });
+      })
+    );
+  }
+  resendVerificationEmail(email: string): Observable<any> {
+    return this.csrfService.getCsrfToken().pipe(
+      switchMap(csrfToken => {
+        return this.http.post(`${this.apiUrl}/send-link`, { email }, {
+          withCredentials: true,
+          headers: {
+            'x-csrf-token': csrfToken
+          }
+        });
+      }),
+      catchError(this.handleError)
+    );
+  }
+  verifyAccount(token: string): Observable<any> {
+    return this.csrfService.getCsrfToken().pipe(
+      switchMap(csrfToken => {
+        console.log(`${this.apiUrl}/verify?token=${token}`)
+        return this.http.get(`${this.apiUrl}/verify?token=${token}`, {
+          withCredentials: true,
+          headers: {
+            'x-csrf-token': csrfToken
+          }
+        });
+      }),
+      catchError(this.handleError)
+    );
+  }
+
 
   cambiarContraseña(accountId: number, nuevaContraseña: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/cambiar-contraseña`, { account_id: accountId, nueva_contraseña: nuevaContraseña }, { withCredentials: true });

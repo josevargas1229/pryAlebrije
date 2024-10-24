@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AbstractControl, ReactiveFormsModule, ValidationErrors } from '@angular/forms';
+import { AbstractControl, ReactiveFormsModule, ValidationErrors, ValidatorFn } from '@angular/forms';
 import DOMPurify from 'dompurify';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -45,9 +45,11 @@ export class RegisterComponent implements OnInit {
       surnameMaterno: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑäöüÄÖÜ\s]+$/)]],
       email: ['', [Validators.required, Validators.email, Validators.pattern(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)]],
       phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      password: ['', [Validators.required, Validators.minLength(8), this.strongPasswordValidator.bind(this)]],
       confirmPassword: ['', [Validators.required, this.matchPassword.bind(this)]],
     });
+    
+    // Escucha cambios en el campo de contraseña
     this.registrationForm.get('password')?.valueChanges.subscribe((password) => {
       this.checkPasswordStrength(password);
     });
@@ -55,28 +57,42 @@ export class RegisterComponent implements OnInit {
   sanitizeInput(input: string): string {
     return DOMPurify.sanitize(input); // Sanitizamos la entrada para eliminar cualquier script o carácter peligroso
   }
-  checkPasswordStrength(password: string) {
-    // Evaluar la fortaleza de la contraseña
-    if (password.length === 0) {
-      this.passwordStrengthMessage = ''; // No mostrar nada si la contraseña está vacía
-      return;
-    }
-
-    const lengthCriteria = password.length >= 8; // Al menos 8 caracteres
-    const numberCriteria = /[0-9]/.test(password); // Al menos un número
-    const uppercaseCriteria = /[A-Z]/.test(password); // Al menos una letra mayúscula
-    const lowercaseCriteria = /[a-z]/.test(password); // Al menos una letra minúscula
-    const specialCharCriteria = /[!@#$%^&*(),.?":{}|<>]/.test(password); // Al menos un carácter especial
-
+  private strongPasswordValidator(control: AbstractControl): ValidationErrors | null {
+    const password = control.value;
+  
+    // Criterios de fortaleza
+    const lengthCriteria = password.length >= 8;
+    const numberCriteria = /[0-9]/.test(password);
+    const uppercaseCriteria = /[A-Z]/.test(password);
+    const lowercaseCriteria = /[a-z]/.test(password);
+    const specialCharCriteria = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  
     const criteriaMet = [
       lengthCriteria,
       numberCriteria,
       uppercaseCriteria,
       lowercaseCriteria,
       specialCharCriteria
-    ].filter(Boolean).length; // Contar cuántos criterios se cumplen
+    ].filter(Boolean).length;
+  
+    // Si no cumple con suficientes criterios, devuelve el error
+    return criteriaMet < 4 ? { weakPassword: true } : null;
+  }
+  
+  checkPasswordStrength(password: string) {
+    if (password.length === 0) {
+      this.passwordStrengthMessage = '';
+      return;
+    }
 
-    // Establecer el mensaje de fortaleza
+    const lengthCriteria = password.length >= 8;
+    const numberCriteria = /[0-9]/.test(password);
+    const uppercaseCriteria = /[A-Z]/.test(password);
+    const lowercaseCriteria = /[a-z]/.test(password);
+    const specialCharCriteria = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    const criteriaMet = [lengthCriteria, numberCriteria, uppercaseCriteria, lowercaseCriteria, specialCharCriteria].filter(Boolean).length;
+
     switch (criteriaMet) {
       case 0:
       case 1:
@@ -104,11 +120,7 @@ export class RegisterComponent implements OnInit {
     const password = this.registrationForm.get('password')?.value;
     const confirmPassword = control.value;
 
-    if (password !== confirmPassword) {
-      return { 'passwordMismatch': true };
-    }
-
-    return null;
+    return password === confirmPassword ? null : { passwordMismatch: true };
   }
   getConfirmPasswordErrorMessage(): string {
     const confirmPasswordControl = this.registrationForm.get('confirmPassword');
@@ -123,6 +135,11 @@ export class RegisterComponent implements OnInit {
   onSubmit() {
     if (this.registrationForm.valid) {
       this.isSubmitting = true;
+      if (this.registrationForm.get('password')?.hasError('weakPassword')) {
+        this.toastService.info('La contraseña no es lo suficientemente fuerte. Debe tener al menos 8 caracteres, un número, una letra mayúscula, una minúscula y un carácter especial.');
+        this.isSubmitting = false;
+        return;
+      }
       const password = this.registrationForm.value.password;
       this.accountService.checkPassword(password).subscribe(
         (response) => {
@@ -178,8 +195,16 @@ export class RegisterComponent implements OnInit {
       (response) => {
         this.toastService.success('Usuario registrado exitosamente.');
         this.isSubmitting = false;
-        this.router.navigate(['/login']);
-        // Aquí se puede agregar lógica para enviar un correo de verificación
+        this.authService.sendVerificationCode(sanitizedEmail).subscribe(
+          () => {
+            this.toastService.info('Se ha enviado un correo de verificación. Por favor, revisa tu bandeja de entrada.');
+            this.router.navigate(['/verificacion'], { queryParams: { email: sanitizedEmail } });
+          },
+          (error) => {
+            this.toastService.error('Error al enviar el correo de verificación.');
+            console.error('Error al enviar el correo de verificación:', error);
+          }
+        );
       },
       (error) => {
         this.toastService.error('Error al registrar el usuario.');

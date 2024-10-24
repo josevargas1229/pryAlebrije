@@ -7,6 +7,7 @@ const nodemailer = require('nodemailer');
 const PassHistory = require('../models/PasswordHistory');
 const Account = require('../models/Account');
 const EmailTemplate = require('../models/EmailTemplate');
+const { Op } = require('sequelize');
 
 // Cargar la lista de contraseñas al iniciar el controlador
 let passwordList = new Set();
@@ -46,7 +47,7 @@ exports.checkPassword = (req, res) => {
 
 // Función para generar un código aleatorio
 function generateCode() {
-    return Math.floor(100000 + Math.random() * 900000).toString(); // Código de 6 dígitos
+    return Math.random().toString(36).substring(2, 8).toUpperCase(); // Código de 6 dígitos alfanumérico
 }
 exports.sendVerificationCode = async (req, res) => {
     const { email, tipo_id = 1 } = req.body; // Usar tipo_id para referenciar la plantilla
@@ -55,6 +56,7 @@ exports.sendVerificationCode = async (req, res) => {
     }
 
     const code = generateCode();
+    const hashedCode = await bcrypt.hash(code, 10);
     const expiresAt = new Date(Date.now() + 10 * 60000); // El código expira en 10 minutos
 
     try {
@@ -88,14 +90,30 @@ exports.sendVerificationCode = async (req, res) => {
             contenidoTexto = contenidoTexto.replace(regex, value);
         }
 
-        // 5. Crear el código de verificación asociado a la cuenta
-        await VerificationCode.create({
-            account_id: account.id,
-            code,
-            expiresAt,
-            tipo:'pass_recovery',
-            usado: false
+        // 5. Verificar si ya existe un código activo del mismo tipo para la cuenta
+        const existingCode = await VerificationCode.findOne({
+            where: {
+                account_id: account.id,
+                tipo: 'pass_recovery'
+            }
         });
+
+        if (existingCode) {
+                await existingCode.update({
+                    code: hashedCode,
+                    expiresAt,
+                    usado: false
+                });
+        } else {
+            // 6. Crear el código de verificación asociado a la cuenta si no existe
+            await VerificationCode.create({
+                account_id: account.id,
+                code: hashedCode,
+                expiresAt,
+                tipo: 'pass_recovery',
+                usado: false
+            });
+        }
 
         // 6. Preparar el correo con la plantilla personalizada
         const mailOptions = {
@@ -122,11 +140,10 @@ exports.sendVerificationCode = async (req, res) => {
 
 exports.verifyCode = async (req, res) => {
     const { email, code, tipo = 'pass_recovery' } = req.body;
-    
+
     if (!email || !code) {
         return res.status(400).json({ error: 'Email y código son requeridos' });
     }
-
     try {
         // Primero encontramos el usuario y su cuenta
         const user = await User.findOne({ where: { email } });
@@ -139,42 +156,41 @@ exports.verifyCode = async (req, res) => {
             return res.status(404).json({ error: 'Cuenta no encontrada' });
         }
 
-        // Buscamos el código de verificación
-        const verificationRecord = await VerificationCode.findOne({
+        // 3. Buscar el código de verificación activo (no usado y que no haya expirado)
+        const verificationCode = await VerificationCode.findOne({
             where: {
                 account_id: account.id,
-                code,
-                tipo,
-                usado: false
+                usado: false,
+                expiresAt: { [Op.gt]: new Date() },
+                tipo
             }
         });
-
-        // Si no se encuentra el registro de verificación
-        if (!verificationRecord) {
-            return res.status(400).json({ error: 'Código incorrecto o no existe' });
+        if (!verificationCode) {
+            return res.status(404).json({ error: 'Código no válido o ha expirado' });
         }
 
-        // Verifica si el código ha expirado
-        if (verificationRecord.expiresAt < new Date()) {
-            return res.status(400).json({ error: 'El código ha expirado' });
+        // 4. Comparar el código proporcionado con el hash almacenado
+        const isValid = await bcrypt.compare(code, verificationCode.code);
+        if (!isValid) {
+            return res.status(400).json({ error: 'El código es incorrecto' });
         }
 
-        // Marca el código como usado
-        verificationRecord.usado = true;
-        await verificationRecord.save();
+        // 5. Marcar el código como usado si es válido
+        verificationCode.usado = true;
+        await verificationCode.save();
 
-        // Si todo es correcto, responde con éxito
-        res.json({ message: 'Código verificado con éxito' });
+        res.json({ message: 'Código verificado correctamente' });
     } catch (error) {
         console.error('Error al verificar el código:', error);
         return res.status(500).json({ error: 'Error interno al verificar el código' });
     }
 };
 
+
 exports.changePassword = async (req, res) => {
     const { email, newPassword } = req.body;
 
-    if (!email || !newPassword ) {
+    if (!email || !newPassword) {
         return res.status(400).json({ error: 'Email y nueva contraseña son requeridos' });
     }
 

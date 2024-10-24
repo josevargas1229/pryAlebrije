@@ -41,6 +41,10 @@ const Account = sequelize.define('Account', {
         type: DataTypes.DATE,
         allowNull: true,
     },
+    verified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
 }, {
     tableName: 'cuentas',
     timestamps: false

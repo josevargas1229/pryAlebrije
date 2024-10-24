@@ -12,8 +12,8 @@ const logger = createLogger({
     ),
     transports: [
         new transports.Console({ level: 'info' }), // Loguea en la consola para desarrollo
-        new transports.File({ filename: 'logs/error.log', level: 'error' }), // Logs de errores
-        new transports.File({ filename: 'logs/combined.log' }) // Todos los logs combinados
+        new transports.File({ filename: 'logs/error.log', level: 'error', maxsize: 5 * 1024 * 1024, maxFiles: 5 }), // Logs de errores
+        new transports.File({ filename: 'logs/combined.log', maxsize: 5 * 1024 * 1024, maxFiles: 5 }) // Todos los logs combinados
     ],
 });
 

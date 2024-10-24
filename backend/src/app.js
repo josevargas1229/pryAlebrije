@@ -18,7 +18,7 @@ const logsRoutes = require('./routes/logsRoutes');
 const emailTemplateRoutes = require('./routes/emailTemplateRoutes');
 const configurationRoutes = require('./routes/configurationRoutes');
 const app = express();
-
+app.set('trust proxy', true);
 // Middleware de seguridad
 app.use(helmet());
 

@@ -6,7 +6,7 @@ const doubleCsrfOptions = {
     cookieOptions: {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production', // Usa cookies seguras en producción
-        sameSite: 'None',
+        sameSite: process.env.NODE_ENV === 'production'?'None':'Strict',
     },
     size: 64, // Tamaño del token CSRF
     ignoredMethods: ['GET', 'HEAD', 'OPTIONS'], // Métodos ignorados por la protección CSRF

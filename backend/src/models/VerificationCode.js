@@ -12,9 +12,10 @@ const VerificationCode = sequelize.define('VerificationCode', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'cuentas',
+            model: 'cuentas', // Verifica que este nombre sea correcto
             key: 'id'
-        }
+        },
+        onDelete: 'CASCADE', // Opcional: elimina códigos si se elimina la cuenta
     },
     code: {
         type: DataTypes.STRING,
@@ -25,7 +26,7 @@ const VerificationCode = sequelize.define('VerificationCode', {
         allowNull: false
     },
     tipo: {
-        type: DataTypes.ENUM('2fa', 'recovery','pass_recovery', 'email_verification'),
+        type: DataTypes.ENUM('2fa', 'recovery', 'pass_recovery', 'email_verification'),
         allowNull: false,
         defaultValue: 'email_verification'
     },

@@ -15,6 +15,7 @@ import { PagenotfoundComponent } from './pagenotfound/pagenotfound.component';
 import { NoAuthGuard } from './guards/auth/no-auth.guard';
 import { ConfigComponent } from './config/config.component';
 import { PrivateModule } from '../../private/private.module';
+import { EmailVerificacionComponent } from './email-verificacion/email-verificacion.component';
 
 export const routes: Routes = [
   //rutas públicas
@@ -28,6 +29,7 @@ export const routes: Routes = [
   { path: 'editerminos', component: EditerminosComponent },
   { path: 'editdeslinde', component: EditperfilemComponent },
   { path: 'editperfilem', component: EditperfilemComponent },
+  { path: 'verificacion', component:EmailVerificacionComponent},
 
   //rutas para usuarios autenticados
   {

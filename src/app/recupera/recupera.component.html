@@ -1,37 +1,59 @@
+<!-- recupera.component.html -->
 <div class="recupera-container">
   <h2>Recuperar Contraseña</h2>
-  <mat-stepper #stepper linear>
+  <mat-stepper 
+    #stepper 
+    linear 
+    (selectionChange)="selectionChange($event)"
+  >
     <!-- Paso 1: Introducir correo -->
-    <mat-step [stepControl]="emailFormGroup" label="Introducir Correo">
-      <form [formGroup]="emailFormGroup" (ngSubmit)="onSubmitEmail(stepper)">
+    <mat-step 
+      [stepControl]="emailFormGroup" 
+      label="Introducir Correo"
+      [completed]="isEmailSent"
+    >
+      <form [formGroup]="emailFormGroup" (ngSubmit)="onSubmitEmail($event)">
         <mat-form-field>
           <mat-label>Correo Electrónico</mat-label>
           <input matInput formControlName="email" placeholder="Ingrese su correo" required />
         </mat-form-field>
         <div>
-          <button mat-button (click)="stepper.next()" [disabled]="!emailFormGroup.valid">Enviar</button>
+          <button mat-button type="submit" [disabled]="!emailFormGroup.valid">
+            Enviar
+          </button>
         </div>
       </form>
     </mat-step>
 
     <!-- Paso 2: Verificación -->
-    <mat-step [stepControl]="verificationFormGroup" label="Verificación">
-      <form [formGroup]="verificationFormGroup" (ngSubmit)="onSubmitVerification(stepper)">
+    <mat-step 
+      [stepControl]="verificationFormGroup" 
+      label="Verificación"
+      [completed]="isCodeVerified"
+      [editable]="stepPermissions.verificationStep"
+    >
+      <form [formGroup]="verificationFormGroup" (ngSubmit)="onSubmitVerification($event)">
         <mat-form-field>
           <mat-label>Código de Verificación</mat-label>
           <input matInput formControlName="verificationCode" maxlength="8" required
             placeholder="Código de verificación" />
         </mat-form-field>
         <div>
-          <button mat-button (click)="stepper.previous()">Atrás</button>
-          <button mat-button [disabled]="!verificationFormGroup.valid">Verificar</button>
+          <button mat-button matStepperPrevious type="button">Atrás</button>
+          <button mat-button type="submit" [disabled]="!verificationFormGroup.valid || !isEmailSent">
+            Verificar
+          </button>
         </div>
       </form>
     </mat-step>
 
     <!-- Paso 3: Cambiar contraseña -->
-    <mat-step [stepControl]="passwordFormGroup" label="Cambiar Contraseña">
-      <form [formGroup]="passwordFormGroup" (ngSubmit)="onSubmitPassword(stepper)">
+    <mat-step 
+      [stepControl]="passwordFormGroup" 
+      label="Cambiar Contraseña"
+      [editable]="stepPermissions.passwordStep"
+    >
+      <form [formGroup]="passwordFormGroup" (ngSubmit)="onSubmitPassword($event)">
         <mat-form-field>
           <mat-label>Nueva Contraseña</mat-label>
           <input matInput type="password" formControlName="newPassword" required placeholder="Nueva contraseña" />
@@ -42,18 +64,20 @@
             placeholder="Confirmar contraseña" />
         </mat-form-field>
         <div>
-          <button mat-button (click)="stepper.previous()">Atrás</button>
-          <button mat-button type="submit" [disabled]="!passwordFormGroup.valid">Guardar Cambios</button>
+          <button mat-button matStepperPrevious type="button">Atrás</button>
+          <button mat-button type="submit" [disabled]="!passwordFormGroup.valid || !isCodeVerified">
+            Guardar Cambios
+          </button>
         </div>
       </form>
     </mat-step>
 
     <!-- Paso final -->
-    <mat-step>
+    <mat-step [editable]="false">
       <ng-template matStepLabel>Hecho</ng-template>
       <p>¡Cambios guardados exitosamente!</p>
       <div>
-        <button mat-button (click)="closeModal()">Cerrar</button>
+        <button mat-button>Cerrar</button>
       </div>
     </mat-step>
   </mat-stepper>
