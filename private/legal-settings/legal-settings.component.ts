@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { LegalService } from '../services/legal.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-legal-settings',
@@ -16,7 +17,10 @@ export class LegalSettingsComponent {
   savedDocuments: any = { terminos: [], privacidad: [], deslinde: [] };
   selectedFile: File | null = null;
 
-  constructor(private legalService: LegalService) {
+  constructor(private legalService: LegalService, private route: ActivatedRoute) {
+    this.route.queryParams.subscribe(params => {
+      this.selectedTab = params['tab'] || 'terminos'; // Usa el parámetro o 'terminos' como valor por defecto
+    });
     this.loadLegalDocuments();
   }
 
@@ -61,28 +65,28 @@ export class LegalSettingsComponent {
     console.error(`Error al guardar ${type}:`, error);
   }
 
-  selectTab(tab: string) {
+  changeSelectTab(tab: string) {
     this.selectedTab = tab;
+    console.log(this.selectedTab)
   }
 
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
   }
 
-  uploadDocument() {
+  uploadDocument(): void {
     if (!this.selectedFile) {
-      console.error('No hay archivo seleccionado');
-      return;
+      console.error('No file selected');
+      return; // O maneja el error de alguna manera
     }
-
-    this.legalService.uploadDocument(this.selectedFile, this.selectedTab).subscribe(
-      response => {
-        console.log('Documento subido exitosamente');
-        this.loadDocumentByType(this.selectedTab);
-      },
-      error => console.error('Error al subir el documento', error)
-    );
+    console.log(this.selectedFile)
+    this.legalService.uploadDocument(this.selectedFile, this.selectedTab).subscribe(response => {
+      console.log('Document uploaded successfully:', response);
+    }, error => {
+      console.error('Error uploading document:', error);
+    });
   }
+  
 
   editDocument(document: any) {
     // Implementar funcionalidad de edición

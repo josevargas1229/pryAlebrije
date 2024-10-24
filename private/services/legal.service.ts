@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../src/environments/environment';
-import { Observable, switchMap } from 'rxjs';
+import { catchError, Observable, of, switchMap } from 'rxjs';
 import { CsrfService } from '../../src/app/services/csrf/csrf.service';
 
 @Injectable({
@@ -20,7 +20,7 @@ export class LegalService {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('tipo', tipo);
-
+  
     return this.csrfService.getCsrfToken().pipe(
       switchMap(csrfToken => {
         return this.http.post(`${this.apiUrl}/legal-documents/upload`, formData, {
@@ -29,6 +29,10 @@ export class LegalService {
           },
           withCredentials: true
         });
+      }),
+      catchError(error => {
+        console.error('Error uploading document:', error);
+        return of(null); // Maneja el error adecuadamente, quizás devolviendo un valor nulo o lanzando un error específico
       })
     );
   }

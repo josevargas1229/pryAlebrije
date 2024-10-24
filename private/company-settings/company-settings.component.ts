@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CompanyService } from '../services/company.service.ts.service';
 import { CommonModule } from '@angular/common';
+import { ToastService } from 'angular-toastify';
 
 @Component({
   selector: 'app-company-settings',
@@ -16,7 +17,8 @@ export class CompanySettingsComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private  CompanySettingsComponent: CompanyService
+    private companyService: CompanyService,
+    private toastService:ToastService
   ) {
     this.companyForm = this.fb.group({
       nombre: ['', Validators.required],
@@ -33,7 +35,7 @@ export class CompanySettingsComponent implements OnInit {
   }
 
   getCompanyProfile() {
-    this.CompanySettingsComponent.getCompanyProfile().subscribe((data: any) => {
+    this.companyService.getCompanyProfile().subscribe((data: any) => {
       this.companyProfile = data;
       this.companyForm.patchValue(data);
     });
@@ -65,8 +67,8 @@ export class CompanySettingsComponent implements OnInit {
       formData.append('logo', this.companyForm.get('logo')?.value);
     }
 
-    this.CompanySettingsComponent.updateCompanyProfile(formData).subscribe(response => {
-      alert('Perfil actualizado con éxito.');
+    this.companyService.updateCompanyProfile(formData).subscribe(response => {
+      this.toastService.success('Perfil actualizado con éxito.');
       this.getCompanyProfile();
     }, error => {
       alert('Error al actualizar el perfil: ' + error.message);

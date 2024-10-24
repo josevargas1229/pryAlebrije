@@ -7,7 +7,7 @@ const multer = require('multer');
 const storage = multer.memoryStorage(); // Cambiamos a almacenamiento en memoria para usar buffer
 const upload = multer({ storage });
 
-router.get('/perfil', companyProfileController.getCompanyProfile);
-router.put('/perfil', upload.single('logo'), companyProfileController.updateCompanyProfile);
+router.get('', companyProfileController.getCompanyProfile);
+router.put('', upload.single('logo'), companyProfileController.updateCompanyProfile);
 
 module.exports = router;

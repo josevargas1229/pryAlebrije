@@ -1,24 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path'); // Asegúrate de importar el módulo 'path'
 const legalDocumentController = require('../controllers/legalDocumentController');
 const { authenticateToken, authorize } = require('../middlewares/auth');
-
-// Configuración de Multer
-const upload = multer({
-  dest: 'uploads/', // Directorio para almacenar archivos subidos
-  fileFilter: (req, file, cb) => {
-    const filetypes = /doc|docx/; // Tipos de archivo permitidos
-    const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase()); // Usando 'path' correctamente
-
-    if (mimetype && extname) {
-      return cb(null, true);
-    }
-    cb(new Error('Error: Tipo de archivo no soportado'));
-  },
-});
+const upload = require('../config/multerConfig');
 
 // Rutas para documentos legales
 router.post('/upload', upload.single('file'), legalDocumentController.uploadDocument);

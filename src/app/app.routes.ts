@@ -16,11 +16,13 @@ import { NoAuthGuard } from './guards/auth/no-auth.guard';
 import { ConfigComponent } from './config/config.component';
 import { PrivateModule } from '../../private/private.module';
 import { EmailVerificacionComponent } from './email-verificacion/email-verificacion.component';
+import { PoliticasPrivacidadComponent } from './politicas-privacidad/politicas-privacidad.component';
 
 export const routes: Routes = [
   //rutas públicas
   { path: "", component: HomeComponent },
   { path: "terminos-condiciones", component: TerminosCondicionesComponent },
+  { path: "politicas-privacidad", component: PoliticasPrivacidadComponent },
   { path: 'editpolit', component:EditpolitComponent},
   { path: 'editerminos', component:EditerminosComponent},
   { path: 'editdeslinde', component:EditperfilemComponent},

@@ -1,82 +1,50 @@
 const LegalDocument = require('../models/LegalDocument');
 const mammoth = require('mammoth');
 const fs = require('fs');
-const multer = require('multer');
-const path = require('path');
-
-// Configuración de Multer para subir archivos
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname); // Renombrar el archivo
-  },
-});
-
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    const filetypes = /doc|docx/;
-    const mimetype = filetypes.test(file.mimetype);
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-
-    if (mimetype && extname) {
-      return cb(null, true);
-    }
-    cb(new Error('Error: Tipo de archivo no soportado'));
-  },
-}).single('file'); // Asumiendo que solo subes un archivo
 
 // Subir y convertir documento
 exports.uploadDocument = async (req, res) => {
-  // Llama a Multer para manejar la subida de archivos
-  upload(req, res, async (err) => {
-    if (err) {
-      return res.status(400).json({ error: err.message });
-    }
+  const { tipo, usuario } = req.body;
 
-    if (!req.file) {
-      return res.status(400).json({ error: 'No se ha subido ningún archivo' });
-    }
+  if (!req.file) {
+    return res.status(400).json({ error: 'No se ha subido ningún archivo' });
+  }
+  console.log(req.file)
+  const filePath = req.file.path;
+  const fileName = req.file.originalname;
+  if (!fs.existsSync(filePath)) {
+    return res.status(400).json({ error: 'El archivo subido no existe' });
+  }
 
-    const filePath = req.file.path;
-    const { tipo, usuario } = req.body;
+  try {
+    // Convertir el archivo de Word a HTML
+    const result = await mammoth.convertToHtml({ path: filePath });
+    const htmlContent = result.value;
 
-    try {
-      // Convertir el archivo de Word a HTML
-      const result = await mammoth.convertToHtml({ path: filePath });
-      const htmlContent = result.value;
-      const fileName = req.file.originalname;
+    // Actualizar los documentos anteriores a no vigentes
+    await LegalDocument.update({ vigente: false }, { where: { tipo } });
 
-      // Actualizar los documentos anteriores a no vigentes
-      await LegalDocument.update(
-        { vigente: false },
-        { where: { tipo } }
-      );
+    // Guardar el nuevo documento como vigente
+    const newDocument = await LegalDocument.create({
+      nombre: fileName,
+      contenido_html: htmlContent,
+      tipo,
+      vigente: true,
+      modificado_por: usuario,
+    });
 
-      // Guardar el nuevo documento como vigente
-      const newDocument = await LegalDocument.create({
-        nombre: fileName,
-        contenido_html: htmlContent,
-        tipo,
-        vigente: true,
-        modificado_por: usuario,
-      });
-
-      res.status(200).json({ message: 'Documento subido exitosamente', document: newDocument });
-    } catch (error) {
-      console.error('Error al subir el documento:', error);
-      res.status(500).json({ error: error.message || 'Error al subir el documento' });
-    } finally {
-      // Eliminar el archivo temporal
-      try {
-        fs.unlinkSync(filePath);
-      } catch (err) {
+    res.status(200).json({ message: 'Documento subido exitosamente', document: newDocument });
+  } catch (error) {
+    console.error('Error al subir el documento:', error);
+    res.status(500).json({ error: error.message || 'Error al subir el documento' });
+  } finally {
+    // Eliminar el archivo temporal de forma asíncrona
+    fs.unlink(filePath, (err) => {
+      if (err) {
         console.error('Error al eliminar el archivo temporal:', err);
       }
-    }
-  });
+    });
+  }
 };
 
 // Obtener todos los documentos de un tipo específico

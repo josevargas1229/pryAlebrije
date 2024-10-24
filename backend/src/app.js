@@ -15,6 +15,7 @@ const passwordRoutes = require('./routes/passwordRoutes');
 const emailTypeRoutes = require('./routes/emailTypeRoutes');
 const bloqueosRoutes = require('./routes/bloqueosRoutes');
 const logsRoutes = require('./routes/logsRoutes');
+const companyProfileRoutes = require('./routes/companyProfileRoutes');
 const emailTemplateRoutes = require('./routes/emailTemplateRoutes');
 const legalDocumentRoutes = require('./routes/legalDocumentRoutes');
 const configurationRoutes = require('./routes/configurationRoutes');
@@ -62,6 +63,7 @@ app.use('/legal-documents', legalDocumentRoutes);
 app.use('/configuration', configurationRoutes);
 app.use('/bloqueos', bloqueosRoutes);
 app.use('/logs', logsRoutes);
+app.use('/perfil', companyProfileRoutes);
 app.use(errorHandler);
 module.exports = app;
 

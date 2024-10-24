@@ -7,7 +7,7 @@
 
 h1 {
   text-align: center;
-  color: #333;
+  color: var(--mat-app-text-color);
 }
 
 h2 {
@@ -16,5 +16,5 @@ h2 {
 
 p {
   line-height: 1.6;
-  color: #555;
+  color: var(--mat-app-text-color)
 }

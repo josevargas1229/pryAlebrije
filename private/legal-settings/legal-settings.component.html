@@ -3,9 +3,9 @@
 
   <!-- Tabs para seleccionar el tipo de documento -->
   <div class="tabs">
-    <button (click)="selectTab('terminos')" [class.active]="selectedTab === 'terminos'">Términos y Condiciones</button>
-    <button (click)="selectTab('privacidad')" [class.active]="selectedTab === 'privacidad'">Política de Privacidad</button>
-    <button (click)="selectTab('deslinde')" [class.active]="selectedTab === 'deslinde'">Deslinde Legal</button>
+    <button (click)="changeSelectTab('terminos')" [class.active]="selectedTab === 'terminos'">Términos y Condiciones</button>
+    <button (click)="changeSelectTab('privacidad')" [class.active]="selectedTab === 'privacidad'">Política de Privacidad</button>
+    <button (click)="changeSelectTab('deslinde')" [class.active]="selectedTab === 'deslinde'">Deslinde Legal</button>
   </div>
 
   <!-- Mostrar documentos guardados -->
