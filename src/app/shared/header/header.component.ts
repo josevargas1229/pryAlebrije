@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ThemeSwitcherComponent } from "../../theme-switcher/theme-switcher.component";
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CompanyService } from '../../../../private/services/company.service.ts.service';
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -18,10 +19,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class HeaderComponent {
   isLoggedIn: boolean = false;
   userRole: number | null = null;
-
-  constructor(private authService: AuthService, private router: Router) {}
+  logoUrl: string | undefined;
+  constructor(private authService: AuthService,private companyService: CompanyService, private router: Router) {}
 
   ngOnInit(): void {
+    this.getCompanyProfile();
     // Verifica el estado de autenticación del usuario
     this.authService.isLoggedIn().subscribe((loggedIn: boolean) => {
       this.isLoggedIn = loggedIn;
@@ -35,7 +37,11 @@ export class HeaderComponent {
       }
     });
   }
-
+  getCompanyProfile(): void {
+    this.companyService.getCompanyProfile().subscribe((data: any) => {
+      this.logoUrl = data.logo; // Asume que 'logo' es la propiedad que contiene la URL del logo
+    });
+  }
   logout(): void {
     this.authService.logout().subscribe(() => {
       this.isLoggedIn = false;

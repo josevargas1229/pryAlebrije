@@ -3,11 +3,11 @@ import { LegalService } from '../services/legal.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-
+import { MatExpansionModule } from '@angular/material/expansion';
 @Component({
   selector: 'app-legal-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,MatExpansionModule],
   templateUrl: './legal-settings.component.html',
   styleUrls: ['./legal-settings.component.scss']
 })

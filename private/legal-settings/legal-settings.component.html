@@ -8,21 +8,7 @@
     <button (click)="changeSelectTab('deslinde')" [class.active]="selectedTab === 'deslinde'">Deslinde Legal</button>
   </div>
 
-  <!-- Mostrar documentos guardados -->
-  <div *ngIf="savedDocuments[selectedTab]?.length > 0">
-    <h3>Documentos Guardados</h3>
-    <div *ngFor="let doc of savedDocuments[selectedTab]" class="document-card">
-      <p>Tipo: {{ doc.tipo }} | Creado: {{ doc.fecha_creacion }} | Vigente: {{ doc.vigente ? 'Sí' : 'No' }}</p>
-      <p [innerHTML]="doc.contenido_html"></p>
-      <div class="document-actions">
-        <button (click)="editDocument(doc)">Editar</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="no-documents" *ngIf="!savedDocuments[selectedTab]?.length">
-    <p>No hay documentos guardados para esta sección.</p>
-  </div>
+ 
 
   <!-- Subir nuevo documento -->
   <input type="file" (change)="onFileSelected($event)" />
@@ -46,4 +32,31 @@
     <textarea [(ngModel)]="legalContent.deslinde" placeholder="Ingresa el deslinde legal"></textarea>
     <button (click)="saveDocument('deslinde')">Guardar</button>
   </div>
+</div>
+<!-- Mostrar documentos guardados -->
+<div *ngIf="savedDocuments[selectedTab]?.length > 0">
+  <h3>Documentos Guardados</h3>
+  <mat-accordion>
+    <mat-expansion-panel *ngFor="let doc of savedDocuments[selectedTab]">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Tipo: {{ doc.tipo }} | Subido: {{ doc.fecha_creacion }} | Vigente: {{ doc.vigente ? 'Sí' : 'No' }}
+        </mat-panel-title>
+        <mat-panel-description>
+          {{ doc.tipo }} - Haga clic para ver el contenido
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div>
+        <p [innerHTML]="doc.contenido_html"></p>
+        <div class="document-actions">
+          <button (click)="editDocument(doc)">Editar</button>
+        </div>
+      </div>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>
+
+<div class="no-documents" *ngIf="!savedDocuments[selectedTab]?.length">
+  <p>No hay documentos guardados para esta sección.</p>
 </div>

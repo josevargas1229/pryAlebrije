@@ -1,7 +1,7 @@
 <header>
   <mat-toolbar color="warn">
     <div class="logo-title">
-      <img src="assets/images/logoAle.png" class="logo" alt="Logo" />
+      <img *ngIf="logoUrl" [src]="logoUrl" class="logo" alt="Logo" />
     </div>
 
     <!-- Tema switcher -->

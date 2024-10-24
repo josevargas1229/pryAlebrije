@@ -1,15 +1,28 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterLink } from '@angular/router';
+import { CompanyService } from '../../../../private/services/company.service.ts.service';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports:[RouterLink,MatToolbarModule,MatButtonModule],
+  imports: [RouterLink, MatToolbarModule, MatButtonModule],
   templateUrl: './footer.component.html',
-  styleUrl: './footer.component.scss'
+  styleUrls: ['./footer.component.scss']
 })
-export class FooterComponent {
+export class FooterComponent implements OnInit {
+  companyInfo: any = {}; // Cambia el tipo según lo que devuelva tu API
 
+  constructor(private companyService: CompanyService) {}
+
+  ngOnInit(): void {
+    this.getCompanyInfo();
+  }
+
+  getCompanyInfo(): void {
+    this.companyService.getCompanyProfile().subscribe((data: any) => {
+      this.companyInfo = data;
+    });
+  }
 }

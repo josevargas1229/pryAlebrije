@@ -1,10 +1,15 @@
 footer {
   width: 100%;
+  height: auto;
 }
-
+mat-toolbar{
+  width: 100%;
+  height: 100%;
+}
 .footer-toolbar {
-  display: flex;
-  flex-direction: column;
+  background-color: #673ab7; // Color de fondo
+  color: white; // Color del texto
+  padding: 20px 0; // Espaciado vertical
 }
 
 .footer-content {
@@ -14,22 +19,55 @@ footer {
   align-items: center;
 }
 
-.footer-links {
-  background-color: var(--mdc-fab-container-color);
+.footer-main {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 1rem;
+  align-items: space-between;
   width: 100%;
-  padding: 16px;
+  max-width: 1200px; // Limita el ancho para mejor visualización
+  padding: 0 20px; // Espaciado horizontal
+}
+
+.footer-section {
+  flex: 1; // Hace que las secciones crezcan para llenar el espacio
+  margin: 0 10px; // Espaciado entre secciones
+  max-width: 300px;
+}
+
+.footer-title {
+  font-size: 1.2rem; // Tamaño de fuente más grande
+  margin-bottom: 10px; // Espaciado inferior
+}
+
+.footer-links {
+  display: flex;
+  flex-direction: column; // Alinea los botones verticalmente
 }
 
 .footer-links button {
-  margin: 0.5rem 0;
+  margin: 5px 0; // Espaciado entre botones
+  color: #ffffff; // Color del texto del botón
+  transition: background-color 0.3s; // Animación para hover
+}
+
+.footer-links button:hover {
+  background-color: rgba(255, 255, 255, 0.2); // Efecto hover
+}
+
+.footer-contact {
+  display: flex;
+  flex-direction: column; // Alinea el contacto verticalmente
+  margin-top: 10px; // Espaciado superior
+  color: #ffffff; // Color del texto
+}
+
+.footer-bottom {
+  text-align: center; // Centra el texto
+  margin-top: 20px; // Espaciado superior
 }
 
 .footer-text {
-  margin: 0;
-  text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.9rem; // Tamaño de fuente más pequeño
+}
+span{
+  font-size: 0.9rem;
 }
