@@ -14,6 +14,7 @@ const authRoutes = require('./routes/authRoutes');
 const passwordRoutes = require('./routes/passwordRoutes');
 const emailTypeRoutes = require('./routes/emailTypeRoutes');
 const emailTemplateRoutes = require('./routes/emailTemplateRoutes');
+const legalDocumentRoutes = require('./routes/legalDocumentRoutes');
 const app = express();
 
 // Middleware de seguridad
@@ -53,5 +54,7 @@ app.use('/auth', authRoutes);
 app.use('/password',passwordRoutes);
 app.use('/email-types', emailTypeRoutes);
 app.use('/email-templates', emailTemplateRoutes);
+app.use('/legal-documents', legalDocumentRoutes);
 app.use(errorHandler);
 module.exports = app;
+

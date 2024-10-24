@@ -1,1 +1,49 @@
-<p>legal-settings works!</p>
+<div class="legal-settings-container">
+  <h2>Administrar Documentos Legales</h2>
+
+  <!-- Tabs para seleccionar el tipo de documento -->
+  <div class="tabs">
+    <button (click)="selectTab('terminos')" [class.active]="selectedTab === 'terminos'">Términos y Condiciones</button>
+    <button (click)="selectTab('privacidad')" [class.active]="selectedTab === 'privacidad'">Política de Privacidad</button>
+    <button (click)="selectTab('deslinde')" [class.active]="selectedTab === 'deslinde'">Deslinde Legal</button>
+  </div>
+
+  <!-- Mostrar documentos guardados -->
+  <div *ngIf="savedDocuments[selectedTab]?.length > 0">
+    <h3>Documentos Guardados</h3>
+    <div *ngFor="let doc of savedDocuments[selectedTab]" class="document-card">
+      <p>Tipo: {{ doc.tipo }} | Creado: {{ doc.fecha_creacion }} | Vigente: {{ doc.vigente ? 'Sí' : 'No' }}</p>
+      <p [innerHTML]="doc.contenido_html"></p>
+      <div class="document-actions">
+        <button (click)="editDocument(doc)">Editar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="no-documents" *ngIf="!savedDocuments[selectedTab]?.length">
+    <p>No hay documentos guardados para esta sección.</p>
+  </div>
+
+  <!-- Subir nuevo documento -->
+  <input type="file" (change)="onFileSelected($event)" />
+  <button (click)="uploadDocument()">Subir Nuevo Documento</button>
+
+  <!-- Formularios para agregar documentos -->
+  <div *ngIf="selectedTab === 'terminos'" class="tab-content">
+    <h3>Términos y Condiciones</h3>
+    <textarea [(ngModel)]="legalContent.terminos" placeholder="Ingresa los términos y condiciones"></textarea>
+    <button (click)="saveDocument('terminos')">Guardar</button>
+  </div>
+
+  <div *ngIf="selectedTab === 'privacidad'" class="tab-content">
+    <h3>Política de Privacidad</h3>
+    <textarea [(ngModel)]="legalContent.privacidad" placeholder="Ingresa la política de privacidad"></textarea>
+    <button (click)="saveDocument('privacidad')">Guardar</button>
+  </div>
+
+  <div *ngIf="selectedTab === 'deslinde'" class="tab-content">
+    <h3>Deslinde Legal</h3>
+    <textarea [(ngModel)]="legalContent.deslinde" placeholder="Ingresa el deslinde legal"></textarea>
+    <button (click)="saveDocument('deslinde')">Guardar</button>
+  </div>
+</div>
