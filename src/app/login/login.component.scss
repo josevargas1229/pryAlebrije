@@ -4,6 +4,7 @@
   align-items: center;
   min-height: 100vh;
   margin: 1rem 0;
+  padding: 0 1rem; // Agregado para evitar que se corte en pantallas pequeñas
 }
 
 .content-wrapper {
@@ -17,7 +18,8 @@
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
-.left-section, .right-section {
+.left-section,
+.right-section {
   flex: 1;
   padding: 40px;
 }
@@ -75,10 +77,14 @@ mat-form-field {
   font-size: 0.9em;
 }
 
+/* Estilos responsivos */
 @media (max-width: 768px) {
   .content-wrapper {
     flex-direction: column;
+    width: 100%; // Asegúrate de que ocupe el 100% del ancho
+    padding: 0; // Elimina padding para dispositivos más pequeños
   }
+
   .left-section,
   .right-section {
     padding: 20px;
@@ -87,14 +93,15 @@ mat-form-field {
 
 @media (max-width: 600px) {
   .login-container {
-    padding: 10px;
+    padding: 10px; // Agrega un poco de padding para dispositivos muy pequeños
   }
 
   .content-wrapper {
     border-radius: 10px;
   }
 
-  .left-section, .right-section {
+  .left-section,
+  .right-section {
     padding: 20px;
   }
 

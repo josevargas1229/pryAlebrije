@@ -28,18 +28,3 @@
     </div>
   </div>
 
-  <!-- Sección de Servicios (manteniendo tu código) -->
-  <div class="services-container">
-    <h2 class="section-title">Configuración</h2>
-    <div class="services-grid">
-      <div class="service-card" *ngFor="let service of services">
-        <div class="service-icon">
-          <i [class]="service.icon"></i>
-        </div>
-        <h3 class="service-title">{{ service.title }}</h3>
-        <p class="service-description">{{ service.description }}</p>
-        <button class="learn-more-btn" (click)="showServiceDetails(service)">Editar</button>
-      </div>
-    </div>
-  </div>
-</div>

@@ -113,3 +113,67 @@
     }
   }
 }
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px; // Reduce el padding en pantallas más pequeñas
+
+    h2 {
+      font-size: 1.5rem; // Ajusta el tamaño de la fuente
+    }
+
+    .logo-preview {
+      max-width: 150px; // Reduce el tamaño máximo del logo
+    }
+
+    .form-group {
+      margin-bottom: 12px; // Reduce el margen en grupos de formularios
+    }
+
+    .btn {
+      font-size: 15px; // Ajusta el tamaño de la fuente del botón
+    }
+
+    .changes-section,
+    .edit-profile-section {
+      h3 {
+        font-size: 1.2rem; // Ajusta el tamaño de la fuente del encabezado
+      }
+
+      p {
+        font-size: 0.9rem; // Ajusta el tamaño de la fuente del párrafo
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 10px; // Aumenta el espaciado interno en dispositivos muy pequeños
+
+    h2 {
+      font-size: 1.3rem; // Ajusta el tamaño de la fuente
+    }
+
+    .form-group {
+      margin-bottom: 10px; // Ajusta el margen en grupos de formularios
+    }
+
+    .btn {
+      padding: 8px; // Reduce el padding del botón
+      font-size: 14px; // Reduce el tamaño de la fuente del botón
+    }
+
+    .changes-section,
+    .edit-profile-section {
+      h3 {
+        font-size: 1.1rem; // Ajusta el tamaño de la fuente del encabezado
+      }
+
+      p {
+        font-size: 0.85rem; // Ajusta el tamaño de la fuente del párrafo
+      }
+    }
+  }
+}

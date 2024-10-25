@@ -25,6 +25,9 @@ const PerfilEmpresa = sequelize.define('PerfilEmpresa', {
     },
     email: {
         type: DataTypes.TEXT
+    },
+    redSocial: {
+        type: DataTypes.TEXT
     }
 }, {
     tableName: 'perfil_empresa',

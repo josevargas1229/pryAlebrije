@@ -1,26 +1,72 @@
 header {
   width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0; // Elimina el padding para un diseño más limpio
+  margin: 0; // Elimina el margen para que no haya espacio adicional
+  background-color: #673ab7; // Asegúrate de tener un color de fondo para el header
 }
 
 .logo-title {
   display: flex;
   align-items: center;
-}
 
-.logo {
-  height: 40px;
-  margin-right: 16px;
+  .logo {
+    height: 40px;
+    margin-right: 16px;
+  }
 }
 
 .nav-buttons {
   display: flex;
   align-items: center;
-}
 
-.nav-buttons button {
-  margin-left: 16px;
+  button {
+    margin-left: 16px;
+  }
 }
 
 .spacer {
   flex: 1 1 auto;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  header {
+    flex-direction: row; // Mantiene la dirección en fila
+    align-items: center;
+    padding: 0; // Mantiene sin padding en dispositivos más pequeños
+  }
+
+  .logo-title {
+    margin-bottom: 0; // Elimina el margen inferior
+
+    .logo {
+      height: 35px;
+      margin-right: 8px;
+    }
+  }
+
+  .nav-buttons {
+    button {
+      margin-left: 8px;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-title .logo {
+    height: 30px;
+  }
+
+  .nav-buttons {
+    display: flex; // Mantiene la disposición en fila
+    align-items: center; // Asegura que se alineen en el centro
+
+    button {
+      margin-left: 5px; // Ajusta el margen izquierdo
+      font-size: 0.85rem;
+    }
+  }
 }

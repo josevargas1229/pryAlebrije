@@ -51,8 +51,13 @@
   <div class="info-section account-info">
     <h2>Información de Cuenta</h2>
     <div class="info-group">
-      <label for="usuario">Usuario:</label>
-      <p id="usuario">juanperez123</p>
+      <label for="nombre">Nombre:</label>
+      <div class="info-item">
+        <p id="nombre">{{ usuario?.nombre }}</p>
+        <button mat-mini-fab color="primary" (click)="editarCampo('nombre')">
+          <mat-icon>edit</mat-icon>
+        </button>
+      </div>
     </div>
     <div class="info-group">
       <label for="correo">Correo Electrónico:</label>
@@ -87,7 +92,7 @@
             </div>
           </form>
         </mat-step>
-      
+
         <!-- Paso 2: Verificación -->
         <mat-step [stepControl]="verificationFormGroup" label="Verificación">
           <form [formGroup]="verificationFormGroup" (ngSubmit)="onSubmitVerification(stepper)">
@@ -101,7 +106,7 @@
             </div>
           </form>
         </mat-step>
-      
+
         <!-- Paso 3: Cambiar contraseña -->
         <mat-step [stepControl]="passwordFormGroup" label="Cambiar Contraseña">
           <form [formGroup]="passwordFormGroup" (ngSubmit)="onSubmitPassword(stepper)">
@@ -119,8 +124,8 @@
             </div>
           </form>
         </mat-step>
-        
-      
+
+
         <!-- Paso final -->
         <mat-step>
           <ng-template matStepLabel>Hecho</ng-template>
@@ -130,8 +135,8 @@
           </div>
         </mat-step>
       </mat-stepper>
-      
-      
+
+
     </div>
   </div>
 

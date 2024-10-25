@@ -4,10 +4,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { ToastService } from 'angular-toastify'; 
+
 @Component({
   selector: 'app-legal-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule,MatExpansionModule],
+  imports: [CommonModule, FormsModule, MatExpansionModule],
   templateUrl: './legal-settings.component.html',
   styleUrls: ['./legal-settings.component.scss']
 })
@@ -17,9 +19,13 @@ export class LegalSettingsComponent {
   savedDocuments: any = { terminos: [], privacidad: [], deslinde: [] };
   selectedFile: File | null = null;
 
-  constructor(private legalService: LegalService, private route: ActivatedRoute) {
+  constructor(
+    private legalService: LegalService,
+    private route: ActivatedRoute,
+    private toastService: ToastService // Añadir el ToastService aquí
+  ) {
     this.route.queryParams.subscribe(params => {
-      this.selectedTab = params['tab'] || 'terminos'; // Usa el parámetro o 'terminos' como valor por defecto
+      this.selectedTab = params['tab'] || 'terminos';
     });
     this.loadLegalDocuments();
   }
@@ -41,6 +47,7 @@ export class LegalSettingsComponent {
 
   private handleError(documentType: string, error: any) {
     console.error(`Error al cargar ${documentType}:`, error);
+    this.toastService.error(`Hubo un error al cargar ${documentType}.`);
   }
 
   saveDocument(type: string) {
@@ -58,16 +65,18 @@ export class LegalSettingsComponent {
 
   handleSaveSuccess(type: string) {
     console.log(`${type} guardado exitosamente`);
+    this.toastService.success(`${type} guardado exitosamente.`);
     this.loadDocumentByType(type);
   }
 
   handleSaveError(type: string, error: any) {
     console.error(`Error al guardar ${type}:`, error);
+    this.toastService.error(`Hubo un error al guardar ${type}.`);
   }
 
   changeSelectTab(tab: string) {
     this.selectedTab = tab;
-    console.log(this.selectedTab)
+    console.log(this.selectedTab);
   }
 
   onFileSelected(event: any) {
@@ -77,16 +86,18 @@ export class LegalSettingsComponent {
   uploadDocument(): void {
     if (!this.selectedFile) {
       console.error('No file selected');
-      return; // O maneja el error de alguna manera
+      this.toastService.error("Por favor selecciona un archivo.");
+      return;
     }
-    console.log(this.selectedFile)
+    console.log(this.selectedFile);
     this.legalService.uploadDocument(this.selectedFile, this.selectedTab).subscribe(response => {
       console.log('Document uploaded successfully:', response);
+      this.toastService.success("Documento subido exitosamente.");
     }, error => {
       console.error('Error uploading document:', error);
+      this.toastService.error("Hubo un error al subir el documento.");
     });
   }
-  
 
   editDocument(document: any) {
     // Implementar funcionalidad de edición

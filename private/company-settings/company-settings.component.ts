@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CompanyService } from '../services/company.service.ts.service';
-import { CommonModule } from '@angular/common';
 import { ToastService } from 'angular-toastify';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-company-settings',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  standalone:true,
+  imports:[CommonModule, ReactiveFormsModule],
   templateUrl: './company-settings.component.html',
   styleUrls: ['./company-settings.component.scss']
 })
@@ -18,7 +18,7 @@ export class CompanySettingsComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private companyService: CompanyService,
-    private toastService:ToastService
+    private toastService: ToastService
   ) {
     this.companyForm = this.fb.group({
       nombre: ['', Validators.required],
@@ -27,6 +27,7 @@ export class CompanySettingsComponent implements OnInit {
       direccion: [''],
       telefono: [''],
       email: ['', [Validators.email]],
+      redSocial: [''] // Nuevo campo para red social
     });
   }
 
@@ -50,7 +51,7 @@ export class CompanySettingsComponent implements OnInit {
     // Previsualizar la imagen seleccionada
     const reader = new FileReader();
     reader.onload = () => {
-      this.companyProfile.logo = reader.result; // Actualiza la previsualización del logo
+      this.companyProfile.logo = reader.result;
     };
     reader.readAsDataURL(file);
   }
@@ -62,16 +63,20 @@ export class CompanySettingsComponent implements OnInit {
     formData.append('direccion', this.companyForm.get('direccion')?.value);
     formData.append('telefono', this.companyForm.get('telefono')?.value);
     formData.append('email', this.companyForm.get('email')?.value);
+    formData.append('redSocial', this.companyForm.get('redSocial')?.value);
 
     if (this.companyForm.get('logo')?.value) {
       formData.append('logo', this.companyForm.get('logo')?.value);
     }
 
-    this.companyService.updateCompanyProfile(formData).subscribe(response => {
-      this.toastService.success('Perfil actualizado con éxito.');
-      this.getCompanyProfile();
-    }, error => {
-      alert('Error al actualizar el perfil: ' + error.message);
-    });
+    this.companyService.updateCompanyProfile(formData).subscribe(
+      () => {
+        this.toastService.success('Perfil actualizado exitosamente.');
+        this.getCompanyProfile();
+      },
+      (error) => {
+        this.toastService.error('Error al actualizar el perfil.');
+      }
+    );
   }
 }

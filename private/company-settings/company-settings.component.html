@@ -39,18 +39,24 @@
       <input type="email" id="email" formControlName="email" class="form-control" />
     </div>
 
+    <div class="form-group">
+      <label for="redSocial">Red Social</label>
+      <input type="text" id="redSocial" formControlName="redSocial" class="form-control" placeholder="URL de la red social" />
+    </div>
+
     <button type="submit" class="btn btn-primary" [disabled]="!companyForm.valid">Guardar Cambios</button>
   </form>
 
-  <!-- Sección para editar información del perfil de la empresa -->
+  <!-- Información del perfil de la empresa -->
   <div class="edit-profile-section">
-    <h3>Editar Información del Perfil de la Empresa</h3>
+    <h3>Información del Perfil de la Empresa</h3>
     <ul>
       <li><strong>Nombre:</strong> {{ companyProfile?.nombre }}</li>
       <li><strong>Eslogan:</strong> {{ companyProfile?.slogan }}</li>
       <li><strong>Dirección:</strong> {{ companyProfile?.direccion }}</li>
       <li><strong>Teléfono:</strong> {{ companyProfile?.telefono }}</li>
       <li><strong>Email:</strong> {{ companyProfile?.email }}</li>
+      <li><strong>Red Social:</strong> <a [href]="companyProfile?.redSocial" target="_blank">{{ companyProfile?.redSocial }}</a></li>
     </ul>
   </div>
 </div>

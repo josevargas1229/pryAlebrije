@@ -5,6 +5,8 @@
   justify-content: center;
   align-items: center;
   min-height: 80vh;
+  padding: 20px; // Espaciado en dispositivos más pequeños
+  box-sizing: border-box; // Asegura que el padding no afecte el tamaño total
 }
 
 .form-box {
@@ -12,6 +14,9 @@
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   text-align: center;
+  width: 100%; // Asegura que el ancho sea del 100%
+  max-width: 480px; // Limita el ancho para mejor visualización
+  box-sizing: border-box; // Para asegurar que el padding no afecte el ancho
 }
 
 .form-box h2 {
@@ -24,6 +29,7 @@
 
 .form-group {
   margin-bottom: 20px;
+  width: 100%; // Asegura que los grupos de formulario ocupen el 100% de su contenedor
 }
 
 .form-group label {
@@ -45,10 +51,8 @@ button {
   cursor: pointer;
 }
 
-
 /* Estilos del modal */
 /* Estilos del formulario dentro del modal */
-/* From Uiverse.io by kennyotsu-monochromia */
 .form {
   border: 2px solid var(--glow-color);
   padding: 25px;
@@ -79,4 +83,33 @@ button {
 .description {
   margin-top: 10px;
   font-size: 1rem;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  .recupera-container {
+    padding: 20px; // Espaciado adicional para dispositivos más pequeños
+  }
+
+  .form-box {
+    padding: 15px; // Menos padding en dispositivos más pequeños
+  }
+
+  .form-group input {
+    padding: 8px; // Menos padding en el input
+  }
+
+  .form {
+    max-width: 90%; // Permite que el modal ocupe más ancho
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.2rem; // Ajusta el tamaño de la fuente
+  }
+
+  .description {
+    font-size: 0.9rem; // Ajusta el tamaño de la fuente
+  }
 }

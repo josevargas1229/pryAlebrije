@@ -1,3 +1,4 @@
+// controllers/companyProfileController.js
 const cloudinary = require('cloudinary').v2;
 const PerfilEmpresa = require('../models/PerfilEmpresa');
 
@@ -22,7 +23,7 @@ exports.getCompanyProfile = async (req, res) => {
 // Actualizar el perfil de la empresa
 exports.updateCompanyProfile = async (req, res) => {
     try {
-        const { nombre, slogan, direccion, telefono, email } = req.body;
+        const { nombre, slogan, direccion, telefono, email, redSocial } = req.body;
         let logoUrl;
 
         // Si hay un nuevo logo, súbelo a Cloudinary
@@ -38,6 +39,7 @@ exports.updateCompanyProfile = async (req, res) => {
                 direccion,
                 telefono,
                 email,
+                redSocial, // Actualiza red social
                 logo: logoUrl || undefined // Guarda la URL solo si existe
             },
             {

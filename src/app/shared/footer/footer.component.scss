@@ -2,14 +2,15 @@ footer {
   width: 100%;
   height: auto;
 }
-mat-toolbar{
+
+mat-toolbar {
   width: 100%;
   height: 100%;
 }
+
 .footer-toolbar {
-  background-color: #673ab7; // Color de fondo
-  color: white; // Color del texto
-  padding: 20px 0; // Espaciado vertical
+  background-color: #673ab7;
+  padding: 20px 0;
 }
 
 .footer-content {
@@ -17,57 +18,96 @@ mat-toolbar{
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 0 20px;
 }
 
 .footer-main {
   display: flex;
-  align-items: space-between;
+  justify-content: space-between;
+  flex-wrap: wrap; // Para adaptar las secciones en varias líneas en pantallas pequeñas
   width: 100%;
-  max-width: 1200px; // Limita el ancho para mejor visualización
-  padding: 0 20px; // Espaciado horizontal
+  max-width: 1200px;
 }
 
 .footer-section {
-  flex: 1; // Hace que las secciones crezcan para llenar el espacio
-  margin: 0 10px; // Espaciado entre secciones
+  flex: 1;
+  margin: 10px;
   max-width: 300px;
+  text-align: center;
 }
 
 .footer-title {
-  font-size: 1.2rem; // Tamaño de fuente más grande
-  margin-bottom: 10px; // Espaciado inferior
+  font-size: 1.2rem;
+  margin-bottom: 10px;
 }
 
 .footer-links {
   display: flex;
-  flex-direction: column; // Alinea los botones verticalmente
-}
+  flex-direction: column;
 
-.footer-links button {
-  margin: 5px 0; // Espaciado entre botones
-  color: #ffffff; // Color del texto del botón
-  transition: background-color 0.3s; // Animación para hover
-}
+  button {
+    margin: 5px 0;
+    transition: background-color 0.3s;
 
-.footer-links button:hover {
-  background-color: rgba(255, 255, 255, 0.2); // Efecto hover
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  }
 }
 
 .footer-contact {
   display: flex;
-  flex-direction: column; // Alinea el contacto verticalmente
-  margin-top: 10px; // Espaciado superior
-  color: #ffffff; // Color del texto
+  flex-direction: column;
+  margin-top: 10px;
 }
 
 .footer-bottom {
-  text-align: center; // Centra el texto
-  margin-top: 20px; // Espaciado superior
+  text-align: center;
+  margin-top: 20px;
 }
 
-.footer-text {
-  font-size: 0.9rem; // Tamaño de fuente más pequeño
-}
-span{
+.footer-text,
+span {
   font-size: 0.9rem;
+}
+
+// Estilos responsivos
+@media (max-width: 768px) {
+  .footer-content {
+    padding: 0 10px;
+  }
+
+  .footer-main {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .footer-title {
+    font-size: 1rem;
+  }
+
+  .footer-section {
+    max-width: 100%; // Asegura que las secciones se expandan en dispositivos pequeños
+    margin: 5px 0;
+  }
+
+  .footer-text,
+  span {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-title {
+    font-size: 0.9rem;
+  }
+
+  .footer-text,
+  span {
+    font-size: 0.75rem;
+  }
+
+  .footer-main {
+    padding: 0 5px;
+  }
 }
