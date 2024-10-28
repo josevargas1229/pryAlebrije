@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { ToastService } from 'angular-toastify'; 
+import { ToastService } from 'angular-toastify';
 
 @Component({
   selector: 'app-legal-settings',
@@ -18,11 +18,12 @@ export class LegalSettingsComponent {
   legalContent = { terminos: '', privacidad: '', deslinde: '' };
   savedDocuments: any = { terminos: [], privacidad: [], deslinde: [] };
   selectedFile: File | null = null;
+  documentToEdit: any | null = null; // Para almacenar el documento seleccionado para editar
 
   constructor(
     private legalService: LegalService,
     private route: ActivatedRoute,
-    private toastService: ToastService // Añadir el ToastService aquí
+    private toastService: ToastService
   ) {
     this.route.queryParams.subscribe(params => {
       this.selectedTab = params['tab'] || 'terminos';
@@ -89,17 +90,47 @@ export class LegalSettingsComponent {
       this.toastService.error("Por favor selecciona un archivo.");
       return;
     }
+
+    // Verificar la extensión del archivo
+    if (!this.selectedFile.name.endsWith('.docx')) {
+      this.toastService.error("Solo se permiten archivos de tipo .docx.");
+      return;
+    }
+
     console.log(this.selectedFile);
-    this.legalService.uploadDocument(this.selectedFile, this.selectedTab).subscribe(response => {
-      console.log('Document uploaded successfully:', response);
-      this.toastService.success("Documento subido exitosamente.");
-    }, error => {
-      console.error('Error uploading document:', error);
-      this.toastService.error("Hubo un error al subir el documento.");
-    });
+    this.legalService.uploadDocument(this.selectedFile, this.selectedTab).subscribe(
+      response => {
+        console.log('Document uploaded successfully:', response);
+        this.toastService.success("Documento subido exitosamente.");
+      },
+      error => {
+        console.error('Error uploading document:', error);
+        this.toastService.error("Hubo un error al subir el documento.");
+      }
+    );
   }
 
   editDocument(document: any) {
-    // Implementar funcionalidad de edición
+    this.documentToEdit = { ...document }; // Crear una copia del documento para editar
+  }
+
+  saveEditedDocument() {
+    if (this.documentToEdit) {
+      this.legalService.editDocument(this.documentToEdit.tipo, this.documentToEdit.id, this.documentToEdit).subscribe(
+        response => {
+          this.toastService.success("Documento actualizado exitosamente.");
+          this.loadLegalDocuments(); // Recargar documentos
+          this.documentToEdit = null; // Limpiar selección
+        },
+        error => {
+          console.error('Error al actualizar el documento:', error);
+          this.toastService.error("Hubo un error al actualizar el documento.");
+        }
+      );
+    }
+  }
+
+  cancelEdit() {
+    this.documentToEdit = null; // Limpiar selección al cancelar la edición
   }
 }

@@ -8,55 +8,48 @@
     <button (click)="changeSelectTab('deslinde')" [class.active]="selectedTab === 'deslinde'">Deslinde Legal</button>
   </div>
 
- 
-
   <!-- Subir nuevo documento -->
   <input type="file" (change)="onFileSelected($event)" />
+  <p class="file-format-note">* Solo se permiten documentos de tipo .docx</p>
   <button (click)="uploadDocument()">Subir Nuevo Documento</button>
 
-  <!-- Formularios para agregar documentos -->
-  <div *ngIf="selectedTab === 'terminos'" class="tab-content">
-    <h3>Términos y Condiciones</h3>
-    <textarea [(ngModel)]="legalContent.terminos" placeholder="Ingresa los términos y condiciones"></textarea>
-    <button (click)="saveDocument('terminos')">Guardar</button>
-  </div>
+  <!-- Mostrar documentos guardados -->
+  <div *ngIf="savedDocuments[selectedTab]?.length > 0">
+    <h3>Documentos Guardados</h3>
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let doc of savedDocuments[selectedTab]">
+        <mat-expansion-panel-header>
+          <mat-panel-title class="document-title">
+            <div class="doc-info-container">
+              <span class="doc-info">Tipo: {{ doc.tipo }}</span>
+              <span class="doc-info"> | Fecha: {{ doc.fecha_creacion }}</span>
+              <span class="doc-info"> | Vigente: {{ doc.vigente ? 'Sí' : 'No' }}</span>
+            </div>
+          </mat-panel-title>
 
-  <div *ngIf="selectedTab === 'privacidad'" class="tab-content">
-    <h3>Política de Privacidad</h3>
-    <textarea [(ngModel)]="legalContent.privacidad" placeholder="Ingresa la política de privacidad"></textarea>
-    <button (click)="saveDocument('privacidad')">Guardar</button>
-  </div>
+          <mat-panel-description>
+            Haga clic para ver el contenido
+          </mat-panel-description>
+        </mat-expansion-panel-header>
 
-  <div *ngIf="selectedTab === 'deslinde'" class="tab-content">
-    <h3>Deslinde Legal</h3>
-    <textarea [(ngModel)]="legalContent.deslinde" placeholder="Ingresa el deslinde legal"></textarea>
-    <button (click)="saveDocument('deslinde')">Guardar</button>
-  </div>
-</div>
-<!-- Mostrar documentos guardados -->
-<div *ngIf="savedDocuments[selectedTab]?.length > 0">
-  <h3>Documentos Guardados</h3>
-  <mat-accordion>
-    <mat-expansion-panel *ngFor="let doc of savedDocuments[selectedTab]">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Tipo: {{ doc.tipo }} | Subido: {{ doc.fecha_creacion }} | Vigente: {{ doc.vigente ? 'Sí' : 'No' }}
-        </mat-panel-title>
-        <mat-panel-description>
-          {{ doc.tipo }} - Haga clic para ver el contenido
-        </mat-panel-description>
-      </mat-expansion-panel-header>
-
-      <div>
-        <p [innerHTML]="doc.contenido_html"></p>
-        <div class="document-actions">
-          <button (click)="editDocument(doc)">Editar</button>
+        <div>
+          <div *ngIf="documentToEdit?.id === doc.id; else displayContent">
+            <textarea [(ngModel)]="documentToEdit.contenido_html" rows="10" cols="50">{{ doc.contenido }}</textarea>
+            <button (click)="saveEditedDocument()">Guardar Cambios</button>
+            <button (click)="cancelEdit()">Cancelar</button>
+          </div>
+          <ng-template #displayContent>
+            <p [innerHTML]="doc.contenido_html"></p>
+            <div class="document-actions">
+              <button (click)="editDocument(doc)">Editar</button>
+            </div>
+          </ng-template>
         </div>
-      </div>
-    </mat-expansion-panel>
-  </mat-accordion>
-</div>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </div>
 
-<div class="no-documents" *ngIf="!savedDocuments[selectedTab]?.length">
-  <p>No hay documentos guardados para esta sección.</p>
+  <div class="no-documents" *ngIf="!savedDocuments[selectedTab]?.length">
+    <p>No hay documentos guardados para esta sección.</p>
+  </div>
 </div>
