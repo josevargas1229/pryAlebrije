@@ -9,9 +9,21 @@ exports.uploadDocument = async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No se ha subido ningún archivo' });
   }
-  console.log(req.file)
+
   const filePath = req.file.path;
   const fileName = req.file.originalname;
+
+  // Comprobación de la extensión del archivo
+  if (!fileName.endsWith('.docx')) {
+    // Eliminar el archivo no válido
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error('Error al eliminar el archivo no válido:', err);
+      }
+    });
+    return res.status(400).json({ error: 'Solo se permiten archivos de tipo .docx' });
+  }
+
   if (!fs.existsSync(filePath)) {
     return res.status(400).json({ error: 'El archivo subido no existe' });
   }
