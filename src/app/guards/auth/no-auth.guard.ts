@@ -14,7 +14,7 @@ export class NoAuthGuard implements CanActivate {
       tap(user => console.log('Usuario autenticado:', user)),
     map(user => {
       if (user) {
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/']);
         return false; // No permitir el acceso a la ruta protegida
       }
       return true; // Permitir el acceso a la ruta si no está autenticado
