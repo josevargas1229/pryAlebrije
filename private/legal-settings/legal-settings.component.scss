@@ -21,7 +21,7 @@
       cursor: pointer;
       outline: none;
       transition: background-color 0.3s;
-      font-weight: bold; // Resalta el texto
+      font-weight: bold;
 
       &.active {
         background-color: #0056b3;
@@ -42,9 +42,20 @@
       background-color: #f9f9f9;
       text-align: left;
 
-      .document-header {
-        font-weight: bold;
+      .document-title {
         margin-bottom: 10px;
+
+        .doc-info-container {
+          display: flex;
+          gap: 10px;
+          justify-content: flex-start; // Alinea el contenido a la izquierda
+          padding-left: 20px; // Añade espacio a la izquierda
+        }
+
+        .doc-info {
+          font-size: 16px; // Tamaño de fuente ligeramente mayor
+          margin: 0;
+        }
       }
 
       .document-content {
@@ -89,7 +100,7 @@
   }
 
   .tab-content {
-    margin-top: 20px; // Espacio entre secciones
+    margin-top: 20px;
 
     textarea {
       width: 100%;
@@ -98,7 +109,7 @@
       padding: 10px;
       border-radius: 5px;
       border: 1px solid #ccc;
-      resize: none; // Deshabilitar el redimensionamiento
+      resize: none;
     }
 
     button {
@@ -120,32 +131,32 @@
 /* Estilos responsivos */
 @media (max-width: 768px) {
   .legal-settings-container {
-    padding: 15px; // Reduce el padding en pantallas más pequeñas
+    padding: 15px;
 
     h2 {
-      font-size: 20px; // Ajusta el tamaño de la fuente
+      font-size: 20px;
     }
 
     .tabs {
       button {
-        padding: 8px 16px; // Reduce el tamaño del botón
-        font-size: 14px; // Ajusta el tamaño de la fuente
+        padding: 8px 16px;
+        font-size: 14px;
       }
     }
 
     .saved-documents {
       .document-card {
-        padding: 10px; // Reduce el padding del card
+        padding: 10px;
       }
     }
 
     .tab-content {
       textarea {
-        height: 150px; // Ajusta la altura del textarea
+        height: 150px;
       }
 
       button {
-        padding: 8px 16px; // Ajusta el tamaño del botón
+        padding: 8px 16px;
       }
     }
   }
@@ -153,34 +164,34 @@
 
 @media (max-width: 480px) {
   .legal-settings-container {
-    padding: 10px; // Aumenta el espaciado interno en dispositivos muy pequeños
+    padding: 10px;
 
     h2 {
-      font-size: 18px; // Ajusta el tamaño de la fuente
+      font-size: 18px;
     }
 
     .tabs {
       button {
-        padding: 6px 12px; // Ajusta el tamaño del botón
-        font-size: 12px; // Ajusta el tamaño de la fuente
+        padding: 6px 12px;
+        font-size: 12px;
       }
     }
 
     .tab-content {
       textarea {
-        height: 120px; // Ajusta la altura del textarea
+        height: 120px;
       }
 
       button {
-        padding: 8px; // Reduce el padding del botón
-        font-size: 14px; // Ajusta el tamaño de la fuente
+        padding: 8px;
+        font-size: 14px;
       }
     }
   }
 }
+
 .file-format-note {
   font-size: 0.9em;
   color: #555;
   margin: 5px 0 15px;
 }
-

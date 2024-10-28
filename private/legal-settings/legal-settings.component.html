@@ -20,10 +20,13 @@
       <mat-expansion-panel *ngFor="let doc of savedDocuments[selectedTab]">
         <mat-expansion-panel-header>
           <mat-panel-title class="document-title">
-            <span class="doc-info">Tipo: {{ doc.tipo }}</span>
-            <span class="doc-info">Subido: {{ doc.fecha_creacion }}</span>
-            <span class="doc-info">Vigente: {{ doc.vigente ? 'Sí' : 'No' }}</span>
+            <div class="doc-info-container">
+              <span class="doc-info">Tipo: {{ doc.tipo }}</span>
+              <span class="doc-info"> | Fecha: {{ doc.fecha_creacion }}</span>
+              <span class="doc-info"> | Vigente: {{ doc.vigente ? 'Sí' : 'No' }}</span>
+            </div>
           </mat-panel-title>
+
           <mat-panel-description>
             Haga clic para ver el contenido
           </mat-panel-description>
