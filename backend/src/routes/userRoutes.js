@@ -6,7 +6,7 @@ router is exported to be used in other parts of the application. */
 const express = require('express');
 const router = express.Router();
 const userController=require('../controllers/userController')
-const { authenticateToken, authorize } = require('../middlewares/auth');
+const { authenticateToken, authorize, ROLES } = require('../middlewares/auth');
 
 // Rutas públicas
 router.post('/', userController.createUser);
@@ -14,7 +14,7 @@ router.post('/', userController.createUser);
 // Rutas protegidas
 router.get('/',authenticateToken, userController.getUserInfo);
 router.put('/:id',authenticateToken, userController.updateUserInfo);
-router.delete('/:id', authenticateToken, authorize('administrador'), userController.deleteUser);
+router.delete('/:id', authenticateToken, authorize(ROLES.ADMINISTRADOR), userController.deleteUser);
 
 
 module.exports = router;

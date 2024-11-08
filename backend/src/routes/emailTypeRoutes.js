@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const emailTypeController = require('../controllers/emailTypeController');
-const { authenticateToken } = require('../middlewares/auth');
+
 
 // Obtener todos los tipos de email
 router.get('/', emailTypeController.getAllTypes);
@@ -10,7 +10,7 @@ router.get('/', emailTypeController.getAllTypes);
 router.get('/:id', emailTypeController.getTypeById);
 
 // Crear un nuevo tipo de email
-router.post('/',authenticateToken, emailTypeController.createType);
+router.post('/', emailTypeController.createType);
 
 // Actualizar un tipo de email por ID
 router.put('/:id', emailTypeController.updateType);

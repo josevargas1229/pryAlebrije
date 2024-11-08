@@ -75,3 +75,9 @@ exports.verifyEmailToken = (req, res,next) => {
         next(); // Continúa con el siguiente middleware
     });
 };
+
+exports.ROLES = {
+    ADMINISTRADOR: 1,
+    EMPLEADO: 2,
+    CLIENTE: 3
+};

@@ -6,8 +6,8 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-company-settings',
-  standalone:true,
-  imports:[CommonModule, ReactiveFormsModule],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './company-settings.component.html',
   styleUrls: ['./company-settings.component.scss']
 })
@@ -27,7 +27,7 @@ export class CompanySettingsComponent implements OnInit {
       direccion: [''],
       telefono: [''],
       email: ['', [Validators.email]],
-      redSocial: [''] // Nuevo campo para red social
+      redSocial: ['']
     });
   }
 
@@ -72,11 +72,11 @@ export class CompanySettingsComponent implements OnInit {
     this.companyService.updateCompanyProfile(formData).subscribe(
       () => {
         this.toastService.success('Perfil actualizado exitosamente.');
-        this.getCompanyProfile();
       },
       (error) => {
         this.toastService.error('Error al actualizar el perfil.');
       }
     );
   }
+
 }

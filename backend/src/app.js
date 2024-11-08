@@ -19,7 +19,7 @@ const companyProfileRoutes = require('./routes/companyProfileRoutes');
 const emailTemplateRoutes = require('./routes/emailTemplateRoutes');
 const legalDocumentRoutes = require('./routes/legalDocumentRoutes');
 const configurationRoutes = require('./routes/configurationRoutes');
-
+const { authenticateToken, authorize, ROLES } = require('./middlewares/auth');
 const app = express();
 app.set('trust proxy', true);
 // Middleware de seguridad
@@ -57,13 +57,13 @@ app.get('/', (req, res) => {
 app.use('/users', userRoutes);
 app.use('/auth', authRoutes);
 app.use('/password',passwordRoutes);
-app.use('/email-types', emailTypeRoutes);
-app.use('/email-templates', emailTemplateRoutes);
+app.use('/email-types',authenticateToken, authorize(ROLES.ADMINISTRADOR), emailTypeRoutes);
+app.use('/email-templates',authenticateToken, authorize(ROLES.ADMINISTRADOR), emailTemplateRoutes);
 app.use('/legal-documents', legalDocumentRoutes);
-app.use('/configuration', configurationRoutes);
-app.use('/bloqueos', bloqueosRoutes);
-app.use('/logs', logsRoutes);
-app.use('/perfil', companyProfileRoutes);
+app.use('/configuration',authenticateToken, authorize(ROLES.ADMINISTRADOR), configurationRoutes);
+app.use('/bloqueos',authenticateToken, authorize(ROLES.ADMINISTRADOR), bloqueosRoutes);
+app.use('/logs',authenticateToken, authorize(ROLES.ADMINISTRADOR), logsRoutes);
+app.use('/perfil',companyProfileRoutes);
 app.use(errorHandler);
 module.exports = app;
 
