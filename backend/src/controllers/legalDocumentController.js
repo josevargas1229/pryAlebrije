@@ -1,7 +1,7 @@
 const LegalDocument = require('../models/LegalDocument');
 const mammoth = require('mammoth');
 const fs = require('fs');
-
+const sanitizeHtml = require('sanitize-html'); 
 // Subir y convertir documento
 exports.uploadDocument = async (req, res) => {
   const { tipo, usuario } = req.body;
@@ -32,6 +32,15 @@ exports.uploadDocument = async (req, res) => {
     // Convertir el archivo de Word a HTML
     const result = await mammoth.convertToHtml({ path: filePath });
     const htmlContent = result.value;
+
+    // Sanitizar el contenido HTML para evitar inyección de código malicioso
+    htmlContent = sanitizeHtml(htmlContent, {
+      allowedTags: [ 'p', 'a', 'strong', 'em', 'ul', 'ol', 'li', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'tr', 'td', 'th' ],
+      allowedAttributes: {
+        a: [ 'href', 'name', 'target' ],
+        img: [ 'src', 'srcset', 'alt', 'title', 'width', 'height', 'loading' ]
+      },
+    });
 
     // Actualizar los documentos anteriores a no vigentes
     await LegalDocument.update({ vigente: false }, { where: { tipo } });
@@ -65,7 +74,10 @@ exports.getDocumentsByType = async (req, res) => {
 
   try {
     const documents = await LegalDocument.findAll({
-      where: { tipo },
+      where: {
+        tipo,
+        vigente: true,
+      },
       attributes: ['id', 'nombre', 'contenido_html', 'tipo', 'fecha_creacion', 'vigente', 'modificado_por'],
     });
 
