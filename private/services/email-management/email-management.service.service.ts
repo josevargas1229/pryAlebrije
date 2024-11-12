@@ -16,7 +16,7 @@ export class EmailManagementService {
   ) {}
 
   getAllTemplates(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/email-templates`);
+    return this.http.get(`${this.apiUrl}/email-templates`,{withCredentials:true});
   }
 
   createTemplate(templateData: any) {
@@ -60,7 +60,7 @@ export class EmailManagementService {
   }
 
   getAllTypes(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/email-types`);
+    return this.http.get(`${this.apiUrl}/email-types`,{withCredentials:true});
   }
 
   createType(typeData: any): Observable<any> {

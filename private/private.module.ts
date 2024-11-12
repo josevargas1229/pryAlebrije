@@ -39,6 +39,7 @@ import { MatSpinner } from '@angular/material/progress-spinner';
 import { A11yModule } from '@angular/cdk/a11y';
 import { BloqueosComponent } from './bloqueos/bloqueos.component';
 import { LogsComponent } from './logs/logs.component';
+import { CompanySettingsComponent } from './company-settings/company-settings.component';
 
 @NgModule({
   declarations: [
@@ -51,7 +52,8 @@ import { LogsComponent } from './logs/logs.component';
     EmailTypeDialogComponent,
     ConfiguracionSistemaComponent,
     BloqueosComponent,
-    LogsComponent
+    LogsComponent,
+    CompanySettingsComponent
   ],
   imports: [
     CommonModule,

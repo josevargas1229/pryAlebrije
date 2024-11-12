@@ -15,7 +15,10 @@ import { CommonModule } from '@angular/common';
 export class FooterComponent implements OnInit {
   companyInfo: any = {}; // Cambia el tipo según lo que devuelva tu API
 
-  constructor(private companyService: CompanyService) {}
+  constructor(private companyService: CompanyService) 
+  {
+    this.companyService.getCompanyProfile().subscribe();
+  }
 
   ngOnInit(): void {
     this.companyService.companyProfile$.subscribe((data: any) => {

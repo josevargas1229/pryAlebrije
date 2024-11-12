@@ -67,8 +67,7 @@ export class AuthService {
           headers,
           withCredentials: true
         });
-      }),
-      catchError(this.handleError)
+      })
     );
   }
 

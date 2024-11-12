@@ -72,6 +72,18 @@ exports.createUser = async (req, res, next) => {
         res.status(201).json({ message: 'Usuario creado exitosamente' });
     } catch (error) {
         console.log(error)
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            const errors = error.errors.map(err => {
+                return { field: err.path, message: `${err.path} debe ser único` };
+            });
+
+            return res.status(400).json({
+                message: 'Error de validación',
+                errors: errors
+            });
+        }
+
+        // Otros errores se envían al middleware de manejo de errores
         next(error);
     }
 };

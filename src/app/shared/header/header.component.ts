@@ -19,7 +19,10 @@ export class HeaderComponent {
   isLoggedIn: boolean = false;
   userRole: number | null = null;
   logoUrl: string | undefined;
-  constructor(private authService: AuthService,private companyService: CompanyService, private router: Router) {}
+  constructor(private authService: AuthService,private companyService: CompanyService, private router: Router) 
+  {
+    this.companyService.getCompanyProfile().subscribe();
+  }
 
   ngOnInit(): void {
     this.companyService.companyProfile$.subscribe((data: any) => {
@@ -43,7 +46,7 @@ export class HeaderComponent {
   logout(): void {
     this.authService.logout().subscribe(() => {
       this.isLoggedIn = false;
-      this.userRole = null; // Resetea el rol del usuario al cerrar sesión
+      this.userRole = null;
       this.router.navigate(['/']);
     });
   }

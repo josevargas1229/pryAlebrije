@@ -6,8 +6,6 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-company-settings',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './company-settings.component.html',
   styleUrls: ['./company-settings.component.scss']
 })
@@ -24,10 +22,10 @@ export class CompanySettingsComponent implements OnInit {
       nombre: ['', Validators.required],
       logo: [null],
       slogan: ['', [Validators.required, Validators.maxLength(100)]],
-      direccion: [''],
-      telefono: [''],
-      email: ['', [Validators.email]],
-      redSocial: ['']
+      direccion: ['', Validators.required],
+      telefono: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+      email: ['', [Validators.required, Validators.email]],
+      redSocial: ['', [Validators.required, Validators.pattern('https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)')]]
     });
   }
 
@@ -72,6 +70,7 @@ export class CompanySettingsComponent implements OnInit {
     this.companyService.updateCompanyProfile(formData).subscribe(
       () => {
         this.toastService.success('Perfil actualizado exitosamente.');
+        this.getCompanyProfile();
       },
       (error) => {
         this.toastService.error('Error al actualizar el perfil.');

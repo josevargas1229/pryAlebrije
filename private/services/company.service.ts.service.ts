@@ -36,7 +36,7 @@ export class CompanyService {
           withCredentials: true
         });
       }),
-      tap(() => this.getCompanyProfile().subscribe()) // Actualizar el perfil después de guardar cambios
+      tap(() => this.getCompanyProfile().subscribe())
     );
   }
 }

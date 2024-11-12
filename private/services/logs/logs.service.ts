@@ -12,6 +12,6 @@ export class LogsService {
   constructor(private http: HttpClient) { }
 
   obtenerLogs(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}`);
+    return this.http.get<any>(`${this.apiUrl}`,{withCredentials:true});
   }
 }
