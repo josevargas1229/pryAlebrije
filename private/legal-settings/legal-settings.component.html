@@ -1,55 +1,100 @@
-<div class="legal-settings-container">
-  <h2>Administrar Documentos Legales</h2>
+<!-- legal-documents.component.html -->
+<div class="legal-settings-container mat-elevation-z2">
+  <h2 class="mat-headline-4">Administrar documentos legales</h2>
 
-  <!-- Tabs para seleccionar el tipo de documento -->
-  <div class="tabs">
-    <button (click)="changeSelectTab('terminos')" [class.active]="selectedTab === 'terminos'">Términos y Condiciones</button>
-    <button (click)="changeSelectTab('privacidad')" [class.active]="selectedTab === 'privacidad'">Política de Privacidad</button>
-    <button (click)="changeSelectTab('deslinde')" [class.active]="selectedTab === 'deslinde'">Deslinde Legal</button>
-  </div>
+  <!-- Tabs de Material -->
+  <mat-tab-group [(selectedIndex)]="selectedTabIndex" (selectedIndexChange)="onTabChange($event)">
+    <mat-tab label="Términos y Condiciones">
+      <ng-container *ngTemplateOutlet="documentContent; context: { type: 'terminos' }"></ng-container>
+    </mat-tab>
+    <mat-tab label="Política de Privacidad">
+      <ng-container *ngTemplateOutlet="documentContent; context: { type: 'privacidad' }"></ng-container>
+    </mat-tab>
+    <mat-tab label="Deslinde Legal">
+      <ng-container *ngTemplateOutlet="documentContent; context: { type: 'deslinde' }"></ng-container>
+    </mat-tab>
+  </mat-tab-group>
 
-  <!-- Subir nuevo documento -->
-  <input type="file" (change)="onFileSelected($event)" />
-  <p class="file-format-note">* Solo se permiten documentos de tipo .docx</p>
-  <button (click)="uploadDocument()">Subir Nuevo Documento</button>
+  <!-- Template para el contenido de cada tab -->
+  <ng-template #documentContent let-type="type">
+    <div class="upload-section">
+      <mat-card>
+        <mat-card-content>
+          <button mat-stroked-button (click)="fileInput.click()">
+            <mat-icon>attach_file</mat-icon>
+            Seleccionar archivo
+          </button>
+          <input #fileInput type="file" hidden (change)="onFileSelected($event)" accept=".docx"/>
+          <p class="file-format-note mat-caption">* Solo se permiten documentos de tipo .docx</p>
+          <p *ngIf="selectedFile" class="selected-file-name">
+            Archivo seleccionado: {{ selectedFile.name }}
+          </p>
+          <button mat-raised-button color="primary" [disabled]="!selectedFile" (click)="uploadDocument()">
+            <mat-icon>upload</mat-icon>
+            Subir Documento
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
 
-  <!-- Mostrar documentos guardados -->
-  <div *ngIf="savedDocuments[selectedTab]?.length > 0">
-    <h3>Documentos Guardados</h3>
-    <mat-accordion>
-      <mat-expansion-panel *ngFor="let doc of savedDocuments[selectedTab]">
-        <mat-expansion-panel-header>
-          <mat-panel-title class="document-title">
-            <div class="doc-info-container">
-              <span class="doc-info">Tipo: {{ doc.tipo }}</span>
-              <span class="doc-info"> | Fecha: {{ doc.fecha_creacion }}</span>
-              <span class="doc-info"> | Vigente: {{ doc.vigente ? 'Sí' : 'No' }}</span>
+    <!-- Lista de documentos guardados -->
+    <div *ngIf="savedDocuments[type] && savedDocuments[type].length > 0" class="documents-list">
+      <h3 class="mat-h2">Documentos guardados</h3>
+      <mat-accordion>
+        <mat-expansion-panel *ngFor="let doc of savedDocuments[type]">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <div class="doc-info-container">
+                <mat-icon>description</mat-icon>
+                <span>{{ doc.tipo }}</span>
+                <span class="doc-date">{{ doc.fecha_creacion | date:'dd/MM/yyyy, HH:mm:ss'  }}</span>
+                <mat-chip-listbox>
+                  <mat-chip [color]="doc.vigente ? 'primary' : 'warn'" selected>
+                    {{ doc.vigente ? 'Vigente' : 'No vigente' }}
+                  </mat-chip>
+                </mat-chip-listbox>
+              </div>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <div class="document-content">
+            <div *ngIf="documentToEdit?.id === doc.id; else displayContent">
+              <mat-form-field appearance="fill" class="full-width">
+                <div *ngIf="documentToEdit">
+                  <textarea matInput [(ngModel)]="documentToEdit.contenido_html" rows="10"></textarea>
+                </div>
+                
+              </mat-form-field>
+              <div class="action-buttons">
+                <button mat-raised-button color="primary" (click)="saveEditedDocument()">
+                  <mat-icon>save</mat-icon>
+                  Guardar
+                </button>
+                <button mat-button (click)="cancelEdit()">
+                  <mat-icon>close</mat-icon>
+                  Cancelar
+                </button>
+              </div>
             </div>
-          </mat-panel-title>
-
-          <mat-panel-description>
-            Haga clic para ver el contenido
-          </mat-panel-description>
-        </mat-expansion-panel-header>
-
-        <div>
-          <div *ngIf="documentToEdit?.id === doc.id; else displayContent">
-            <textarea [(ngModel)]="documentToEdit.contenido_html" rows="10" cols="50">{{ doc.contenido }}</textarea>
-            <button (click)="saveEditedDocument()">Guardar Cambios</button>
-            <button (click)="cancelEdit()">Cancelar</button>
+            <ng-template #displayContent>
+              <div [innerHTML]="doc.contenido_html"></div>
+              <div class="document-actions">
+                <button mat-raised-button color="primary" (click)="editDocument(doc)">
+                  <mat-icon>edit</mat-icon>
+                  Editar
+                </button>
+              </div>
+            </ng-template>
           </div>
-          <ng-template #displayContent>
-            <p [innerHTML]="doc.contenido_html"></p>
-            <div class="document-actions">
-              <button (click)="editDocument(doc)">Editar</button>
-            </div>
-          </ng-template>
-        </div>
-      </mat-expansion-panel>
-    </mat-accordion>
-  </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
 
-  <div class="no-documents" *ngIf="!savedDocuments[selectedTab]?.length">
-    <p>No hay documentos guardados para esta sección.</p>
-  </div>
+    <mat-card *ngIf="!savedDocuments[type]?.length" class="no-documents">
+      <mat-card-content>
+        <mat-icon>info</mat-icon>
+        <p>No hay documentos guardados para esta sección.</p>
+      </mat-card-content>
+    </mat-card>
+  </ng-template>
 </div>

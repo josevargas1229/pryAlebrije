@@ -32,9 +32,9 @@ exports.uploadDocument = async (req, res) => {
     // Convertir el archivo de Word a HTML
     const result = await mammoth.convertToHtml({ path: filePath });
     const originalContent = result.value;
-
+    
     // Sanitizar el contenido HTML para evitar inyección de código malicioso
-    const sanitizedContent =sanitizeHtml(htmlContent, {
+    const sanitizedContent =sanitizeHtml(originalContent, {
       allowedTags: [ 'p', 'a', 'strong', 'em', 'ul', 'ol', 'li', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'tr', 'td', 'th','img' ],
       allowedAttributes: {
         a: [ 'href', 'name', 'target' ],
@@ -82,6 +82,33 @@ exports.getDocumentsByType = async (req, res) => {
       where: {
         tipo,
         vigente: true,
+      },
+      attributes: ['id', 'nombre', 'contenido_html', 'tipo', 'fecha_creacion', 'vigente', 'modificado_por'],
+    });
+
+    if (documents.length === 0) {
+      return res.status(404).json({ error: 'No se encontraron documentos para el tipo especificado' });
+    }
+
+    const formattedDocuments = documents.map(doc => ({
+      ...doc.dataValues,
+      fecha_creacion: new Date(doc.fecha_creacion).toLocaleString(),
+    }));
+
+    res.status(200).json(formattedDocuments);
+  } catch (error) {
+    console.error('Error al obtener documentos:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
+exports.getAllDocumentsByType = async (req, res) => {
+  const tipo = req.params.tipo;
+
+  try {
+    const documents = await LegalDocument.findAll({
+      where: {
+        tipo
       },
       attributes: ['id', 'nombre', 'contenido_html', 'tipo', 'fecha_creacion', 'vigente', 'modificado_por'],
     });

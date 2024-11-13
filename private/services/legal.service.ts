@@ -76,6 +76,9 @@ export class LegalService {
     return this.http.get(`${this.apiUrl}/legal-documents/documents/${type}`);
   }
 
+  getAllDocumentsByType(type: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/legal-documents/documents/all/${type}`,{withCredentials:true});
+  }
   // Crear un nuevo documento para Términos y Condiciones
   createTerms(termsData: any): Observable<any> {
     return this.csrfService.getCsrfToken().pipe(
