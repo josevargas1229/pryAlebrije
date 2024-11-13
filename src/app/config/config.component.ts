@@ -49,13 +49,19 @@ export class ConfigComponent {
     verificationCode: ['', Validators.required],
   });
 
-  passwordFormGroup = this._formBuilder.group({
+
+  currentPasswordFormGroup = this._formBuilder.group({
+    currentPassword: ['', [Validators.required, Validators.minLength(8)]]
+  });
+
+  newPasswordFormGroup = this._formBuilder.group({
     newPassword: ['', [Validators.required, Validators.minLength(8)]],
     confirmPassword: ['', Validators.required],
   });
+
   stepperOrientation: Observable<string>;
 
-  constructor(private userService: UserService, private toastService:ToastService) {
+  constructor(private userService: UserService, private toastService: ToastService) {
     const breakpointObserver = inject(BreakpointObserver);
     this.stepperOrientation = breakpointObserver
       .observe('(min-width: 800px)')
@@ -70,6 +76,7 @@ export class ConfigComponent {
   closeModal() {
     this.isModalOpen = false;
   }
+
   ngOnInit(): void {
     this.userService.getUserInfo().subscribe(
       (data) => {
@@ -80,10 +87,11 @@ export class ConfigComponent {
       }
     );
   }
+
   editarCampo(campo: string): void {
-    // Lógica para editar el campo (mostrar modal o formulario de edición)
     console.log(`Editando el campo: ${campo}`);
   }
+
   onSubmitEmail(stepper: MatStepper) {
     if (this.emailFormGroup.valid) {
       const email = this.emailFormGroup.value.email ?? '';
@@ -91,7 +99,7 @@ export class ConfigComponent {
         next: (response) => {
           console.log('Correo enviado', response);
           this.toastService.success('Correo enviado correctamente');
-          stepper.next(); // Avanza al siguiente paso solo si el correo se envió exitosamente
+          stepper.next();
         },
         error: (error) => {
           this.errorMessage = 'Error al enviar el correo. Por favor, inténtelo de nuevo.';
@@ -103,7 +111,7 @@ export class ConfigComponent {
       this.errorMessage = 'Por favor, ingrese un correo electrónico válido.';
     }
   }
-  
+
   onSubmitVerification(stepper: MatStepper) {
     if (this.emailFormGroup.valid && this.verificationFormGroup.valid) {
       const email = this.emailFormGroup.value.email ?? '';
@@ -113,7 +121,7 @@ export class ConfigComponent {
           this.isCodeVerified = true;
           console.log('Código verificado', response);
           this.toastService.success('Código verificado');
-          stepper.next(); // Avanza al siguiente paso solo si el código es correcto
+          stepper.next();
         },
         error: (error) => {
           this.isCodeVerified = false;
@@ -124,34 +132,42 @@ export class ConfigComponent {
       });
     }
   }
-  
-  onSubmitPassword(stepper: MatStepper) {
-    if (this.passwordFormGroup.valid && this.isCodeVerified) {
-      const newPassword = this.passwordFormGroup.value.newPassword;
-      const confirmPassword = this.passwordFormGroup.value.confirmPassword;
-  
+
+  onSubmitCurrentPassword(stepper: MatStepper) {
+    if (this.currentPasswordFormGroup.valid) {
+      console.log('Current password validated');
+      stepper.next();
+    } else {
+      this.errorMessage = 'La contraseña actual es inválida.';
+    }
+  }
+
+  onSubmitNewPassword(stepper: MatStepper) {
+    if (this.newPasswordFormGroup.valid && this.isCodeVerified) {
+      const newPassword = this.newPasswordFormGroup.value.newPassword;
+      const confirmPassword = this.newPasswordFormGroup.value.confirmPassword;
+
       if (newPassword !== confirmPassword) {
         this.errorMessage = 'Las contraseñas no coinciden.';
         return;
       }
-  
+
       const email = this.emailFormGroup.value.email;
       this.passwordService.changePassword(email ?? '', newPassword ?? '').subscribe({
         next: (response) => {
           console.log('Contraseña cambiada', response);
           this.closeModal();
           this.toastService.success('Contraseña cambiada exitosamente');
-          stepper.next(); // Avanza al paso final si la contraseña se cambió exitosamente
+          stepper.next();
         },
         error: (error) => {
           const errorMessage = error?.error?.error || 'Error al cambiar la contraseña. Inténtalo de nuevo.';
-        this.toastService.error(errorMessage); // Mostrar el mensaje de error específico
-        console.error('Error al cambiar contraseña', error);
+          this.toastService.error(errorMessage);
+          console.error('Error al cambiar contraseña', error);
         }
       });
     } else if (!this.isCodeVerified) {
       this.errorMessage = 'El código de verificación no ha sido validado.';
     }
   }
-  
 }
