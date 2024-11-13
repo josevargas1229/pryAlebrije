@@ -14,7 +14,7 @@ export class ConfiguracionSistemaService {
 
   // Obtener la configuración actual
   getConfiguration(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/configuration`);
+    return this.http.get(`${this.apiUrl}/configuration`,{withCredentials:true});
   }
 
   // Actualizar la configuración del sistema

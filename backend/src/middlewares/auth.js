@@ -60,7 +60,6 @@ exports.authorize = (...allowedRoles) => {
 
 exports.verifyEmailToken = (req, res,next) => {
     const { token } = req.query;
-    console.log(token)
     if (!token) {
         return res.status(400).json({ error: 'Token es requerido' });
     }
@@ -74,4 +73,10 @@ exports.verifyEmailToken = (req, res,next) => {
         console.log(decoded)
         next(); // Continúa con el siguiente middleware
     });
+};
+
+exports.ROLES = {
+    ADMINISTRADOR: 1,
+    EMPLEADO: 2,
+    CLIENTE: 3
 };

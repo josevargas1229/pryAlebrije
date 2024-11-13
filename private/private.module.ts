@@ -39,7 +39,10 @@ import { MatSpinner } from '@angular/material/progress-spinner';
 import { A11yModule } from '@angular/cdk/a11y';
 import { BloqueosComponent } from './bloqueos/bloqueos.component';
 import { LogsComponent } from './logs/logs.component';
-
+import { CompanySettingsComponent } from './company-settings/company-settings.component';
+import { LegalSettingsComponent } from './legal-settings/legal-settings.component';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatChipListbox, MatChipsModule } from '@angular/material/chips';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -51,7 +54,9 @@ import { LogsComponent } from './logs/logs.component';
     EmailTypeDialogComponent,
     ConfiguracionSistemaComponent,
     BloqueosComponent,
-    LogsComponent
+    LogsComponent,
+    CompanySettingsComponent,
+    LegalSettingsComponent
   ],
   imports: [
     CommonModule,
@@ -85,14 +90,19 @@ import { LogsComponent } from './logs/logs.component';
     MatCheckboxModule,
     MatSelectModule,
     MatSpinner,
-    A11yModule
+    A11yModule,
+    MatExpansionModule,
+    MatChipsModule,
+    MatChipListbox
   ],
   exports:[
     DashboardComponent,
     HomeDashboardComponent,
     EmailManagementComponent,
     BloqueosComponent,
-    LogsComponent
+    LogsComponent,
+    LegalSettingsComponent,
+    CompanySettingsComponent
   ],
   providers:[ToastService]
 })

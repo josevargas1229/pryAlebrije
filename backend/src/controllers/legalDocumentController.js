@@ -1,7 +1,7 @@
 const LegalDocument = require('../models/LegalDocument');
 const mammoth = require('mammoth');
 const fs = require('fs');
-
+const sanitizeHtml = require('sanitize-html'); 
 // Subir y convertir documento
 exports.uploadDocument = async (req, res) => {
   const { tipo, usuario } = req.body;
@@ -31,15 +31,29 @@ exports.uploadDocument = async (req, res) => {
   try {
     // Convertir el archivo de Word a HTML
     const result = await mammoth.convertToHtml({ path: filePath });
-    const htmlContent = result.value;
-
+    const originalContent = result.value;
+    
+    // Sanitizar el contenido HTML para evitar inyección de código malicioso
+    const sanitizedContent =sanitizeHtml(originalContent, {
+      allowedTags: [ 'p', 'a', 'strong', 'em', 'ul', 'ol', 'li', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'tr', 'td', 'th','img' ],
+      allowedAttributes: {
+        a: [ 'href', 'name', 'target' ],
+        img: [ 'src', 'srcset', 'alt', 'title', 'width', 'height', 'loading' ]
+      },
+    });
+    if (sanitizedContent !== originalContent) {
+      return res.status(400).json({
+        error: 'El contenido incluía elementos no permitidos, y se eliminaron antes de guardar.',
+        sanitizedContent // Puedes enviar el contenido sanitizado si deseas mostrarlo
+      });
+    }
     // Actualizar los documentos anteriores a no vigentes
     await LegalDocument.update({ vigente: false }, { where: { tipo } });
 
     // Guardar el nuevo documento como vigente
     const newDocument = await LegalDocument.create({
       nombre: fileName,
-      contenido_html: htmlContent,
+      contenido_html: sanitizedContent,
       tipo,
       vigente: true,
       modificado_por: usuario,
@@ -65,7 +79,10 @@ exports.getDocumentsByType = async (req, res) => {
 
   try {
     const documents = await LegalDocument.findAll({
-      where: { tipo },
+      where: {
+        tipo,
+        vigente: true,
+      },
       attributes: ['id', 'nombre', 'contenido_html', 'tipo', 'fecha_creacion', 'vigente', 'modificado_por'],
     });
 
@@ -85,67 +102,29 @@ exports.getDocumentsByType = async (req, res) => {
   }
 };
 
-// Editar documento
-exports.editDocument = async (req, res) => {
-  const { id, content, usuario } = req.body;
+exports.getAllDocumentsByType = async (req, res) => {
+  const tipo = req.params.tipo;
 
   try {
-    const [updated] = await LegalDocument.update(
-      { contenido_html: content, modificado_por: usuario },
-      { where: { id } }
-    );
-
-    if (updated) {
-      const updatedDocument = await LegalDocument.findOne({ where: { id } });
-      return res.status(200).json({ document: updatedDocument });
-    }
-    throw new Error('Documento no encontrado');
-  } catch (error) {
-    res.status(500).json({ error: 'Error al editar el documento' });
-  }
-};
-
-// Crear documento legal (general)
-exports.createLegalDocument = async (req, res) => {
-  const { tipo, contenido_html, usuario } = req.body;
-
-  try {
-    const newDocument = await LegalDocument.create({
-      contenido_html,
-      tipo,
-      vigente: true,
-      modificado_por: usuario,
+    const documents = await LegalDocument.findAll({
+      where: {
+        tipo
+      },
+      attributes: ['id', 'nombre', 'contenido_html', 'tipo', 'fecha_creacion', 'vigente', 'modificado_por'],
     });
 
-    res.status(201).json({ message: 'Documento legal creado exitosamente', document: newDocument });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al crear documento legal' });
-  }
-};
+    if (documents.length === 0) {
+      return res.status(404).json({ error: 'No se encontraron documentos para el tipo especificado' });
+    }
 
-// Crear documento de términos y condiciones
-exports.createTerms = async (req, res) => {
-  try {
-    res.status(200).json({ message: 'Términos y condiciones creados exitosamente' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al crear términos y condiciones' });
-  }
-};
+    const formattedDocuments = documents.map(doc => ({
+      ...doc.dataValues,
+      fecha_creacion: new Date(doc.fecha_creacion).toLocaleString(),
+    }));
 
-// Crear política de privacidad
-exports.createPrivacyPolicy = async (req, res) => {
-  try {
-    res.status(200).json({ message: 'Política de privacidad creada exitosamente' });
+    res.status(200).json(formattedDocuments);
   } catch (error) {
-    res.status(500).json({ error: 'Error al crear política de privacidad' });
-  }
-};
-
-// Crear deslinde legal
-exports.createDisclaimer = async (req, res) => {
-  try {
-    res.status(200).json({ message: 'Deslinde legal creado exitosamente' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error al crear deslinde legal' });
+    console.error('Error al obtener documentos:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 };

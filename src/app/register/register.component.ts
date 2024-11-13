@@ -207,7 +207,19 @@ export class RegisterComponent implements OnInit {
         );
       },
       (error) => {
-        this.toastService.error('Error al registrar el usuario.');
+        if (error.status === 400 && error.error.errors) {
+          error.error.errors.forEach((err: { field: string, message: string }) => {
+            if (err.field === 'email') {
+              this.toastService.error('El correo electrónico ya está registrado.');
+            } else if (err.field === 'telefono') {
+              this.toastService.error('El número de teléfono ya está registrado.');
+            } else {
+              this.toastService.error(`Error en ${err.field}: ${err.message}`);
+            }
+          });
+        } else {
+          this.toastService.error('Error al registrar el usuario.');
+        }
         this.isSubmitting = false;
         console.error('Error al registrar el usuario:', error);
       }

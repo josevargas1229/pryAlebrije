@@ -18,7 +18,7 @@ export class BloqueosService {
       params = params.set('periodo', periodo);
     }
 
-    return this.http.get<any>(`${this.apiUrl}/`, { params });
+    return this.http.get<any>(`${this.apiUrl}/`, { params,withCredentials:true });
   }
 
   bloquearUsuario(userId: number): Observable<any> {
@@ -44,6 +44,6 @@ export class BloqueosService {
       params = params.set('cantidad', cantidad.toString());
     }
 
-    return this.http.get<any>(`${this.apiUrl}/recientes`, { params });
+    return this.http.get<any>(`${this.apiUrl}/recientes`, { params,withCredentials:true });
   }
 }

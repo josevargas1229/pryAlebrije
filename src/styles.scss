@@ -84,7 +84,9 @@ body {
 .mat-toolbar {
   background-color: var(--mdc-fab-container-color) !important;
 }
-
+input[type="password"]::-ms-reveal {
+  display: none;
+}
 /* Color de fondo para cards: 
 background-color: var(--mat-select-panel-background-color);
 */

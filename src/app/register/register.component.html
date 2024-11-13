@@ -23,9 +23,11 @@
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Nombre</mat-label>
             <input matInput formControlName="name" />
-            <mat-error
-              *ngIf="registrationForm.get('name')?.invalid && (registrationForm.get('name')?.dirty || registrationForm.get('name')?.touched)">
+            <mat-error *ngIf="registrationForm.get('name')?.hasError('required')">
               Este campo es requerido
+            </mat-error>
+            <mat-error *ngIf="registrationForm.get('name')?.hasError('pattern')">
+              Solo se permiten letras
             </mat-error>
           </mat-form-field>
 
@@ -33,9 +35,11 @@
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Apellido Paterno</mat-label>
             <input matInput formControlName="surnamePaterno" />
-            <mat-error
-              *ngIf="registrationForm.get('surnamePaterno')?.invalid && (registrationForm.get('surnamePaterno')?.dirty || registrationForm.get('surnamePaterno')?.touched)">
+            <mat-error *ngIf="registrationForm.get('surnamePaterno')?.hasError('required')">
               Este campo es requerido
+            </mat-error>
+            <mat-error *ngIf="registrationForm.get('surnamePaterno')?.hasError('pattern')">
+              Solo se permiten letras
             </mat-error>
           </mat-form-field>
 
@@ -43,9 +47,11 @@
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Apellido Materno</mat-label>
             <input matInput formControlName="surnameMaterno" />
-            <mat-error
-              *ngIf="registrationForm.get('surnameMaterno')?.invalid && (registrationForm.get('surnameMaterno')?.dirty || registrationForm.get('surnameMaterno')?.touched)">
+            <mat-error *ngIf="registrationForm.get('surnameMaterno')?.hasError('required')">
               Este campo es requerido
+            </mat-error>
+            <mat-error *ngIf="registrationForm.get('surnameMaterno')?.hasError('pattern')">
+              Solo se permiten letras
             </mat-error>
           </mat-form-field>
 

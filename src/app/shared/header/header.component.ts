@@ -3,7 +3,6 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { NavigationComponent } from "../../navigation/navigation.component";
 import { MatIconModule } from '@angular/material/icon';
 import { ThemeSwitcherComponent } from "../../theme-switcher/theme-switcher.component";
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -12,7 +11,7 @@ import { CompanyService } from '../../../../private/services/company.service.ts.
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, CommonModule, MatButtonModule, NavigationComponent, MatIconModule, ThemeSwitcherComponent,MatToolbarModule,MatTooltipModule],
+  imports: [RouterLink, RouterLinkActive, CommonModule, MatButtonModule,  MatIconModule, ThemeSwitcherComponent,MatToolbarModule,MatTooltipModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
@@ -20,10 +19,16 @@ export class HeaderComponent {
   isLoggedIn: boolean = false;
   userRole: number | null = null;
   logoUrl: string | undefined;
-  constructor(private authService: AuthService,private companyService: CompanyService, private router: Router) {}
+  constructor(private authService: AuthService,private companyService: CompanyService, private router: Router) 
+  {
+    this.companyService.getCompanyProfile().subscribe();
+  }
 
   ngOnInit(): void {
-    this.getCompanyProfile();
+    this.companyService.companyProfile$.subscribe((data: any) => {
+      console.log(data)
+      this.logoUrl = data?.logo;
+    });
     // Verifica el estado de autenticación del usuario
     this.authService.isLoggedIn().subscribe((loggedIn: boolean) => {
       this.isLoggedIn = loggedIn;
@@ -37,15 +42,11 @@ export class HeaderComponent {
       }
     });
   }
-  getCompanyProfile(): void {
-    this.companyService.getCompanyProfile().subscribe((data: any) => {
-      this.logoUrl = data.logo; // Asume que 'logo' es la propiedad que contiene la URL del logo
-    });
-  }
+  
   logout(): void {
     this.authService.logout().subscribe(() => {
       this.isLoggedIn = false;
-      this.userRole = null; // Resetea el rol del usuario al cerrar sesión
+      this.userRole = null;
       this.router.navigate(['/']);
     });
   }

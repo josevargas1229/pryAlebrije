@@ -5,6 +5,7 @@ import { FooterComponent } from "./shared/footer/footer.component";
 import { AngularToastifyModule, ToastService } from 'angular-toastify';
 import { AuthService } from './services/auth/auth.service';
 import { ScrollToTopComponent } from "./scroll-to-top/scroll-to-top.component";
+import { CompanyService } from '../../private/services/company.service.ts.service';
 
 @Component({
   selector: 'app-root',
@@ -16,8 +17,9 @@ import { ScrollToTopComponent } from "./scroll-to-top/scroll-to-top.component";
 })
 export class AppComponent {
   title = 'pryAlebrije';
-  constructor(private authService: AuthService, private toastService: ToastService, private router:Router) { }
+  constructor(private authService: AuthService, private toastService: ToastService, private router:Router, private companyService:CompanyService) { }
   ngOnInit() {
+    this.companyService.getCompanyProfile().subscribe();
     this.authService.checkAuthStatus()
       .then((response) => {
         
