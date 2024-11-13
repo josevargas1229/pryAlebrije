@@ -6,6 +6,7 @@ import { ToastService } from 'angular-toastify';
 interface LegalDocument {
   id: number;
   tipo: string;
+  nombre:string;
   contenido_html: string;
   fecha_creacion: Date;
   vigente: boolean;
@@ -60,11 +61,34 @@ export class LegalSettingsComponent implements OnInit {
     this.indexMap.forEach(type => this.loadDocumentByType(type));
   }
   convertToDate(dateString: string): Date {
-    const [day, month, yearAndTime] = dateString.split('/');
-    const [year, time] = yearAndTime.split(', ');
+    const [datePart, timePart] = dateString.split(', ');
+    const [month, day, year] = datePart.split('/');
+    const [time, period] = timePart.split(' ');
+    const [hours, minutes, seconds] = time.split(':');
   
-    const formattedDate = `${year}-${month}-${day}T${time}`;
-    return new Date(formattedDate);
+    // Ajustar horas AM/PM a formato de 24 horas
+    let hours24 = parseInt(hours, 10);
+    if (period === 'PM' && hours24 < 12) {
+      hours24 += 12;
+    } else if (period === 'AM' && hours24 === 12) {
+      hours24 = 0;
+    }
+  
+    // Asegurar que todos los componentes tengan dos dígitos
+    const formattedMonth = parseInt(month, 10).toString().padStart(2, '0');
+    const formattedDay = parseInt(day, 10).toString().padStart(2, '0');
+    const formattedHours = hours24.toString().padStart(2, '0');
+    const formattedMinutes = parseInt(minutes, 10).toString().padStart(2, '0');
+    const formattedSeconds = parseInt(seconds, 10).toString().padStart(2, '0');
+  
+    // Crear la fecha en formato ISO
+    const formattedDate = `${year}-${formattedMonth}-${formattedDay}T${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+  
+    // Crear el objeto Date y ajustar por las 6 horas
+    const date = new Date(formattedDate);
+    date.setHours(date.getHours() - 6);
+  
+    return date;
   }
   private loadDocumentByType(type: string) {
     this.legalService.getAllDocumentsByType(type).subscribe({

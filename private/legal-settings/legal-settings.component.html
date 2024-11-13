@@ -1,4 +1,3 @@
-<!-- legal-documents.component.html -->
 <div class="legal-settings-container mat-elevation-z2">
   <h2 class="mat-headline-4">Administrar documentos legales</h2>
 
@@ -46,7 +45,7 @@
             <mat-panel-title>
               <div class="doc-info-container">
                 <mat-icon>description</mat-icon>
-                <span>{{ doc.tipo }}</span>
+                <span>{{ doc.nombre }}</span>
                 <span class="doc-date">{{ doc.fecha_creacion | date:'dd/MM/yyyy, HH:mm:ss'  }}</span>
                 <mat-chip-listbox>
                   <mat-chip [color]="doc.vigente ? 'primary' : 'warn'" selected>
@@ -58,33 +57,7 @@
           </mat-expansion-panel-header>
 
           <div class="document-content">
-            <div *ngIf="documentToEdit?.id === doc.id; else displayContent">
-              <mat-form-field appearance="fill" class="full-width">
-                <div *ngIf="documentToEdit">
-                  <textarea matInput [(ngModel)]="documentToEdit.contenido_html" rows="10"></textarea>
-                </div>
-                
-              </mat-form-field>
-              <div class="action-buttons">
-                <button mat-raised-button color="primary" (click)="saveEditedDocument()">
-                  <mat-icon>save</mat-icon>
-                  Guardar
-                </button>
-                <button mat-button (click)="cancelEdit()">
-                  <mat-icon>close</mat-icon>
-                  Cancelar
-                </button>
-              </div>
-            </div>
-            <ng-template #displayContent>
-              <div [innerHTML]="doc.contenido_html"></div>
-              <div class="document-actions">
-                <button mat-raised-button color="primary" (click)="editDocument(doc)">
-                  <mat-icon>edit</mat-icon>
-                  Editar
-                </button>
-              </div>
-            </ng-template>
+            <div [innerHTML]="doc.contenido_html"></div>
           </div>
         </mat-expansion-panel>
       </mat-accordion>
