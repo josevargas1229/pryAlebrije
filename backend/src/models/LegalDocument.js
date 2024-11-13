@@ -22,6 +22,15 @@ const LegalDocument = sequelize.define('LegalDocument', {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+  eliminado: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  version: {
+    type: DataTypes.DECIMAL(3, 1),
+    allowNull: false,
+    defaultValue: 1.0,
+  },
   modificado_por: {
     type: DataTypes.STRING,
     allowNull: true,

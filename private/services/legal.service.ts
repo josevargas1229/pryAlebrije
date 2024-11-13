@@ -57,20 +57,6 @@ export class LegalService {
     return this.http.get(`${this.apiUrl}/legal-documents/${id}`);
   }
 
-  // Eliminar un documento por ID
-  deleteDocument(id: number): Observable<any> {
-    return this.csrfService.getCsrfToken().pipe(
-      switchMap(csrfToken => {
-        return this.http.delete(`${this.apiUrl}/legal-documents/${id}`, {
-          headers: {
-            'x-csrf-token': csrfToken
-          },
-          withCredentials: true
-        });
-      })
-    );
-  }
-
   // Obtener documentos por tipo
   getDocumentsByType(type: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/legal-documents/documents/${type}`);
@@ -121,32 +107,31 @@ export class LegalService {
     );
   }
 
-  // Editar un documento existente de cualquier tipo
-  editDocument(type: 'terms' | 'privacy' | 'disclaimer', id: number, documentData: any): Observable<any> {
-    return this.csrfService.getCsrfToken().pipe(
-      switchMap(csrfToken => {
-        return this.http.put(`${this.apiUrl}/legal-documents/${type}/${id}`, documentData, {
-          headers: {
-            'x-csrf-token': csrfToken
-          },
-          withCredentials: true
-        });
-      })
-    );
-  }
+  /// Editar un documento regulatorio (modificar versión)
+editDocument(id: number, documentData: any): Observable<any> {
+  return this.csrfService.getCsrfToken().pipe(
+    switchMap(csrfToken => {
+      return this.http.put(`${this.apiUrl}/legal-documents/documents/${id}/modify`, documentData, {
+        headers: {
+          'x-csrf-token': csrfToken
+        },
+        withCredentials: true
+      });
+    })
+  );
+}
 
-  // Eliminar un documento de Términos y Condiciones
-  deleteTerms(id: number): Observable<any> {
-    return this.deleteDocument(id); // Llama al método genérico
-  }
-
-  // Eliminar un documento de Política de Privacidad
-  deletePrivacyPolicy(id: number): Observable<any> {
-    return this.deleteDocument(id); // Llama al método genérico
-  }
-
-  // Eliminar un documento de Deslinde Legal
-  deleteDisclaimer(id: number): Observable<any> {
-    return this.deleteDocument(id); // Llama al método genérico
-  }
+// Eliminar un documento (marcar como eliminado)
+deleteDocument(id: number): Observable<any> {
+  return this.csrfService.getCsrfToken().pipe(
+    switchMap(csrfToken => {
+      return this.http.put(`${this.apiUrl}/legal-documents/documents/${id}/delete`, null, {
+        headers: {
+          'x-csrf-token': csrfToken
+        },
+        withCredentials: true
+      });
+    })
+  );
+}
 }

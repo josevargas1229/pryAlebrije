@@ -8,5 +8,9 @@ const upload = require('../config/multerConfig');
 router.post('/upload', upload.single('file'),authenticateToken, authorize(ROLES.ADMINISTRADOR), legalDocumentController.uploadDocument);
 router.get('/documents/all/:tipo',authenticateToken, authorize(ROLES.ADMINISTRADOR), legalDocumentController.getAllDocumentsByType);
 router.get('/documents/:tipo', legalDocumentController.getDocumentsByType);
+router.put('/documents/:id/modify', authenticateToken, authorize(ROLES.ADMINISTRADOR), legalDocumentController.modifyDocument);
+router.put('/documents/:id/delete', authenticateToken, authorize(ROLES.ADMINISTRADOR), legalDocumentController.deleteDocument);
+
+
 
 module.exports = router;

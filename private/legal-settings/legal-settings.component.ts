@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { LegalService } from '../services/legal.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastService } from 'angular-toastify';
 
 interface LegalDocument {
@@ -10,6 +10,8 @@ interface LegalDocument {
   contenido_html: string;
   fecha_creacion: Date;
   vigente: boolean;
+  version: string;
+  eliminado: boolean; 
 }
 
 @Component({
@@ -39,7 +41,8 @@ export class LegalSettingsComponent implements OnInit {
   constructor(
     private legalService: LegalService,
     private route: ActivatedRoute,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -52,8 +55,11 @@ export class LegalSettingsComponent implements OnInit {
 
   // Método para manejar el cambio de tabs
   onTabChange(index: number) {
-    const documentType = this.indexMap[index];
-    window.history.replaceState({}, '', `?tab=${documentType}`);
+    this.router.navigate([], {
+      queryParams: { tab: this.indexMap[index] },
+      queryParamsHandling: 'merge'
+    });
+    
   }
 
   // Métodos de carga de documentos
@@ -98,13 +104,8 @@ export class LegalSettingsComponent implements OnInit {
           fecha_creacion: this.convertToDate(doc.fecha_creacion)
         })) : [];
       },
-      error: (error) => this.handleError(type, error)
+      error: (error) => this.handleApiError(type, 'cargar', error)
     });
-  }
-
-  private handleError(documentType: string, error: any) {
-    console.error(`Error al cargar ${documentType}:`, error);
-    this.toastService.error(`Hubo un error al cargar ${documentType}.`);
   }
 
   // Métodos para guardar documentos
@@ -165,18 +166,18 @@ export class LegalSettingsComponent implements OnInit {
     });
   }
 
-  // Métodos para edición de documentos
   editDocument(document: LegalDocument) {
-    this.documentToEdit = { ...document };
+    this.documentToEdit = { ...document }; 
   }
 
+  // Guardar el documento editado
   saveEditedDocument() {
     if (!this.documentToEdit) return;
-
+  
+    console.log('Contenido antes de enviar:', this.documentToEdit.contenido_html);  // Verifica que el contenido HTML no esté vacío
+  
     const currentType = this.indexMap[this.selectedTabIndex];
-    
     this.legalService.editDocument(
-      this.tabType as 'terms' | 'privacy' | 'disclaimer',
       this.documentToEdit.id,
       this.documentToEdit
     ).subscribe({
@@ -191,8 +192,31 @@ export class LegalSettingsComponent implements OnInit {
       }
     });
   }
+  
+
+  // Método para eliminar un documento
+  deleteDocument(documentId: number) {
+    if (confirm('¿Estás seguro de que deseas eliminar este documento?')) {
+      const currentType = this.indexMap[this.selectedTabIndex];
+      this.legalService.deleteDocument(documentId).subscribe({
+        next: () => {
+          this.toastService.success("Documento eliminado exitosamente.");
+          this.loadDocumentByType(currentType);
+        },
+        error: (error) => {
+          console.error('Error al eliminar el documento:', error);
+          this.toastService.error("Hubo un error al eliminar el documento.");
+        }
+      });
+    }
+  }
 
   cancelEdit() {
     this.documentToEdit = null;
   }
+  handleApiError(type: string, action: string, error: any) {
+    console.error(`${action} para ${type} falló:`, error);
+    this.toastService.error(`Hubo un error al ${action} ${type}.`);
+  }
+  
 }

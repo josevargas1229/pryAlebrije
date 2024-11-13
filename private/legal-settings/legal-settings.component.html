@@ -46,10 +46,16 @@
               <div class="doc-info-container">
                 <mat-icon>description</mat-icon>
                 <span>{{ doc.nombre }}</span>
+                <mat-chip [color]="doc.eliminado ? 'primary' : 'warn'" selected>
+                  {{doc.version}}
+                </mat-chip>
                 <span class="doc-date">{{ doc.fecha_creacion | date:'dd/MM/yyyy, HH:mm:ss'  }}</span>
                 <mat-chip-listbox>
                   <mat-chip [color]="doc.vigente ? 'primary' : 'warn'" selected>
                     {{ doc.vigente ? 'Vigente' : 'No vigente' }}
+                  </mat-chip>
+                  <mat-chip *ngIf="doc.eliminado" [color]="doc.eliminado ? 'primary' : 'warn'" selected>
+                    Eliminado
                   </mat-chip>
                 </mat-chip-listbox>
               </div>
@@ -57,7 +63,37 @@
           </mat-expansion-panel-header>
 
           <div class="document-content">
-            <div [innerHTML]="doc.contenido_html"></div>
+            <div *ngIf="documentToEdit?.id === doc.id; else displayContent">
+              <mat-form-field appearance="fill" class="full-width">
+                <div *ngIf="documentToEdit">
+                  <textarea matInput [(ngModel)]="documentToEdit.contenido_html" rows="10"></textarea>
+                </div>
+                
+              </mat-form-field>
+              <div class="action-buttons">
+                <button mat-raised-button color="primary" (click)="saveEditedDocument()">
+                  <mat-icon>save</mat-icon>
+                  Guardar
+                </button>
+                <button mat-button (click)="cancelEdit()">
+                  <mat-icon>close</mat-icon>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+            <ng-template #displayContent>
+              <div [innerHTML]="doc.contenido_html"></div>
+              <div class="document-actions">
+                <button mat-raised-button color="primary" (click)="editDocument(doc)">
+                  <mat-icon>edit</mat-icon>
+                  Editar
+                </button>
+                <button mat-raised-button color="warn" (click)="deleteDocument(doc.id)">
+                  <mat-icon>delete</mat-icon>
+                  Eliminar
+                </button>
+              </div>
+            </ng-template>
           </div>
         </mat-expansion-panel>
       </mat-accordion>
