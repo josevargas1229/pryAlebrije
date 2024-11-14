@@ -17,7 +17,7 @@
           <span class="material-icons">cloud_upload</span>
           Subir logo
         </label>
-        <input type="file" id="logo" (change)="onFileChange($event)" class="file-input" accept="image/*"/>
+        <input type="file" id="logo" (change)="onFileChange($event)" class="file-input" accept="image/jpeg, image/jpg, image/png"/>
       </div>
     </div>
 
@@ -25,14 +25,14 @@
     <form [formGroup]="companyForm" (ngSubmit)="onSubmit()" class="profile-form">
       <div class="form-grid">
         <mat-form-field appearance="outline">
-          <mat-label>Nombre de la empresa</mat-label>
+          <mat-label>Título de la página</mat-label>
           <input matInput formControlName="nombre" placeholder="Ingrese el nombre"/>
           <mat-icon matSuffix>business</mat-icon>
           <mat-error *ngIf="companyForm.get('nombre')?.hasError('required')">
-            El nombre de la empresa es obligatorio.
+            El título de la página es obligatorio.
           </mat-error>
-          <mat-error *ngIf="companyForm.get('slogan')?.hasError('maxlength')">
-            El eslogan no puede tener más de 100 caracteres.
+          <mat-error *ngIf="companyForm.get('nombre')?.hasError('maxlength')">
+            El título de la página no puede tener más de 60 caracteres.
           </mat-error>
         </mat-form-field>
 
@@ -101,7 +101,7 @@
 
     <!-- Información del Perfil -->
     <div class="profile-summary" *ngIf="companyProfile">
-      <h3>Información Actual</h3>
+      <h3>Información actual</h3>
       <mat-card>
         <mat-card-content>
           <div class="summary-grid">
@@ -132,7 +132,7 @@
             </div>
             <div class="summary-item">
               <mat-icon>share</mat-icon>
-              <span class="label">Red Social:</span>
+              <span class="label">Red social:</span>
               <a [href]="companyProfile?.redSocial" target="_blank" class="value link">
                 {{ companyProfile?.redSocial }}
               </a>

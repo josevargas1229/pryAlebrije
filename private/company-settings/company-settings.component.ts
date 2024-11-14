@@ -19,7 +19,7 @@ export class CompanySettingsComponent implements OnInit {
     private toastService: ToastService
   ) {
     this.companyForm = this.fb.group({
-      nombre: ['', Validators.required],
+      nombre: ['', Validators.required, Validators.maxLength(60)],
       logo: [null],
       slogan: ['', [Validators.required, Validators.maxLength(100)]],
       direccion: ['', Validators.required],
@@ -42,17 +42,33 @@ export class CompanySettingsComponent implements OnInit {
 
   onFileChange(event: any) {
     const file = event.target.files[0];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const maxSize = 2 * 1024 * 1024; // 2MB en bytes
+  
+    // Validar el tipo de archivo
+    if (!allowedTypes.includes(file.type)) {
+      this.toastService.error('Solo se permiten archivos JPEG, JPG y PNG.');
+      return;
+    }
+  
+    // Validar el tamaño del archivo
+    if (file.size > maxSize) {
+      this.toastService.error('El archivo no debe exceder los 2 MB.');
+      return;
+    }
+  
+    // Si el archivo es válido, lo agregamos al formulario y previsualizamos la imagen
     this.companyForm.patchValue({
       logo: file
     });
-
-    // Previsualizar la imagen seleccionada
+  
     const reader = new FileReader();
     reader.onload = () => {
       this.companyProfile.logo = reader.result;
     };
     reader.readAsDataURL(file);
   }
+  
 
   onSubmit() {
     const formData = new FormData();
