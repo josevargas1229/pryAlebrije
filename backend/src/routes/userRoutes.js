@@ -13,8 +13,10 @@ router.post('/', userController.createUser);
 
 // Rutas protegidas
 router.get('/',authenticateToken, userController.getUserInfo);
+router.put('/change-password', authenticateToken, userController.changePassword);
 router.put('/:id',authenticateToken, userController.updateUserInfo);
 router.delete('/:id', authenticateToken, authorize(ROLES.ADMINISTRADOR), userController.deleteUser);
+
 
 
 module.exports = router;

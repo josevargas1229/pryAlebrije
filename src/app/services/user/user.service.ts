@@ -1,8 +1,9 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { Usuario } from './user.models';
 import { environment } from '../../../environments/environment';
+import { CsrfService } from '../csrf/csrf.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { environment } from '../../../environments/environment';
 export class UserService {
   private apiUrl = `${environment.API_URL}/users`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private csrfService:CsrfService) {}
 
    // Obtener la información del usuario autenticado
   getUserInfo(): Observable<Usuario> {
@@ -19,11 +20,29 @@ export class UserService {
 
   // Actualizar la información del usuario autenticado
   updateUserInfo(userData: Partial<Usuario>): Observable<any> {
-    return this.http.put(this.apiUrl, userData, { withCredentials:true  });
+    return this.csrfService.getCsrfToken().pipe(
+      switchMap(csrfToken => {
+        return this.http.put(this.apiUrl, userData, {
+          withCredentials: true,
+          headers: {
+            'x-csrf-token': csrfToken
+          }
+        });
+      })
+    );
   }
 
-  // Método para obtener el token JWT almacenado (puedes ajustar esto según tu implementación)
-  private getToken(): string | null {
-    return localStorage.getItem('token'); // Suponiendo que el token se almacena en localStorage
-  }
+  changePassword(currentPassword: string, newPassword: string): Observable<any> {
+    return this.csrfService.getCsrfToken().pipe(
+        switchMap(csrfToken => {
+            return this.http.put(`${this.apiUrl}/change-password`, { currentPassword, newPassword }, {
+                withCredentials: true,
+                headers: {
+                    'x-csrf-token': csrfToken
+                }
+            });
+        })
+    );
+}
+
 }

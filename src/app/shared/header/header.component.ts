@@ -19,14 +19,10 @@ export class HeaderComponent {
   isLoggedIn: boolean = false;
   userRole: number | null = null;
   logoUrl: string | undefined;
-  constructor(private authService: AuthService,private companyService: CompanyService, private router: Router) 
-  {
-    this.companyService.getCompanyProfile().subscribe();
-  }
+  constructor(private authService: AuthService,private companyService: CompanyService, private router: Router) {}
 
   ngOnInit(): void {
     this.companyService.companyProfile$.subscribe((data: any) => {
-      console.log(data)
       this.logoUrl = data?.logo;
     });
     // Verifica el estado de autenticación del usuario

@@ -107,3 +107,37 @@ exports.deleteUser = async (req, res, next) => {
     }
 };
 
+// Cambiar contraseña del usuario autenticado con validación de la contraseña actual
+exports.changePassword = async (req, res) => {
+    try {
+        const userId = req.user.userId; // Obtener el ID del usuario autenticado desde el token
+        const { currentPassword, newPassword } = req.body;
+
+        // Obtener la cuenta del usuario autenticado
+        const account = await Account.findOne({ where: { user_id: userId } });
+
+        if (!account) {
+            return res.status(404).json({ message: 'Cuenta no encontrada' });
+        }
+
+        // Verificar si la contraseña actual es correcta
+        const isPasswordValid = await bcrypt.compare(currentPassword, account.contraseña_hash);
+        if (!isPasswordValid) {
+            return res.status(400).json({ message: 'La contraseña actual es incorrecta' });
+        }
+
+        // Hash de la nueva contraseña
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        // Actualizar la contraseña en la cuenta y guardar un historial
+        await account.update({ contraseña_hash: hashedNewPassword });
+        await PassHistory.create({
+            account_id: account.id,
+            contraseña_hash: hashedNewPassword
+        });
+
+        res.status(200).json({ message: 'Contraseña actualizada con éxito' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al cambiar la contraseña', error: error.message });
+    }
+};
