@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../src/environments/environment';
-import { catchError, Observable, of, switchMap } from 'rxjs';
+import { catchError, Observable, of, switchMap, throwError } from 'rxjs';
 import { CsrfService } from '../../src/app/services/csrf/csrf.service';
 
 @Injectable({
@@ -32,7 +32,7 @@ export class LegalService {
       }),
       catchError(error => {
         console.error('Error uploading document:', error);
-        return of(null); // Maneja el error adecuadamente, quizás devolviendo un valor nulo o lanzando un error específico
+        return throwError(() => error);
       })
     );
   }

@@ -152,19 +152,22 @@ export class LegalSettingsComponent implements OnInit {
     }
 
     const currentType = this.indexMap[this.selectedTabIndex];
-    
+
     this.legalService.uploadDocument(this.selectedFile, currentType).subscribe({
       next: (response) => {
-        this.toastService.success("Documento subido exitosamente.");
-        this.loadDocumentByType(currentType);
-        this.selectedFile = null;
+        // Verifica que el servidor haya devuelto un éxito
+          this.toastService.success("Documento subido exitosamente.");
+          this.loadDocumentByType(currentType);
+          this.selectedFile = null;
+        
       },
       error: (error) => {
-        console.error('Error uploading document:', error);
-        this.toastService.error("Hubo un error al subir el documento.");
+        console.error('Error uploading document:', error.error.error);
+        this.toastService.error(`Hubo un error al subir el documento: ${error.error.error}`);
       }
     });
-  }
+}
+
 
   editDocument(document: LegalDocument) {
     this.documentToEdit = { ...document }; 

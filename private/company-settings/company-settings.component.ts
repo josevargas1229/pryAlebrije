@@ -19,14 +19,14 @@ export class CompanySettingsComponent implements OnInit {
     private toastService: ToastService
   ) {
     this.companyForm = this.fb.group({
-      nombre: ['', Validators.required, Validators.maxLength(60)],
+      nombre: ['', [Validators.required, Validators.maxLength(60)]],
       logo: [null],
       slogan: ['', [Validators.required, Validators.maxLength(100)]],
       direccion: ['', Validators.required],
       telefono: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
       email: ['', [Validators.required, Validators.email]],
       redSocial: ['', [Validators.required, Validators.pattern('https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)')]]
-    });
+    });    
   }
 
   ngOnInit(): void {
