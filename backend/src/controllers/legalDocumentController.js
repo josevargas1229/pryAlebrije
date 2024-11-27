@@ -5,34 +5,21 @@ const sanitizeHtml = require('sanitize-html');
 const he = require('he');
 
 function isSuspiciousContent(content) {
-  // 1. Eliminar TODAS las etiquetas HTML (primera limpieza)
-  const plainText1 = sanitizeHtml(content, { allowedTags: [], allowedAttributes: {} });
-
-  // 2. Decodificar entidades HTML (primera decodificación)
-  const decodedContent1 = he.decode(plainText1);
-
-  // 3. Segunda limpieza para asegurar que no haya residuos
-  const plainText2 = sanitizeHtml(decodedContent1, { allowedTags: [], allowedAttributes: {} });
-
-  // 4. Segunda decodificación para procesar cualquier entidad restante
-  const finalContent = he.decode(plainText2);
-
-  console.log("Primera limpieza:", plainText1);
-  console.log("Primera decodificación:", decodedContent1);
-  console.log("Segunda limpieza:", plainText2);
-  console.log("Contenido final:", finalContent);
-
-  // 5. Patrones sospechosos
+  // Patrones sospechosos
   const suspiciousPatterns = [
     /<!DOCTYPE html>/i,
     /<html.*?>/i,
     /<script.*?>.*?<\/script>/i,
     /<meta.*?>/i,
-    /<script>/i,
+    /<style.*?>.*?<\/style>/i,
+    /<iframe.*?>.*?<\/iframe>/i,
+    /<object.*?>.*?<\/object>/i,
+    /<embed.*?>.*?<\/embed>/i,
+    /<link.*?>/i,
   ];
 
   // Validar el contenido completamente limpio contra los patrones
-  return suspiciousPatterns.some((pattern) => pattern.test(finalContent));
+  return suspiciousPatterns.some((pattern) => pattern.test(content));
 }
 
 
@@ -60,20 +47,28 @@ exports.uploadDocument = async (req, res) => {
 
   try {
     const result = await mammoth.convertToHtml({ path: filePath });
-    const originalContent = result.value;
-    if (isSuspiciousContent(originalContent)) {
-      fs.unlink(filePath, (err) => {
-        if (err) console.error('Error al eliminar el archivo temporal:', err);
+    var originalContent = result.value;
+    let iteration = 0;
+    var previousContent = '';
+    let contentsContentSuspicious=false;
+    // Ciclo para limpiar y verificar contenido
+    do {
+      iteration++;
+      previousContent = originalContent;
+      contentsContentSuspicious= isSuspiciousContent(originalContent);
+      if(contentsContentSuspicious){
+        break;
+      }
+      
+      originalContent = sanitizeHtml(originalContent, {
+        allowedTags: [],
+        allowedAttributes: {},
       });
+      originalContent = he.decode(originalContent); 
+    } while ( iteration < 10);
+    if(contentsContentSuspicious){
       return res.status(400).json({ error: 'El contenido del archivo es sospechoso.' });
     }
-    const sanitizedContent = sanitizeHtml(originalContent, {
-      allowedTags: [ 'p', 'a', 'strong', 'em', 'ul', 'ol', 'li', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'tr', 'td', 'th','img' ],
-      allowedAttributes: {
-        a: [ 'href', 'name', 'target' ],
-        img: [ 'src', 'srcset', 'alt', 'title', 'width', 'height', 'loading' ]
-      },
-    });
     // Actualizar documentos del mismo tipo a no vigentes
     await LegalDocument.update({ vigente: false }, { where: { tipo } });
 
@@ -88,7 +83,7 @@ exports.uploadDocument = async (req, res) => {
 
     const newDocument = await LegalDocument.create({
       nombre: fileName,
-      contenido_html: sanitizedContent,
+      contenido_html: originalContent,
       tipo,
       vigente: true,
       modificado_por: usuario,
