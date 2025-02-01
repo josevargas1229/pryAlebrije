@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../src/environments/environment';
+import { environment } from '../../src/environments/environment.development';
 import { catchError, Observable, of, switchMap, throwError } from 'rxjs';
 import { CsrfService } from '../../src/app/services/csrf/csrf.service';
 
@@ -20,7 +20,7 @@ export class LegalService {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('tipo', tipo);
-  
+
     return this.csrfService.getCsrfToken().pipe(
       switchMap(csrfToken => {
         return this.http.post(`${this.apiUrl}/legal-documents/upload`, formData, {

@@ -2,6 +2,7 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { HeaderComponent } from "./shared/header/header.component";
 import { FooterComponent } from "./shared/footer/footer.component";
+import { SidebarComponent } from './shared/sidebar/sidebar.component';
 import { AngularToastifyModule, ToastService } from 'angular-toastify';
 import { AuthService } from './services/auth/auth.service';
 import { ScrollToTopComponent } from "./scroll-to-top/scroll-to-top.component";
@@ -11,7 +12,7 @@ import { Title } from '@angular/platform-browser';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, FooterComponent, AngularToastifyModule, ScrollToTopComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent, AngularToastifyModule, ScrollToTopComponent, SidebarComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -27,7 +28,7 @@ export class AppComponent {
     });
     this.authService.checkAuthStatus()
       .then((response) => {
-        
+
         if(response&&response.isValid&&response.isValid===false){
           this.toastService.info('Por favor, verifique su cuenta.');
           this.router.navigate(['/verificacion']);

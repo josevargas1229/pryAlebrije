@@ -8,12 +8,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
-import { Usuario } from '../services/user/user.models';
-import { Cuenta } from '../services/account/account.models';
-import { AuthService } from '../services/auth/auth.service';
+import { Usuario } from '../../services/user/user.models';
+import { Cuenta } from '../../services/account/account.models';
+import { AuthService } from '../../services/auth/auth.service';
 import { Router } from '@angular/router';
 import { ToastService } from 'angular-toastify';
-import { AccountService } from '../services/account/account.service';
+import { AccountService } from '../../services/account/account.service';
 import { MatCardModule } from '@angular/material/card';
 @Component({
   selector: 'app-user-registration',
@@ -48,7 +48,7 @@ export class RegisterComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(8), this.strongPasswordValidator.bind(this)]],
       confirmPassword: ['', [Validators.required, this.matchPassword.bind(this)]],
     });
-    
+
     // Escucha cambios en el campo de contraseña
     this.registrationForm.get('password')?.valueChanges.subscribe((password) => {
       this.checkPasswordStrength(password);
@@ -59,14 +59,14 @@ export class RegisterComponent implements OnInit {
   }
   private strongPasswordValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.value;
-  
+
     // Criterios de fortaleza
     const lengthCriteria = password.length >= 8;
     const numberCriteria = /[0-9]/.test(password);
     const uppercaseCriteria = /[A-Z]/.test(password);
     const lowercaseCriteria = /[a-z]/.test(password);
     const specialCharCriteria = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-  
+
     const criteriaMet = [
       lengthCriteria,
       numberCriteria,
@@ -74,11 +74,11 @@ export class RegisterComponent implements OnInit {
       lowercaseCriteria,
       specialCharCriteria
     ].filter(Boolean).length;
-  
+
     // Si no cumple con suficientes criterios, devuelve el error
     return criteriaMet < 4 ? { weakPassword: true } : null;
   }
-  
+
   checkPasswordStrength(password: string) {
     if (password.length === 0) {
       this.passwordStrengthMessage = '';
@@ -159,7 +159,7 @@ export class RegisterComponent implements OnInit {
           this.isSubmitting = false;
         }
       );
-      
+
     } else {
       Object.values(this.registrationForm.controls).forEach(control => {
         if (control.invalid) {
@@ -176,7 +176,7 @@ export class RegisterComponent implements OnInit {
     const sanitizedApellidoMaterno = this.sanitizeInput(this.registrationForm.value.surnameMaterno);
     const sanitizedEmail = this.sanitizeInput(this.registrationForm.value.email);
     const sanitizedTelefono = this.sanitizeInput(this.registrationForm.value.phone);
-  
+
     const usuario: Partial<Usuario> = {
       nombre: sanitizedNombre,
       apellido_paterno: sanitizedApellidoPaterno,
@@ -185,12 +185,12 @@ export class RegisterComponent implements OnInit {
       telefono: sanitizedTelefono,
       rol_id: 3
     };
-  
+
     const cuenta: Partial<Cuenta> = {
       nombre_usuario: sanitizedNombre,
       contraseña_hash: this.registrationForm.value.password
     };
-  
+
     this.authService.register(usuario, cuenta).subscribe(
       (response) => {
         this.toastService.success('Usuario registrado exitosamente.');
@@ -225,5 +225,5 @@ export class RegisterComponent implements OnInit {
       }
     );
   }
-  
+
 }

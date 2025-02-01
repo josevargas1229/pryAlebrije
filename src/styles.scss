@@ -32,7 +32,7 @@ body {
 
 /* Contenedor principal */
 .container {
-  max-width: 1200px;
+  max-width: 120px;
   /* Ancho máximo del contenedor */
   margin: auto;
   /* Centra el contenedor horizontalmente */
@@ -87,6 +87,6 @@ body {
 input[type="password"]::-ms-reveal {
   display: none;
 }
-/* Color de fondo para cards: 
+/* Color de fondo para cards:
 background-color: var(--mat-select-panel-background-color);
 */

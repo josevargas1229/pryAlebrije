@@ -14,3 +14,15 @@
 ::ng-deep .main-content > * {
   flex: 1;
 }
+
+.layout {
+  display: flex;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 250px; /* Desplaza el contenido principal a la derecha de la barra */
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}

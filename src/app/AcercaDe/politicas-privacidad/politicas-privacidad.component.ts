@@ -1,21 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../environments/environment';
 
 @Component({
-  selector: 'app-terminos-condiciones',
-  standalone: true,
-  templateUrl: './terminos-condiciones.component.html',
-  styleUrls: ['./terminos-condiciones.component.scss']
+  selector: 'app-politicas-privacidad',
+  templateUrl: './politicas-privacidad.component.html',
+  styleUrls: ['./politicas-privacidad.component.scss']
 })
-export class TerminosCondicionesComponent implements OnInit {
-  documentContent: string = '';
+export class PoliticasPrivacidadComponent implements OnInit {
   private apiUrl = `${environment.API_URL}`;
-  constructor(private http: HttpClient) {}
+  documentContent: string = '';
+
+  constructor(private http: HttpClient) { }
 
   ngOnInit(): void {
-    this.getDocument('terminos');
+    this.getDocument('privacidad');
   }
 
   getDocument(tipo: string): void {

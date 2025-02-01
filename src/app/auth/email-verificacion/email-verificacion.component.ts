@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {  FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AuthService } from '../services/auth/auth.service';
+import { AuthService } from '../../services/auth/auth.service';
 import { ToastService } from 'angular-toastify';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
