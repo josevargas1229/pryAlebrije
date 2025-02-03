@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 import { HomeComponent } from './home/home.component';  // Asegúrate de que este componente exista
-import { LoginComponent } from '../src/app/login/login.component';
+import { LoginComponent } from '../src/app/auth/login/login.component';
 import { MatCommonModule } from '@angular/material/core';
 
 @NgModule({

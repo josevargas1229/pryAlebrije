@@ -6,7 +6,7 @@ import { Usuario } from '../user/user.models';
 import { Cuenta } from '../account/account.models';
 import { AuthResponse, LoginCredentials } from './auth.models';
 import { CsrfService } from '../csrf/csrf.service';
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../environments/environment.development';
 import { Router } from '@angular/router';
 
 @Injectable({

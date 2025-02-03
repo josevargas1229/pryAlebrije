@@ -1,7 +1,11 @@
 <app-header></app-header>
 <lib-toastify-toast-container></lib-toastify-toast-container>
-<main class="main-content">
+<div class="layout">
+  <app-sidebar></app-sidebar> <!-- Barra lateral -->
+  <main class="main-content">
     <router-outlet></router-outlet>
-</main>
+  </main>
+
+</div>
 <app-scroll-to-top></app-scroll-to-top>
 <app-footer></app-footer>

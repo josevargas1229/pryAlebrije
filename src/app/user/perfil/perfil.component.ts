@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { UserService } from '../services/user/user.service';
-import { Usuario } from '../services/user/user.models';// Asegúrate de que la ruta sea correcta
+import { UserService } from '../../services/user/user.service';
+import { Usuario } from '../../services/user/user.models';// Asegúrate de que la ruta sea correcta
 // Asegúrate de que esta interfaz esté definida en tu código
 interface Service {
   title: string;

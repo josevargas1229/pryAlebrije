@@ -3,12 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { map, Observable } from 'rxjs';
-import { UserService } from '../services/user/user.service';
+import { UserService } from '../../services/user/user.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ToastService } from 'angular-toastify';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Usuario } from '../services/user/user.models';
-import { PasswordService } from '../services/password/password.service';
+import { Usuario } from '../../services/user/user.models';
+import { PasswordService } from '../../services/password/password.service';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -63,7 +63,7 @@ export class RecuperaComponent {
   stepperOrientation: Observable<string>;
 
   constructor(
-    private userService: UserService, 
+    private userService: UserService,
     private toastService: ToastService,
     private router: Router
   ) {

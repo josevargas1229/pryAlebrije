@@ -1,116 +1,51 @@
 <header>
   <mat-toolbar color="warn">
-    <div class="logo-title">
-      <img *ngIf="logoUrl" [src]="logoUrl" class="logo" alt="Logo" />
-    </div>
-
-    <!-- Tema switcher -->
-    <span class="spacer"></span> <!-- Para empujar los elementos a la derecha -->
-
-    <div class="nav-buttons">
-      <app-theme-switcher></app-theme-switcher>
-
-      <!-- Botón Home con icono -->
-      <button 
-        mat-icon-button 
-        routerLink="/" 
-        routerLinkActive="active" 
-        aria-label="Home" 
-        matTooltip="Ir a la página principal">
-        <mat-icon>home</mat-icon>
-      </button>
-
-      <!-- Login y Registro con texto -->
-      <ng-container *ngIf="!isLoggedIn">
-        <button 
-          mat-flat-button 
-          routerLink="/login" 
-          routerLinkActive="active" 
-          aria-label="Login" 
-          matTooltip="Iniciar sesión">
-          Login
-        </button>
-        <button 
-          mat-flat-button 
-          routerLink="/register" 
-          routerLinkActive="active" 
-          aria-label="Registro" 
-          matTooltip="Crear una nueva cuenta">
-          Registro
-        </button>
-      </ng-container>
-
-      <!-- Botones para usuario logueado -->
-      <ng-container *ngIf="isLoggedIn">
-        
-
-        <!-- Opciones basadas en el rol -->
-        <ng-container *ngIf="userRole === 1">
-          <button 
-            mat-mini-fab 
-            routerLink="/admin" 
-            routerLinkActive="active" 
-            aria-label="Admin" 
-            matTooltip="Ir al panel de administrador">
-            <mat-icon>admin_panel_settings</mat-icon>
-          </button>
-        </ng-container>
-
-        <ng-container *ngIf="userRole === 2">
-          <button 
-            mat-mini-fab 
-            routerLink="/ventas" 
-            routerLinkActive="active" 
-            aria-label="Ventas" 
-            matTooltip="Ir a ventas">
-            <mat-icon>monetization_on</mat-icon>
-          </button>
-        </ng-container>
-
-        <ng-container *ngIf="userRole === 3">
-          <button 
-            mat-mini-fab 
-            routerLink="/mis-compras" 
-            routerLinkActive="active" 
-            aria-label="Mis Compras" 
-            matTooltip="Ver mis compras">
-            <mat-icon>shopping_basket</mat-icon>
-          </button>
-          <button 
-            mat-mini-fab 
-            routerLink="/ofertas" 
-            routerLinkActive="active" 
-            aria-label="Ofertas" 
-            matTooltip="Ver ofertas disponibles">
-            <mat-icon>local_offer</mat-icon>
-          </button>
-          <button 
-            mat-mini-fab 
-            routerLink="/creditos" 
-            routerLinkActive="active" 
-            aria-label="Créditos" 
-            matTooltip="Ver mis créditos">
-            <mat-icon>credit_card</mat-icon>
-          </button>
-        </ng-container>
-
-      <button 
-        mat-mini-fab 
-        routerLink="/perfil" 
-        routerLinkActive="active" 
-        aria-label="Perfil" 
+    <!-- Botón de perfil en la esquina izquierda -->
+    <div class="left-section">
+      <button
+        mat-icon-button
+        routerLink="/perfil"
+        routerLinkActive="active"
+        aria-label="Perfil"
         matTooltip="Ir a mi perfil">
         <mat-icon>person</mat-icon>
       </button>
+    </div>
 
-        <button 
-          mat-mini-fab 
-          aria-label="Logout" 
-          (click)="logout()" 
-          matTooltip="Cerrar sesión">
-          <mat-icon>logout</mat-icon>
-        </button>
-      </ng-container>
+    <!-- Logo y título centrados -->
+    <div class="center-section">
+      <img *ngIf="logoUrl" [src]="logoUrl" class="logo" alt="Logo" />
+    </div>
+
+    <div class="nav-buttons">
+      <app-theme-switcher></app-theme-switcher>
+    </div>
+
+    <!-- Botones de navegación alineados a la derecha -->
+    <div class="right-section">
+      <!-- Botón de búsqueda -->
+      <button
+        mat-icon-button
+        aria-label="Buscar"
+        matTooltip="Buscar productos">
+        <mat-icon>search</mat-icon>
+      </button>
+
+      <!-- Botón de notificaciones -->
+      <button
+        mat-icon-button
+        aria-label="Notificaciones"
+        matTooltip="Ver notificaciones">
+        <mat-icon>notifications</mat-icon>
+      </button>
+
+      <!-- Botón de carrito -->
+      <button
+        mat-icon-button
+        aria-label="Carrito de compras"
+        matTooltip="Ver carrito">
+        <mat-icon>shopping_cart</mat-icon>
+      </button>
     </div>
   </mat-toolbar>
 </header>
