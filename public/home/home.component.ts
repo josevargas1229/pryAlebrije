@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 interface Product {
   title: string;
@@ -13,7 +14,7 @@ interface Product {
   selector: 'app-home',
   standalone: true,
   templateUrl: './home.component.html',
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule],
+  imports: [RouterLink,CommonModule, MatCardModule, MatButtonModule, MatIconModule],
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {

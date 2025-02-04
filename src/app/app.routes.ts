@@ -19,12 +19,13 @@ import { ConfigComponent } from './config/config.component';
 import { PrivateModule } from '../../private/private.module';
 import { EmailVerificacionComponent } from './auth/email-verificacion/email-verificacion.component';
 import { PoliticasPrivacidadComponent } from './AcercaDe/politicas-privacidad/politicas-privacidad.component';
+import { ProductosComponent } from './catalogo/productos/productos.component';
 
 export const routes: Routes = [
   //rutas públicas
-  { path: "", component: HomeComponent },
-  { path: "terminos-condiciones", component: TerminosCondicionesComponent },
-  { path: "politicas-privacidad", component: PoliticasPrivacidadComponent },
+  { path: "", component: HomeComponent, data: { Breadcrumb: "home" },  },
+  { path: "terminos-condiciones", component: TerminosCondicionesComponent,data: { Breadcrumb: "terminos-condiciones" } },
+  { path: "politicas-privacidad", component: PoliticasPrivacidadComponent, data: { Breadcrumb: "politicas-privacidad" } },
   { path: 'editpolit', component:EditpolitComponent},
   { path: 'editerminos', component:EditerminosComponent},
   { path: 'editdeslinde', component:EditperfilemComponent},
@@ -34,6 +35,7 @@ export const routes: Routes = [
   { path: 'editdeslinde', component: EditperfilemComponent },
   { path: 'editperfilem', component: EditperfilemComponent },
   { path: 'verificacion', component:EmailVerificacionComponent},
+  { path: 'productos', component:ProductosComponent, data: { Breadcrumb: "productos" } },
 
   //rutas para usuarios autenticados
   {
@@ -51,9 +53,10 @@ export const routes: Routes = [
   //rutas para usuarios no autenticados
   {
     path: '', children: [
-      { path: "login", component: LoginComponent },
-      { path: "register", component: RegisterComponent },
-      { path: 'recupera', component:RecuperaComponent},
+      { path: "home", component: HomeComponent,},
+      { path: "login", component: LoginComponent, data: { Breadcrumb: "login" } },
+      { path: "register", component: RegisterComponent, data: { Breadcrumb: "register" } },
+      { path: 'recupera', component:RecuperaComponent, data: { Breadcrumb: "recupera" } },
     ],canActivate:[NoAuthGuard]
   },
   { path: "error-400", component: Page400errorComponent }, // Nombre corregido

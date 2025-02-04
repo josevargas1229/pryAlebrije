@@ -9,6 +9,16 @@
     <span>Home</span>
   </a>
 
+  <!-- Botón de Catálogo (SIEMPRE VISIBLE) -->
+  <button
+    mat-mini-fab
+    routerLink="/productos"
+    routerLinkActive="active"
+    aria-label="Catálogo"
+    matTooltip="Ver catálogo de productos">
+    <mat-icon>category</mat-icon>
+  </button>
+
   <!-- Login y Registro (solo para usuarios no logueados) -->
   <ng-container *ngIf="!isLoggedIn">
     <a
@@ -119,6 +129,13 @@
         <a routerLink="/config" routerLinkActive="active">
           <mat-icon>settings</mat-icon>
           <span>Configuración</span>
+        </a>
+      </li>
+      <!-- Apartado de Catálogo en el menú de navegación -->
+      <li>
+        <a routerLink="/catalogo" routerLinkActive="active">
+          <mat-icon>category</mat-icon>
+          <span>Catálogo</span>
         </a>
       </li>
     </ul>

@@ -1,9 +1,48 @@
+/* Estilos para el componente principal de la aplicación */
 :host {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
+/* Estilo para el contenedor de migas de pan */
+.breadcrumb-container {
+  background-color: #f8f9fa; /* Fondo suave para las migas de pan */
+  padding: 1rem 2rem; /* Añadir algo de espacio alrededor */
+  border-bottom: 1px solid #ddd; /* Línea separadora */
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.p-breadcrumb-item-link {
+  color: #007bff; /* Color azul para los links */
+  text-decoration: none; /* Quitar subrayado por defecto */
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.p-breadcrumb-item-link:hover {
+  color: #0056b3; /* Color al pasar el ratón */
+}
+
+.text-color {
+  color: #6c757d; /* Color gris para las etiquetas */
+}
+
+/* Mejora el espaciado y alineación de los elementos dentro de las migas de pan */
+.p-breadcrumb .p-breadcrumb-item {
+  display: flex;
+  align-items: center;
+}
+
+.p-breadcrumb .p-breadcrumb-item + .p-breadcrumb-item::before {
+  content: '›'; /* Usamos un ícono de flecha para separar las migas */
+  margin: 0 8px;
+  color: #6c757d;
+}
+
+/* Estilos adicionales para el contenido principal */
 .layout {
   display: flex;
   flex: 1;
@@ -17,10 +56,13 @@ app-sidebar {
   max-height: 100%; /* Asegura que no supere la altura del contenedor padre */
   position: sticky; /* Mantiene la barra lateral en su posición */
   top: 0; /* Fija la barra lateral en la parte superior */
+  min-height: 100vh;
 }
 
 .main-content {
-  flex: 1; // Ocupa el espacio restante
+  flex: 1;
+  margin-left: 250px;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   padding: 1rem;

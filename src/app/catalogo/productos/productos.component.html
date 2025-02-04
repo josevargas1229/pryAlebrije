@@ -1,1 +1,41 @@
-<p>productos works!</p>
+
+<div class="catalogo-container">
+  <!-- Título -->
+  <h1>Catálogo</h1>
+  <!-- Sección de Todos los Productos -->
+  <section class="todos-productos">
+    <h2>Todos los productos</h2>
+
+    <div class="grid-productos">
+      <div class="producto" *ngFor="let producto of filteredProductos">
+        <img [src]="producto.imagen" [alt]="producto.nombre">
+        <h3>{{ producto.nombre }}</h3>
+        <p>{{ producto.precio | currency }}</p>
+        <button mat-stroked-button color="primary">
+          <mat-icon>shopping_cart</mat-icon> Agregar al carrito
+        </button>
+      </div>
+    </div>
+  </section>
+
+
+    <!-- Sección de Más Vendida -->
+    <section class="mas-vendida">
+      <div class="header">
+        <h2>Más vendida</h2>
+        <a routerLink="/mas-vendida">➔</a>
+      </div>
+
+      <div class="productos-destacados">
+        <div class="producto" *ngFor="let producto of productosDestacados">
+          <img [src]="producto.imagen" [alt]="producto.nombre">
+          <h3>{{ producto.nombre }}</h3>
+          <p>{{ producto.precio | currency }}</p>
+          <button mat-stroked-button color="primary">
+            <mat-icon>shopping_cart</mat-icon> Agregar al carrito
+          </button>
+        </div>
+      </div>
+    </section>
+
+</div>

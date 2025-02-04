@@ -26,10 +26,10 @@
     <div class="right-section">
       <!-- Botón de búsqueda -->
       <button
-        mat-icon-button
-        aria-label="Buscar"
-        matTooltip="Buscar productos"
-        matTooltipPosition="below">
+      mat-icon-button aria-label="Buscar"
+      matTooltip="Buscar productos"
+        matTooltipPosition="below"
+      (click)="onSearchClick()">
         <mat-icon>search</mat-icon>
       </button>
 
@@ -52,4 +52,19 @@
       </button>
     </div>
   </mat-toolbar>
+
+  <!-- Modal de búsqueda -->
+  <div *ngIf="isSearchModalOpen" class="search-modal">
+    <div class="modal-content">
+      <input
+        type="text"
+        [(ngModel)]="searchText"
+        placeholder="Buscar productos..."
+        (input)="onSearchChange()">
+      <div class="button-container">
+        <button class="accept" (click)="applySearch()">Aceptar</button>
+        <button class="close" (click)="closeSearchModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
 </header>
