@@ -1,13 +1,13 @@
 <div class="sidebar">
   <!-- Botón de Home (visible siempre) -->
-  <button
-    mat-mini-fab
+  <a
     routerLink="/"
     routerLinkActive="active"
     aria-label="Home"
     matTooltip="Ir a la página principal">
     <mat-icon>home</mat-icon>
-  </button>
+    <span>Home</span>
+  </a>
 
   <!-- Botón de Catálogo (SIEMPRE VISIBLE) -->
   <button
@@ -21,83 +21,83 @@
 
   <!-- Login y Registro (solo para usuarios no logueados) -->
   <ng-container *ngIf="!isLoggedIn">
-    <button
-      mat-mini-fab
+    <a
       routerLink="/login"
       routerLinkActive="active"
       aria-label="Login"
       matTooltip="Iniciar sesión">
       <mat-icon>login</mat-icon>
-    </button>
+      <span>Login</span>
+    </a>
 
-    <button
-      mat-mini-fab
+    <a
       routerLink="/register"
       routerLinkActive="active"
       aria-label="Registro"
       matTooltip="Crear una nueva cuenta">
       <mat-icon>person_add</mat-icon>
-    </button>
+      <span>Registro</span>
+    </a>
   </ng-container>
 
   <!-- Botones para usuario logueado -->
   <ng-container *ngIf="isLoggedIn">
     <ng-container *ngIf="userRole === 1">
-      <button
-        mat-mini-fab
+      <a
         routerLink="/admin"
         routerLinkActive="active"
         aria-label="Admin"
         matTooltip="Ir al panel de administrador">
         <mat-icon>admin_panel_settings</mat-icon>
-      </button>
+        <span>Admin</span>
+      </a>
     </ng-container>
 
     <ng-container *ngIf="userRole === 2">
-      <button
-        mat-mini-fab
+      <a
         routerLink="/ventas"
         routerLinkActive="active"
         aria-label="Ventas"
         matTooltip="Ir a ventas">
         <mat-icon>monetization_on</mat-icon>
-      </button>
+        <span>Ventas</span>
+      </a>
     </ng-container>
 
     <ng-container *ngIf="userRole === 3">
-      <button
-        mat-mini-fab
+      <a
         routerLink="/mis-compras"
         routerLinkActive="active"
         aria-label="Mis Compras"
         matTooltip="Ver mis compras">
         <mat-icon>shopping_basket</mat-icon>
-      </button>
-      <button
-        mat-mini-fab
+        <span>Mis Compras</span>
+      </a>
+      <a
         routerLink="/ofertas"
         routerLinkActive="active"
         aria-label="Ofertas"
         matTooltip="Ver ofertas disponibles">
         <mat-icon>local_offer</mat-icon>
-      </button>
-      <button
-        mat-mini-fab
+        <span>Ofertas</span>
+      </a>
+      <a
         routerLink="/creditos"
         routerLinkActive="active"
         aria-label="Créditos"
         matTooltip="Ver mis créditos">
         <mat-icon>credit_card</mat-icon>
-      </button>
+        <span>Créditos</span>
+      </a>
     </ng-container>
 
-    <button
-      mat-mini-fab
+    <a
       aria-label="Logout"
       (click)="logout()"
       matTooltip="Cerrar sesión">
       <mat-icon>logout</mat-icon>
-    </button>
+      <span>Logout</span>
+    </a>
 
     <!-- Menú de navegación (solo para usuarios logueados) -->
     <ul class="nav-list">
@@ -122,7 +122,7 @@
       <li>
         <a routerLink="/perfil" routerLinkActive="active">
           <mat-icon>person</mat-icon>
-          <span>Perfil</span>
+          <span>Mi perfil</span>
         </a>
       </li>
       <li>

@@ -1,4 +1,4 @@
-/* Estilos generales para el componente principal */
+/* Estilos para el componente principal de la aplicación */
 :host {
   display: flex;
   flex-direction: column;
@@ -45,6 +45,17 @@
 /* Estilos adicionales para el contenido principal */
 .layout {
   display: flex;
+  flex: 1;
+  overflow: hidden; // Previene desbordamientos
+}
+
+app-sidebar {
+  width: 120px;
+  flex-shrink: 0;
+  overflow-y: auto; /* Permite scroll vertical en la barra lateral */
+  max-height: 100%; /* Asegura que no supere la altura del contenedor padre */
+  position: sticky; /* Mantiene la barra lateral en su posición */
+  top: 0; /* Fija la barra lateral en la parte superior */
   min-height: 100vh;
 }
 
@@ -54,5 +65,18 @@
   padding: 1rem;
   display: flex;
   flex-direction: column;
+  padding: 1rem;
+  overflow-y: auto; // Permite scroll si el contenido es muy largo
 }
 
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  app-sidebar {
+    width: 60px; // Reduce el ancho en pantallas pequeñas
+  }
+}
+
+// Asegura que los componentes hijos ocupen todo el espacio
+.layout > * {
+  height: 100%;
+}

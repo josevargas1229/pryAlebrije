@@ -4,21 +4,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Categoria = sequelize.define('Categoria', {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-    },
-    nombre: {
-        type: DataTypes.TEXT,
-        allowNull: false
-    },
-    descripcion: {
-        type: DataTypes.TEXT
-    }
-}, {
-    tableName: 'categorias',
-    timestamps: false
-});
-
+    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+    nombre: { type: DataTypes.TEXT, allowNull: false }
+}, { tableName: 'categorias', timestamps: false });
 module.exports = Categoria;

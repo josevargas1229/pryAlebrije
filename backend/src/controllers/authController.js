@@ -49,41 +49,38 @@ async function createAssessment({ projectID, recaptchaKey, token, recaptchaActio
         return null;
     }
 }
+async function checkAccountLock(account, tiempoBloqueoMinutos) {
+    if (account.bloqueada) {
+        const tiempoDesbloqueo = new Date(account.bloqueada_desde);
+        tiempoDesbloqueo.setMinutes(tiempoDesbloqueo.getMinutes() + tiempoBloqueoMinutos);
 
-/**
- * The `login` function handles the authentication process for a user attempting to log in.
- * 
- * 1. It first validates the reCAPTCHA token using `createAssessment` to ensure that the login attempt is
- * legitimate.
- * 2. If reCAPTCHA validation fails, it sends an error response.
- * 3. If the CAPTCHA is valid, it checks the user credentials:
- *    - It searches for a user by email and includes the associated account details.
- *    - If the account is found and not locked, it verifies the password using bcrypt.
- *    - If the password is correct, it resets the failed login attempts and generates a JWT token, which
- *      is sent as an HTTP-only cookie to the client.
- * 
- * @param {Object} req - The request object, containing user credentials and reCAPTCHA token.
- * @param {Object} res - The response object.
- * @param {Function} next - The next middleware function.
- * 
- * @returns {void}
- */
+        if (new Date() < tiempoDesbloqueo) {
+            return { locked: true, tiempoDesbloqueo };
+        } else {
+            await account.update({ bloqueada: false, bloqueada_desde: null });
+            await IntentoFallido.destroy({ where: { account_id: account.id } });
+        }
+    }
+    return { locked: false };
+}
+
+async function handleFailedLogin(accountId, ip) {
+    await IntentoFallido.create({ account_id: accountId, ip, fecha: new Date() });
+}
+
 exports.login = async (req, res, next) => {
     try {
         const { email, contraseña } = req.body.credenciales;
         const { captchaToken } = req.body;
         const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
-        // Obtener la configuración del sistema
         const configuracion = await ConfiguracionSistema.findOne();
-
         if (!configuracion) {
             return res.status(500).json({ message: 'No se pudo obtener la configuración del sistema.' });
         }
 
         const { max_intentos_login, tiempo_bloqueo_minutos } = configuracion;
 
-        // Verificar el token de reCAPTCHA antes de proceder
         const score = await createAssessment({ 
             projectID: process.env.PROJECT_ID, 
             recaptchaKey: process.env.RECAPTCHA_KEY, 
@@ -95,59 +92,33 @@ exports.login = async (req, res, next) => {
             return res.status(400).json({ message: 'Fallo en la verificación de reCAPTCHA. Intente nuevamente.' });
         }
 
-        // Buscar el usuario y su cuenta asociada
         const user = await User.findOne({
             where: { email },
-            include: [{ model: Account, attributes: ['id', 'nombre_usuario', 'contraseña_hash', 'bloqueada', 'bloqueada_desde','verified'] }]
+            include: [{ model: Account, attributes: ['id', 'nombre_usuario', 'contraseña_hash', 'bloqueada', 'bloqueada_desde', 'verified'] }]
         });
 
         if (!user) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
-        const { bloqueada, bloqueada_desde } = user.Account;
-
-        // Verificar si la cuenta está bloqueada
-        if (bloqueada) {
-            const tiempoDesbloqueo = new Date(bloqueada_desde);
-            tiempoDesbloqueo.setMinutes(tiempoDesbloqueo.getMinutes() + tiempo_bloqueo_minutos);
-
-            if (new Date() < tiempoDesbloqueo) {
-                return res.status(403).json({ message: `Cuenta bloqueada. Intente nuevamente después de ${tiempoDesbloqueo.toLocaleTimeString()}` });
-            } else {
-                // Desbloquear la cuenta si ha pasado el tiempo de bloqueo
-                await user.Account.update({ bloqueada: false, bloqueada_desde: null });
-                await IntentoFallido.destroy({ where: { account_id: user.Account.id } });
-            }
+        const { locked, tiempoDesbloqueo } = await checkAccountLock(user.Account, tiempo_bloqueo_minutos);
+        if (locked) {
+            return res.status(403).json({ message: `Cuenta bloqueada. Intente nuevamente después de ${tiempoDesbloqueo.toLocaleTimeString()}` });
         }
 
-        const intentosFallidos = await IntentoFallido.count({
-            where: {
-                account_id: user.Account.id
-            }
-        });
-
+        const intentosFallidos = await IntentoFallido.count({ where: { account_id: user.Account.id } });
         if (intentosFallidos >= max_intentos_login) {
-            // Bloquear la cuenta y registrar el momento del bloqueo
             await user.Account.update({ bloqueada: true, bloqueada_desde: new Date() });
-
-            // Registrar el bloqueo en el historial de bloqueos
-            await HistorialBloqueos.create({
-                account_id: user.Account.id,
-                intentos: intentosFallidos,
-                fechaBloqueo: new Date()
-            });
-
+            await HistorialBloqueos.create({ account_id: user.Account.id, intentos: intentosFallidos, fechaBloqueo: new Date() });
             return res.status(403).json({ message: 'Cuenta bloqueada debido a demasiados intentos fallidos.' });
         }
 
         const isMatch = await bcrypt.compare(contraseña, user.Account.contraseña_hash);
         if (!isMatch) {
-            await IntentoFallido.create({ account_id: user.Account.id, ip, fecha: new Date() });
+            await handleFailedLogin(user.Account.id, ip);
             return res.status(401).json({ message: 'Credenciales inválidas' });
         }
 
-        // Resetear intentos fallidos y desbloquear la cuenta
         await IntentoFallido.destroy({ where: { account_id: user.Account.id } });
         await user.Account.update({ ultimo_acceso: new Date() });
 
@@ -160,7 +131,7 @@ exports.login = async (req, res, next) => {
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production'?'None':'Strict',
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict',
             maxAge: 3600000
         });
 
@@ -170,7 +141,6 @@ exports.login = async (req, res, next) => {
         next(error);
     }
 };
-
 /**
  * The `changePassword` function allows an authenticated user to change their account password.
  * 
