@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HeaderComponent } from './shared/header/header.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { TerminosCondicionesComponent } from './AcercaDe/terminos-condiciones/terminos-condiciones.component';
+import { ProductosComponent } from './catalogo/productos/productos.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { MatCommonModule } from '@angular/material/core';
@@ -19,6 +20,7 @@ import { DashboardComponent } from '../../private/dashboard/dashboard.component'
 import { SidebarComponent } from './shared/sidebar/sidebar.component';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
 import { ErrorHandlerService } from './services/error-handler.service';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
 
 @NgModule({
   declarations: [
@@ -35,8 +37,10 @@ import { ErrorHandlerService } from './services/error-handler.service';
     RegisterComponent,
     AppRoutingModule,
     LoginComponent,
+    ProductosComponent,
     MatCommonModule,
     SidebarComponent,
+    BreadcrumbModule,
     AngularToastifyModule,
     ThemeSwitcherComponent,
     ReactiveFormsModule,

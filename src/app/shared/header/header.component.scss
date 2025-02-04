@@ -23,7 +23,6 @@ header {
         margin-right: 12px; /* Reducir el margen */
         mat-icon {
           font-size: 22px; /* Reducir el tamaño de los iconos */
-
         }
       }
     }
@@ -48,49 +47,73 @@ header {
         margin-left: 12px; /* Reducir el margen */
         mat-icon {
           font-size: 22px; /* Reducir el tamaño de los iconos */
-
         }
       }
     }
   }
 
-  /* Ajustes responsivos */
-  @media (max-width: 768px) {
-    mat-toolbar {
-      margin-left: 40px; /* Reducir el margen izquierdo para pantallas medianas */
-      padding: 0 8px;
-      height: 48px; /* Reducir el alto del toolbar en pantallas medianas */
-
-      .center-section .logo {
-        height: 32px; /* Reducir el tamaño del logo */
-      }
-
-      .right-section button {
-        margin-left: 8px;
-        mat-icon {
-          font-size: 20px; /* Tamaño de los iconos en pantallas más pequeñas */
-        }
-      }
-    }
+  .search-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
   }
 
-  @media (max-width: 480px) {
-    mat-toolbar {
-      margin-left: 30px; /* Reducir el margen izquierdo para pantallas pequeñas */
-      height: 40px; /* Reducir el alto del toolbar en pantallas pequeñas */
-      padding: 0 6px;
+  .modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
-      .center-section .logo {
-        height: 28px; /* Reducir el tamaño del logo */
-      }
+  .modal-content input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
 
-      .right-section button {
-        margin-left: 5px;
-        font-size: 0.85rem;
-        mat-icon {
-          font-size: 18px; /* Tamaño de los iconos en pantallas muy pequeñas */
-        }
-      }
-    }
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .modal-content button {
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  /* Botón de Aceptar (verde) */
+  .modal-content button.accept {
+    background-color: #4CAF50; /* Verde */
+    color: white;
+  }
+
+  .modal-content button.accept:hover {
+    background-color: #45a049; /* Verde más oscuro */
+  }
+
+  /* Botón de Cerrar (rojo) */
+  .modal-content button.close {
+    background-color: #f44336; /* Rojo */
+    color: white;
+  }
+
+  .modal-content button.close:hover {
+    background-color: #d32f2f; /* Rojo más oscuro */
   }
 }
