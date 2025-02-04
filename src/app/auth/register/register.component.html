@@ -22,7 +22,7 @@
           <!-- Nombre -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Nombre</mat-label>
-            <input matInput formControlName="name" />
+            <input matInput formControlName="name" (input)="registrationForm.get('name')?.markAsTouched()" />
             <mat-error *ngIf="registrationForm.get('name')?.hasError('required')">
               Este campo es requerido
             </mat-error>
@@ -34,7 +34,7 @@
           <!-- Apellido Paterno -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Apellido Paterno</mat-label>
-            <input matInput formControlName="surnamePaterno" />
+            <input matInput formControlName="surnamePaterno" (input)="registrationForm.get('surnamePaterno')?.markAsTouched()" />
             <mat-error *ngIf="registrationForm.get('surnamePaterno')?.hasError('required')">
               Este campo es requerido
             </mat-error>
@@ -46,7 +46,7 @@
           <!-- Apellido Materno -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Apellido Materno</mat-label>
-            <input matInput formControlName="surnameMaterno" />
+            <input matInput formControlName="surnameMaterno" (input)="registrationForm.get('surnameMaterno')?.markAsTouched()" />
             <mat-error *ngIf="registrationForm.get('surnameMaterno')?.hasError('required')">
               Este campo es requerido
             </mat-error>
@@ -58,9 +58,8 @@
           <!-- Correo Electrónico -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Correo Electrónico</mat-label>
-            <input matInput type="email" formControlName="email" />
-            <mat-error
-              *ngIf="registrationForm.get('email')?.invalid && (registrationForm.get('email')?.dirty || registrationForm.get('email')?.touched)">
+            <input matInput type="email" formControlName="email" (input)="registrationForm.get('email')?.markAsTouched()" />
+            <mat-error *ngIf="registrationForm.get('email')?.invalid && registrationForm.get('email')?.touched">
               Ingrese un correo válido
             </mat-error>
           </mat-form-field>
@@ -68,49 +67,39 @@
           <!-- Teléfono -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Teléfono</mat-label>
-            <input matInput type="tel" formControlName="phone" />
-            <mat-error
-              *ngIf="registrationForm.get('phone')?.invalid && (registrationForm.get('phone')?.dirty || registrationForm.get('phone')?.touched)">
+            <input matInput type="tel" formControlName="phone" (input)="registrationForm.get('phone')?.markAsTouched()" />
+            <mat-error *ngIf="registrationForm.get('phone')?.invalid && registrationForm.get('phone')?.touched">
               Ingrese un número de teléfono válido
             </mat-error>
           </mat-form-field>
+          
 
           <!-- Contraseña -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Contraseña</mat-label>
-            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" />
+            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" (input)="registrationForm.get('password')?.markAsTouched()" />
             <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" [attr.aria-label]="'Hide password'"
               [attr.aria-pressed]="hidePassword" class="passButton">
               <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
-            <mat-error
-              *ngIf="registrationForm.get('password')?.invalid && (registrationForm.get('password')?.dirty || registrationForm.get('password')?.touched)">
+            <mat-error *ngIf="registrationForm.get('password')?.hasError('required') && registrationForm.get('password')?.touched">
               Ingrese una contraseña de al menos 8 caracteres
             </mat-error>
-            <mat-error *ngIf="registrationForm.get('password')?.hasError('weakPassword')">
-              La contraseña no es lo suficientemente fuerte.
+            <mat-error *ngIf="registrationForm.get('password')?.hasError('weakPassword') && registrationForm.get('password')?.dirty">
+              Contraseña débil: {{ registrationForm.get('password')?.getError('weakPassword') }}
             </mat-error>
-            <div class="password-strength" [ngClass]="{ 
-              'veryWeak': passwordStrengthMessage === 'Muy débil',
-              'weak': passwordStrengthMessage === 'Débil',
-              'medium': passwordStrengthMessage === 'Normal',
-              'strong': passwordStrengthMessage === 'Fuerte', 
-              'veryStrong': passwordStrengthMessage === 'Muy fuerte' 
-              }">
-              {{ passwordStrengthMessage }}
-            </div>
           </mat-form-field>
+          
 
           <!-- Confirmar Contraseña -->
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Confirmar Contraseña</mat-label>
-            <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword" />
+            <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword" (input)="registrationForm.get('confirmPassword')?.markAsTouched()" />
             <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword"
               [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hideConfirmPassword" class="passButton">
               <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
-            <mat-error
-              *ngIf="registrationForm.get('confirmPassword')?.invalid && (registrationForm.get('confirmPassword')?.dirty || registrationForm.get('confirmPassword')?.touched)">
+            <mat-error *ngIf="registrationForm.get('confirmPassword')?.invalid && registrationForm.get('confirmPassword')?.touched">
               {{ getConfirmPasswordErrorMessage() }}
             </mat-error>
           </mat-form-field>

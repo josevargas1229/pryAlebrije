@@ -15,6 +15,8 @@ import { Router } from '@angular/router';
 import { ToastService } from 'angular-toastify';
 import { AccountService } from '../../services/account/account.service';
 import { MatCardModule } from '@angular/material/card';
+import * as owasp from 'owasp-password-strength-test';
+
 @Component({
   selector: 'app-user-registration',
   templateUrl: './register.component.html',
@@ -39,16 +41,24 @@ export class RegisterComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.registrationForm = this.fb.group({
-      name: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑäöüÄÖÜ\s]+$/)]],
-      surnamePaterno: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑäöüÄÖÜ\s]+$/)]],
-      surnameMaterno: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑäöüÄÖÜ\s]+$/)]],
-      email: ['', [Validators.required, Validators.email, Validators.pattern(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)]],
-      phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
-      password: ['', [Validators.required, Validators.minLength(8), this.strongPasswordValidator.bind(this)]],
-      confirmPassword: ['', [Validators.required, this.matchPassword.bind(this)]],
+    this.registrationForm = this.fb.group(
+      {
+        name: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑäöüÄÖÜ\s]+$/)]],
+        surnamePaterno: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑäöüÄÖÜ\s]+$/)]],
+        surnameMaterno: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑäöüÄÖÜ\s]+$/)]],
+        email: ['', [Validators.required, Validators.email, Validators.pattern(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)]],
+        phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
+        password: ['', [Validators.required, Validators.minLength(8), this.strongPasswordValidator.bind(this)]],
+        confirmPassword: ['', [Validators.required]], // Eliminamos this.matchPassword de aquí
+      },
+      { validators: this.matchPassword.bind(this) } // Aplicamos la validación a nivel del FormGroup
+    );
+    
+    owasp.config({
+      minLength: 8,
+      minOptionalTestsToPass: 4
     });
-
+    
     // Escucha cambios en el campo de contraseña
     this.registrationForm.get('password')?.valueChanges.subscribe((password) => {
       this.checkPasswordStrength(password);
@@ -59,59 +69,28 @@ export class RegisterComponent implements OnInit {
   }
   private strongPasswordValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.value;
-
-    // Criterios de fortaleza
-    const lengthCriteria = password.length >= 8;
-    const numberCriteria = /[0-9]/.test(password);
-    const uppercaseCriteria = /[A-Z]/.test(password);
-    const lowercaseCriteria = /[a-z]/.test(password);
-    const specialCharCriteria = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-    const criteriaMet = [
-      lengthCriteria,
-      numberCriteria,
-      uppercaseCriteria,
-      lowercaseCriteria,
-      specialCharCriteria
-    ].filter(Boolean).length;
-
-    // Si no cumple con suficientes criterios, devuelve el error
-    return criteriaMet < 4 ? { weakPassword: true } : null;
+    const result = owasp.test(password);
+  
+    // Si la contraseña es débil, devuelve el error
+    return result.errors.length > 0 ? { weakPassword: result.errors.join(' ') } : null;
   }
+  
 
   checkPasswordStrength(password: string) {
     if (password.length === 0) {
       this.passwordStrengthMessage = '';
       return;
     }
-
-    const lengthCriteria = password.length >= 8;
-    const numberCriteria = /[0-9]/.test(password);
-    const uppercaseCriteria = /[A-Z]/.test(password);
-    const lowercaseCriteria = /[a-z]/.test(password);
-    const specialCharCriteria = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-    const criteriaMet = [lengthCriteria, numberCriteria, uppercaseCriteria, lowercaseCriteria, specialCharCriteria].filter(Boolean).length;
-
-    switch (criteriaMet) {
-      case 0:
-      case 1:
-        this.passwordStrengthMessage = 'Muy débil';
-        break;
-      case 2:
-        this.passwordStrengthMessage = 'Débil';
-        break;
-      case 3:
-        this.passwordStrengthMessage = 'Normal';
-        break;
-      case 4:
-        this.passwordStrengthMessage = 'Fuerte';
-        break;
-      case 5:
-        this.passwordStrengthMessage = 'Muy fuerte';
-        break;
+  
+    const result = owasp.test(password);
+  
+    if (result.errors.length > 0) {
+      this.passwordStrengthMessage = 'Contraseña débil: ' + result.errors.join(', ');
+    } else {
+      this.passwordStrengthMessage = 'Contraseña fuerte';
     }
   }
+  
 
   matchPassword(control: AbstractControl): ValidationErrors | null {
     if (!this.registrationForm) {

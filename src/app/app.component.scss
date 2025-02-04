@@ -1,28 +1,40 @@
-/* Estilos para el componente principal de la aplicación */
 :host {
   display: flex;
-  flex-direction: column; /* Organiza los elementos en una columna */
-  min-height: 100vh; /* Asegura que el componente ocupe al menos toda la altura de la pantalla */
-}
-
-.main-content {
-  flex: 1;
-  display: flex;
   flex-direction: column;
-}
-
-::ng-deep .main-content > * {
-  flex: 1;
+  min-height: 100vh;
 }
 
 .layout {
   display: flex;
+  flex: 1;
+  overflow: hidden; // Previene desbordamientos
+}
+
+app-sidebar {
+  width: 120px;
+  flex-shrink: 0;
+  overflow-y: auto; /* Permite scroll vertical en la barra lateral */
+  max-height: 100%; /* Asegura que no supere la altura del contenedor padre */
+  position: sticky; /* Mantiene la barra lateral en su posición */
+  top: 0; /* Fija la barra lateral en la parte superior */
 }
 
 .main-content {
-  flex: 1;
-  margin-left: 250px; /* Desplaza el contenido principal a la derecha de la barra */
-  padding: 1rem;
+  flex: 1; // Ocupa el espacio restante
   display: flex;
   flex-direction: column;
+  padding: 1rem;
+  overflow-y: auto; // Permite scroll si el contenido es muy largo
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+  app-sidebar {
+    width: 60px; // Reduce el ancho en pantallas pequeñas
+  }
+}
+
+// Asegura que los componentes hijos ocupen todo el espacio
+.layout > * {
+  height: 100%;
 }

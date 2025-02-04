@@ -3,9 +3,11 @@ import { provideServerRendering } from '@angular/platform-server';
 import { appConfig } from './app.config';
 
 const serverConfig: ApplicationConfig = {
+  ...appConfig,
   providers: [
-    provideServerRendering()
-  ]
+    provideServerRendering(), // Necesario para SSR
+    ...appConfig.providers,
+  ],
 };
 
 export const config = mergeApplicationConfig(appConfig, serverConfig);

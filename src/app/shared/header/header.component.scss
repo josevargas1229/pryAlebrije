@@ -2,54 +2,49 @@ header {
   width: 100%;
   display: flex;
   flex-direction: column;
-  z-index: 1000; /* Asegurar que el header esté sobre la sidebar */
-
-  mat-toolbar {
+  left: 0;
+position: sticky;
+  .left-section {
+    flex: 0 0 auto;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0 60px; /* Reducir el padding */
-    margin-left: 60px; /* Reducir el margen izquierdo */
-    background-color: #ffffff; /* Fondo blanco para el toolbar */
-    color: #000000; /* Color de texto negro */
-    height: 56px; /* Reducir el alto del toolbar */
 
-    .left-section {
-      flex: 0 0 auto;
-      display: flex;
-      align-items: center;
+    button {
+      margin-right: 12px;
 
-      button {
-        margin-right: 12px; /* Reducir el margen */
-        mat-icon {
-          font-size: 22px; /* Reducir el tamaño de los iconos */
+      /* Reducir el margen */
+      mat-icon {
+        font-size: 22px;
 
-        }
       }
     }
+  }
 
-    .center-section {
-      flex: 1 1 auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+  .center-section {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-      .logo {
-        height: 36px; /* Reducir el tamaño del logo */
-      }
+    .logo {
+      height: 50px;
+      /* Reducir el tamaño del logo */
     }
+  }
 
-    .right-section {
-      flex: 0 0 auto;
-      display: flex;
-      align-items: center;
+  .right-section {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
 
-      button {
-        margin-left: 12px; /* Reducir el margen */
-        mat-icon {
-          font-size: 22px; /* Reducir el tamaño de los iconos */
+    button {
+      margin-left: 12px;
 
-        }
+      /* Reducir el margen */
+      mat-icon {
+        font-size: 22px;
+        /* Reducir el tamaño de los iconos */
+
       }
     }
   }
@@ -57,18 +52,20 @@ header {
   /* Ajustes responsivos */
   @media (max-width: 768px) {
     mat-toolbar {
-      margin-left: 40px; /* Reducir el margen izquierdo para pantallas medianas */
-      padding: 0 8px;
-      height: 48px; /* Reducir el alto del toolbar en pantallas medianas */
+      height: 48px;
+      /* Reducir el alto del toolbar en pantallas medianas */
 
       .center-section .logo {
-        height: 32px; /* Reducir el tamaño del logo */
+        height: 32px;
+        /* Reducir el tamaño del logo */
       }
 
       .right-section button {
         margin-left: 8px;
+
         mat-icon {
-          font-size: 20px; /* Tamaño de los iconos en pantallas más pequeñas */
+          font-size: 20px;
+          /* Tamaño de los iconos en pantallas más pequeñas */
         }
       }
     }
@@ -76,19 +73,21 @@ header {
 
   @media (max-width: 480px) {
     mat-toolbar {
-      margin-left: 30px; /* Reducir el margen izquierdo para pantallas pequeñas */
-      height: 40px; /* Reducir el alto del toolbar en pantallas pequeñas */
-      padding: 0 6px;
+      height: 40px;
+      /* Reducir el alto del toolbar en pantallas pequeñas */
 
       .center-section .logo {
-        height: 28px; /* Reducir el tamaño del logo */
+        height: 28px;
+        /* Reducir el tamaño del logo */
       }
 
       .right-section button {
         margin-left: 5px;
         font-size: 0.85rem;
+
         mat-icon {
-          font-size: 18px; /* Tamaño de los iconos en pantallas muy pequeñas */
+          font-size: 18px;
+          /* Tamaño de los iconos en pantallas muy pequeñas */
         }
       }
     }
