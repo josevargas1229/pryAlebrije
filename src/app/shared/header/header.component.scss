@@ -3,12 +3,16 @@ header {
   display: flex;
   flex-direction: column;
   left: 0;
-position: sticky;
+  position: sticky;
+
   .left-section {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-
+    .logo {
+      height: 50px;
+      /* Reducir el tamaño del logo */
+    }
     button {
       margin-right: 12px;
 
@@ -25,10 +29,7 @@ position: sticky;
     justify-content: center;
     align-items: center;
 
-    .logo {
-      height: 50px;
-      /* Reducir el tamaño del logo */
-    }
+    
   }
 
   .right-section {
@@ -53,7 +54,8 @@ position: sticky;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro transparente */
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Fondo oscuro transparente */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -94,61 +96,67 @@ position: sticky;
 
   /* Botón de Aceptar (verde) */
   .modal-content button.accept {
-    background-color: #4CAF50; /* Verde */
+    background-color: #4CAF50;
+    /* Verde */
     color: white;
   }
 
   .modal-content button.accept:hover {
-    background-color: #45a049; /* Verde más oscuro */
+    background-color: #45a049;
+    /* Verde más oscuro */
   }
 
   /* Botón de Cerrar (rojo) */
   .modal-content button.close {
-    background-color: #f44336; /* Rojo */
+    background-color: #f44336;
+    /* Rojo */
     color: white;
   }
 
   .modal-content button.close:hover {
-    background-color: #d32f2f; /* Rojo más oscuro */
-  /* Ajustes responsivos */
-  @media (max-width: 768px) {
-    mat-toolbar {
-      height: 48px;
-      /* Reducir el alto del toolbar en pantallas medianas */
+    background-color: #d32f2f;
 
-      .center-section .logo {
-        height: 32px;
-        /* Reducir el tamaño del logo */
-      }
+    /* Rojo más oscuro */
+    /* Ajustes responsivos */
+    @media (max-width: 768px) {
+      mat-toolbar {
+        height: 48px;
+        /* Reducir el alto del toolbar en pantallas medianas */
 
-      .right-section button {
-        margin-left: 8px;
+        .center-section .logo {
+          height: 32px;
+          /* Reducir el tamaño del logo */
+        }
 
-        mat-icon {
-          font-size: 20px;
-          /* Tamaño de los iconos en pantallas más pequeñas */
+        .right-section button {
+          margin-left: 8px;
+
+          mat-icon {
+            font-size: 20px;
+            /* Tamaño de los iconos en pantallas más pequeñas */
+          }
         }
       }
     }
-  }
 
-  @media (max-width: 480px) {
-    mat-toolbar {
-      height: 40px;
-      /* Reducir el alto del toolbar en pantallas pequeñas */
+    @media (max-width: 480px) {
+      mat-toolbar {
+        height: 40px;
+        /* Reducir el alto del toolbar en pantallas pequeñas */
 
-      .center-section .logo {
-        height: 28px;
-        /* Reducir el tamaño del logo */
-      }
+        .center-section .logo {
+          height: 28px;
+          /* Reducir el tamaño del logo */
+        }
 
-      .right-section button {
-        margin-left: 5px;
-        font-size: 0.85rem;
+        .right-section button {
+          margin-left: 5px;
+          font-size: 0.85rem;
 
-        mat-icon {
-          font-size: 18px;
-          /* Tamaño de los iconos en pantallas muy pequeñas */
+          mat-icon {
+            font-size: 18px;
+            /* Tamaño de los iconos en pantallas muy pequeñas */
+          }
         }
       }
     }

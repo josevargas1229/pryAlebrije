@@ -16,12 +16,12 @@ const routes: Routes = [
     children: [
       { path: '', redirectTo: 'inicio', pathMatch: 'full' },
       { path: 'inicio', component: HomeDashboardComponent },
-      { path: 'legal', component: LegalSettingsComponent },
-      { path: 'sistema', component: ConfiguracionSistemaComponent },
-      { path: 'empresa', component: CompanySettingsComponent },
-      { path: 'correos', component: EmailManagementComponent },
-      { path: 'bloqueos', component: BloqueosComponent },
-      { path: 'incidencias', component: LogsComponent },
+      { path: 'legal', component: LegalSettingsComponent, data: { Breadcrumb: "Legal" } },
+      { path: 'sistema', component: ConfiguracionSistemaComponent, data: { Breadcrumb: "Sistema" } },
+      { path: 'empresa', component: CompanySettingsComponent, data: { Breadcrumb: "Empresa" } },
+      { path: 'correos', component: EmailManagementComponent, data: { Breadcrumb: "Correos" } },
+      { path: 'bloqueos', component: BloqueosComponent, data: { Breadcrumb: "Bloqueos" } },
+      { path: 'incidencias', component: LogsComponent, data: { Breadcrumb: "Incidencias" } },
     ]
   }
 ];

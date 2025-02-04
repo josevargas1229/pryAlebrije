@@ -2,25 +2,12 @@
   <mat-toolbar color="warn">
     <!-- Botón de perfil en la esquina izquierda -->
     <div class="left-section">
-      <button
-        mat-icon-button
-        routerLink="/perfil"
-        routerLinkActive="active"
-        aria-label="Perfil"
-        matTooltip="Ir a mi perfil"
-        matTooltipPosition="below">
-        <mat-icon>person</mat-icon>
-      </button>
+      <img *ngIf="logoUrl" [src]="logoUrl" class="logo" alt="Logo" />
+      
     </div>
 
     <!-- Logo y título centrados -->
-    <div class="center-section">
-      <img *ngIf="logoUrl" [src]="logoUrl" class="logo" alt="Logo" />
-    </div>
-
-    <div class="nav-buttons">
-      <app-theme-switcher></app-theme-switcher>
-    </div>
+    <div class="center-section"></div>
 
     <!-- Botones de navegación alineados a la derecha -->
     <div class="right-section">
@@ -32,7 +19,7 @@
       (click)="onSearchClick()">
         <mat-icon>search</mat-icon>
       </button>
-
+      <app-theme-switcher></app-theme-switcher>
       <!-- Botón de notificaciones -->
       <button
         mat-icon-button
@@ -49,6 +36,15 @@
         matTooltip="Ver carrito"
         matTooltipPosition="below">
         <mat-icon>shopping_cart</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        routerLink="/perfil"
+        routerLinkActive="active"
+        aria-label="Perfil"
+        matTooltip="Ir a mi perfil"
+        matTooltipPosition="below">
+        <mat-icon>person</mat-icon>
       </button>
     </div>
   </mat-toolbar>
