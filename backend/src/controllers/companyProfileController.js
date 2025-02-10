@@ -1,6 +1,6 @@
 // controllers/companyProfileController.js
 const cloudinary = require('cloudinary').v2;
-const PerfilEmpresa = require('../models/PerfilEmpresa');
+const { PerfilEmpresa } = require('../models/associations');
 
 // Configura Cloudinary
 cloudinary.config({

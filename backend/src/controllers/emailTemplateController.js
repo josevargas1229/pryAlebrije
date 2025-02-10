@@ -1,6 +1,4 @@
-const User = require('../models/User');
-const EmailType = require('../models/EmailType');
-const EmailTemplate = require('../models/EmailTemplate');
+const { User, EmailType, EmailTemplate } = require('../models/associations');
 
 exports.getAllTemplates = async (req, res) => {
     try {

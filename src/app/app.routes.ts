@@ -44,7 +44,7 @@ export const routes: Routes = [
           { path: 'config', component: ConfigComponent }
         ]
       },
-      { path: 'admin',loadChildren: () => import('../../private/private.module').then(m => m.PrivateModule), data: { Breadcrumb: "Panel-administracion" } },
+      { path: 'admin',loadChildren: () => import('./private/private.module').then(m => m.PrivateModule)},
     ], canActivate: [AuthGuard]
   },
   //rutas para usuarios no autenticados

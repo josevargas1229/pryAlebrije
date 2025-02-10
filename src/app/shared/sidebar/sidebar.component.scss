@@ -1,18 +1,23 @@
-.sidebar {
-  width: 120px; /* Ancho más grande para acomodar ícono y texto */
-  height: 100vh;
-  top: 0;
-  left: 0;
-  background-color: #0b1a33;
-  color: white;
+/* Contenedor del sidenav */
+.sidenav-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 1rem;
-  z-index: 900;
+  flex: 1; /* Permite que ocupe el espacio disponible entre header y footer */
+  min-height: calc(100vh - 120px);
 }
 
-.sidebar a {
+/* Estilo del sidenav */
+.mat-sidenav {
+  width: 120px;
+  background-color: #0b1a33;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  flex: none; /* Evita que el sidenav crezca más de lo necesario */
+  overflow-y: auto;
+}
+
+/* Estilo de los enlaces en la lista de navegación */
+.mat-nav-list a {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,56 +29,84 @@
   transition: background 0.3s;
 }
 
-.sidebar a:hover {
+/* Efecto hover */
+.mat-nav-list a:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-.sidebar a.active {
+/* Enlace activo */
+.mat-nav-list a.active {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-.sidebar .logout-btn {
+/* Botón de logout */
+.logout-btn {
   background-color: #ffb085;
   border: none;
   padding: 10px;
   border-radius: 10px;
   cursor: pointer;
   margin-bottom: 10px;
-  width: 80px; /* Ancho del botón de logout */
+  width: 80px;
   text-align: center;
+  color: white;
 }
 
-.sidebar .nav-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-}
-
-.sidebar .nav-list li {
-  width: 100%;
-}
-
-.sidebar mat-icon {
+/* Íconos de Material */
+.mat-icon {
   font-size: 24px;
   margin-bottom: 4px;
+  color: white;
 }
 
-.sidebar span {
+/* Texto de los enlaces */
+.mat-nav-list span {
   font-size: 12px;
+  color: white;
 }
 
+/* Contenido principal */
+.mat-sidenav-content {
+  padding: 16px;
+  flex: 1; /* Hace que el contenido principal ocupe el espacio disponible */
+}
+
+/* Barra superior fija */
+.mat-toolbar.mat-primary {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.sidenav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: white;
+  width: 100%;
+  padding: 10px 0;
+  transition: background 0.3s;
+}
+
+.sidenav a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidenav a.active {
+  background-color: rgba(255, 255, 255, 0.2);
+}
 /* Estilos responsivos */
 @media (max-width: 768px) {
-  .sidebar {
-    width: 60px; /* Reducir el ancho en pantallas pequeñas */
+  .mat-sidenav {
+    width: 60px;
   }
 
-  .sidebar span {
-    display: none; /* Ocultar el texto en pantallas pequeñas */
+  .mat-nav-list span {
+    display: none;
   }
 
-  .sidebar a {
-    padding: 15px 0; /* Aumentar el padding para centrar mejor el ícono */
+  .mat-nav-list a {
+    padding: 15px 0;
   }
 }

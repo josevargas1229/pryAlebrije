@@ -27,8 +27,10 @@
         <!-- Campo de contraseña -->
         <mat-form-field class="full-width" appearance="outline">
           <mat-label>Contraseña</mat-label>
-          <input matInput [type]="hidePassword ? 'password' : 'text'" id="password" name="password" [(ngModel)]="password" required minlength="8" #passwordInput="ngModel">
-          <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event)" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword">
+          <input matInput [type]="hidePassword ? 'password' : 'text'" id="password" name="password"
+            [(ngModel)]="password" required minlength="8" #passwordInput="ngModel">
+          <button mat-icon-button matSuffix (click)="togglePasswordVisibility($event)"
+            [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hidePassword">
             <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
           <mat-error *ngIf="passwordInput.invalid && (passwordInput.dirty || passwordInput.touched)">
@@ -40,16 +42,13 @@
         <!-- Checkbox "Recuérdame" -->
         <mat-checkbox [(ngModel)]="rememberMe" name="rememberMe">Recuérdame</mat-checkbox>
 
-        <re-captcha #captchaRef (resolved)="resolved($event)" [siteKey]="captchaSiteKey" data-action="LOGIN" required></re-captcha>
+        <re-captcha #captchaRef (resolved)="resolved($event)" [siteKey]="captchaSiteKey" data-action="LOGIN"
+          required></re-captcha>
 
         <!-- Botón de inicio de sesión -->
-        <div class="button-container">
-          <button mat-stroked-button color="primary" type="submit" [disabled]="!loginForm.form.valid || isLoading || !captchaToken" class="login-btn">
-            <span *ngIf="!isLoading">Iniciar Sesión</span>
-            <mat-spinner *ngIf="isLoading" diameter="20"></mat-spinner>
-          </button>
-        </div>
-
+        <app-loading-button text="Iniciar sesión" [loading]="isLoading"
+          [disabled]="!loginForm.form.valid || isLoading || !captchaToken" color="primary"
+          type="submit"></app-loading-button>
         <!-- Enlaces de "Olvidaste tu contraseña" y "Crear cuenta" -->
         <div class="form-links">
           <a href="/recupera" class="forgot-password">¿Olvidaste tu Contraseña?</a>

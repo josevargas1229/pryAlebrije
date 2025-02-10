@@ -1,4 +1,5 @@
-const LegalDocument = require('../models/LegalDocument');
+const { LegalDocument } = require('../models/associations');
+
 const mammoth = require('mammoth');
 const fs = require('fs');
 const sanitizeHtml = require('sanitize-html'); 

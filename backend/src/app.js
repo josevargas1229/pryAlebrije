@@ -19,6 +19,12 @@ const companyProfileRoutes = require('./routes/companyProfileRoutes');
 const emailTemplateRoutes = require('./routes/emailTemplateRoutes');
 const legalDocumentRoutes = require('./routes/legalDocumentRoutes');
 const configurationRoutes = require('./routes/configurationRoutes');
+const tallaRoutes = require('./routes/tallaRoutes');
+const colorRoutes = require('./routes/colorRoutes');
+const marcaRoutes = require('./routes/marcaRoutes');
+const tipoProductoRoutes = require('./routes/tipoProductoRoutes');
+const temporadaRoutes = require('./routes/temporadaRoutes');
+const productoRoutes = require('./routes/productRoutes');
 const { authenticateToken, authorize, ROLES } = require('./middlewares/auth');
 const app = express();
 app.set('trust proxy', true);
@@ -37,6 +43,7 @@ app.use(rateLimit);
 // Ruta para obtener el token CSRF
 app.get('/csrf-token', (req, res) => {
     const csrfToken = generateToken(req, res);
+    console.log("CSRF Token generado:", csrfToken);
     res.json({ csrfToken });
 });
 
@@ -62,8 +69,15 @@ app.use('/email-templates',authenticateToken, authorize(ROLES.ADMINISTRADOR), em
 app.use('/legal-documents', legalDocumentRoutes);
 app.use('/configuration',authenticateToken, authorize(ROLES.ADMINISTRADOR), configurationRoutes);
 app.use('/bloqueos',authenticateToken, authorize(ROLES.ADMINISTRADOR), bloqueosRoutes);
-app.use('/logs',authenticateToken, authorize(ROLES.ADMINISTRADOR), logsRoutes);
+app.use('/logs', authenticateToken, authorize(ROLES.ADMINISTRADOR), logsRoutes);
 app.use('/perfil',companyProfileRoutes);
+app.use('/talla', tallaRoutes);
+app.use('/color', colorRoutes);
+app.use('/marca', marcaRoutes);
+app.use('/tipoProducto', tipoProductoRoutes);
+app.use('/temporada', temporadaRoutes);
+app.use('/producto', productoRoutes);
+
 app.use(errorHandler);
 module.exports = app;
 

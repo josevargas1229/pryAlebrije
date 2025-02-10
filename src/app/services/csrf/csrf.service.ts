@@ -12,9 +12,7 @@ export class CsrfService {
   private csrfTokenUrl = `${environment.API_URL}/csrf-token`;
   public csrfToken: string = '';
 
-  constructor(private http: HttpClient) {
-    this.getCsrfToken().subscribe();
-  }
+  constructor(private http: HttpClient) {}
 
   // Obtener el token CSRF
   getCsrfToken(): Observable<string> {

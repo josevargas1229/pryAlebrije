@@ -1,0 +1,144 @@
+<div class="list-container">
+    <!-- Encabezado -->
+    <div class="header">
+        <h2>Listado de productos
+            <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Menu de opciones">
+                <mat-icon>more_vert</mat-icon>
+            </button>
+        </h2>
+        
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="navigateTo('add')">
+                <mat-icon>add</mat-icon>
+                <span>Agregar producto</span>
+            </button>
+            <button mat-menu-item (click)="navigateTo('eliminated')">
+                <mat-icon>delete</mat-icon>
+                <span>Productos eliminados</span>
+            </button>
+            <button mat-menu-item (click)="navigateTo('low-stock')">
+                <mat-icon>warning</mat-icon>
+                <span>Productos bajo stock</span>
+            </button>
+            <button mat-menu-item (click)="navigateTo('history')">
+                <mat-icon>history</mat-icon>
+                <span>Historial de movimientos</span>
+            </button>
+        </mat-menu>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filters">
+        <mat-form-field appearance="fill">
+            <mat-label>Estado</mat-label>
+            <mat-select [(value)]="filters.estado">
+                <mat-option value="">Todos</mat-option>
+                <mat-option [value]="true">Activos</mat-option>
+                <mat-option [value]="false">Inactivos</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Temporada</mat-label>
+            <mat-select [(value)]="filters.temporada_id">
+                <mat-option value="">Todas</mat-option>
+                <mat-option *ngFor="let temporada of temporadas" [value]="temporada.id">
+                    {{ temporada.nombre }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Categoría</mat-label>
+            <mat-select [(value)]="filters.categoria_id">
+                <mat-option value="">Todas</mat-option>
+                <mat-option *ngFor="let categoria of categorias" [value]="categoria.id">
+                    {{ categoria.nombre }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Tipo</mat-label>
+            <mat-select [(value)]="filters.tipo_id">
+                <mat-option value="">Todos</mat-option>
+                <mat-option *ngFor="let tipo of tipos" [value]="tipo.id">
+                    {{ tipo.nombre }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+            <mat-label>Marca</mat-label>
+            <mat-select [(value)]="filters.marca_id">
+                <mat-option value="">Todas</mat-option>
+                <mat-option *ngFor="let marca of marcas" [value]="marca.id">
+                    {{ marca.nombre }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <!-- Tabla de Productos -->
+    <table mat-table [dataSource]="filteredProducts" class="mat-elevation-z8">
+
+        <!-- ID -->
+        <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef> ID </th>
+            <td mat-cell *matCellDef="let producto"> {{producto.id}} </td>
+        </ng-container>
+
+        <!-- Categoría -->
+        <ng-container matColumnDef="categoria">
+            <th mat-header-cell *matHeaderCellDef> Categoría </th>
+            <td mat-cell *matCellDef="let producto"> {{producto.categoria_nombre}} </td>
+        </ng-container>
+
+        <!-- Marca -->
+        <ng-container matColumnDef="marca">
+            <th mat-header-cell *matHeaderCellDef> Marca </th>
+            <td mat-cell *matCellDef="let producto"> {{producto.marca_nombre}} </td>
+        </ng-container>
+
+        <!-- Precio -->
+        <ng-container matColumnDef="precio">
+            <th mat-header-cell *matHeaderCellDef> Precio </th>
+            <td mat-cell *matCellDef="let producto"> ${{producto.precio}} </td>
+        </ng-container>
+
+        <!-- Stock -->
+        <ng-container matColumnDef="stock">
+            <th mat-header-cell *matHeaderCellDef> Stock </th>
+            <td mat-cell *matCellDef="let producto"> {{producto.stock}} </td>
+        </ng-container>
+
+        <!-- Estado -->
+        <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef> Estado </th>
+            <td mat-cell *matCellDef="let producto">
+                <mat-chip [color]="producto.estado ? 'primary' : 'warn'" selected>
+                    {{ producto.estado ? 'Activo' : 'Inactivo' }}
+                </mat-chip>
+            </td>
+        </ng-container>
+
+        <!-- Acciones -->
+        <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef> Acciones </th>
+            <td mat-cell *matCellDef="let producto">
+                <button mat-icon-button (click)="previewProducto(producto.id)">
+                    <mat-icon>visibility</mat-icon>
+                </button>
+                <button mat-icon-button (click)="editProducto(producto.id)">
+                    <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button (click)="deleteProducto(producto.id)">
+                    <mat-icon>delete</mat-icon>
+                </button>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+</div>

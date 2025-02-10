@@ -1,0 +1,7 @@
+<div class="config-card-container">
+    <mat-card *ngFor="let option of configOptions" class="config-card" [routerLink]="[option.route]"
+        [queryParams]="option.queryParams">
+        <h3><mat-icon>{{ option.icon }}</mat-icon> {{ option.title }}</h3>
+        <p>{{ option.description }}</p>
+    </mat-card>
+</div>

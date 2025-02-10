@@ -1,4 +1,4 @@
-const ConfiguracionSistema = require("../models/Configuration");
+const {  ConfiguracionSistema } = require('../models/associations');
 
 
 // Obtener la configuración del sistema

@@ -1,43 +1,32 @@
 /* You can add global styles to this file, and also import other style files */
 /* Estilos generales de la aplicación */
+/* Estilos globales de la aplicación */
+html,
 body {
   font-family: 'Arial', sans-serif;
-  /* Fuente para la aplicación */
   margin: 0;
-  /* Elimina márgenes por defecto */
   padding: 0;
-  /* Elimina padding por defecto */
+  height: 100%;
   background-color: var(--mat-app-background-color);
-
-  /* Color de fondo de la página */
-  &::-webkit-scrollbar {
-    width: 6px;
-    /* Ancho de la barra de desplazamiento */
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: var(--mdc-filled-button-container-color);
-    /* Color del "pulgar" de la barra de desplazamiento */
-    border-radius: 10px;
-    /* Bordes redondeados */
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--mat-select-panel-background-color);
-    /* Color del fondo de la barra de desplazamiento */
-    border-radius: 10px;
-    /* Bordes redondeados para el fondo */
-  }
+  overflow: auto;
+  /* Asegura que el scroll esté activo cuando sea necesario */
 }
 
-/* Contenedor principal */
-.container {
-  max-width: 120px;
-  /* Ancho máximo del contenedor */
-  margin: auto;
-  /* Centra el contenedor horizontalmente */
-  padding: 1rem;
-  /* Espaciado interno del contenedor */
+/* Estilos del scrollbar para toda la aplicación */
+*::-webkit-scrollbar {
+  width: 6px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--mdc-filled-button-container-color);
+  border-radius: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--mat-select-panel-background-color);
+  border-radius: 10px;
+  border: 3px solid transparent; /* Asegura que el radio sea visible */
+  background-clip: padding-box;  /* Evita que el borde se solape con el fondo */
 }
 
 /* Estilos para títulos */
@@ -69,7 +58,6 @@ a:hover {
   /* Subrayado al pasar el mouse */
 }
 
-
 html,
 body {
   height: 100%;
@@ -84,9 +72,11 @@ body {
 .mat-toolbar {
   background-color: var(--mdc-fab-container-color) !important;
 }
+
 input[type="password"]::-ms-reveal {
   display: none;
 }
+
 /* Color de fondo para cards:
 background-color: var(--mat-select-panel-background-color);
 */

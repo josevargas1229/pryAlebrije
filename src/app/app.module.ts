@@ -14,13 +14,14 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 import { ToastService, AngularToastifyModule } from 'angular-toastify';
 import { ThemeSwitcherComponent } from './theme-switcher/theme-switcher.component';
 import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { PrivateModule } from '../../private/private.module';
+import { PrivateModule } from './private/private.module';
 import { RouterModule } from '@angular/router';
-import { DashboardComponent } from '../../private/dashboard/dashboard.component';
+import { DashboardComponent } from './private/dashboard/dashboard.component';
 import { SidebarComponent } from './shared/sidebar/sidebar.component';
 import { ErrorInterceptor } from './interceptors/error.interceptor';
-import { ErrorHandlerService } from './services/error-handler.service';
+import { ErrorHandlerService } from './services/error/error-handler.service';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { DashboardPanelComponent } from './components/dashboard-panel-component/dashboard-panel-component.component';
 
 @NgModule({
   declarations: [

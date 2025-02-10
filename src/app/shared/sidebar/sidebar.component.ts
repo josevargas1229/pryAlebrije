@@ -5,11 +5,14 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatNavList } from '@angular/material/list';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [MatIconModule, CommonModule, MatButtonModule, MatTooltipModule, RouterLink, RouterLinkActive],
+  imports: [MatIconModule, CommonModule, MatButtonModule, MatTooltipModule, RouterLink, RouterLinkActive,MatSidenavContainer,MatSidenav,MatToolbarModule,MatNavList,MatSidenavContent],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })

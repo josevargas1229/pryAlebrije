@@ -1,7 +1,5 @@
 const { Op, fn, col } = require('sequelize');
-const HistorialBloqueos = require('../models/Bloqueos');
-const Account = require('../models/Account');
-const IntentoFallido = require('../models/IntentoFallido');
+const { Account, IntentoFallido, HistorialBloqueos } = require('../models/associations');
 
 // Controlador para manejar el historial de bloqueos
 class BloqueosController {

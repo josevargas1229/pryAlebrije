@@ -14,6 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { RecaptchaModule, RecaptchaFormsModule, RecaptchaComponent } from 'ng-recaptcha-2';
 import { environment } from '../../../environments/environment';
+import { LoadingButtonComponent } from '../../components/loading-button/loading-button.component';
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -28,7 +29,8 @@ import { environment } from '../../../environments/environment';
     MatProgressSpinnerModule,
     MatCardModule,
     RecaptchaFormsModule,
-    RecaptchaModule
+    RecaptchaModule,
+    LoadingButtonComponent
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'

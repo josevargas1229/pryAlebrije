@@ -2,8 +2,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  margin: 1rem 0;
   padding: 0 1rem; // Agregado para evitar que se corte en pantallas pequeñas
 }
 
@@ -56,15 +54,9 @@ mat-form-field {
   margin-bottom: 20px;
 }
 
-.button-container {
+app-loading-button{
   margin-top: 20px;
 }
-
-.login-btn {
-  width: 100%;
-  padding: 10px;
-}
-
 .form-links {
   display: flex;
   justify-content: space-between;

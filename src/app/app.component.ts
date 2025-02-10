@@ -6,7 +6,7 @@ import { SidebarComponent } from './shared/sidebar/sidebar.component';
 import { AngularToastifyModule, ToastService } from 'angular-toastify';
 import { AuthService } from './services/auth/auth.service';
 import { ScrollToTopComponent } from "./scroll-to-top/scroll-to-top.component";
-import { CompanyService } from '../../private/services/company.service.ts.service';
+import { CompanyService } from './private/services/company.service.ts.service';
 import { Title } from '@angular/platform-browser';
 import { BreadcrumbModule } from 'primeng/breadcrumb'; // Importación de PrimeNG
 import { filter, map } from 'rxjs/operators';

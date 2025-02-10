@@ -1,0 +1,6 @@
+<div class="button-container">
+    <button mat-stroked-button [color]="color" [type]="type" [disabled]="disabled || loading" class="login-btn">
+        <span *ngIf="!loading">{{ text }}</span>
+        <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+    </button>
+</div>

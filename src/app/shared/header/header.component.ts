@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ThemeSwitcherComponent } from "../../theme-switcher/theme-switcher.component";
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { CompanyService } from '../../../../private/services/company.service.ts.service';
+import { CompanyService } from '../../private/services/company.service.ts.service';
 import { SearchService } from '../../services/search.service';
 import { FormsModule } from '@angular/forms';
 

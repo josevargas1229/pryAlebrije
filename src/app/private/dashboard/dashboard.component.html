@@ -1,0 +1,55 @@
+<div class="admin-dashboard">
+  <lib-toastify-toast-container></lib-toastify-toast-container>
+  <!-- Barra lateral de navegación -->
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #sidenav mode="side" class="sidenav" [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile">
+      <h2>Menú</h2>
+      <mat-nav-list>
+        <a mat-fab extended routerLink="/admin/inicio" routerLinkActive="active-link" class="example-button-container">
+          <mat-icon>home</mat-icon>
+          Inicio
+        </a>
+        <a mat-fab extended routerLink="/admin/legal" routerLinkActive="active-link" class="example-button-container">
+          <mat-icon>gavel</mat-icon>
+          Legal
+        </a>
+        <a mat-fab extended routerLink="/admin/sistema" routerLinkActive="active-link" class="example-button-container">
+          <mat-icon>settings</mat-icon>
+          Sistema
+        </a>
+        <a mat-fab extended routerLink="/admin/empresa" routerLinkActive="active-link" class="example-button-container">
+          <mat-icon>business</mat-icon>
+          Empresa
+        </a>
+        <a mat-fab extended routerLink="/admin/correos" routerLinkActive="active-link" class="example-button-container">
+          <mat-icon>email</mat-icon>
+          Correos
+        </a>
+        <a mat-fab extended routerLink="/admin/bloqueos" routerLinkActive="active-link" class="example-button-container">
+          <mat-icon>lock</mat-icon>
+          Bloqueos
+        </a>
+        <a mat-fab extended routerLink="/admin/incidencias" routerLinkActive="active-link" class="example-button-container">
+          <mat-icon>history</mat-icon>
+          Incidencias
+        </a>
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <!-- Contenido principal -->
+    <mat-sidenav-content class="main-content">
+      <mat-toolbar color="primary" *ngIf="isMobile">
+        <button mat-icon-button (click)="sidenav.toggle()" *ngIf="isMobile">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <span>Menú</span>
+      </mat-toolbar>
+      
+      
+
+      <main class="main-content router">
+        <router-outlet></router-outlet>
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

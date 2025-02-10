@@ -3,6 +3,24 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  height: 100vh; 
+}
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.layout {
+  flex: 1;
+  display: flex;
+  position: relative;
+}
+.sidebar-wrapper {
+  width: 120px;
+  position: relative;
+  height: 100%;
 }
 
 /* Estilo para el contenedor de migas de pan */
@@ -42,20 +60,12 @@
 }
 
 /* Estilos adicionales para el contenido principal */
-.layout {
+.sidebar {
+  min-height: 100%;
+  height: 100%;
   display: flex;
-  flex: 1;
-  overflow: hidden; // Previene desbordamientos
-}
-
-app-sidebar {
-  width: 120px;
+  flex-direction: column;
   flex-shrink: 0;
-  overflow-y: auto; /* Permite scroll vertical en la barra lateral */
-  max-height: 100%; /* Asegura que no supere la altura del contenedor padre */
-  position: sticky; /* Mantiene la barra lateral en su posición */
-  top: 0; /* Fija la barra lateral en la parte superior */
-  min-height: 100vh;
 }
 
 .main-content {
@@ -63,18 +73,16 @@ app-sidebar {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-  overflow-y: auto; // Permite scroll si el contenido es muy largo
+  overflow-y: auto;
+  height: 100%;
+  min-height: 100%;
 }
-
+app-sidebar{
+  display: flex;
+}
 /* Estilos responsivos */
 @media (max-width: 768px) {
   app-sidebar {
     width: 60px; // Reduce el ancho en pantallas pequeñas
   }
-}
-
-// Asegura que los componentes hijos ocupen todo el espacio
-.layout > * {
-  height: 100%;
 }

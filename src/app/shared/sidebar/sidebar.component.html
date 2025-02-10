@@ -1,115 +1,96 @@
-<div class="sidebar">
-  <!-- Home (siempre visible) -->
-  <a 
-    routerLink="/" 
-    routerLinkActive="active"
-    [routerLinkActiveOptions]="{ exact: true }"
-    aria-label="Home"
-    matTooltip="Ir a la página principal">
-    <mat-icon>home</mat-icon>
-    <span>Home</span>
-  </a>
-
-  <!-- Catálogo (siempre visible) -->
-  <a 
-    routerLink="/productos" 
-    routerLinkActive="active" 
-    aria-label="Catálogo" 
-    matTooltip="Ver catálogo de productos">
-    <mat-icon>category</mat-icon>
-    <span>Catálogo</span>
-  </a>
-
-  <!-- Para usuarios no autenticados -->
-  <ng-container *ngIf="!isLoggedIn">
-    <a 
-      routerLink="/login" 
-      routerLinkActive="active" 
-      aria-label="Login" 
-      matTooltip="Iniciar sesión">
-      <mat-icon>login</mat-icon>
-      <span>Login</span>
-    </a>
-
-    <a 
-      routerLink="/register" 
-      routerLinkActive="active" 
-      aria-label="Registro" 
-      matTooltip="Crear una nueva cuenta">
-      <mat-icon>person_add</mat-icon>
-      <span>Registro</span>
-    </a>
-  </ng-container>
-
-  <!-- Para usuarios autenticados -->
-  <ng-container *ngIf="isLoggedIn">
-    <!-- Administrador (role 1) -->
-    <ng-container *ngIf="userRole === 1">
-      <a 
-        routerLink="/admin" 
-        routerLinkActive="active" 
-        aria-label="Admin" 
-        matTooltip="Panel de administrador">
-        <mat-icon>admin_panel_settings</mat-icon>
-        <span>Admin</span>
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #sidenav mode="side" opened class="sidenav">
+    <mat-nav-list>
+      <!-- Home -->
+      <a mat-list-item routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+        matTooltip="Ir a la página principal">
+        <mat-icon matListIcon>home</mat-icon>
+        <span matLine>Home</span>
       </a>
-    </ng-container>
 
-    <!-- Empleado (role 2) -->
-    <ng-container *ngIf="userRole === 2">
-      <a 
-        routerLink="/ventas" 
-        routerLinkActive="active" 
-        aria-label="Ventas" 
-        matTooltip="Ir a ventas">
-        <mat-icon>monetization_on</mat-icon>
-        <span>Ventas</span>
+      <!-- Catálogo -->
+      <a mat-list-item routerLink="/productos" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+        matTooltip="Ver catálogo de productos">
+        <mat-icon matListIcon>category</mat-icon>
+        <span matLine>Catálogo</span>
       </a>
-    </ng-container>
 
-    <!-- Cliente (role 3) -->
-    <ng-container *ngIf="userRole === 3">
-      <a 
-        routerLink="/mis-compras" 
-        routerLinkActive="active" 
-        aria-label="Mis Compras" 
-        matTooltip="Ver mis compras">
-        <mat-icon>shopping_basket</mat-icon>
-        <span>Mis Compras</span>
-      </a>
-      <a 
-        routerLink="/ofertas" 
-        routerLinkActive="active" 
-        aria-label="Ofertas" 
-        matTooltip="Ver ofertas disponibles">
-        <mat-icon>local_offer</mat-icon>
-        <span>Ofertas</span>
-      </a>
-      <a 
-        routerLink="/creditos" 
-        routerLinkActive="active" 
-        aria-label="Créditos" 
-        matTooltip="Ver mis créditos">
-        <mat-icon>credit_card</mat-icon>
-        <span>Créditos</span>
-      </a>
-    </ng-container>
+      <!-- No autenticados -->
+      <ng-container *ngIf="!isLoggedIn">
+        <a mat-list-item routerLink="/login" routerLinkActive="active" matTooltip="Iniciar sesión">
+          <mat-icon matListIcon>login</mat-icon>
+          <span matLine>Login</span>
+        </a>
 
-    <!-- Logout (para todos los usuarios autenticados) -->
-    <a 
-      routerLink="/perfil" 
-      routerLinkActive="active"
-      aria-label="Perfil" 
-      matTooltip="Ir a mi perfil">
-      <mat-icon>person</mat-icon>
-      <span>Mi perfil</span>
-    </a>
-    <a 
-      aria-label="Logout" 
-      (click)="logout()" 
-      matTooltip="Cerrar sesión">
-      <mat-icon>logout</mat-icon>
-      <span>Logout</span>
-    </a>
-  </ng-container>
-</div>
+        <a mat-list-item routerLink="/register" routerLinkActive="active" matTooltip="Crear una nueva cuenta">
+          <mat-icon matListIcon>person_add</mat-icon>
+          <span matLine>Registro</span>
+        </a>
+      </ng-container>
+
+      <!-- Autenticados -->
+      <ng-container *ngIf="isLoggedIn">
+        <!-- Administrador -->
+        <ng-container *ngIf="userRole === 1">
+          <a mat-list-item routerLink="/admin/productos/list" routerLinkActive="active" matTooltip="Gestión de productos">
+            <mat-icon matListIcon>inventory</mat-icon>
+            <span matLine>Productos</span>
+          </a>
+
+          <a mat-list-item routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+            matTooltip="Panel de administrador">
+            <mat-icon matListIcon>admin_panel_settings</mat-icon>
+            <span matLine>Admin</span>
+          </a>
+        </ng-container>
+
+        <!-- Empleado -->
+        <ng-container *ngIf="userRole === 2">
+          <a mat-list-item routerLink="/ventas" routerLinkActive="active" matTooltip="Ir a ventas">
+            <mat-icon matListIcon>monetization_on</mat-icon>
+            <span matLine>Ventas</span>
+          </a>
+        </ng-container>
+
+        <!-- Cliente -->
+        <ng-container *ngIf="userRole === 3">
+          <a mat-list-item routerLink="/mis-compras" routerLinkActive="active" matTooltip="Ver mis compras">
+            <mat-icon matListIcon>shopping_basket</mat-icon>
+            <span matLine>Mis Compras</span>
+          </a>
+
+          <a mat-list-item routerLink="/ofertas" routerLinkActive="active" matTooltip="Ver ofertas disponibles">
+            <mat-icon matListIcon>local_offer</mat-icon>
+            <span matLine>Ofertas</span>
+          </a>
+
+          <a mat-list-item routerLink="/creditos" routerLinkActive="active" matTooltip="Ver mis créditos">
+            <mat-icon matListIcon>credit_card</mat-icon>
+            <span matLine>Créditos</span>
+          </a>
+        </ng-container>
+
+        <!-- Perfil y Logout -->
+        <a mat-list-item routerLink="/perfil" routerLinkActive="active" matTooltip="Ir a mi perfil">
+          <mat-icon matListIcon>person</mat-icon>
+          <span matLine>Mi perfil</span>
+        </a>
+
+        <a mat-list-item (click)="logout()" matTooltip="Cerrar sesión">
+          <mat-icon matListIcon>logout</mat-icon>
+          <span matLine>Logout</span>
+        </a>
+      </ng-container>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <button mat-icon-button (click)="sidenav.toggle()" aria-label="Toggle sidebar">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span>Página Principal</span>
+    </mat-toolbar>
+    
+  </mat-sidenav-content>
+</mat-sidenav-container>

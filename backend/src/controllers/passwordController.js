@@ -1,13 +1,9 @@
 const fs = require('fs');
 const path = require('path');
-const VerificationCode = require('../models/VerificationCode');
-const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
-const PassHistory = require('../models/PasswordHistory');
-const Account = require('../models/Account');
-const EmailTemplate = require('../models/EmailTemplate');
 const { Op } = require('sequelize');
+const { User, Account, PassHistory, VerificationCode, EmailTemplate } = require('../models/associations');
 
 // Cargar la lista de contraseñas al iniciar el controlador
 let passwordList = new Set();

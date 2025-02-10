@@ -1,5 +1,5 @@
-const User = require('../models/User');
-const EmailType = require('../models/EmailType');
+const { User, EmailType } = require('../models/associations');
+
 exports.getAllTypes = async (req, res) => {
     try {
         const types = await EmailType.findAll({

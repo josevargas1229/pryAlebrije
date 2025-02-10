@@ -1,7 +1,6 @@
 import { Component, AfterViewInit } from '@angular/core';
-import { ThemeService } from '../services/theme.service';
+import { ThemeService } from '../services/theme/theme.service';
 import { MatOptionModule } from '@angular/material/core';
-import { MatLabel } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatRadioModule } from '@angular/material/radio';
@@ -15,7 +14,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 @Component({
   selector: 'app-theme-switcher',
   standalone: true,
-  imports: [MatFormFieldModule, MatOptionModule, MatLabel, MatSelectModule, MatRadioModule, CommonModule, FormsModule, MatMenuModule, MatIconButton, MatIcon,MatTooltip],
+  imports: [MatFormFieldModule, MatOptionModule, MatSelectModule, MatRadioModule, CommonModule, FormsModule, MatMenuModule, MatIconButton, MatIcon, MatTooltip],
   templateUrl: './theme-switcher.component.html',
   styleUrls: ['./theme-switcher.component.scss']
 })
@@ -35,7 +34,7 @@ export class ThemeSwitcherComponent implements AfterViewInit {
     this.themeService.initThemeLink();
 
     // Recupera el tema seleccionado del localStorage si existe
-    const savedTheme = this.themeService.isBrowser()?localStorage.getItem('theme-storage-current-name'):'azure-blue';
+    const savedTheme = this.themeService.isBrowser() ? localStorage.getItem('theme-storage-current-name') : 'azure-blue';
     if (savedTheme) {
       this.selectedTheme = savedTheme;
     }

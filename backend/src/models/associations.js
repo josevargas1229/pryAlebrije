@@ -21,7 +21,7 @@ const ImagenProducto = require('./ImagenProducto');
 const Carrito = require('./Carrito');
 const DetalleCarrito = require('./DetalleCarrito');
 const CalificacionProducto = require('./CalificacionProducto');
-
+const LegalDocument = require('./LegalDocument');
 // Definir la asociación entre User y Rol
 Rol.hasMany(User, { foreignKey: 'rol_id' });
 User.belongsTo(Rol, { foreignKey: 'rol_id' });
@@ -114,5 +114,6 @@ module.exports = {
     ImagenProducto,
     Carrito,
     DetalleCarrito,
-    CalificacionProducto
+    CalificacionProducto,
+    LegalDocument
 };

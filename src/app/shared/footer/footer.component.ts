@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { CompanyService } from '../../../../private/services/company.service.ts.service';
+import { CompanyService } from '../../private/services/company.service.ts.service';
 import { CommonModule } from '@angular/common';
 
 @Component({
