@@ -23,16 +23,16 @@
         <div class="footer-section contact">
           <h3 class="footer-title">Contacto</h3>
           <div class="footer-contact">
-            <span>Email: {{ companyInfo.email }}</span>
-            <span>Teléfono: {{ companyInfo.telefono }}</span>
-            <span>Dirección: {{ companyInfo.direccion }}</span>
+            <span>Email: {{ companyInfo?.email }}</span>
+            <span>Teléfono: {{ companyInfo?.telefono }}</span>
+            <span>Dirección: {{ companyInfo?.direccion }}</span>
           </div>
         </div>
       </div>
 
       <!-- Ícono de red social con enlace -->
       <div>
-        <a *ngIf="companyInfo.redSocial" [href]="companyInfo.redSocial" target="_blank">
+        <a *ngIf="companyInfo?.redSocial" [href]="companyInfo?.redSocial" target="_blank">
           <img width="48" height="48" src="https://img.icons8.com/fluency/48/facebook-new.png" alt="facebook-new" />
         </a>
       </div>

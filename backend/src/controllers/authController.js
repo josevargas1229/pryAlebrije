@@ -53,7 +53,7 @@ async function checkAccountLock(account, tiempoBloqueoMinutos) {
     if (account.bloqueada) {
         const tiempoDesbloqueo = new Date(account.bloqueada_desde);
         tiempoDesbloqueo.setMinutes(tiempoDesbloqueo.getMinutes() + tiempoBloqueoMinutos);
-
+        
         if (new Date() < tiempoDesbloqueo) {
             return { locked: true, tiempoDesbloqueo };
         } else {
@@ -72,71 +72,77 @@ exports.login = async (req, res, next) => {
     try {
         const { email, contraseña } = req.body.credenciales;
         const { captchaToken } = req.body;
-        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        let ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+        if (ip === "::1") ip = "127.0.0.1"; // Manejo de localhost en IPv6
 
-        const configuracion = await ConfiguracionSistema.findOne();
+        const [configuracion, user] = await Promise.all([
+            ConfiguracionSistema.findOne(),
+            User.findOne({
+                where: { email },
+                include: [{ model: Account, attributes: ["id", "contraseña_hash", "bloqueada", "bloqueada_desde", "verified"] }]
+            })
+        ]);
+        
         if (!configuracion) {
-            return res.status(500).json({ message: 'No se pudo obtener la configuración del sistema.' });
+            return res.status(500).json({ message: "Error en la configuración del sistema." });
         }
-
-        const { max_intentos_login, tiempo_bloqueo_minutos } = configuracion;
-
-        const score = await createAssessment({ 
-            projectID: process.env.PROJECT_ID, 
-            recaptchaKey: process.env.RECAPTCHA_KEY, 
-            token: captchaToken, 
-            recaptchaAction: "LOGIN" 
-        });
-
-        if (score === null || score < 0.5) {
-            return res.status(400).json({ message: 'Fallo en la verificación de reCAPTCHA. Intente nuevamente.' });
-        }
-
-        const user = await User.findOne({
-            where: { email },
-            include: [{ model: Account, attributes: ['id', 'nombre_usuario', 'contraseña_hash', 'bloqueada', 'bloqueada_desde', 'verified'] }]
-        });
-
+        
         if (!user) {
-            return res.status(401).json({ message: 'Credenciales inválidas' });
+            return res.status(401).json({ message: "Credenciales inválidas" });
         }
-
+        
+        const { max_intentos_login, tiempo_bloqueo_minutos } = configuracion;
+        
         const { locked, tiempoDesbloqueo } = await checkAccountLock(user.Account, tiempo_bloqueo_minutos);
         if (locked) {
-            return res.status(403).json({ message: `Cuenta bloqueada. Intente nuevamente después de ${tiempoDesbloqueo.toLocaleTimeString()}` });
+            return res.status(403).json({ message: `Cuenta bloqueada hasta ${tiempoDesbloqueo.toLocaleTimeString()}` });
         }
 
-        const intentosFallidos = await IntentoFallido.count({ where: { account_id: user.Account.id } });
+        const [intentosFallidos, score] = await Promise.all([
+            IntentoFallido.count({ where: { account_id: user.Account.id } }),
+            createAssessment({
+                projectID: process.env.PROJECT_ID,
+                recaptchaKey: process.env.RECAPTCHA_KEY,
+                token: captchaToken,
+                recaptchaAction: "LOGIN"
+            })
+        ]);
+        
+        if (score === null || score < 0.5) {
+            return res.status(400).json({ message: "Fallo en reCAPTCHA. Intente nuevamente." });
+        }
+        
         if (intentosFallidos >= max_intentos_login) {
             await user.Account.update({ bloqueada: true, bloqueada_desde: new Date() });
             await HistorialBloqueos.create({ account_id: user.Account.id, intentos: intentosFallidos, fechaBloqueo: new Date() });
-            return res.status(403).json({ message: 'Cuenta bloqueada debido a demasiados intentos fallidos.' });
+            return res.status(403).json({ message: "Cuenta bloqueada por intentos fallidos." });
         }
-
+        
         const isMatch = await bcrypt.compare(contraseña, user.Account.contraseña_hash);
         if (!isMatch) {
             await handleFailedLogin(user.Account.id, ip);
-            return res.status(401).json({ message: 'Credenciales inválidas' });
+            return res.status(401).json({ message: "Credenciales inválidas" });
         }
 
-        await IntentoFallido.destroy({ where: { account_id: user.Account.id } });
-        await user.Account.update({ ultimo_acceso: new Date() });
-
+        await Promise.all([
+            IntentoFallido.destroy({ where: { account_id: user.Account.id } }),
+            user.Account.update({ ultimo_acceso: new Date() })
+        ]);
+        
         const token = jwt.sign(
             { userId: user.id, tipo: user.rol_id },
             process.env.JWT_SECRET,
-            { expiresIn: '1h' }
+            { expiresIn: "1h" }
         );
 
-        res.cookie('token', token, {
+        res.cookie("token", token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict',
+            secure: process.env.NODE_ENV === "production",
+            sameSite: process.env.NODE_ENV === "production" ? "None" : "Strict",
             maxAge: 3600000
         });
 
         res.json({ userId: user.id, tipo: user.rol_id, verified: user.Account.verified });
-
     } catch (error) {
         next(error);
     }
@@ -374,7 +380,7 @@ exports.completeEmailVerification = async (req, res,next) => {
             where: { id: decoded.userId },
             include: [{
                 model: Account,
-                attributes: ['id', 'nombre_usuario', 'bloqueada']
+                attributes: ['id', 'bloqueada']
             }],
             attributes: ['id', 'email', 'rol_id']
         });

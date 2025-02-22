@@ -37,6 +37,14 @@
           }
         }
       }
+    },
+    {
+      "type": "npm",
+      "script": "dev",
+      "path": "backend",
+      "problemMatcher": [],
+      "label": "npm: dev - backend",
+      "detail": "nodemon server.js"
     }
   ]
 }

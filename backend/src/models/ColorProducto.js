@@ -10,6 +10,13 @@ const ColorProducto = sequelize.define('ColorProducto', {
     color: {
         type: DataTypes.STRING(50),
         allowNull: false
+    },
+    colorHex: {
+        type: DataTypes.STRING(7),
+        allowNull: false,
+        validate: {
+            is: /^#([0-9A-Fa-f]{6})$/
+        }
     }
 }, {
     tableName: 'colores_productos',

@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, switchMap } from 'rxjs';
 import { environment } from '../../../../../src/environments/environment.development';
-import { CsrfService } from '../../../../../src/app/services/csrf/csrf.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,30 +9,19 @@ import { CsrfService } from '../../../../../src/app/services/csrf/csrf.service';
 export class BloqueosService {
   private apiUrl = `${environment.API_URL}/bloqueos`;
 
-  constructor(private http: HttpClient, private csrfService:CsrfService) { }
+  constructor(private http: HttpClient) { }
 
   obtenerUsuariosBloqueados(periodo?: string): Observable<any> {
     let params = new HttpParams();
     if (periodo) {
       params = params.set('periodo', periodo);
     }
-
-    return this.http.get<any>(`${this.apiUrl}/`, { params,withCredentials:true });
+    return this.http.get<any>(`${this.apiUrl}/`, { params, withCredentials: true });
   }
 
   bloquearUsuario(userId: number): Observable<any> {
-    return this.csrfService.getCsrfToken().pipe(
-      switchMap(csrfToken => {
-        return this.http.post<any>(`${this.apiUrl}/`, { account_id: userId }, {
-          headers: {
-            'x-csrf-token': csrfToken
-          },
-          withCredentials: true
-        });
-      })
-    );
+    return this.http.post<any>(`${this.apiUrl}/`, { account_id: userId }, { withCredentials: true });
   }
-
 
   obtenerBloqueosRecientes(dias?: number, cantidad?: number): Observable<any> {
     let params = new HttpParams();
@@ -43,7 +31,6 @@ export class BloqueosService {
     if (cantidad) { // Añadir la condición para cantidad
       params = params.set('cantidad', cantidad.toString());
     }
-
-    return this.http.get<any>(`${this.apiUrl}/recientes`, { params,withCredentials:true });
+    return this.http.get<any>(`${this.apiUrl}/recientes`, { params, withCredentials: true });
   }
 }

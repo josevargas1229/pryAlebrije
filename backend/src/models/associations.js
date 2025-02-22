@@ -15,6 +15,7 @@ const TipoProducto = require('./TipoProducto');
 const Marca = require('./Marca');
 const Talla = require('./Talla');
 const ColorProducto = require('./ColorProducto');
+const ProductoTallaColor = require('./ProductoTallaColor');
 const Promocion = require('./Promocion');
 const PromocionProducto = require('./PromocionProducto');
 const ImagenProducto = require('./ImagenProducto');
@@ -22,15 +23,34 @@ const Carrito = require('./Carrito');
 const DetalleCarrito = require('./DetalleCarrito');
 const CalificacionProducto = require('./CalificacionProducto');
 const LegalDocument = require('./LegalDocument');
+const Empleado = require('./Empleado');
 // Definir la asociación entre User y Rol
 Rol.hasMany(User, { foreignKey: 'rol_id' });
 User.belongsTo(Rol, { foreignKey: 'rol_id' });
+// Asociación entre User y Empleado
+User.hasOne(Empleado, { foreignKey: 'usuario_id' });
+Empleado.belongsTo(User, { foreignKey: 'usuario_id' });
+// Asociación entre Producto y ProductoTallaColor
+Product.hasMany(ProductoTallaColor, { foreignKey: 'producto_id' });
+ProductoTallaColor.belongsTo(Product, { foreignKey: 'producto_id' });
 
-// Asociaciones de Categoria
+// Asociación entre Talla y ProductoTallaColor
+Talla.hasMany(ProductoTallaColor, { foreignKey: 'talla_id' });
+ProductoTallaColor.belongsTo(Talla, { foreignKey: 'talla_id' });
+
+// Asociación entre ColorProducto y ProductoTallaColor
+ColorProducto.hasMany(ProductoTallaColor, { foreignKey: 'color_id' });
+ProductoTallaColor.belongsTo(ColorProducto, { foreignKey: 'color_id' });
+
+// Asociaciones de Promociones
+Promocion.belongsToMany(Product, { through: PromocionProducto, foreignKey: 'promocion_id' });
+Product.belongsToMany(Promocion, { through: PromocionProducto, foreignKey: 'producto_id' });
+
+// Asociaciones de Categoría
 Categoria.hasMany(Product, { foreignKey: 'categoria_id' });
 Product.belongsTo(Categoria, { foreignKey: 'categoria_id' });
 
-// Asociaciones de Producto
+// Asociaciones de Marca, Tipo y Temporada
 Temporada.hasMany(Product, { foreignKey: 'temporada_id' });
 Product.belongsTo(Temporada, { foreignKey: 'temporada_id' });
 
@@ -39,16 +59,6 @@ Product.belongsTo(TipoProducto, { foreignKey: 'tipo_id' });
 
 Marca.hasMany(Product, { foreignKey: 'marca_id' });
 Product.belongsTo(Marca, { foreignKey: 'marca_id' });
-
-Talla.hasMany(Product, { foreignKey: 'talla_id' });
-Product.belongsTo(Talla, { foreignKey: 'talla_id' });
-
-ColorProducto.hasMany(Product, { foreignKey: 'color_id' });
-Product.belongsTo(ColorProducto, { foreignKey: 'color_id' });
-
-// Asociaciones de Promociones
-Promocion.belongsToMany(Product, { through: PromocionProducto, foreignKey: 'promocion_id' });
-Product.belongsToMany(Promocion, { through: PromocionProducto, foreignKey: 'producto_id' });
 
 // Asociaciones de Imagenes
 Product.hasMany(ImagenProducto, { foreignKey: 'producto_id' });
@@ -115,5 +125,7 @@ module.exports = {
     Carrito,
     DetalleCarrito,
     CalificacionProducto,
-    LegalDocument
+    LegalDocument,
+    ProductoTallaColor,
+    Empleado
 };

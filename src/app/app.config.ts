@@ -3,8 +3,10 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
-import { provideHttpClient, withFetch, withXsrfConfiguration } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptors, withXsrfConfiguration } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { csrfInterceptor } from './interceptors/csrf.interceptor';
+import { errorInterceptor } from './interceptors/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -14,6 +16,7 @@ export const appConfig: ApplicationConfig = {
         cookieName: 'x-csrf-token',
         headerName: 'x-csrf-token',
       }),
+      withInterceptors([csrfInterceptor, errorInterceptor]),
     ),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
