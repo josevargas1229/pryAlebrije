@@ -12,8 +12,9 @@
                     <mat-form-field appearance="outline">
                         <mat-label>Temporada</mat-label>
                         <mat-select formControlName="temporada">
-                            <mat-option *ngFor="let temp of temporadas" [value]="temp.id">{{ temp.temporada
-                                }}</mat-option>
+                            <mat-option *ngFor="let temp of temporadas" [value]="temp.id">
+                                {{ temp.temporada }}
+                            </mat-option>
                         </mat-select>
                     </mat-form-field>
                     <button mat-icon-button color="primary" type="button" (click)="openDialog('temporada')">
@@ -93,10 +94,10 @@
                         <ng-container matColumnDef="color">
                             <th mat-header-cell *matHeaderCellDef> Colores </th>
                             <td mat-cell *matCellDef="let element">
-                                    <span [style.background-color]="element.coloresStock.colorHex"
-                                        style="width: 15px; height: 15px; display: inline-block; border-radius: 50%; margin-right: 5px;">
-                                    </span>
-                                    {{ element.coloresStock.color }} ({{ element.coloresStock.stock }})
+                                <span [style.background-color]="element.coloresStock.colorHex"
+                                    style="width: 15px; height: 15px; display: inline-block; border-radius: 50%; margin-right: 5px;">
+                                </span>
+                                {{ element.coloresStock.color }} ({{ element.coloresStock.stock }})
                             </td>
                         </ng-container>
 
@@ -108,7 +109,8 @@
                         <ng-container matColumnDef="acciones">
                             <th mat-header-cell *matHeaderCellDef> Acciones </th>
                             <td mat-cell *matCellDef="let element; let i = index">
-                                <button mat-icon-button type="button" color="primary" (click)="editTallaColor(element, i)">
+                                <button mat-icon-button type="button" color="primary"
+                                    (click)="editTallaColor(element, i)">
                                     <mat-icon>edit</mat-icon>
                                 </button>
                                 <button mat-icon-button type="button" color="warn" (click)="deleteTallaColor(i)">

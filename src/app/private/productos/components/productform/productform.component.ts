@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -12,7 +12,7 @@ import { MatTableDataSource } from '@angular/material/table';
   styleUrl: './productform.component.scss'
 })
 export class ProductformComponent implements OnInit {
-  @Input() producto: any = null;
+  @Input() producto: any = {};
   @Input() titulo: string = 'Formulario de producto';
   @Output() guardar = new EventEmitter<FormData>();
   @Output() cancelarForm = new EventEmitter<void>();
@@ -47,6 +47,7 @@ export class ProductformComponent implements OnInit {
     // Si hay un producto, cargar sus valores en el formulario
     if (this.producto) {
       this.productoForm.patchValue(this.producto);
+      console.log('Producto:', this.producto);
     }
 
     // Llamar al servicio para obtener los filtros dinámicos
@@ -58,17 +59,53 @@ export class ProductformComponent implements OnInit {
         this.marcas = data.marcas;
         this.tallas = data.tallas;
         this.colores = data.colores;
-        // Agregar colores al FormArray
-        this.coloresArray.clear();
-        this.colores.forEach(color => {
-          this.coloresArray.push(this.fb.control(color));
-        });
+        
       },
       error: (error) => {
         console.error('Error al obtener los filtros:', error);
         this.snackBar.open('Error al cargar los filtros', 'Cerrar', { duration: 3000 });
       }
     });
+  }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['producto'] && changes['producto'].currentValue) {
+      console.log('Producto actualizado:', this.producto);
+      console.log(this.producto.tallasColoresStock);
+      // Parchear los valores extraídos del objeto recibido
+      this.productoForm.patchValue({
+        temporada: this.producto.temporada.id || '',
+        categoria: this.producto.categoria.id || '',
+        tipo: this.producto.tipo.id || '',
+        marca: this.producto.marca.id || '',
+        precio: this.producto.precio || 0,
+        stock: this.producto.stock || 0,
+        estado: this.producto.estado || false
+      });
+  
+      // Si tienes un array de tallas y colores, actualízalo también
+      this.actualizarTallasColores();
+    }
+  }
+  
+  actualizarTallasColores() {
+    this.tallasColoresStockArray.clear(); // Limpiar array antes de insertar nuevos valores
+  
+    if (this.producto.tallasColoresStock && this.producto.tallasColoresStock.length) {
+      this.producto.tallasColoresStock.forEach(tc => {
+        this.tallasColoresStockArray.push(this.fb.group({
+          talla: [tc.talla || '', Validators.required],
+          coloresStock: this.fb.group({
+            id: [tc.coloresStock?.id || '', Validators.required],
+            color: [tc.coloresStock?.color || '', Validators.required],
+            colorHex: [tc.coloresStock?.colorHex || ''],
+            stock: [tc.stock || 0, [Validators.required, Validators.min(0)]]
+          })
+        }));
+      });
+  
+      this.dataSource.data = this.tallasColoresStockArray.controls.map(control => control.value);
+      console.log('Tabla actualizada con:', this.dataSource.data);
+    }
   }
 
   get tallasColoresStockArray(): FormArray {

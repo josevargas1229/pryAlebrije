@@ -121,3 +121,134 @@ exports.getAllProductos = async (req, res) => {
         res.status(500).json({ message: 'Error al obtener productos' });
     }
 };
+exports.updateProducto = async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+        const { id } = req.params;
+        const { temporada_id, categoria_id, tipo_id, marca_id, variantes, precio, estado, calificacion } = req.body;
+        const { userId: userIdFromToken } = req.user;
+
+        const empleado = await Empleado.findOne({
+            where: { usuario_id: userIdFromToken },
+            transaction
+        });
+
+        if (!empleado) {
+            return res.status(404).json({ message: "Empleado no encontrado para este usuario." });
+        }
+
+        const updatedBy = empleado.dataValues.id;
+
+        const producto = await Product.findByPk(id, { transaction });
+        if (!producto) {
+            return res.status(404).json({ message: "Producto no encontrado." });
+        }
+
+        await producto.update({
+            temporada_id,
+            categoria_id,
+            tipo_id,
+            marca_id,
+            precio,
+            estado,
+            calificacion,
+            updated_by: updatedBy,
+            updated_at: new Date()
+        }, { transaction });
+
+        let variantesParsed = Array.isArray(variantes) ? variantes : JSON.parse(variantes);
+        if (variantesParsed && variantesParsed.length > 0) {
+            const existingVariantes = await ProductoTallaColor.findAll({
+                where: { producto_id: id },
+                transaction
+            });
+
+            const existingMap = new Map(existingVariantes.map(v => [`${v.talla_id}-${v.color_id}`, v]));
+
+            for (const variante of variantesParsed) {
+                const { talla_id, color_id, stock } = variante;
+                const key = `${talla_id}-${color_id}`;
+
+                if (existingMap.has(key)) {
+                    await existingMap.get(key).update({ stock }, { transaction });
+                    existingMap.delete(key);
+                } else {
+                    await ProductoTallaColor.create({
+                        producto_id: id,
+                        talla_id,
+                        color_id,
+                        stock
+                    }, { transaction });
+                }
+            }
+
+            for (const [, variante] of existingMap) {
+                await variante.destroy({ transaction });
+            }
+        }
+
+        await transaction.commit();
+        res.status(200).json({ message: "Producto actualizado con éxito." });
+    } catch (error) {
+        await transaction.rollback();
+        console.error('Error al actualizar el producto:', error);
+        res.status(400).json({ message: "Error al actualizar el producto", error: error.message });
+    }
+};
+
+exports.getProductoById = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const producto = await Product.findByPk(id, {
+            attributes: { 
+                exclude: ['created_by', 'updated_by', 'deleted_by', 'deleted_at', 'is_deleted'] 
+            },
+            include: [
+                { model: Temporada, attributes: ['id', 'temporada'] },
+                { model: Categoria, attributes: ['id', 'nombre'] },
+                { model: TipoProducto, attributes: ['id', 'nombre'] },
+                { model: Marca, attributes: ['id', 'nombre'] },
+                {
+                    model: ProductoTallaColor,
+                    attributes: ['id', 'producto_id', 'talla_id', 'color_id', 'stock'],
+                    include: [
+                        { model: Talla, attributes: ['id', 'talla'] },
+                        { model: ColorProducto, attributes: ['id', 'color', 'colorHex'] }
+                    ]
+                }
+            ]
+        });
+
+        if (!producto) {
+            return res.status(404).json({ message: "Producto no encontrado." });
+        }
+
+        // Transformar los nombres antes de enviarlos al frontend
+        const productoTransformado = {
+            id: producto.id,
+            temporada: producto.Temporada ? { id: producto.Temporada.id, temporada: producto.Temporada.temporada } : null,
+            categoria: producto.Categorium ? { id: producto.Categorium.id, nombre: producto.Categorium.nombre } : null,
+            tipo: producto.TipoProducto ? { id: producto.TipoProducto.id, nombre: producto.TipoProducto.nombre } : null,
+            marca: producto.Marca ? { id: producto.Marca.id, nombre: producto.Marca.nombre } : null,
+            precio: producto.precio,
+            estado: producto.estado,
+            calificacion: producto.calificacion,
+            created_at: producto.created_at,
+            updated_at: producto.updated_at,
+            tallasColoresStock: producto.ProductoTallaColors ? producto.ProductoTallaColors.map(ptc => ({
+                id: ptc.id,
+                producto_id: ptc.producto_id,
+                stock: ptc.stock,
+                talla: ptc.Talla ? { id: ptc.Talla.id, talla: ptc.Talla.talla } : null,
+                coloresStock: ptc.ColorProducto ? { id: ptc.ColorProducto.id, color: ptc.ColorProducto.color, colorHex: ptc.ColorProducto.colorHex } : null
+            })) : []
+        };
+
+        res.status(200).json({ producto: productoTransformado });
+    } catch (error) {
+        console.error('Error al obtener el producto:', error);
+        res.status(500).json({ message: "Error al obtener el producto", error: error.message });
+    }
+};
+

@@ -1,17 +1,69 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ProductoService } from '../services/producto.service';
 
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
   styleUrl: './edit.component.scss'
 })
-export class EditComponent {
-  productoExistente:  null = null;
-  actualizarProducto(datos: FormData) {
-    console.log('Actualizando producto...', datos);
+export class EditComponent implements OnInit {
+  productoExistente: any = {};
+  productoId!: number;
+
+  constructor(
+    private route: ActivatedRoute,
+    private productoService: ProductoService,
+    private snackBar: MatSnackBar,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.productoId = +id;
+        this.cargarProducto(this.productoId);
+      }
+    });
   }
+
+  cargarProducto(id: number) {
+    this.productoService.getProductoById(id).subscribe({
+      next: (producto) => {
+        this.productoExistente = producto.producto;
+        console.table(this.productoExistente);
+      },
+      error: (error) => {
+        console.error('Error al cargar producto:', error);
+        this.snackBar.open('Error al cargar el producto', 'Cerrar', { duration: 3000 });
+      }
+    });
+  }
+
+  actualizarProducto(datos: FormData) {
+    // Convertir FormData a un objeto JSON
+    const producto: any = {};
+    datos.forEach((value, key) => {
+      producto[key] = value;
+    });
+  
+    console.log('Producto:', producto);
+  
+    this.productoService.updateProducto(this.productoId, producto).subscribe({
+      next: () => {
+        this.snackBar.open('Producto actualizado con éxito', 'Cerrar', { duration: 3000 });
+        this.router.navigate(['/admin/productos/list']); // Redirige a la lista de productos
+      },
+      error: (error) => {
+        console.error('Error al actualizar producto:', error);
+        this.snackBar.open('Error al actualizar el producto', 'Cerrar', { duration: 3000 });
+      }
+    });
+  }
+
   cancelar() {
-    console.log('Cancelando edición...');
-    // Aquí puedes cerrar el diálogo o navegar a otra página
+    this.router.navigate(['/admin/productos/list']);
   }
 }

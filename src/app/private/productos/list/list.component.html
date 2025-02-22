@@ -43,7 +43,7 @@
             <mat-select [(value)]="filters.temporada_id">
                 <mat-option value="">Todas</mat-option>
                 <mat-option *ngFor="let temporada of temporadas" [value]="temporada.id">
-                    {{ temporada.nombre }}
+                    {{ temporada.temporada }}
                 </mat-option>
             </mat-select>
         </mat-form-field>
