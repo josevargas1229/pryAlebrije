@@ -1,0 +1,56 @@
+.contacto-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 2rem;
+  background-color: #f8f9fa;
+
+  .info {
+    flex: 1;
+    padding-right: 2rem;
+
+    h1 {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+  }
+
+  .formulario {
+    flex: 1;
+    padding: 2rem;
+    background-color: #e7f1ff;
+    border-radius: 12px;
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+
+      .input-full {
+        width: 100%;
+      }
+
+      .boton-enviar {
+        width: 100%;
+        background-color: #ff7300;
+        color: white;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .contacto-container {
+    flex-direction: column;
+
+    .info {
+      padding-right: 0;
+      padding-bottom: 2rem;
+    }
+  }
+}

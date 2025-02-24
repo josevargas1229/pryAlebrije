@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from '../../public/home/home.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
-import { DashboardComponent } from '../../private/dashboard/dashboard.component';
+import { DashboardComponent } from './private/dashboard/dashboard.component';
 import { TerminosCondicionesComponent } from './AcercaDe/terminos-condiciones/terminos-condiciones.component';
 import { Breadcrumb, BreadCrumbStyle } from 'primeng/breadcrumb';
 

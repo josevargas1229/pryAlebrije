@@ -1,12 +1,19 @@
 import { Component } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [],
+  imports: [
+    MatButtonModule,
+    MatCardModule,
+    MatDividerModule,
+    MatIconModule
+  ],
   templateUrl: './cart.component.html',
-  styleUrl: './cart.component.scss'
+  styleUrls: ['./cart.component.scss']
 })
-export class CartComponent {
-
-}
+export class CartComponent {}

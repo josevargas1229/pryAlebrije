@@ -1,0 +1,32 @@
+<div class="contacto-container">
+  <div class="info">
+    <h1>Contacta con nosotros</h1>
+    <p>¡Nos encantaría saber de usted!</p>
+    <p><strong>Correo electrónico</strong><br>{{companyInfo.email}}</p>
+    <p><strong>Teléfono</strong><br>{{companyInfo.telefono}}</p>
+    <p><strong>Dirección</strong><br>{{companyInfo.direccion}}<br></p>
+  </div>
+
+  <div class="formulario">
+    <form>
+      <mat-form-field appearance="outline" class="input-full">
+        <mat-label>Nombre</mat-label>
+        <input matInput placeholder="Ingrese su nombre">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="input-full">
+        <mat-label>Correo electrónico</mat-label>
+        <input matInput type="email" placeholder="Ingrese su correo">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="input-full">
+        <mat-label>Escribe tu mensaje aquí</mat-label>
+        <textarea matInput placeholder="Ingrese su mensaje" rows="4"></textarea>
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" class="boton-enviar">
+        Enviar mensaje
+      </button>
+    </form>
+  </div>
+</div>

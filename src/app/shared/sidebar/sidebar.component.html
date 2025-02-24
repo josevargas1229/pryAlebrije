@@ -9,7 +9,7 @@
       </a>
 
       <!-- Catálogo -->
-      <a mat-list-item routerLink="/productos" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+      <a mat-list-item routerLink="/menu-catalogo" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
         matTooltip="Ver catálogo de productos">
         <mat-icon matListIcon>category</mat-icon>
         <span matLine>Catálogo</span>
@@ -45,7 +45,7 @@
         </ng-container>
 
         <!-- Empleado -->
-        <ng-container *ngIf="userRole === 2">
+        <ng-container *ngIf="userRole === 1">
           <a mat-list-item routerLink="/ventas" routerLinkActive="active" matTooltip="Ir a ventas">
             <mat-icon matListIcon>monetization_on</mat-icon>
             <span matLine>Ventas</span>
@@ -91,6 +91,6 @@
       </button>
       <span>Página Principal</span>
     </mat-toolbar>
-    
+
   </mat-sidenav-content>
 </mat-sidenav-container>

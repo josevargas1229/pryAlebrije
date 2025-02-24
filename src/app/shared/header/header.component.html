@@ -3,7 +3,7 @@
     <!-- Botón de perfil en la esquina izquierda -->
     <div class="left-section">
       <img *ngIf="logoUrl" [src]="logoUrl" class="logo" alt="Logo" />
-      
+
     </div>
 
     <!-- Logo y título centrados -->
@@ -16,7 +16,7 @@
       mat-icon-button aria-label="Buscar"
       matTooltip="Buscar productos"
         matTooltipPosition="below"
-      (click)="onSearchClick()">
+      >
         <mat-icon>search</mat-icon>
       </button>
       <app-theme-switcher></app-theme-switcher>
@@ -32,6 +32,7 @@
       <!-- Botón de carrito -->
       <button
         mat-icon-button
+        routerLink="/cart"
         aria-label="Carrito de compras"
         matTooltip="Ver carrito"
         matTooltipPosition="below">
