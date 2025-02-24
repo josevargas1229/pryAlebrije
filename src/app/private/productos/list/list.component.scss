@@ -9,6 +9,20 @@
     margin-bottom: 20px;
 }
 
+.activo-chip {
+    background-color: #4caf50 !important;
+    span{
+        color: white !important;
+    }
+}
+
+.inactivo-chip {
+    background-color: #f44336 !important;
+    span{
+        color: white !important;
+    }
+}
+
 .filters {
     display: flex;
     gap: 15px;

@@ -1,0 +1,51 @@
+<h2 mat-dialog-title>Crear variante de producto</h2>
+<mat-dialog-content>
+    <form [formGroup]="varianteForm" class="varianteForm">
+        <div class="talla-container">
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Talla</mat-label>
+                <mat-select formControlName="talla">
+                    <mat-option *ngFor="let talla of tallas" [value]="talla">{{ talla.talla }}</mat-option>
+                </mat-select>
+            </mat-form-field>
+            <button mat-icon-button color="primary" type="button" (click)="openDialog('talla')">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+        
+
+        <div formArrayName="coloresStock">
+            <mat-label>Colores</mat-label>
+            <button mat-icon-button color="primary" type="button" (click)="openDialog('color')">
+                <mat-icon>add</mat-icon>
+            </button>
+            <div *ngFor="let colorStock of coloresStock.controls; let i = index" [formGroupName]="i"
+                class="color-stock-row">
+                <mat-form-field appearance="outline" class="color-field">
+                    <mat-label>Selecciona un color</mat-label>
+                    <mat-select formControlName="color">
+                        <mat-option *ngFor="let color of colores" [value]="color">{{ color.color }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="stock-field">
+                    <mat-label>Stock</mat-label>
+                    <input matInput type="number" formControlName="stock">
+                </mat-form-field>
+
+                <button mat-icon-button color="warn" type="button" (click)="eliminarColor(i)">
+                    <mat-icon>remove_circle</mat-icon>
+                </button>
+            </div>
+        </div>
+
+        <button mat-stroked-button  type="button"color="primary" (click)="agregarColor()">
+            <mat-icon>add</mat-icon> Agregar color
+        </button>
+    </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+    <button mat-button  type="button" (click)="dialogRef.close()">Cancelar</button>
+    <button mat-raised-button color="primary" (click)="guardar()">Guardar variante</button>
+</mat-dialog-actions>

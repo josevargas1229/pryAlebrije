@@ -49,7 +49,7 @@ export class RegisterComponent implements OnInit {
         email: ['', [Validators.required, Validators.email, Validators.pattern(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)]],
         phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
         password: ['', [Validators.required, Validators.minLength(8), this.strongPasswordValidator.bind(this)]],
-        confirmPassword: ['', [Validators.required]], // Eliminamos this.matchPassword de aquí
+        confirmPassword: ['', [Validators.required]],
       },
       { validators: this.matchPassword.bind(this) } // Aplicamos la validación a nivel del FormGroup
     );

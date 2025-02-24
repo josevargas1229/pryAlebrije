@@ -1,0 +1,161 @@
+<mat-card class="product-form-card">
+    <mat-card-header>
+        <mat-card-title>
+            <h2 class="dialog-title">{{ titulo }}</h2>
+        </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+        <form [formGroup]="productoForm" (ngSubmit)="submitForm()" class="product-form">
+            <div class="form-grid">
+                <div class="select-container">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Temporada</mat-label>
+                        <mat-select formControlName="temporada">
+                            <mat-option *ngFor="let temp of temporadas" [value]="temp.id">
+                                {{ temp.temporada }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <button mat-icon-button color="primary" type="button" (click)="openDialog('temporada')">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </div>
+                <div class="select-container">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Categoría</mat-label>
+                        <mat-select formControlName="categoria">
+                            <mat-option *ngFor="let cat of categorias" [value]="cat.id">{{ cat.nombre }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <button mat-icon-button color="primary" type="button" (click)="openDialog('categoria')">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </div>
+
+                <div class="select-container">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Tipo</mat-label>
+                        <mat-select formControlName="tipo">
+                            <mat-option *ngFor="let tipo of tipos" [value]="tipo.id">{{ tipo.nombre }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <button mat-icon-button color="primary" type="button" (click)="openDialog('tipo')">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </div>
+
+                <div class="select-container">
+                    <mat-form-field appearance="outline">
+                        <mat-label>Marca</mat-label>
+                        <mat-select formControlName="marca">
+                            <mat-option *ngFor="let marca of marcas" [value]="marca.id">{{ marca.nombre }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <button mat-icon-button color="primary" type="button" (click)="openDialog('marca')">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </div>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Precio</mat-label>
+                    <input matInput type="number" formControlName="precio">
+                    <span matPrefix>$&nbsp;</span>
+                    <mat-error *ngIf="productoForm.get('precio')?.errors?.['min']">
+                        El precio debe ser mayor a 0
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Stock</mat-label>
+                    <input matInput type="number" formControlName="stock">
+                    <mat-error *ngIf="productoForm.get('stock')?.errors?.['min']">
+                        El stock debe ser al menos 0
+                    </mat-error>
+                </mat-form-field>
+
+            </div>
+
+            <mat-card class="tallas-colores-card">
+                <mat-card-title>
+                    Tallas y colores
+                    <button mat-icon-button color="primary" type="button" (click)="openDialogTallasColores()">
+                        <mat-icon>add</mat-icon>
+                    </button>
+                </mat-card-title>
+                <mat-card-content>
+                    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 tallas-colores-table">
+
+                        <ng-container matColumnDef="talla">
+                            <th mat-header-cell *matHeaderCellDef> Talla </th>
+                            <td mat-cell *matCellDef="let element"> {{ element.talla.talla }} </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="color">
+                            <th mat-header-cell *matHeaderCellDef> Colores </th>
+                            <td mat-cell *matCellDef="let element">
+                                <span [style.background-color]="element.coloresStock.colorHex"
+                                    style="width: 15px; height: 15px; display: inline-block; border-radius: 50%; margin-right: 5px;">
+                                </span>
+                                {{ element.coloresStock.color }} ({{ element.coloresStock.stock }})
+                            </td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="stock">
+                            <th mat-header-cell *matHeaderCellDef>Stock</th>
+                            <td mat-cell *matCellDef="let element">{{ element.coloresStock.stock }}</td>
+                        </ng-container>
+
+                        <ng-container matColumnDef="acciones">
+                            <th mat-header-cell *matHeaderCellDef> Acciones </th>
+                            <td mat-cell *matCellDef="let element; let i = index">
+                                <button mat-icon-button type="button" color="primary"
+                                    (click)="editTallaColor(element, i)">
+                                    <mat-icon>edit</mat-icon>
+                                </button>
+                                <button mat-icon-button type="button" color="warn" (click)="deleteTallaColor(i)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </td>
+                        </ng-container>
+
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    </table>
+
+
+                </mat-card-content>
+            </mat-card>
+            <div class="images-section">
+                <div class="file-upload-container">
+                    <button type="button" mat-stroked-button (click)="fileInput.click()">
+                        <mat-icon>add_photo_alternate</mat-icon>
+                        Subir imágenes
+                    </button>
+                    <input #fileInput type="file" hidden accept=".jpg,.jpeg,.png" (change)="onFileSelected($event)"
+                        multiple>
+                    <mat-hint>Máximo 2MB por imagen. Formatos: JPG, PNG</mat-hint>
+                </div>
+
+                <div class="images-preview" *ngIf="imagenesVista.length">
+                    <div class="image-container" *ngFor="let img of imagenesVista; let i = index">
+                        <img [src]="img" alt="Preview">
+                        <button mat-icon-button color="warn" (click)="eliminarImagen(i)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <mat-checkbox formControlName="estado">Activo en catálogo</mat-checkbox>
+            <div class="form-footer">
+                <div class="action-buttons">
+                    <button mat-button type="button" (click)="cancelar()">Cancelar</button>
+                    <button mat-raised-button color="primary" type="submit" [disabled]="productoForm.invalid ">
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </mat-card-content>
+</mat-card>

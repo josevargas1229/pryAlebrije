@@ -11,8 +11,8 @@ exports.getColores = async (req, res) => {
 
 exports.createColor = async (req, res) => {
     try {
-        const { color } = req.body;
-        const nuevoColor = await ColorProducto.create({ color });
+        const { color, colorHex } = req.body;
+        const nuevoColor = await ColorProducto.create({ color, colorHex });
         res.status(201).json(nuevoColor);
     } catch (error) {
         res.status(400).json({ message: error.message });

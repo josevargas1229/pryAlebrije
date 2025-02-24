@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
+import { ProductoService } from '../services/producto.service';
 
 @Component({
   selector: 'app-list',
@@ -8,16 +9,15 @@ import { MatTableDataSource } from '@angular/material/table';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'categoria', 'marca', 'precio', 'stock', 'estado', 'acciones'];
-
-  // Datos de prueba con propiedades adicionales para filtrado
-  productos = [
-    { id: 1, categoria_id: 1, categoria_nombre: 'Ropa', marca_id: 1, marca_nombre: 'Nike', precio: 49.99, stock: 10, estado: true },
-    { id: 2, categoria_id: 2, categoria_nombre: 'Calzado', marca_id: 2, marca_nombre: 'Adidas', precio: 89.99, stock: 5, estado: false },
-    { id: 3, categoria_id: 3, categoria_nombre: 'Accesorios', marca_id: 3, marca_nombre: 'Puma', precio: 29.99, stock: 20, estado: true }
-  ];
-
-  // Filtros
+  displayedColumns: string[] = [ 'temporada','categoria', 'marca', 'precio', 'estado', 'acciones'];
+  productos: any[] = [];
+  currentPage: number = 1;
+  pageSize: number = 10;
+  categorias: any[] = [];
+  tipos: any[] = [];
+  marcas: any[] = [];
+  tallas: any[] = [];
+  temporadas: any[] = [];
   filters = {
     estado: '',           // "" para todos, true o false para filtrado específico
     temporada_id: '',
@@ -26,17 +26,44 @@ export class ListComponent implements OnInit {
     marca_id: ''
   };
 
-  // Listas de selección (simulando backend)
-  temporadas = [{ id: 1, nombre: 'Verano' }, { id: 2, nombre: 'Invierno' }];
-  categorias = [{ id: 1, nombre: 'Ropa' }, { id: 2, nombre: 'Calzado' }, { id: 3, nombre: 'Accesorios' }];
-  tipos = [{ id: 1, nombre: 'Casual' }, { id: 2, nombre: 'Deportivo' }];
-  marcas = [{ id: 1, nombre: 'Nike' }, { id: 2, nombre: 'Adidas' }, { id: 3, nombre: 'Puma' }];
-
   filteredProducts = new MatTableDataSource(this.productos);
 
-  constructor(private router: Router) { }
+  constructor(private productoService: ProductoService, private router: Router) { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.loadProductos();
+    this.productoService.getAllFilters().subscribe({
+      next: (data) => {
+        this.temporadas = data.temporadas;
+        this.categorias = data.categorias;
+        this.tipos = data.tipos;
+        this.marcas = data.marcas;
+        this.tallas = data.tallas;
+      },
+      error: (error) => {
+        console.error('Error al obtener los filtros:', error);
+      }
+    });
+  }
+
+  // Cargar los productos desde el backend
+  loadProductos(page: number = 1): void {
+    this.productoService.getAllProductos(page, this.pageSize).subscribe(response => {
+      this.productos = response.productos.map(product => ({
+        id: product.id,
+        categoria_id: product.categoria_id,
+        categoria_nombre: product.Categorium.nombre,  // Relación con Categorium
+        marca_id: product.marca_id,
+        marca_nombre: product.Marca.nombre,  // Relación con Marca
+        precio: product.precio,
+        stock: product.stock,  // Asume que tienes esta propiedad en la respuesta
+        estado: product.estado,
+        temporada_nombre: product.Temporada.temporada,  // Relación con Temporada
+        tipo_nombre: product.TipoProducto.nombre  // Relación con TipoProducto
+      }));
+      this.filteredProducts.data = this.productos;  // Actualizar la tabla
+    });
+  }
 
   applyFilters() {
     this.filteredProducts.data = this.productos.filter(producto => {
@@ -51,17 +78,16 @@ export class ListComponent implements OnInit {
   navigateTo(path: string) {
     this.router.navigate([path]);
   }
-
+  // Navegar a la vista de detalles del producto
   previewProducto(id: number) {
-    this.router.navigate(['/preview', id]);
+    this.router.navigate(['/admin/productos/preview', id]);
   }
 
   editProducto(id: number) {
-    this.router.navigate(['/edit', id]);
+    this.router.navigate(['/admin/productos/edit', id]);
   }
 
   deleteProducto(id: number) {
-    // Aquí podrías implementar lógica para marcar como eliminado
     console.log('Eliminar producto con ID:', id);
   }
 }

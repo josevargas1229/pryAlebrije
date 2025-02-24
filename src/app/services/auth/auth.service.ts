@@ -5,7 +5,6 @@ import { catchError, tap, map, switchMap } from 'rxjs/operators';
 import { Usuario } from '../user/user.models';
 import { Cuenta } from '../account/account.models';
 import { AuthResponse, LoginCredentials } from './auth.models';
-import { CsrfService } from '../csrf/csrf.service';
 import { environment } from '../../../environments/environment.development';
 import { Router } from '@angular/router';
 
@@ -18,20 +17,12 @@ export class AuthService {
   public currentUser: Observable<any>;
   private isCheckingAuth: boolean = false;
   private userRoleSubject = new BehaviorSubject<number | null>(null);
-  constructor(private http: HttpClient, private csrfService: CsrfService, private router: Router) {
+  constructor(private http: HttpClient, private router: Router) {
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
   login(credenciales: LoginCredentials, captchaToken: string, rememberMe: boolean): Observable<any> {
-    return this.csrfService.getCsrfToken().pipe(
-      switchMap(csrfToken => {
-        return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { credenciales, captchaToken }, {
-          withCredentials: true,
-          headers: {
-            'x-csrf-token': csrfToken
-          }
-        });
-      }),
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { credenciales, captchaToken }, { withCredentials: true }).pipe(
       tap(response => {
         if (response.verified) {
           this.currentUserSubject.next(response);
@@ -60,30 +51,12 @@ export class AuthService {
   }
 
   register(usuario: Partial<Usuario>, cuenta: Partial<Cuenta>): Observable<Usuario> {
-    return this.csrfService.getCsrfToken().pipe(
-      switchMap(csrfToken => {
-        const headers = new HttpHeaders().set('x-csrf-token', csrfToken);
-        return this.http.post<Usuario>(`${this.apiUrl}/register`, { usuario, cuenta }, {
-          headers,
-          withCredentials: true
-        });
-      })
-    );
+    return this.http.post<Usuario>(`${this.apiUrl}/register`, { usuario, cuenta }, { withCredentials: true });
   }
 
   logout(): Observable<any> {
-    return this.csrfService.getCsrfToken().pipe(
-      switchMap(csrfToken => {
-        return this.http.post(`${this.apiUrl}/logout`, {}, {
-          withCredentials: true,
-          headers: {
-            'x-csrf-token': csrfToken
-          }
-        });
-      }),
-      tap(() => {
-        this.currentUserSubject.next(null);
-      }),
+    return this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).pipe(
+      tap(() => this.currentUserSubject.next(null)),
       catchError(this.handleError)
     );
   }
@@ -105,16 +78,7 @@ export class AuthService {
   async checkAuthStatus(): Promise<any> {
     this.isCheckingAuth = true;
     try {
-      const user = await this.csrfService.getCsrfToken().pipe(
-        switchMap(csrfToken => {
-          return this.http.get(`${this.apiUrl}/check-auth`, {
-            withCredentials: true,
-            headers: {
-              'x-csrf-token': csrfToken
-            }
-          });
-        })
-      ).toPromise();
+      const user = await this.http.get(`${this.apiUrl}/check-auth`, { withCredentials: true }).toPromise();
       this.currentUserSubject.next(user);
       return user;
     } catch {
@@ -145,46 +109,20 @@ export class AuthService {
     }
   }
   sendVerificationCode(email: string): Observable<any> {
-    return this.csrfService.getCsrfToken().pipe(
-      switchMap(csrfToken => {
-        return this.http.post(`${this.apiUrl}/send-link`, { email, tipo_id: 2 }, {
-          withCredentials: true,
-          headers: {
-            'x-csrf-token': csrfToken
-          }
-        });
-      })
-    );
+    return this.http.post(`${this.apiUrl}/send-link`, { email, tipo_id: 2 }, { withCredentials: true });
   }
+
   resendVerificationEmail(email: string): Observable<any> {
-    return this.csrfService.getCsrfToken().pipe(
-      switchMap(csrfToken => {
-        return this.http.post(`${this.apiUrl}/send-link`, { email }, {
-          withCredentials: true,
-          headers: {
-            'x-csrf-token': csrfToken
-          }
-        });
-      }),
+    return this.http.post(`${this.apiUrl}/send-link`, { email }, { withCredentials: true }).pipe(
       catchError(this.handleError)
     );
   }
   verifyAccount(token: string): Observable<any> {
-    return this.csrfService.getCsrfToken().pipe(
-      switchMap(csrfToken => {
-        console.log(`${this.apiUrl}/verify?token=${token}`)
-        return this.http.get(`${this.apiUrl}/verify?token=${token}`, {
-          withCredentials: true,
-          headers: {
-            'x-csrf-token': csrfToken
-          }
-        });
-      }),
+    console.log(`${this.apiUrl}/verify?token=${token}`);
+    return this.http.get(`${this.apiUrl}/verify?token=${token}`, { withCredentials: true }).pipe(
       catchError(this.handleError)
     );
   }
-
-
   cambiarContraseña(accountId: number, nuevaContraseña: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/cambiar-contraseña`, { account_id: accountId, nueva_contraseña: nuevaContraseña }, { withCredentials: true });
   }

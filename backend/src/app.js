@@ -22,12 +22,13 @@ const configurationRoutes = require('./routes/configurationRoutes');
 const tallaRoutes = require('./routes/tallaRoutes');
 const colorRoutes = require('./routes/colorRoutes');
 const marcaRoutes = require('./routes/marcaRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 const tipoProductoRoutes = require('./routes/tipoProductoRoutes');
 const temporadaRoutes = require('./routes/temporadaRoutes');
 const productoRoutes = require('./routes/productRoutes');
 const { authenticateToken, authorize, ROLES } = require('./middlewares/auth');
 const app = express();
-app.set('trust proxy', true);
+app.set('trust proxy', process.env.NODE_ENV === 'production' ? 1 : false);
 // Middleware de seguridad
 app.use(helmet());
 
@@ -43,7 +44,6 @@ app.use(rateLimit);
 // Ruta para obtener el token CSRF
 app.get('/csrf-token', (req, res) => {
     const csrfToken = generateToken(req, res);
-    console.log("CSRF Token generado:", csrfToken);
     res.json({ csrfToken });
 });
 
@@ -77,6 +77,7 @@ app.use('/marca', marcaRoutes);
 app.use('/tipoProducto', tipoProductoRoutes);
 app.use('/temporada', temporadaRoutes);
 app.use('/producto', productoRoutes);
+app.use('/categorias', categoryRoutes);
 
 app.use(errorHandler);
 module.exports = app;

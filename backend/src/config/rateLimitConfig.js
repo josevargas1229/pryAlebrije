@@ -4,8 +4,9 @@ const rateLimit = require('express-rate-limit');
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 1000, // Limitar cada IP a 1000 solicitudes por ventana
-  standardHeaders: 'draft-7', // Proporcionar encabezados de limitación de tasa
+  standardHeaders: true, // Proporcionar encabezados de limitación de tasa
   legacyHeaders: false, // Deshabilitar los encabezados X-RateLimit-*
+  trustProxy: process.env.NODE_ENV === 'production'
 });
 
 // Exportar el middleware
