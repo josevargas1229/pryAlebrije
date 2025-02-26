@@ -1,13 +1,20 @@
 import { Component } from '@angular/core';
 import { ProductoService } from '../services/producto.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-add',
   templateUrl: './add.component.html',
   styleUrl: './add.component.scss'
 })
-export class AddComponent{
-  constructor(private productoService: ProductoService) {}
+export class AddComponent {
+  isLoading = false;
+  constructor(
+    private productoService: ProductoService,
+    private snackBar: MatSnackBar,
+    private router: Router
+  ) {}
 
   guardarProducto(datos: FormData) {
     console.log('Añadiendo producto...', datos);
@@ -19,21 +26,30 @@ export class AddComponent{
     });
   
     console.log('Producto:', producto);
-  
+    this.isLoading = true;
     // Llamar al servicio para crear el producto con el objeto JSON
     this.productoService.createProducto(producto).subscribe(
       response => {
         console.log('Producto creado con éxito:', response);
+        
+        // Mostrar snackbar de éxito
+        this.snackBar.open('Producto creado con éxito', 'Cerrar', {
+          duration: 3000
+        });
+        
+        // Redireccionar a la lista de productos
+        this.router.navigate(['/admin/productos/list']);
       },
       error => {
         console.error('Error al crear producto:', error);
       }
-    );
+    ).add(() => {
+      this.isLoading = false; // Desactivar el estado de carga cuando termine la petición
+    });
   }
-  
   
   cancelar() {
     console.log('Cancelando añadir...');
-    // Aquí puedes cerrar el diálogo o navegar a otra página
+    this.router.navigate(['/admin/productos/list']);
   }
 }

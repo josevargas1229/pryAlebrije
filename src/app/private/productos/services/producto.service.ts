@@ -32,6 +32,15 @@ export class ProductoService {
     return this.http.delete(`${this.apiUrl}/producto/${id}`);
   }
 
+  getDeletedProductos(page: number = 1, pageSize: number = 10): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/producto/eliminados?page=${page}&pageSize=${pageSize}`,
+      { withCredentials: true });
+  }
+
+  restoreProducto(id: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/producto/${id}/restore`, {});
+  }
+
   getAllFilters(): Observable<any> {
     return this.http.get(`${this.apiUrl}/producto/filters`);
   }

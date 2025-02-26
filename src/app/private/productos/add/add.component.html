@@ -1,1 +1,1 @@
-<app-productform titulo="Añadir producto" (guardar)="guardarProducto($event)" (cancelarForm)="cancelar()"></app-productform>
+<app-productform titulo="Añadir producto" [isLoading]="isLoading" (guardar)="guardarProducto($event)" (cancelarForm)="cancelar()"></app-productform>

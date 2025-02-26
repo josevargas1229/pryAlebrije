@@ -27,6 +27,9 @@ import { ProductformComponent } from './components/productform/productform.compo
 import { DetallesFormComponent } from './components/detalles-form/detalles-form.component';
 import { DialogComponent } from '../../components/dialog/dialog.component';
 import { VarianteFormComponent } from './components/variante-form/variante-form.component';
+import { LoadingButtonComponent } from '../../components/loading-button/loading-button.component';
+import { DeletedProductsComponent } from './deleted-products/deleted-products.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 @NgModule({
   declarations: [
@@ -38,9 +41,9 @@ import { VarianteFormComponent } from './components/variante-form/variante-form.
     PreviewComponent,
     ProductformComponent,
     DetallesFormComponent,
-    VarianteFormComponent
+    VarianteFormComponent,
+    DeletedProductsComponent,
     // HistoryComponent,    // Nuevo componente para historial
-    // EliminatedComponent, // Nuevo componente para productos eliminados
     // LowStockComponent    // Nuevo componente para productos con bajo stock
   ],
   imports: [
@@ -63,7 +66,9 @@ import { VarianteFormComponent } from './components/variante-form/variante-form.
     MatCardModule,
     MatDialogModule,
     MatSnackBarModule,
-    DialogComponent
+    DialogComponent,
+    LoadingButtonComponent,
+    MatPaginatorModule,
   ]
 })
 export class ProductosModule { }

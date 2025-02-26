@@ -1,41 +1,73 @@
+.container {
+    padding: 20px;
+}
+
+.view-toggle {
+    text-align: right;
+    margin-bottom: 20px;
+}
+
+/* Vista de cuadrícula */
 .config-card-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    margin-top: 10px;
     gap: 20px;
 }
+
 .config-card {
     width: 250px;
-    padding: 20px;
     cursor: pointer;
     transition: transform 0.3s ease-in-out;
-    background: var(--mat-select-panel-background-color);
+
     &:hover {
         transform: translateY(-5px);
     }
 
     mat-icon {
         color: var(--mdc-filled-button-container-color);
-        position: relative;
-        top: 5px;
-        margin-right: 5px;
     }
 
-    h3 {
+    mat-card-title {
         font-size: 1.2em;
     }
+}
 
+/* Vista de lista */
+.config-list-container {
+    background: var(--mat-select-panel-background-color);
+    border-radius: 4px;
 }
-h3 {
+
+.config-list-item {
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    mat-icon {
+        color: var(--mdc-filled-button-container-color);
+    }
+
+    .mat-list-item-content {
+        padding: 8px 16px;
+    }
+}
+
+/* Estilo para el divider */
+mat-divider {
     margin: 0;
-    line-height: 1.2;
 }
+
+/* Media queries */
 @media (max-width: 768px) {
     .config-card {
         width: 200px;
     }
-    p {
+
+    .mat-card-content p {
         font-size: 0.9em;
     }
 }

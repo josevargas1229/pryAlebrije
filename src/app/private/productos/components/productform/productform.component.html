@@ -151,9 +151,9 @@
             <div class="form-footer">
                 <div class="action-buttons">
                     <button mat-button type="button" (click)="cancelar()">Cancelar</button>
-                    <button mat-raised-button color="primary" type="submit" [disabled]="productoForm.invalid ">
-                        Guardar
-                    </button>
+                    <app-loading-button text="Guardar" [loading]="isLoading"
+                        [disabled]="productoForm.invalid || isLoading" color="primary" type="submit">
+                    </app-loading-button>
                 </div>
             </div>
         </form>

@@ -16,6 +16,7 @@ export class ProductformComponent implements OnInit {
   @Input() titulo: string = 'Formulario de producto';
   @Output() guardar = new EventEmitter<FormData>();
   @Output() cancelarForm = new EventEmitter<void>();
+  @Input() isLoading: boolean = false;
   displayedColumns: string[] = ['talla', 'color', 'stock', 'acciones'];
   dataSource = new MatTableDataSource<any>();
   productoForm: FormGroup;
@@ -29,7 +30,6 @@ export class ProductformComponent implements OnInit {
   imagenes: File[] = [];
   imagenesVista: string[] = [];
   readonly MAX_FILE_SIZE = 2 * 1024 * 1024;
-
   constructor(private fb: FormBuilder, private snackBar: MatSnackBar, private dialog: MatDialog, private productoService: ProductoService) {
     this.productoForm = this.fb.group({
       temporada: ['', Validators.required],

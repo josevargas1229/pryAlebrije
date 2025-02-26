@@ -1,7 +1,35 @@
-<div class="config-card-container">
-    <mat-card *ngFor="let option of configOptions" class="config-card" [routerLink]="[option.route]"
-        [queryParams]="option.queryParams">
-        <h3><mat-icon>{{ option.icon }}</mat-icon> {{ option.title }}</h3>
-        <p>{{ option.description }}</p>
-    </mat-card>
+<div class="container">
+    <!-- Botón de cambio de vista -->
+    <div class="view-toggle">
+        <button mat-raised-button color="primary" (click)="toggleView()">
+            <mat-icon>{{ isGridView ? 'list' : 'grid_view' }}</mat-icon>
+            {{ isGridView ? 'Vista de lista' : 'Vista de cuadrícula' }}
+        </button>
+    </div>
+
+    <!-- Vista de cuadrícula con MatCard -->
+    <div *ngIf="isGridView" class="config-card-container" [@viewAnimation]>
+        <mat-card *ngFor="let option of configOptions" class="config-card" [routerLink]="[option.route]"
+            [queryParams]="option.queryParams">
+            <mat-card-header>
+                <mat-icon mat-card-avatar>{{ option.icon }}</mat-icon>
+                <mat-card-title>{{ option.title }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <p>{{ option.description }}</p>
+            </mat-card-content>
+        </mat-card>
+    </div>
+
+    <!-- Vista de lista con MatList -->
+    <mat-list *ngIf="!isGridView" class="config-list-container" [@viewAnimation]>
+        <ng-container *ngFor="let option of configOptions; let i = index">
+            <mat-list-item [routerLink]="[option.route]" [queryParams]="option.queryParams" class="config-list-item">
+                <mat-icon matListItemIcon>{{ option.icon }}</mat-icon>
+                <span matListItemTitle>{{ option.title }}</span>
+                <span matListItemLine>{{ option.description }}</span>
+            </mat-list-item>
+            <mat-divider *ngIf="i < configOptions.length - 1"></mat-divider>
+        </ng-container>
+    </mat-list>
 </div>

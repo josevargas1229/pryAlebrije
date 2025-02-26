@@ -7,6 +7,7 @@ import { provideHttpClient, withFetch, withInterceptors, withXsrfConfiguration }
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { csrfInterceptor } from './interceptors/csrf.interceptor';
 import { errorInterceptor } from './interceptors/error.interceptor';
+import { provideAnimations } from '@angular/platform-browser/animations';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,6 +22,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(),
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+    provideAnimations()
   ]
 };

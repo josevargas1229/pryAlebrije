@@ -88,17 +88,12 @@
             <td mat-cell *matCellDef="let producto"> {{producto.id}} </td>
         </ng-container>
 
-        <!-- Categoría -->
-        <ng-container matColumnDef="categoria">
-            <th mat-header-cell *matHeaderCellDef> Categoría </th>
-            <td mat-cell *matCellDef="let producto"> {{producto.categoria_nombre}} </td>
+        <!-- Nombre -->
+        <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef> Nombre </th>
+            <td mat-cell *matCellDef="let producto"> {{producto.nombre_producto}} </td>
         </ng-container>
 
-        <!-- Marca -->
-        <ng-container matColumnDef="marca">
-            <th mat-header-cell *matHeaderCellDef> Marca </th>
-            <td mat-cell *matCellDef="let producto"> {{producto.marca_nombre}} </td>
-        </ng-container>
 
         <!-- Precio -->
         <ng-container matColumnDef="precio">

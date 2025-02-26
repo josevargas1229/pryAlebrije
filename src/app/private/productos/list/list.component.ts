@@ -9,7 +9,7 @@ import { ProductoService } from '../services/producto.service';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit {
-  displayedColumns: string[] = [ 'temporada','categoria', 'marca', 'precio', 'estado', 'acciones'];
+  displayedColumns: string[] = [ 'temporada','nombre', 'precio', 'estado', 'acciones'];
   productos: any[] = [];
   currentPage: number = 1;
   pageSize: number = 10;
@@ -51,15 +51,16 @@ export class ListComponent implements OnInit {
     this.productoService.getAllProductos(page, this.pageSize).subscribe(response => {
       this.productos = response.productos.map(product => ({
         id: product.id,
+        nombre_producto:product.nombre_producto,
         categoria_id: product.categoria_id,
-        categoria_nombre: product.Categorium.nombre,  // Relación con Categorium
+        categoria_nombre: product.categoria.nombre,  // Relación con categoria
         marca_id: product.marca_id,
-        marca_nombre: product.Marca.nombre,  // Relación con Marca
+        marca_nombre: product.marca.nombre,  // Relación con Marca
         precio: product.precio,
-        stock: product.stock,  // Asume que tienes esta propiedad en la respuesta
+        stock: product.stock,
         estado: product.estado,
-        temporada_nombre: product.Temporada.temporada,  // Relación con Temporada
-        tipo_nombre: product.TipoProducto.nombre  // Relación con TipoProducto
+        temporada_nombre: product.temporada.temporada,  // Relación con Temporada
+        tipo_nombre: product.tipo.nombre  // Relación con TipoProducto
       }));
       this.filteredProducts.data = this.productos;  // Actualizar la tabla
     });

@@ -11,13 +11,13 @@ import { ProductoService } from '../services/producto.service';
 export class EditComponent implements OnInit {
   productoExistente: any = {};
   productoId!: number;
-
+  isLoading = false;
   constructor(
     private route: ActivatedRoute,
     private productoService: ProductoService,
     private snackBar: MatSnackBar,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -48,9 +48,9 @@ export class EditComponent implements OnInit {
     datos.forEach((value, key) => {
       producto[key] = value;
     });
-  
+
     console.log('Producto:', producto);
-  
+    this.isLoading = true;
     this.productoService.updateProducto(this.productoId, producto).subscribe({
       next: () => {
         this.snackBar.open('Producto actualizado con éxito', 'Cerrar', { duration: 3000 });
@@ -60,6 +60,8 @@ export class EditComponent implements OnInit {
         console.error('Error al actualizar producto:', error);
         this.snackBar.open('Error al actualizar el producto', 'Cerrar', { duration: 3000 });
       }
+    }).add(() => {
+      this.isLoading = false;
     });
   }
 
