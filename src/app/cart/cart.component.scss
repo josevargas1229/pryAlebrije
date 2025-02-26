@@ -177,6 +177,17 @@
     }
   }
 }
+/* Animación de aparición */
+.fade-in {
+  opacity: 0;
+  transform: scale(0.95); /* Cambia translateY por scale */
+  transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+}
+
+.visible {
+  opacity: 1;
+  transform: scale(1);
+}
 
 @media (max-width: 768px) {
   .cart-container {

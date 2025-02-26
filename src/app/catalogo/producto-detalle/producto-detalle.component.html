@@ -1,94 +1,146 @@
 <mat-card class="producto-detalle">
-  <!-- Sección de imágenes -->
-  <div class="imagenes">
+  <div class="contenedor fade-in" #detalleContainer>
+    <!-- Miniaturas a la izquierda -->
     <div class="miniaturas">
       <img src="assets/images/ropa.jpg" class="miniatura">
       <img src="assets/images/ropa.jpg" class="miniatura">
       <img src="assets/images/ropa.jpg" class="miniatura">
-    </div>
-    <img src="assets/images/ropa.jpg" class="imagen-principal">
-  </div>
-
-  <!-- Sección de información del producto -->
-  <div class="info">
-    <h1>Vestido De Fiesta Bordado Para Niña, Vestido De Princesa</h1>
-
-    <div class="precio">
-      <span class="descuento">$626.58</span>
-      <span class="precio-original">$737.23</span>
-      <span class="porcentaje-descuento">15% OFF</span>
-    </div>
-    <p class="metodo-pago">en 3 meses sin intereses de $208.86</p>
-
-    <div class="entrega">
-      <p><strong>Llega gratis mañana</strong> por ser tu primera compra</p>
+      <img src="assets/images/ropa.jpg" class="miniatura">
     </div>
 
-    <mat-divider></mat-divider>
-
-    <!-- Opciones de color -->
-    <div class="colores">
-      <img src="assets/images/color-blanco.jpg" class="color-opcion">
-      <img src="assets/images/color-rojo.jpg" class="color-opcion seleccionado">
-      <img src="assets/images/color-azul.jpg" class="color-opcion">
+    <!-- Imagen principal en el centro -->
+    <div class="imagen-container">
+      <img src="assets/images/ropa.jpg" class="imagen-principal">
     </div>
 
-    <!-- Opciones de talla con Angular Material -->
-    <mat-form-field appearance="outline" class="talla">
-      <mat-label>Talla</mat-label>
-      <mat-select>
-        <mat-option value="6-7">6-7 Years</mat-option>
-        <mat-option value="8-9">8-9 Years</mat-option>
-        <mat-option value="10-11">10-11 Years</mat-option>
-        <mat-option value="12-13">12-13 Years</mat-option>
-        <mat-option value="14-15">14-15 Years</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <!-- Información del producto en un card a la derecha -->
+    <mat-card class="info">
+      <h3 *ngIf="producto.tipo">{{ producto.tipo.nombre }}</h3>
 
-    <p class="stock">Stock disponible</p>
+      <p class="metodo-pago">La mejor prenda de la moda hasta el momento</p>
+      <div class="precio">
+        <span class="descuento">{{ producto.precio | currency }}</span>
+      </div>
 
-    <div class="botones">
-      <button mat-flat-button color="primary" class="comprar">Comprar ahora</button>
-      <button mat-stroked-button color="accent" class="carrito">Agregar al carrito</button>
-    </div>
+      <div class="entrega">
+        <p><strong>Llega gratis mañana</strong> por ser tu primera compra</p>
+      </div>
 
-    <mat-divider></mat-divider>
+      <mat-divider></mat-divider>
 
-    <!-- Descripción del producto -->
-    <div class="descripcion">
-      <h2>Descripción</h2>
-      <p>Vestido de princesa bordado para niñas, boda, fiesta de cumpleaños, cola larga, vestido de graduación.</p>
-      <p>Diseño clásico elegante de cola larga, bordado de lujo en el pecho. El tul esponjoso hace que el vestido sea más hermoso.</p>
-    </div>
+      <!-- Opciones de color -->
+      <div class="colores">
+        <div *ngFor="let variante of producto.tallasColoresStock"
+             class="color-opcion"
+             [ngStyle]="{ 'background-color': variante.coloresStock.colorHex }">
+        </div>
+      </div>
+
+      <!-- Opciones de talla con Angular Material -->
+      <mat-form-field appearance="outline" class="talla">
+        <mat-label>Talla</mat-label>
+        <mat-select>
+          <mat-option *ngFor="let variante of producto.tallasColoresStock"
+                      [value]="variante.talla.id">
+            {{ variante.talla.talla }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <p class="stock">Stock disponible: {{ producto.tallasColoresStock?.[0]?.stock }}</p>
+
+      <div class="botones">
+        <!-- Botón de Comprar -->
+        <app-loading-button
+          [text]="'Comprar ahora'"
+          [loading]="loadingCompra"
+          [color]="'primary'"
+          class="comprar"
+          (click)="comprarAhora()">
+        </app-loading-button>
+
+        <!-- Botón de Agregar al carrito con icono -->
+        <app-loading-button
+          [text]="'Agregar al carrito'"
+          [loading]="loadingCarrito"
+          [color]="'accent'"
+          class="carrito"
+          (click)="agregarAlCarrito()">
+          <mat-icon style="margin-right: 5px;">shopping_cart</mat-icon>
+        </app-loading-button>
+      </div>
+    </mat-card>
   </div>
 </mat-card>
 
+
 <!-- Sección de productos relacionados -->
 <div class="productos-relacionados">
-  <h2>Productos Relacionados</h2>
-  <div class="productos-grid">
-    <mat-card class="producto">
-      <img src="assets/images/ropa.jpg" class="producto-img">
-      <mat-card-content>
-        <h3>Vestido Azul</h3>
-        <p class="precio">$439.10</p>
-      </mat-card-content>
-    </mat-card>
+  <h2>Quienes vieron este producto también compraron</h2>
 
-    <mat-card class="producto">
-      <img src="assets/images/ropa.jpg" class="producto-img">
-      <mat-card-content>
-        <h3>Vestido Rosa</h3>
-        <p class="precio">$597.98</p>
-      </mat-card-content>
-    </mat-card>
 
-    <mat-card class="producto">
-      <img src="assets/images/ropa.jpg" class="producto-img">
-      <mat-card-content>
-        <h3>Vestido Blanco</h3>
-        <p class="precio">$675.76</p>
-      </mat-card-content>
-    </mat-card>
+  <button mat-icon-button class="flecha izquierda" (click)="scrollIzquierda()">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+
+
+  <div class="productos-grid" #scrollContainer>
+    <div class="producto-container">
+      <p class="titulo">Vestido Azul Bordado</p>
+      <mat-card class="producto">
+        <img src="assets/images/ropa.jpg" class="producto-img" alt="Vestido Rosa Elegante">
+        <mat-card-content>
+          <p class="precio-original">$749.54</p>
+          <p class="precio">$411.40 <span class="descuento">60% OFF</span></p>
+          <p class="financiamiento">en 24 meses de $24.86</p>
+          <p class="envio-gratis">Envío gratis por ser tu primera compra</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="producto-container">
+      <p class="titulo">Vestido Blanco Bordado</p>
+      <mat-card class="producto">
+        <img src="assets/images/ropa.jpg" class="producto-img" alt="Vestido Blanco Bordado">
+        <mat-card-content>
+          <p class="precio-original">$749.54</p>
+          <p class="precio">$460.56 <span class="descuento">35% OFF</span></p>
+          <p class="financiamiento">en 3 meses sin intereses de $153.52</p>
+          <p class="envio-gratis">Envío gratis por ser tu primera compra</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="producto-container">
+      <p class="titulo">Vestido Dorado de Fiesta</p>
+      <mat-card class="producto">
+        <img src="assets/images/ropa.jpg" class="producto-img" alt="Vestido Dorado de Fiesta">
+        <mat-card-content>
+          <p class="precio-original">$1,000</p>
+          <p class="precio">$950 <span class="descuento">5% OFF</span></p>
+          <p class="financiamiento">en 3 meses sin intereses de $316.67</p>
+          <p class="envio-gratis">Envío gratis por ser tu primera compra</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="producto-container">
+      <p class="titulo">Vestido Princesa Brillante</p>
+      <mat-card class="producto">
+        <img src="assets/images/ropa.jpg" class="producto-img" alt="Vestido Princesa Brillante">
+        <mat-card-content>
+          <p class="precio-original">$740.11</p>
+          <p class="precio">$554.98 <span class="descuento">25% OFF</span></p>
+          <p class="financiamiento">en 3 meses sin intereses de $184.99</p>
+          <p class="envio-gratis">Envío gratis por ser tu primera compra</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
   </div>
+  <button mat-icon-button class="flecha derecha" (click)="scrollDerecha()">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
 </div>
+
+
+

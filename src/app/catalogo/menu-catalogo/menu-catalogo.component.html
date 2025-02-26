@@ -4,7 +4,7 @@
 </div>
 
 <!-- Catálogo -->
-<div class="catalog-container">
+<div class="catalog-container fade-in" #menuContainer>
   <div class="category-card" *ngFor="let categoria of categorias">
     <img [src]="categoria.imagen" [alt]="categoria.nombre">
     <div class="category-overlay">

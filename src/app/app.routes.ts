@@ -5,8 +5,6 @@ import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { RecuperaComponent } from './auth/recupera/recupera.component';
 import { PerfilComponent } from './user/perfil/perfil.component';
-import { EditpolitComponent } from './editpolit/editpolit.component';
-import { EditerminosComponent } from './editerminos/editerminos.component';
 import { EditperfilemComponent } from './user/editperfilem/editperfilem.component';
 import { AuthGuard } from './guards/auth/auth.guard';
 import { PagenotfoundComponent } from './error/pagenotfound/pagenotfound.component';
@@ -28,12 +26,8 @@ export const routes: Routes = [
   { path: "", component: HomeComponent, data: { Breadcrumb: "Home" },  },
   { path: "terminos-condiciones", component: TerminosCondicionesComponent,data: { Breadcrumb: "Terminos-condiciones" } },
   { path: "politicas-privacidad", component: PoliticasPrivacidadComponent, data: { Breadcrumb: "Politicas-privacidad" } },
-  { path: 'editpolit', component:EditpolitComponent},
-  { path: 'editerminos', component:EditerminosComponent},
   { path: 'editdeslinde', component:EditperfilemComponent},
   { path: 'editperfilem', component:EditperfilemComponent},
-  { path: 'editpolit', component: EditpolitComponent },
-  { path: 'editerminos', component: EditerminosComponent },
   { path: 'editdeslinde', component: EditperfilemComponent },
   { path: 'editperfilem', component: EditperfilemComponent },
   { path: 'verificacion', component:EmailVerificacionComponent},
@@ -63,7 +57,7 @@ export const routes: Routes = [
           { path:'productos', data: { Breadcrumb: "Productos" },
           children:[
             {path:'', component:ProductosComponent},
-            { path: 'producto-detalle', component:ProductoDetalleComponent, data: {Breadcrumb: "detalle-producto"}}
+            { path: 'producto-detalle/:id', component:ProductoDetalleComponent, data: {Breadcrumb: "detalle-producto"}}
           ]
            },
 

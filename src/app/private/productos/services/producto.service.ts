@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 import { environment } from "../../../../environments/environment";
 
 @Injectable({
@@ -8,7 +8,7 @@ import { environment } from "../../../../environments/environment";
 })
 export class ProductoService {
   private apiUrl = `${environment.API_URL}`;
-  
+
   constructor(private http: HttpClient) { }
 
   // Productos
@@ -16,10 +16,26 @@ export class ProductoService {
     return this.http.post(`${this.apiUrl}/producto`, producto);
   }
 
-  getAllProductos(page: number = 1, pageSize: number = 10): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/producto?page=${page}&pageSize=${pageSize}`);
-  }
+  getAllProductos(page: number = 1, pageSize: number = 10, filtros: any = {}): Observable<any> {
+    let queryParams = `page=${page}&pageSize=${pageSize}`;
 
+    Object.keys(filtros).forEach(key => {
+      if (filtros[key]) {
+        queryParams += `&${key}=${filtros[key]}`;
+      }
+    });
+
+    return this.http.get<any>(`${this.apiUrl}/producto?page=${page}&pageSize=${pageSize}`).pipe(
+      map(response => {
+        // Transformamos los productos agregando el nombre del tipo
+        response.productos = response.productos.map((producto: any) => ({
+          ...producto,
+          nombreTipo: producto.TipoProducto ? producto.TipoProducto.nombre : 'Sin Tipo' // Asignamos el nombre del tipo
+        }));
+        return response;
+      })
+    );
+  }
   getProductoById(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/producto/${id}`);
   }

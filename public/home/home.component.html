@@ -13,8 +13,8 @@
 
 <section class="section">
   <h2>Más vendida</h2>
-  
-  <div class="products-grid">
+
+  <div class="products-grid fade-in" #homeContainer>
     <div class="product-card" *ngFor="let product of bestSellers">
       <img [src]="imageUrl" alt="{{ product.title }}">
       <p>{{ product.title }}</p>
@@ -25,7 +25,7 @@
 
 <section class="section">
   <h2>Ofertas de liquidación</h2>
-  <div class="products-grid">
+  <div class="products-grid fade-in" #liquiContainer>
     <div class="product-card" *ngFor="let product of clearanceOffers">
       <img [src]="imageUrl" alt="{{ product.title }}">
       <p>{{ product.title }}</p>

@@ -7,29 +7,64 @@
     width: 100%;
   }
 
+  .filtro-busqueda {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
   .filtro-container {
     width: 250px;
-    background-color: #f8f8f8;
+    background-color: #fff;
     padding: 15px;
     margin-right: 10px;
     border-radius: 10px;
-    flex-shrink: 0; /* Evita que el filtro cambie de tamaño */
+    flex-shrink: 0;
     position: sticky;
-    top: 20px; /* Mantiene la barra visible durante el scroll */
+    top: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 
-    h3 {
-      font-size: 1.25rem;
+    .filtro-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       font-weight: bold;
+      font-size: 1.2rem;
+      cursor: pointer;
     }
 
-    h4 {
-      margin-top: 10px;
+    .filtro-item {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+
+      .filtro-titulo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        padding: 5px 0;
+
+        &:hover {
+          color: #1976d2;
+        }
+      }
+
+      .filtro-opciones {
+        margin-top: 5px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        padding-left: 10px;
+        transition: max-height 0.3s ease-in-out;
+      }
     }
 
     .color-palette {
       display: flex;
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 5px;
 
       .color-box {
         width: 30px;
@@ -42,6 +77,13 @@
           border-color: black;
         }
       }
+    }
+
+    .oculto {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
     }
   }
 
@@ -149,4 +191,15 @@
   border: 1px solid #000;
   display: inline-block;
   margin-top: 5px;
+}
+/* Animación de aparición */
+.fade-in {
+  opacity: 0;
+  transform: scale(0.95); /* Cambia translateY por scale */
+  transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+}
+
+.visible {
+  opacity: 1;
+  transform: scale(1);
 }

@@ -1,5 +1,5 @@
+import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -9,7 +9,31 @@ import { RouterLink } from '@angular/router';
   templateUrl: './menu-catalogo.component.html',
   styleUrl: './menu-catalogo.component.scss'
 })
-export class MenuCatalogoComponent {
+export class MenuCatalogoComponent implements OnInit, AfterViewInit {
+  constructor(
+    private renderer: Renderer2
+  ) {}
+  @ViewChild('menuContainer', { static: false }) menuContainer!: ElementRef;
+
+  ngAfterViewInit(): void {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.renderer.addClass(this.menuContainer.nativeElement, 'visible');
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(this.menuContainer.nativeElement);
+  }
+
+  ngOnInit(): void {
+    throw new Error('Method not implemented.');
+  }
   categorias = [
     { nombre: 'Niñas', imagen: 'assets/images/ropa.jpg' },
     { nombre: 'Niños', imagen: 'assets/images/ropa.jpg' },

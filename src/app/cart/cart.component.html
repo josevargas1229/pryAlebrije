@@ -1,4 +1,4 @@
-<div class="cart-container">
+<div class="cart-container fade-in" #menuContainer>
   <!-- Título -->
   <h1 class="cart-title">
     🛒 CARRITO <span>1 PRODUCTO</span>
@@ -34,8 +34,14 @@
     <p>IVA incl. <span>5.20</span></p>
     <mat-divider></mat-divider>
     <p class="total">Total Estimado <span>299 MX</span></p>
-    <button mat-raised-button color="primary" class="pay-button">Pagar</button>
-  </mat-card>
+    <app-loading-button
+    [text]="'Pagar'"
+    [loading]="loadingPagar"
+    [color]="'primary'"
+    class="pay-button"
+    (click)="procesarPago()">
+  </app-loading-button>
+</mat-card>
 
   <!-- Productos sugeridos -->
   <div class="recommended-section">
@@ -46,9 +52,13 @@
         <h4>Conjunto Verano Niño</h4>
         <p>$ 259 MX</p>
         <p>100% Algodón</p>
-        <button mat-stroked-button color="accent" class="add-to-cart">
-          + Añadir al carrito
-        </button>
+        <app-loading-button
+        [text]="'Añadir al carrito'"
+        [loading]="loadingCarrito"
+        [color]="'accent'"
+        class="add-to-cart"
+        (click)="agregarAlCarrito()">
+      </app-loading-button>
       </div>
     </mat-card>
   </div>
