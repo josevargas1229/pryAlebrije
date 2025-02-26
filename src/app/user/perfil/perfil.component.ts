@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { UserService } from '../../services/user/user.service';
 import { Usuario } from '../../services/user/user.models';// Asegúrate de que la ruta sea correcta
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
 // Asegúrate de que esta interfaz esté definida en tu código
 interface Service {
   title: string;
@@ -13,7 +15,7 @@ interface Service {
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, MatCardModule,MatDividerModule],
   templateUrl: './perfil.component.html',
   styleUrls: ['./perfil.component.scss'],
 })

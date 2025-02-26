@@ -1,0 +1,14 @@
+<!-- Ver más (Redirige a Productos) -->
+<div class="ver-mas">
+  <a routerLink="productos">Ver más ➔</a>
+</div>
+
+<!-- Catálogo -->
+<div class="catalog-container fade-in" #menuContainer>
+  <div class="category-card" *ngFor="let categoria of categorias">
+    <img [src]="categoria.imagen" [alt]="categoria.nombre">
+    <div class="category-overlay">
+      <h3>{{ categoria.nombre }}</h3>
+    </div>
+  </div>
+</div>

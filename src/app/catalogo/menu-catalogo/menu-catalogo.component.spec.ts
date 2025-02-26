@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EditerminosComponent } from './editerminos.component';
+import { MenuCatalogoComponent } from './menu-catalogo.component';
 
-describe('EditerminosComponent', () => {
-  let component: EditerminosComponent;
-  let fixture: ComponentFixture<EditerminosComponent>;
+describe('MenuCatalogoComponent', () => {
+  let component: MenuCatalogoComponent;
+  let fixture: ComponentFixture<MenuCatalogoComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditerminosComponent]
+      imports: [MenuCatalogoComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(EditerminosComponent);
+    fixture = TestBed.createComponent(MenuCatalogoComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

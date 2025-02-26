@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, Renderer2 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,7 +17,38 @@ interface Product {
   imports: [RouterLink,CommonModule, MatCardModule, MatButtonModule, MatIconModule],
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit, AfterViewInit {
+
+  constructor(private renderer: Renderer2) {}
+
+  @ViewChild('homeContainer', { static: false }) homeContainer!: ElementRef;
+  @ViewChild('liquiContainer', { static: false }) liquiContainer!: ElementRef;
+  ngAfterViewInit(): void {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            this.renderer.addClass(entry.target, 'visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.2 } // Se activa cuando el 20% del elemento es visible
+    );
+
+    if (this.homeContainer) {
+      observer.observe(this.homeContainer.nativeElement);
+    }
+
+    if (this.liquiContainer) {
+      observer.observe(this.liquiContainer.nativeElement);
+    }
+  }
+
+  ngOnInit(): void {
+    throw new Error('Method not implemented.');
+  }
+
   imageUrl = 'assets/images/ropa.jpg';
 
   bestSellers: Product[] = [

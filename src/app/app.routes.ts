@@ -5,8 +5,6 @@ import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { RecuperaComponent } from './auth/recupera/recupera.component';
 import { PerfilComponent } from './user/perfil/perfil.component';
-import { EditpolitComponent } from './editpolit/editpolit.component';
-import { EditerminosComponent } from './editerminos/editerminos.component';
 import { EditperfilemComponent } from './user/editperfilem/editperfilem.component';
 import { AuthGuard } from './guards/auth/auth.guard';
 import { PagenotfoundComponent } from './error/pagenotfound/pagenotfound.component';
@@ -17,35 +15,55 @@ import { ConfigComponent } from './config/config.component';
 import { EmailVerificacionComponent } from './auth/email-verificacion/email-verificacion.component';
 import { PoliticasPrivacidadComponent } from './AcercaDe/politicas-privacidad/politicas-privacidad.component';
 import { ProductosComponent } from './catalogo/productos/productos.component';
+import { MenuCatalogoComponent } from './catalogo/menu-catalogo/menu-catalogo.component';
+import { CartComponent } from './cart/cart.component';
+import { ContactoComponent } from './contacto/contacto.component';
+import { ProductoDetalleComponent } from './catalogo/producto-detalle/producto-detalle.component';
+import { Breadcrumb } from 'primeng/breadcrumb';
 
 export const routes: Routes = [
   //rutas públicas
   { path: "", component: HomeComponent, data: { Breadcrumb: "Home" },  },
   { path: "terminos-condiciones", component: TerminosCondicionesComponent,data: { Breadcrumb: "Terminos-condiciones" } },
   { path: "politicas-privacidad", component: PoliticasPrivacidadComponent, data: { Breadcrumb: "Politicas-privacidad" } },
-  { path: 'editpolit', component:EditpolitComponent},
-  { path: 'editerminos', component:EditerminosComponent},
   { path: 'editdeslinde', component:EditperfilemComponent},
   { path: 'editperfilem', component:EditperfilemComponent},
-  { path: 'editpolit', component: EditpolitComponent },
-  { path: 'editerminos', component: EditerminosComponent },
   { path: 'editdeslinde', component: EditperfilemComponent },
   { path: 'editperfilem', component: EditperfilemComponent },
   { path: 'verificacion', component:EmailVerificacionComponent},
-  { path: 'productos', component:ProductosComponent, data: { Breadcrumb: "Productos" } },
+  { path: 'cart', component:CartComponent, data: { Breadcrumb: "Carrito" } },
+  { path: 'contacto', component:ContactoComponent, data: { Breadcrumb: "Contacto" } },
+
 
   //rutas para usuarios autenticados
   {
     path: '', children: [
       {
-        path: 'perfil',
+        path: 'perfil', data: { Breadcrumb: "Perfil" },
         children: [
           { path: '', component: PerfilComponent },
-          { path: 'config', component: ConfigComponent }
+          { path: 'config', component: ConfigComponent, data: { Breadcrumb: "Configuracion" } },
         ]
       },
       { path: 'admin',loadChildren: () => import('./private/private.module').then(m => m.PrivateModule)},
     ], canActivate: [AuthGuard]
+  },
+  {
+    path:'', children:[
+      {
+        path:'menu-catalogo', data: { Breadcrumb: "Catalogo" },
+        children:[
+          { path:'', component:MenuCatalogoComponent},
+          { path:'productos', data: { Breadcrumb: "Productos" },
+          children:[
+            {path:'', component:ProductosComponent},
+            { path: 'producto-detalle/:id', component:ProductoDetalleComponent, data: {Breadcrumb: "detalle-producto"}}
+          ]
+           },
+
+        ]
+      }
+    ],
   },
   //rutas para usuarios no autenticados
   {
@@ -54,6 +72,7 @@ export const routes: Routes = [
       { path: "login", component: LoginComponent, data: { Breadcrumb: "Login" } },
       { path: "register", component: RegisterComponent, data: { Breadcrumb: "Registro" } },
       { path: 'recupera', component:RecuperaComponent, data: { Breadcrumb: "Recuperar-contraseña" } },
+
     ],canActivate:[NoAuthGuard]
   },
   { path: "error-400", component: Page400errorComponent },

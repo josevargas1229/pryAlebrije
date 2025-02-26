@@ -1,0 +1,290 @@
+.producto-detalle {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.contenedor {
+  display: flex;
+  gap: 20px;
+  max-width: 900px;
+  width: 100%;
+  align-items: flex-start;
+}
+
+/* Miniaturas a la izquierda */
+.miniaturas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.miniatura {
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border 0.3s;
+
+  &:hover {
+    border: 2px solid #000;
+  }
+}
+
+/* Imagen principal en el centro */
+.imagen-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagen-principal {
+  width: 350px;
+  border-radius: 5px;
+}
+
+/* Información del producto */
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  max-width: 400px;
+  flex: 1;
+  position: relative;
+  left: 120px;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+.precio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.descuento {
+  font-size: 22px;
+  font-weight: bold;
+  color: #e91e63;
+}
+
+.precio-original {
+  text-decoration: line-through;
+  color: gray;
+}
+
+.porcentaje-descuento {
+  color: green;
+  font-weight: bold;
+}
+
+.entrega {
+  color: green;
+  font-weight: bold;
+}
+
+.colores {
+  display: flex;
+  gap: 10px;
+}
+
+.color-opcion {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border 0.3s;
+
+  &.seleccionado {
+    border: 2px solid black;
+  }
+}
+
+.talla {
+  width: 100%;
+  max-width: 200px;
+}
+
+.stock {
+  font-weight: bold;
+  color: green;
+}
+
+.botones {
+  display: flex;
+  gap: 10px;
+  justify-content: start;
+}
+
+/* 📱 Diseño responsivo */
+@media (max-width: 768px) {
+  .contenedor {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .miniaturas {
+    flex-direction: row;
+    gap: 5px;
+  }
+
+  .info {
+    text-align: center;
+  }
+
+  .botones {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+/* 🔥 SECCIÓN DE PRODUCTOS RELACIONADOS 🔥 */
+.productos-relacionados {
+  margin-top: 40px;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  flex-direction: column; /* Asegura que el título esté arriba */
+  align-items: center;
+  width: 100%;
+
+  h2 {
+    font-size: 22px;
+    margin-bottom: 20px; /* Espacio debajo del título */
+    width: 100%;
+    text-align: center;
+    order: -1; /* Asegura que el título esté arriba */
+  }
+
+  .productos-grid {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto; /* Permite hacer scroll horizontal */
+    white-space: nowrap;
+    padding-bottom: 10px;
+    scroll-behavior: smooth;
+    width: 90%; /* Limita el ancho visible */
+    margin: auto;
+
+    &::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #bbb;
+      border-radius: 5px;
+    }
+  }
+
+  .producto {
+    flex: 0 0 200px; /* Tamaño fijo para cada tarjeta */
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    transition: transform 0.3s;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    .producto-img {
+      width: 100%;
+      border-radius: 5px;
+    }
+
+    .precio-original {
+      text-decoration: line-through;
+      color: gray;
+      font-size: 14px;
+    }
+
+    .precio {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e91e63;
+    }
+
+    .descuento {
+      color: green;
+      font-weight: bold;
+      font-size: 14px;
+      margin-left: 5px;
+    }
+
+    .financiamiento {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .envio-gratis {
+      font-size: 13px;
+      color: green;
+      font-weight: bold;
+    }
+
+    .titulo {
+      font-size: 14px;
+      margin-top: 10px;
+      color: #333;
+    }
+  }
+
+  /* Flechas de navegación */
+  .flecha {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    z-index: 2;
+  }
+
+  .izquierda {
+    left: 10px;
+  }
+
+  .derecha {
+    right: 10px;
+  }
+}
+
+/* Animación de aparición */
+.fade-in {
+  opacity: 0;
+  transform: scale(0.95); /* Cambia translateY por scale */
+  transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+}
+
+.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 📱 Diseño responsivo para productos relacionados */
+@media (max-width: 768px) {
+  .productos-relacionados {
+    flex-direction: column;
+  }
+
+  .productos-grid {
+    width: 100%;
+  }
+
+  .producto {
+    flex: 0 0 160px; /* Se ajusta el tamaño en pantallas pequeñas */
+  }
+
+  .flecha {
+    display: none; /* Ocultar flechas en pantallas pequeñas */
+  }
+}
+

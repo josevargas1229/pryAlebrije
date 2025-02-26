@@ -1,1 +1,65 @@
-<p>cart works!</p>
+<div class="cart-container fade-in" #menuContainer>
+  <!-- Título -->
+  <h1 class="cart-title">
+    🛒 CARRITO <span>1 PRODUCTO</span>
+  </h1>
+
+  <!-- Entrega estimada -->
+  <p class="delivery-info">
+    📦 Entrega estimada: 3 à 4 semanas
+    💫 <span class="return-info">Devoluciones gratis en 30 días.</span>
+  </p>
+
+  <!-- Producto en el carrito -->
+  <mat-card class="cart-item">
+    <img src="assets/images/ropa.jpg" alt="Conjunto niña" class="product-image">
+    <div class="product-details">
+      <h2>Conjunto Verano Niña</h2>
+      <p>Talla: 6 años</p>
+      <p>Color: Rosa</p>
+      <p>Cantidad: 1</p>
+    </div>
+    <div class="product-price">
+      <h3>$ 299 MX</h3>
+      <button mat-button color="primary" class="edit">Editar</button>
+      <button mat-button color="warn" class="delete">Eliminar</button>
+    </div>
+  </mat-card>
+
+  <!-- Resumen del pedido -->
+  <mat-card class="order-summary">
+    <h2>RESUMEN DEL PEDIDO</h2>
+    <p>Subtotal <span>299 MX</span></p>
+    <p>Envío <span class="free">GRATIS</span></p>
+    <p>IVA incl. <span>5.20</span></p>
+    <mat-divider></mat-divider>
+    <p class="total">Total Estimado <span>299 MX</span></p>
+    <app-loading-button
+    [text]="'Pagar'"
+    [loading]="loadingPagar"
+    [color]="'primary'"
+    class="pay-button"
+    (click)="procesarPago()">
+  </app-loading-button>
+</mat-card>
+
+  <!-- Productos sugeridos -->
+  <div class="recommended-section">
+    <h3>TAMBIÉN PODRÍA INTERESARTE</h3>
+    <mat-card class="recommended-item">
+      <img src="assets/images/ropa.jpg" alt="Conjunto niño">
+      <div class="recommended-details">
+        <h4>Conjunto Verano Niño</h4>
+        <p>$ 259 MX</p>
+        <p>100% Algodón</p>
+        <app-loading-button
+        [text]="'Añadir al carrito'"
+        [loading]="loadingCarrito"
+        [color]="'accent'"
+        class="add-to-cart"
+        (click)="agregarAlCarrito()">
+      </app-loading-button>
+      </div>
+    </mat-card>
+  </div>
+</div>

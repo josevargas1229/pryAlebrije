@@ -10,6 +10,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { ToastService } from 'angular-toastify';
 import { ChangePasswordDialogComponent } from '../change-password-dialog-component/change-password-dialog-component.component';
 import { MatDialog } from '@angular/material/dialog';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-config',
@@ -20,7 +22,9 @@ import { MatDialog } from '@angular/material/dialog';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatCardModule,
+    MatDividerModule
   ],
   templateUrl: './config.component.html',
   styleUrls: ['./config.component.scss']

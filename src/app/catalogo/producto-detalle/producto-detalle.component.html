@@ -1,1 +1,146 @@
-<p>producto-detalle works!</p>
+<mat-card class="producto-detalle">
+  <div class="contenedor fade-in" #detalleContainer>
+    <!-- Miniaturas a la izquierda -->
+    <div class="miniaturas">
+      <img src="assets/images/ropa.jpg" class="miniatura">
+      <img src="assets/images/ropa.jpg" class="miniatura">
+      <img src="assets/images/ropa.jpg" class="miniatura">
+      <img src="assets/images/ropa.jpg" class="miniatura">
+    </div>
+
+    <!-- Imagen principal en el centro -->
+    <div class="imagen-container">
+      <img src="assets/images/ropa.jpg" class="imagen-principal">
+    </div>
+
+    <!-- Información del producto en un card a la derecha -->
+    <mat-card class="info">
+      <h3 *ngIf="producto.tipo">{{ producto.tipo.nombre }}</h3>
+
+      <p class="metodo-pago">La mejor prenda de la moda hasta el momento</p>
+      <div class="precio">
+        <span class="descuento">{{ producto.precio | currency }}</span>
+      </div>
+
+      <div class="entrega">
+        <p><strong>Llega gratis mañana</strong> por ser tu primera compra</p>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Opciones de color -->
+      <div class="colores">
+        <div *ngFor="let variante of producto.tallasColoresStock"
+             class="color-opcion"
+             [ngStyle]="{ 'background-color': variante.coloresStock.colorHex }">
+        </div>
+      </div>
+
+      <!-- Opciones de talla con Angular Material -->
+      <mat-form-field appearance="outline" class="talla">
+        <mat-label>Talla</mat-label>
+        <mat-select>
+          <mat-option *ngFor="let variante of producto.tallasColoresStock"
+                      [value]="variante.talla.id">
+            {{ variante.talla.talla }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <p class="stock">Stock disponible: {{ producto.tallasColoresStock?.[0]?.stock }}</p>
+
+      <div class="botones">
+        <!-- Botón de Comprar -->
+        <app-loading-button
+          [text]="'Comprar ahora'"
+          [loading]="loadingCompra"
+          [color]="'primary'"
+          class="comprar"
+          (click)="comprarAhora()">
+        </app-loading-button>
+
+        <!-- Botón de Agregar al carrito con icono -->
+        <app-loading-button
+          [text]="'Agregar al carrito'"
+          [loading]="loadingCarrito"
+          [color]="'accent'"
+          class="carrito"
+          (click)="agregarAlCarrito()">
+          <mat-icon style="margin-right: 5px;">shopping_cart</mat-icon>
+        </app-loading-button>
+      </div>
+    </mat-card>
+  </div>
+</mat-card>
+
+
+<!-- Sección de productos relacionados -->
+<div class="productos-relacionados">
+  <h2>Quienes vieron este producto también compraron</h2>
+
+
+  <button mat-icon-button class="flecha izquierda" (click)="scrollIzquierda()">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
+
+
+  <div class="productos-grid" #scrollContainer>
+    <div class="producto-container">
+      <p class="titulo">Vestido Azul Bordado</p>
+      <mat-card class="producto">
+        <img src="assets/images/ropa.jpg" class="producto-img" alt="Vestido Rosa Elegante">
+        <mat-card-content>
+          <p class="precio-original">$749.54</p>
+          <p class="precio">$411.40 <span class="descuento">60% OFF</span></p>
+          <p class="financiamiento">en 24 meses de $24.86</p>
+          <p class="envio-gratis">Envío gratis por ser tu primera compra</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="producto-container">
+      <p class="titulo">Vestido Blanco Bordado</p>
+      <mat-card class="producto">
+        <img src="assets/images/ropa.jpg" class="producto-img" alt="Vestido Blanco Bordado">
+        <mat-card-content>
+          <p class="precio-original">$749.54</p>
+          <p class="precio">$460.56 <span class="descuento">35% OFF</span></p>
+          <p class="financiamiento">en 3 meses sin intereses de $153.52</p>
+          <p class="envio-gratis">Envío gratis por ser tu primera compra</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="producto-container">
+      <p class="titulo">Vestido Dorado de Fiesta</p>
+      <mat-card class="producto">
+        <img src="assets/images/ropa.jpg" class="producto-img" alt="Vestido Dorado de Fiesta">
+        <mat-card-content>
+          <p class="precio-original">$1,000</p>
+          <p class="precio">$950 <span class="descuento">5% OFF</span></p>
+          <p class="financiamiento">en 3 meses sin intereses de $316.67</p>
+          <p class="envio-gratis">Envío gratis por ser tu primera compra</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <div class="producto-container">
+      <p class="titulo">Vestido Princesa Brillante</p>
+      <mat-card class="producto">
+        <img src="assets/images/ropa.jpg" class="producto-img" alt="Vestido Princesa Brillante">
+        <mat-card-content>
+          <p class="precio-original">$740.11</p>
+          <p class="precio">$554.98 <span class="descuento">25% OFF</span></p>
+          <p class="financiamiento">en 3 meses sin intereses de $184.99</p>
+          <p class="envio-gratis">Envío gratis por ser tu primera compra</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+  <button mat-icon-button class="flecha derecha" (click)="scrollDerecha()">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
+</div>
+
+
+

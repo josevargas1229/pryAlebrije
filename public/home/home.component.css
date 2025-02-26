@@ -7,6 +7,7 @@
   border-radius: 15px;
   text-align: center;
   font-family: 'Arial', sans-serif;
+  overflow: hidden; /* Agrega esto */
 }
 
 h1 {
@@ -135,4 +136,15 @@ p {
 .products-carousel .product-card {
   flex: 0 0 auto;
   width: 150px;
+}
+/* Animación de aparición */
+.fade-in {
+  opacity: 0;
+  transform: scale(0.95); /* Cambia translateY por scale */
+  transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+}
+
+.visible {
+  opacity: 1;
+  transform: scale(1);
 }

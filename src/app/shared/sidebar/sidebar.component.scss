@@ -1,8 +1,9 @@
 /* Contenedor del sidenav */
 .sidenav-container {
+  height: 100vh; /* Toda la altura de la ventana */
   display: flex;
-  flex: 1; /* Permite que ocupe el espacio disponible entre header y footer */
-  min-height: calc(100vh - 120px);
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Estilo del sidenav */
@@ -15,6 +16,17 @@
   flex: none; /* Evita que el sidenav crezca más de lo necesario */
   overflow-y: auto;
 }
+
+/* Sticky behavior añadido */
+.mat-sidenav {
+  flex: 1;
+  height: 100vh; /* Ocupa toda la pantalla */
+  min-height: 100vh;
+  background-color: #0b1a33;
+  overflow-y: auto; /* Desplazamiento interno */
+  z-index: 10;
+}
+
 
 /* Estilo de los enlaces en la lista de navegación */
 .mat-nav-list a {

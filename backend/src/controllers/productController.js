@@ -82,64 +82,64 @@ exports.getAllFilters = async (req, res) => {
     }
 };
 exports.getAllProductos = async (req, res) => {
-    const { page = 1, pageSize = 10 } = req.query;
-    const offset = (page - 1) * pageSize;
+  const { page = 1, pageSize = 10, temporada_id, categoria_id, tipo_id, marca_id, color_id, talla_id } = req.query;
 
-    try {
-        const productos = await Product.findAll({
-            limit: parseInt(pageSize, 10),
-            offset: offset,
-            attributes: {
-                exclude: ['created_by', 'updated_by', 'deleted_by', 'deleted_at', 'is_deleted']
-            },
-            include: [
-                { model: Temporada, attributes: ['id', 'temporada'] },
-                { model: Categoria, attributes: ['id', 'nombre'] },
-                { model: TipoProducto, attributes: ['id', 'nombre'] },
-                { model: Marca, attributes: ['id', 'nombre'] },
-                {
-                    model: ProductoTallaColor,
-                    attributes: ['id', 'producto_id', 'talla_id', 'color_id', 'stock'],
-                    include: [
-                        { model: Talla, attributes: ['id', 'talla'] },
-                        { model: ColorProducto, attributes: ['id', 'color', 'colorHex'] }
-                    ]
-                }
-            ]
-        });
+  const offset = (page - 1) * pageSize;
+  const whereCondition = {};
 
-        // Transformar los datos antes de enviarlos al frontend
-        const productosTransformados = productos.map(producto => ({
-            id: producto.id,
-            nombre_producto:`${producto.TipoProducto.nombre} ${producto.Marca.nombre} ${producto.Categorium.nombre} `,
-            temporada: producto.Temporada ? { id: producto.Temporada.id, temporada: producto.Temporada.temporada } : null,
-            categoria: producto.Categorium ? { id: producto.Categorium.id, nombre: producto.Categorium.nombre } : null,
-            tipo: producto.TipoProducto ? { id: producto.TipoProducto.id, nombre: producto.TipoProducto.nombre } : null,
-            marca: producto.Marca ? { id: producto.Marca.id, nombre: producto.Marca.nombre } : null,
-            precio: producto.precio,
-            estado: producto.estado,
-            calificacion: producto.calificacion,
-            created_at: producto.created_at,
-            updated_at: producto.updated_at,
-            tallasColoresStock: producto.ProductoTallaColors ? producto.ProductoTallaColors.map(ptc => ({
-                id: ptc.id,
-                producto_id: ptc.producto_id,
-                stock: ptc.stock,
-                talla: ptc.Talla ? { id: ptc.Talla.id, talla: ptc.Talla.talla } : null,
-                coloresStock: ptc.ColorProducto ? { id: ptc.ColorProducto.id, color: ptc.ColorProducto.color, colorHex: ptc.ColorProducto.colorHex } : null
-            })) : []
-        }));
+  // Aplicar filtros si están presentes en la solicitud
+  if (temporada_id) whereCondition.temporada_id = temporada_id;
+  if (categoria_id) whereCondition.categoria_id = categoria_id;
+  if (tipo_id) whereCondition.tipo_id = tipo_id;
+  if (marca_id) whereCondition.marca_id = marca_id;
 
-        res.status(200).json({
-            productos: productosTransformados,
-            currentPage: parseInt(page, 10),
-            pageSize: parseInt(pageSize, 10)
-        });
-    } catch (error) {
-        console.error('Error al obtener productos:', error);
-        res.status(500).json({ message: 'Error al obtener productos', error: error.message });
-    }
+  try {
+      const productos = await Product.findAll({
+          where: whereCondition,
+          limit: parseInt(pageSize),
+          offset,
+          include: [
+              { model: Temporada },
+              { model: Categoria },
+              { model: TipoProducto },
+              { model: Marca },
+              {
+                  model: ProductoTallaColor,
+                  include: [
+                      { model: Talla },
+                      { model: ColorProducto }
+                  ]
+              }
+          ]
+      });
+
+      // Filtrar por color o talla después de obtener los productos si es necesario
+      let productosFiltrados = productos;
+
+      if (color_id) {
+          productosFiltrados = productosFiltrados.filter(producto =>
+              producto.ProductoTallaColors.some(ptc => ptc.color_id == color_id)
+          );
+      }
+
+      if (talla_id) {
+          productosFiltrados = productosFiltrados.filter(producto =>
+              producto.ProductoTallaColors.some(ptc => ptc.talla_id == talla_id)
+          );
+      }
+
+      res.json({
+          productos: productosFiltrados,
+          currentPage: page,
+          pageSize: pageSize
+      });
+
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error al obtener productos' });
+  }
 };
+
 exports.updateProducto = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
@@ -220,8 +220,8 @@ exports.getProductoById = async (req, res) => {
         const { id } = req.params;
 
         const producto = await Product.findByPk(id, {
-            attributes: { 
-                exclude: ['created_by', 'updated_by', 'deleted_by', 'deleted_at', 'is_deleted'] 
+            attributes: {
+                exclude: ['created_by', 'updated_by', 'deleted_by', 'deleted_at', 'is_deleted']
             },
             include: [
                 { model: Temporada, attributes: ['id', 'temporada'] },

@@ -1,81 +1,124 @@
 <div class="catalogo-container">
   <div class="contenido">
-    <!-- Filtro fijo en la barra lateral izquierda -->
+    <!-- Filtro con diseño acordeón -->
     <aside class="filtro-container">
-      <h3>Filtrar por:</h3>
-
-      <!-- Campo de búsqueda -->
-      <mat-form-field appearance="fill" class="filtro-busqueda">
-        <mat-label>Buscar producto</mat-label>
-        <input matInput [(ngModel)]="searchText" (input)="filtrarProductos()" placeholder="Buscar por nombre">
-      </mat-form-field>
-
-      <!-- Categorías -->
-      <div>
-        <h4>Categorías</h4>
-        <label *ngFor="let categoria of categorias">
-          <input type="checkbox" [(ngModel)]="categoria.seleccionado" (change)="filtrarProductos()" />
-          {{ categoria.nombre }}
-        </label>
+      <!-- Botón para ocultar filtros -->
+      <div class="filtro-header">
+        <span (click)="toggleFiltros()">Ocultar filtros</span>
+        <button mat-icon-button (click)="toggleFiltros()">
+          <mat-icon>tune</mat-icon>
+        </button>
       </div>
 
-      <!-- Colores -->
-      <div>
-        <h4>Colores</h4>
-        <div class="color-palette">
-          <div
-            *ngFor="let color of colores"
-            class="color-box"
-            [ngStyle]="{ 'background-color': color.valor }"
-            (click)="toggleColor(color)"
-            [class.selected]="color.seleccionado"
-          ></div>
+      <div class="filtro-contenido" [class.oculto]="!filtrosVisibles">
+        <!-- Input de búsqueda -->
+        <mat-form-field appearance="fill" class="filtro-busqueda">
+          <mat-label>Buscar producto</mat-label>
+          <input matInput [(ngModel)]="searchText" (input)="filtrarProductos()" placeholder="Buscar por nombre">
+        </mat-form-field>
+
+        <!-- Filtro de Categorías -->
+        <div class="filtro-item">
+          <div class="filtro-titulo" (click)="toggleSeccion('categoria')">
+            <span>Categoría</span>
+            <mat-icon>{{ categoriaVisibles ? 'remove' : 'add' }}</mat-icon>
+          </div>
+          <div class="filtro-opciones" [class.oculto]="!categoriaVisibles">
+            <label *ngFor="let categoria of categorias">
+              <input type="checkbox" [(ngModel)]="categoria.seleccionado" (change)="filtrarProductos()" />
+              {{ categoria.nombre }}
+            </label>
+          </div>
         </div>
+
+        <!-- Filtro de Tipos de Producto -->
+        <div class="filtro-item">
+          <div class="filtro-titulo" (click)="toggleSeccion('tipoProducto')">
+            <span>Tipo de Producto</span>
+            <mat-icon>{{ tipoProductoVisibles ? 'remove' : 'add' }}</mat-icon>
+          </div>
+          <div class="filtro-opciones" [class.oculto]="!tipoProductoVisibles">
+            <label *ngFor="let tipo of tiposProductos">
+              <input type="checkbox" [(ngModel)]="tipo.seleccionado" (change)="filtrarProductos()" />
+              {{ tipo.nombre }}
+            </label>
+          </div>
+        </div>
+
+        <!-- Filtro de Marcas -->
+        <div class="filtro-item">
+          <div class="filtro-titulo" (click)="toggleSeccion('marca')">
+            <span>Marca</span>
+            <mat-icon>{{ marcaVisibles ? 'remove' : 'add' }}</mat-icon>
+          </div>
+          <div class="filtro-opciones" [class.oculto]="!marcaVisibles">
+            <label *ngFor="let marca of marcas">
+              <input type="checkbox" [(ngModel)]="marca.seleccionado" (change)="filtrarProductos()" />
+              {{ marca.nombre }}
+            </label>
+          </div>
+        </div>
+
+        <!-- Filtro de Tallas -->
+        <div class="filtro-item">
+          <div class="filtro-titulo" (click)="toggleSeccion('talla')">
+            <span>Talla</span>
+            <mat-icon>{{ tallaVisibles ? 'remove' : 'add' }}</mat-icon>
+          </div>
+          <div class="filtro-opciones" [class.oculto]="!tallaVisibles">
+            <label *ngFor="let talla of tallas">
+              <input type="checkbox" [(ngModel)]="talla.seleccionado" (change)="filtrarProductos()" />
+              {{ talla.talla }}
+            </label>
+          </div>
+        </div>
+
+      <!-- Filtro de Colores -->
+      <div class="filtro-item">
+        <div class="filtro-titulo" (click)="toggleSeccion('colores')">
+          <span>Color</span>
+          <mat-icon>{{ coloresVisibles ? 'remove' : 'add' }}</mat-icon>
+        </div>
+        <div class="filtro-opciones color-palette" [class.oculto]="!coloresVisibles">
+          <div *ngFor="let color of colores" class="color-box" [ngStyle]="{ 'background-color': color.colorHex }"
+            (click)="toggleColor(color)" [class.selected]="color.seleccionado">
+          </div>
+        </div>
+      </div>
+
       </div>
     </aside>
 
-    <section class="catalogo-content">
-      <!-- Título -->
+    <section class="catalogo-content fade-in" #productosContainer>
       <h1>Catálogo</h1>
 
-      <!-- Sección de Todos los Productos -->
       <section class="todos-productos">
         <h2>Todos los productos</h2>
 
-        <div class="grid-productos">
+        <!-- Mostrar mensaje si no hay productos disponibles -->
+        <div *ngIf="filteredProductos.length === 0" class="no-productos">
+          <p>No hay productos disponibles con los filtros seleccionados.</p>
+        </div>
+
+        <div class="grid-productos" *ngIf="filteredProductos.length > 0">
           <div class="producto" *ngFor="let producto of filteredProductos">
-            <img [src]="producto.imagen" [alt]="producto.nombre">
-            <h3>{{ producto.nombre }}</h3>
+            <a [routerLink]="['/menu-catalogo/productos/producto-detalle', producto.id]">
+              <img [src]="producto.imagen ? producto.imagen : 'assets/images/ropa.jpg'"
+                   [alt]="producto.TipoProducto?.nombre || 'Producto'">
+            </a>
+
+            <p>{{ producto.TipoProducto?.nombre || 'Sin tipo' }}</p>
             <p>{{ producto.precio | currency }}</p>
 
-            <!-- Mostrar color visual del producto -->
-            <div class="color-indicator" [ngStyle]="{ 'background-color': obtenerColorValor(producto.color) }"></div>
+            <p *ngIf="producto.tallas.length > 0"><strong>Tallas:</strong> {{ producto.tallas.join(', ') }}</p>
 
-            <button mat-stroked-button color="primary">
-              <mat-icon>shopping_cart</mat-icon> Agregar al carrito
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Sección de Más Vendida -->
-      <section class="mas-vendida">
-        <div class="header">
-          <h2>Más vendida</h2>
-          <a routerLink="/mas-vendida">➔</a>
-        </div>
-
-        <div class="productos-destacados">
-          <div class="producto" *ngFor="let producto of productosDestacados">
-            <img [src]="producto.imagen" [alt]="producto.nombre">
-            <h3>{{ producto.nombre }}</h3>
-            <p>{{ producto.precio | currency }}</p>
-            <button mat-stroked-button color="primary">
-              <mat-icon>shopping_cart</mat-icon> Agregar al carrito
-            </button>
+            <app-loading-button [text]="'Agregar al carrito'" [loading]="loadingCarrito[producto.id] || false" [color]="'primary'"
+              (click)="agregarAlCarrito(producto.id)">
+              <mat-icon>shopping_cart</mat-icon>
+            </app-loading-button>
           </div>
         </div>
       </section>
     </section>
-  </div>
-</div>
+    </div>
+    </div>

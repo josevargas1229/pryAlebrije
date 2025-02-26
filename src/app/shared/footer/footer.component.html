@@ -2,30 +2,51 @@
   <mat-toolbar color="warn" class="footer-toolbar">
     <div class="footer-content">
       <div class="footer-main">
+        <!-- Documentos legales -->
         <div class="footer-section legal">
+          <h3 class="footer-title">Documentos Legales</h3>
           <div class="footer-links">
-            <h3 class="footer-title">Documentos Legales</h3>
-            <button mat-button routerLink="/terminos-condiciones" routerLinkActive="active">
-              Términos y Condiciones
-            </button>
-            <button mat-button routerLink="/politicas-privacidad" routerLinkActive="active">
-              Políticas de Privacidad
-            </button>
-            <button mat-button routerLink="/aviso-privacidad" routerLinkActive="active">
-              Aviso de Privacidad
-            </button>
-            <button mat-button routerLink="/deslinde-legal" routerLinkActive="active">
-              Deslinde Legal
-            </button>
+            <button mat-button routerLink="/terminos-condiciones">Términos y Condiciones</button>
+            <button mat-button routerLink="/politicas-privacidad">Políticas de Privacidad</button>
+            <button mat-button routerLink="/aviso-privacidad">Aviso de Privacidad</button>
+            <button mat-button routerLink="/deslinde-legal">Deslinde Legal</button>
           </div>
         </div>
 
+        <!-- Síguenos (Al centro) -->
+        <div class="footer-section social">
+          <h3 class="footer-title">Síguenos</h3>
+          <div class="social-icons">
+            <!-- Icono Facebook (SVG) -->
+            <a href="https://facebook.com" target="_blank" aria-label="Facebook">
+              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 48 48">
+                <linearGradient id="facebookGradient" x1="9.993" x2="40.615" y1="9.993" y2="40.615" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#2aa4f4"></stop>
+                  <stop offset="1" stop-color="#007ad9"></stop>
+                </linearGradient>
+                <path fill="url(#facebookGradient)" d="M24,4C12.954,4,4,12.954,4,24s8.954,20,20,20s20-8.954,20-20S35.046,4,24,4z"></path>
+                <path fill="#fff" d="M26.707,29.301h5.176l0.813-5.258h-5.989v-2.874c0-2.184,0.714-4.121,2.757-4.121h3.283V12.46 c-0.577-0.078-1.797-0.248-4.102-0.248c-4.814,0-7.636,2.542-7.636,8.334v3.498H16.06v5.258h4.948v14.452 C21.988,43.9,22.981,44,24,44c0.921,0,1.82-0.084,2.707-0.204V29.301z"></path>
+              </svg>
+            </a>
+
+            <!-- Icono WhatsApp (SVG) -->
+            <a href="https://wa.me/7711063670" target="_blank" aria-label="WhatsApp">
+              <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 48 48">
+                <path fill="#40c351" d="M35.2,12.8c-3-3-6.9-4.6-11.2-4.6C15.3,8.2,8.2,15.3,8.2,24c0,3,0.8,5.9,2.4,8.4L11,33l-1.6,5.8 l6-1.6l0.6,0.3c2.4,1.4,5.2,2.2,8,2.2h0c8.7,0,15.8-7.1,15.8-15.8C39.8,19.8,38.2,15.8,35.2,12.8z"></path>
+                <path fill="#fff" d="M19.3,16c-0.4-0.8-0.7-0.8-1.1-0.8c-0.3,0-0.6,0-0.9,0 s-0.8,0.1-1.3,0.6c-0.4,0.5-1.7,1.6-1.7,4s1.7,4.6,1.9,4.9s3.3,5.3,8.1,7.2c4,1.6,4.8,1.3,5.7,1.2c0.9-0.1,2.8-1.1,3.2-2.3 c0.4-1.1,0.4-2.1,0.3-2.3c-0.1-0.2-0.4-0.3-0.9-0.6s-2.8-1.4-3.2-1.5c-0.4-0.2-0.8-0.2-1.1,0.2c-0.3,0.5-1.2,1.5-1.5,1.9 c-0.3,0.3-0.6,0.4-1,0.1c-0.5-0.2-2-0.7-3.8-2.4c-1.4-1.3-2.4-2.8-2.6-3.3c-0.3-0.5,0-0.7,0.2-1c0.2-0.2,0.5-0.6,0.7-0.8 c0.2-0.3,0.3-0.5,0.5-0.8c0.2-0.3,0.1-0.6,0-0.8C20.6,19.3,19.7,17,19.3,16z"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Contacto -->
         <div class="footer-section contact">
           <h3 class="footer-title">Contacto</h3>
           <div class="footer-contact">
             <span>Email: {{ companyInfo?.email }}</span>
             <span>Teléfono: {{ companyInfo?.telefono }}</span>
             <span>Dirección: {{ companyInfo?.direccion }}</span>
+            <button mat-button routerLink="/contacto">Contáctanos</button>
           </div>
         </div>
       </div>
