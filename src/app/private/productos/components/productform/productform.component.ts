@@ -171,8 +171,7 @@ export class ProductformComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         let servicioLlamar;
-        result.nombre = result.nombre.toLowerCase();
-        result.nombre = result.nombre.charAt(0).toUpperCase() + result.nombre.slice(1);
+        result.nombre = result.nombre.toUpperCase();
         switch (type) {
           case 'categoria':
             servicioLlamar = this.productoService.createCategoria(result.nombre);

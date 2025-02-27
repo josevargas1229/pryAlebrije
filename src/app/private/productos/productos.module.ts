@@ -30,6 +30,7 @@ import { VarianteFormComponent } from './components/variante-form/variante-form.
 import { LoadingButtonComponent } from '../../components/loading-button/loading-button.component';
 import { DeletedProductsComponent } from './deleted-products/deleted-products.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -69,6 +70,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
     DialogComponent,
     LoadingButtonComponent,
     MatPaginatorModule,
+    MatTooltipModule
   ]
 })
 export class ProductosModule { }

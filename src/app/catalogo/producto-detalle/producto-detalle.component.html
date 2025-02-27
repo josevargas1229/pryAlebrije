@@ -15,7 +15,7 @@
 
     <!-- Información del producto en un card a la derecha -->
     <mat-card class="info">
-      <h3 *ngIf="producto.tipo">{{ producto.tipo.nombre }}</h3>
+      <h3 *ngIf="producto.tipo">{{ producto.tipo.nombre }} {{ producto.marca.nombre }} {{ producto.categoria.nombre }}</h3>
 
       <p class="metodo-pago">La mejor prenda de la moda hasta el momento</p>
       <div class="precio">
@@ -30,9 +30,8 @@
 
       <!-- Opciones de color -->
       <div class="colores">
-        <div *ngFor="let variante of producto.tallasColoresStock"
-             class="color-opcion"
-             [ngStyle]="{ 'background-color': variante.coloresStock.colorHex }">
+        <div *ngFor="let variante of producto.tallasColoresStock" class="color-opcion"
+          [ngStyle]="{ 'background-color': variante.coloresStock.colorHex }">
         </div>
       </div>
 
@@ -40,8 +39,7 @@
       <mat-form-field appearance="outline" class="talla">
         <mat-label>Talla</mat-label>
         <mat-select>
-          <mat-option *ngFor="let variante of producto.tallasColoresStock"
-                      [value]="variante.talla.id">
+          <mat-option *ngFor="let variante of producto.tallasColoresStock" [value]="variante.talla.id">
             {{ variante.talla.talla }}
           </mat-option>
         </mat-select>
@@ -51,20 +49,12 @@
 
       <div class="botones">
         <!-- Botón de Comprar -->
-        <app-loading-button
-          [text]="'Comprar ahora'"
-          [loading]="loadingCompra"
-          [color]="'primary'"
-          class="comprar"
+        <app-loading-button [text]="'Comprar ahora'" [loading]="loadingCompra" [color]="'primary'" class="comprar"
           (click)="comprarAhora()">
         </app-loading-button>
 
         <!-- Botón de Agregar al carrito con icono -->
-        <app-loading-button
-          [text]="'Agregar al carrito'"
-          [loading]="loadingCarrito"
-          [color]="'accent'"
-          class="carrito"
+        <app-loading-button [text]="'Agregar al carrito'" [loading]="loadingCarrito" [color]="'accent'" class="carrito"
           (click)="agregarAlCarrito()">
           <mat-icon style="margin-right: 5px;">shopping_cart</mat-icon>
         </app-loading-button>
@@ -141,6 +131,3 @@
     <mat-icon>chevron_right</mat-icon>
   </button>
 </div>
-
-
-

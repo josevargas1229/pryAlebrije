@@ -26,7 +26,7 @@ export class DialogComponent {
   }
 
   confirm(formValue?: any): void {
-    this.dialogRef.close(formValue);
+    this.dialogRef.close(formValue !== undefined ? formValue : true);
   }
   
 }

@@ -10,7 +10,7 @@ export class DashboardComponent {
     { 
       icon: 'inventory_2', 
       title: 'Lista de productos', 
-      description: 'Administra todos los productos disponibles en el inventario.', 
+      description: 'Administra los productos disponibles en el inventario.', 
       route: '/admin/productos/list' 
     },
     { 
@@ -64,7 +64,7 @@ export class DashboardComponent {
     { 
       icon: 'straighten',
       title: 'Tallas', 
-      description: 'Administra las tallas disponibles para los productos.', 
+      description: 'Administra las tallas para los productos.', 
       route: '/admin/productos/tallas' 
     },
     { 

@@ -10,7 +10,7 @@ import { ProductoService } from '../services/producto.service';
   styleUrls: ['./deleted-products.component.scss']
 })
 export class DeletedProductsComponent implements OnInit {
-  displayedColumns: string[] = ['id', 'nombre', 'precio', 'categoria', 'actions'];
+  displayedColumns: string[] = ['id', 'nombre','precio', 'deleted_at', 'actions'];
   dataSource = new MatTableDataSource<any>();
   
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -31,7 +31,7 @@ export class DeletedProductsComponent implements OnInit {
   loadDeletedProducts(page: number = 1, pageSize: number = 10) {
     this.productoService.getDeletedProductos(page, pageSize).subscribe({
       next: (response) => {
-        this.dataSource.data = response.data || response; 
+        this.dataSource.data = response.productos || response; 
         if (response.total) {
           this.paginator.length = response.total;
         }
