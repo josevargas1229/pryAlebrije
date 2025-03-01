@@ -82,61 +82,47 @@ exports.getAllFilters = async (req, res) => {
     }
 };
 exports.getAllProductos = async (req, res) => {
-    const { page = 1, pageSize = 10, temporada_id, categoria_id, tipo_id, marca_id, color_id, talla_id } = req.query;
-
+    const { page = 1, pageSize = 10, temporada_id, categoria_id, tipo_id, marca_id, estado } = req.query;
     const offset = (page - 1) * pageSize;
     const whereCondition = { is_deleted: false };
 
-    // Aplicar filtros si están presentes en la solicitud
     if (temporada_id) whereCondition.temporada_id = temporada_id;
     if (categoria_id) whereCondition.categoria_id = categoria_id;
     if (tipo_id) whereCondition.tipo_id = tipo_id;
     if (marca_id) whereCondition.marca_id = marca_id;
+    if (estado !== '' && estado !== undefined) whereCondition.estado = estado === 'true';
 
     try {
-        const productos = await Product.findAll({
+        const { count, rows } = await Product.findAndCountAll({
             where: whereCondition,
             limit: parseInt(pageSize),
             offset,
+            attributes: ['id', 'precio', 'estado'],
             include: [
-                { model: Temporada },
-                { model: Categoria },
-                { model: TipoProducto },
-                { model: Marca },
-                {
-                    model: ProductoTallaColor,
-                    include: [
-                        { model: Talla },
-                        { model: ColorProducto }
-                    ]
-                }
+                { model: Temporada, attributes: ['temporada'] },
+                { model: Categoria, attributes: ['nombre'] },
+                { model: TipoProducto, attributes: ['nombre'] },
+                { model: Marca, attributes: ['nombre'] }
             ]
         });
 
-        // Filtrar por color o talla después de obtener los productos si es necesario
-        let productosFiltrados = productos;
-
-        if (color_id) {
-            productosFiltrados = productosFiltrados.filter(producto =>
-                producto.ProductoTallaColors.some(ptc => ptc.color_id == color_id)
-            );
-        }
-
-        if (talla_id) {
-            productosFiltrados = productosFiltrados.filter(producto =>
-                producto.ProductoTallaColors.some(ptc => ptc.talla_id == talla_id)
-            );
-        }
+        const productosCatalogo = rows.map(producto => ({
+            id: producto.id,
+            nombre: `${producto.TipoProducto?.nombre || ''} ${producto.Marca?.nombre || ''} ${producto.Categorium?.nombre || ''}`.trim(),
+            precio: producto.precio,
+            temporada: producto.Temporada?.temporada || null,
+            estado: producto.estado
+        }));
 
         res.json({
-            productos: productosFiltrados,
-            currentPage: page,
-            pageSize: pageSize
+            productos: productosCatalogo,
+            currentPage: parseInt(page),
+            pageSize: parseInt(pageSize),
+            totalItems: count // Total para el paginador
         });
-
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error al obtener productos' });
+        console.error('Error al obtener productos:', error);
+        res.status(500).json({ message: 'Error al obtener el catálogo de productos' });
     }
 };
 

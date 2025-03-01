@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, Renderer2, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +31,7 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   productos: any[] = [];
   filteredProductos: any[] = [];
   @ViewChild('productosContainer', { static: false }) productosContainer!: ElementRef;
-  loadingCarrito: { [key: number]: boolean } = {}; // Objeto para manejar el loading de cada producto
+  loadingCarrito: { [key: number]: boolean } = {};
 
   filtrosVisibles: boolean = true;
   coloresVisibles: boolean = false;
@@ -45,34 +45,32 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   marcas: any[] = [];
   colores: any[] = [];
   tallas: any[] = [];
-console: any;
+
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalItems: number = 0;
+  isLoading: boolean = false;
+  hasMore: boolean = true; // Controla si hay más productos por cargar
 
   constructor(
     private searchService: SearchService,
     private productoService: ProductoService,
     private renderer: Renderer2
-  ) {}
-
-agregarAlCarrito(productoId: number): void {
-  this.loadingCarrito[productoId] = true; // Activa el loading para este producto
-
-  // Simula una petición al servidor (sustitúyelo por la lógica real)
-  setTimeout(() => {
-    this.loadingCarrito[productoId] = false; // Desactiva el loading después de la simulación
-    console.log(`Producto ${productoId} agregado al carrito`);
-  }, 2000);
-}
+  ) { }
 
   ngOnInit(): void {
-    this.obtenerProductos();
+    console.log('ngOnInit: Iniciando componente');
     this.obtenerFiltros();
+    this.loadMoreProducts();
     this.searchService.search$.subscribe(text => {
       this.searchText = text;
-      this.filtrarProductos();
+      console.log('Búsqueda actualizada:', text);
+      this.resetAndLoad();
     });
   }
 
   ngAfterViewInit(): void {
+    console.log('ngAfterViewInit: Configurando observer');
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -87,108 +85,136 @@ agregarAlCarrito(productoId: number): void {
     observer.observe(this.productosContainer.nativeElement);
   }
 
-  obtenerProductos(filtros: any = {}): void {
-    this.productoService.getAllProductos(1, 10, filtros).subscribe(response => {
-      this.productos = response.productos.map(producto => ({
-        ...producto,
-        TipoProducto: producto.TipoProducto ? producto.TipoProducto : { nombre: 'Sin tipo' },
-        tallas: producto.tallasColoresStock
-          ? producto.tallasColoresStock.map(tc => tc.talla.talla)
-          : []
-      }));
+@HostListener('window:scroll', ['$event'])
+onWindowScroll(): void {
+  console.log('Scroll de ventana detectado');
+  if (!this.isLoading && this.hasMore && this.isNearBottom()) {
+    console.log('Scroll detectado, cargando más productos');
+    this.loadMoreProducts();
+  }
+}
 
-      console.log('Productos con tallas:', this.productos); // Verifica en la consola si las tallas están bien estructuradas
+  // Verificar si estamos cerca del final de la página
+  isNearBottom(): boolean {
+    const threshold = 300; // Píxeles antes del final
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const totalHeight = document.documentElement.scrollHeight;
+    console.log('ScrollY:', window.scrollY, 'InnerHeight:', window.innerHeight, 'ScrollPosition:', scrollPosition, 'TotalHeight:', totalHeight);
+    const nearBottom = scrollPosition >= totalHeight - threshold;
+    console.log('Near bottom:', nearBottom);
+    return nearBottom;
+  }
 
-      this.filteredProductos = [...this.productos];
-      this.filtrarProductos();
-    }, error => {
-      console.error('Error al obtener productos:', error);
+  agregarAlCarrito(productoId: number): void {
+    this.loadingCarrito[productoId] = true;
+    setTimeout(() => {
+      this.loadingCarrito[productoId] = false;
+      console.log(`Producto ${productoId} agregado al carrito`);
+    }, 2000);
+  }
+
+  loadMoreProducts(): void {
+    if (this.isLoading || !this.hasMore) return;
+  
+    this.isLoading = true;
+    const filtros = this.getFiltrosSeleccionados();
+    const params = {
+      page: this.currentPage,
+      pageSize: this.pageSize,
+      ...filtros,
+      estado: 'true',
+      search: this.searchText.trim() || undefined
+    };
+  
+    console.log('Cargando productos con parámetros:', params);
+    this.productoService.getAllProductos(params).subscribe({
+      next: (response) => {
+        console.log('Respuesta del backend:', response);
+        const nuevosProductos = response.productos.map(producto => ({
+          ...producto,
+          tallas: producto.variantes ? producto.variantes.map(v => v.talla) : []
+        }));
+        this.productos = [...this.productos, ...nuevosProductos];
+        this.filteredProductos = [...this.productos];
+        console.log('filteredProductos actualizado:', this.filteredProductos);
+        this.totalItems = response.totalItems || this.productos.length;
+        this.currentPage++;
+        this.isLoading = false;
+        this.hasMore = nuevosProductos.length === this.pageSize && this.productos.length < this.totalItems;
+  
+        // Verificar dimensiones de la página
+        console.log('Window height:', window.innerHeight);
+        console.log('Document height:', document.documentElement.scrollHeight);
+      },
+      error: (error) => {
+        console.error('Error al obtener productos:', error);
+        this.isLoading = false;
+      }
     });
   }
 
-  getTallasDisponibles(producto: any): string {
-    if (!producto.tallasColoresStock || producto.tallasColoresStock.length === 0) {
-      return 'Sin talla disponible';
-    }
-
-    return producto.tallasColoresStock
-      .map(tc => tc?.talla?.talla) // Validar que exista `talla`
-      .filter(talla => talla) // Eliminar valores `undefined` o `null`
-      .join(', ');
+  resetAndLoad(): void {
+    console.log('Reseteando y recargando productos');
+    this.currentPage = 1;
+    this.productos = [];
+    this.filteredProductos = [];
+    this.hasMore = true;
+    this.loadMoreProducts();
   }
 
   obtenerFiltros(): void {
-    this.productoService.getAllFilters().subscribe(response => {
-      this.categorias = response.categorias.map(c => ({ ...c, seleccionado: false }));
-      this.tiposProductos = response.tipos.map(t => ({ ...t, seleccionado: false }));
-      this.marcas = response.marcas.map(m => ({ ...m, seleccionado: false }));
-      this.colores = response.colores.map(c => ({ ...c, seleccionado: false }));
-      this.tallas = response.tallas.map(t => ({ ...t, seleccionado: false }));
-    }, error => {
-      console.error('Error al obtener filtros:', error);
+    this.productoService.getAllFilters().subscribe({
+      next: (response) => {
+        this.categorias = response.categorias.map(c => ({ ...c, seleccionado: false }));
+        this.tiposProductos = response.tipos.map(t => ({ ...t, seleccionado: false }));
+        this.marcas = response.marcas.map(m => ({ ...m, seleccionado: false }));
+        this.colores = response.colores.map(c => ({ ...c, seleccionado: false }));
+        this.tallas = response.tallas.map(t => ({ ...t, seleccionado: false }));
+        console.log('Filtros cargados:', { categorias: this.categorias.length, tipos: this.tiposProductos.length });
+      },
+      error: (error) => {
+        console.error('Error al obtener filtros:', error);
+      }
     });
   }
 
-  filtrarProductos(): void {
-    let productosFiltrados = [...this.productos];
-
-    if (this.searchText.trim() !== '') {
-      const searchWords = this.searchText.toLowerCase().split(' ').filter(word => word.length > 2);
-
-      productosFiltrados = productosFiltrados.filter(producto => {
-        const nombreProducto = producto.nombre?.toLowerCase() || '';
-        const tipoProducto = producto.TipoProducto?.nombre?.toLowerCase() || '';
-
-        return searchWords.every(word =>
-          nombreProducto.includes(word) || tipoProducto.includes(word)
-        );
-      });
-    }
-
+  getFiltrosSeleccionados(): any {
+    const filtros: any = {};
     const categoriasSeleccionadas = this.categorias.filter(c => c.seleccionado).map(c => c.id);
-    if (categoriasSeleccionadas.length > 0) {
-      productosFiltrados = productosFiltrados.filter(producto =>
-        categoriasSeleccionadas.includes(producto.categoria_id)
-      );
-    }
-
+    if (categoriasSeleccionadas.length > 0) filtros.categoria_id = categoriasSeleccionadas[0];
     const tiposSeleccionados = this.tiposProductos.filter(t => t.seleccionado).map(t => t.id);
-    if (tiposSeleccionados.length > 0) {
-      productosFiltrados = productosFiltrados.filter(producto =>
-        tiposSeleccionados.includes(producto.tipo_id)
-      );
-    }
-
+    if (tiposSeleccionados.length > 0) filtros.tipo_id = tiposSeleccionados[0];
     const marcasSeleccionadas = this.marcas.filter(m => m.seleccionado).map(m => m.id);
-    if (marcasSeleccionadas.length > 0) {
-      productosFiltrados = productosFiltrados.filter(producto =>
-        marcasSeleccionadas.includes(producto.marca_id)
-      );
-    }
-
-    const tallasSeleccionadas = this.tallas.filter(t => t.seleccionado).map(t => t.talla);
-    if (tallasSeleccionadas.length > 0) {
-      productosFiltrados = productosFiltrados.filter(producto =>
-        producto.tallas.some(talla => tallasSeleccionadas.includes(talla))
-      );
-    }
-
+    if (marcasSeleccionadas.length > 0) filtros.marca_id = marcasSeleccionadas[0];
+    const tallasSeleccionadas = this.tallas.filter(t => t.seleccionado).map(t => t.id);
+    if (tallasSeleccionadas.length > 0) filtros.talla_id = tallasSeleccionadas[0];
     const coloresSeleccionados = this.colores.filter(c => c.seleccionado).map(c => c.id);
-    if (coloresSeleccionados.length > 0) {
-      productosFiltrados = productosFiltrados.filter(producto =>
-        producto.tallasColoresStock?.some(tc => coloresSeleccionados.includes(tc.coloresStock.id))
-      );
+    if (coloresSeleccionados.length > 0) filtros.color_id = coloresSeleccionados[0];
+    return filtros;
+  }
+
+  applyFilters(): void {
+    console.log('Aplicando filtros');
+    this.resetAndLoad();
+  }
+
+  getTallasDisponibles(producto: any): string {
+    if (!producto.variantes || producto.variantes.length === 0) {
+      return 'Sin talla disponible';
     }
-    this.filteredProductos = productosFiltrados;
+    return producto.variantes
+      .map(v => v.talla)
+      .filter(talla => talla)
+      .join(', ');
   }
 
   toggleFiltros(): void {
     this.filtrosVisibles = !this.filtrosVisibles;
   }
 
-  toggleColor(color: any): void {
-    color.seleccionado = !color.seleccionado;
-    this.filtrarProductos();
+  toggleFilter(item: any, tipo: string): void {
+    item.seleccionado = !item.seleccionado;
+    this.applyFilters();
   }
 
   toggleSeccion(seccion: string): void {

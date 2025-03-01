@@ -1,12 +1,10 @@
 <div class="list-container">
-    <!-- Encabezado -->
     <div class="header">
         <h2>Listado de productos
             <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Menu de opciones">
                 <mat-icon>more_vert</mat-icon>
             </button>
         </h2>
-
         <mat-menu #menu="matMenu">
             <button mat-menu-item (click)="navigateTo('admin/productos/add')">
                 <mat-icon>add</mat-icon>
@@ -31,7 +29,7 @@
     <div class="filters">
         <mat-form-field appearance="fill">
             <mat-label>Estado</mat-label>
-            <mat-select [(value)]="filters.estado">
+            <mat-select [(ngModel)]="filters.estado" (selectionChange)="applyFilters()">
                 <mat-option value="">Todos</mat-option>
                 <mat-option [value]="true">Activos</mat-option>
                 <mat-option [value]="false">Inactivos</mat-option>
@@ -40,7 +38,7 @@
 
         <mat-form-field appearance="fill">
             <mat-label>Temporada</mat-label>
-            <mat-select [(value)]="filters.temporada_id">
+            <mat-select [(ngModel)]="filters.temporada_id" (selectionChange)="applyFilters()">
                 <mat-option value="">Todas</mat-option>
                 <mat-option *ngFor="let temporada of temporadas" [value]="temporada.id">
                     {{ temporada.temporada }}
@@ -50,7 +48,7 @@
 
         <mat-form-field appearance="fill">
             <mat-label>Categoría</mat-label>
-            <mat-select [(value)]="filters.categoria_id">
+            <mat-select [(ngModel)]="filters.categoria_id" (selectionChange)="applyFilters()">
                 <mat-option value="">Todas</mat-option>
                 <mat-option *ngFor="let categoria of categorias" [value]="categoria.id">
                     {{ categoria.nombre }}
@@ -60,7 +58,7 @@
 
         <mat-form-field appearance="fill">
             <mat-label>Tipo</mat-label>
-            <mat-select [(value)]="filters.tipo_id">
+            <mat-select [(ngModel)]="filters.tipo_id" (selectionChange)="applyFilters()">
                 <mat-option value="">Todos</mat-option>
                 <mat-option *ngFor="let tipo of tipos" [value]="tipo.id">
                     {{ tipo.nombre }}
@@ -70,7 +68,7 @@
 
         <mat-form-field appearance="fill">
             <mat-label>Marca</mat-label>
-            <mat-select [(value)]="filters.marca_id">
+            <mat-select [(ngModel)]="filters.marca_id" (selectionChange)="applyFilters()">
                 <mat-option value="">Todas</mat-option>
                 <mat-option *ngFor="let marca of marcas" [value]="marca.id">
                     {{ marca.nombre }}
@@ -81,33 +79,21 @@
 
     <!-- Tabla de Productos -->
     <table mat-table [dataSource]="filteredProducts" class="mat-elevation-z8">
-
-        <!-- ID -->
-        <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef> ID </th>
-            <td mat-cell *matCellDef="let producto"> {{producto.id}} </td>
+        <ng-container matColumnDef="temporada">
+            <th mat-header-cell *matHeaderCellDef> Temporada </th>
+            <td mat-cell *matCellDef="let producto"> {{producto.temporada}} </td>
         </ng-container>
 
-        <!-- Nombre -->
         <ng-container matColumnDef="nombre">
             <th mat-header-cell *matHeaderCellDef> Nombre </th>
-            <td mat-cell *matCellDef="let producto"> {{producto.nombre_producto}} </td>
+            <td mat-cell *matCellDef="let producto"> {{producto.nombre}} </td>
         </ng-container>
 
-
-        <!-- Precio -->
         <ng-container matColumnDef="precio">
             <th mat-header-cell *matHeaderCellDef> Precio </th>
             <td mat-cell *matCellDef="let producto"> ${{producto.precio}} </td>
         </ng-container>
 
-        <!-- Temporada -->
-        <ng-container matColumnDef="temporada">
-            <th mat-header-cell *matHeaderCellDef> Temporada </th>
-            <td mat-cell *matCellDef="let producto"> {{producto.temporada_nombre}} </td>
-        </ng-container>
-
-        <!-- Estado -->
         <ng-container matColumnDef="estado">
             <th mat-header-cell *matHeaderCellDef> Estado </th>
             <td mat-cell *matCellDef="let producto">
@@ -117,23 +103,29 @@
             </td>
         </ng-container>
 
-        <!-- Acciones -->
         <ng-container matColumnDef="acciones">
             <th mat-header-cell *matHeaderCellDef> Acciones </th>
             <td mat-cell *matCellDef="let producto">
-                <button mat-icon-button color="secondary" (click)="previewProducto(producto.id)" matTooltip="Ver visualización previa">
+                <button mat-icon-button color="secondary" (click)="previewProducto(producto.id)"
+                    matTooltip="Ver visualización previa">
                     <mat-icon>visibility</mat-icon>
                 </button>
-                <button mat-icon-button color="primary" (click)="editProducto(producto.id)" matTooltip="Editar producto">
+                <button mat-icon-button color="primary" (click)="editProducto(producto.id)"
+                    matTooltip="Editar producto">
                     <mat-icon>edit</mat-icon>
                 </button>
-                <button mat-icon-button color="warn" (click)="deleteProducto(producto.id)" matTooltip="Eliminar producto">
+                <button mat-icon-button color="warn" (click)="deleteProducto(producto.id)"
+                    matTooltip="Eliminar producto">
                     <mat-icon>delete</mat-icon>
                 </button>
             </td>
-        </ng-container>        
+        </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
+
+    <!-- Paginación -->
+    <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]"
+        (page)="onPageChange($event)" showFirstLastButtons></mat-paginator>
 </div>

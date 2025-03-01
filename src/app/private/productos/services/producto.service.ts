@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { map, Observable } from "rxjs";
 import { environment } from "../../../../environments/environment";
 
@@ -16,25 +16,19 @@ export class ProductoService {
     return this.http.post(`${this.apiUrl}/producto`, producto);
   }
 
-  getAllProductos(page: number = 1, pageSize: number = 10, filtros: any = {}): Observable<any> {
-    let queryParams = `page=${page}&pageSize=${pageSize}`;
+  getAllProductos(params: any): Observable<any> {
+    let httpParams = new HttpParams()
+      .set('page', params.page.toString())
+      .set('pageSize', params.pageSize.toString());
 
-    Object.keys(filtros).forEach(key => {
-      if (filtros[key]) {
-        queryParams += `&${key}=${filtros[key]}`;
-      }
-    });
+    // Agregar filtros si están definidos
+    if (params.estado !== '') httpParams = httpParams.set('estado', params.estado);
+    if (params.temporada_id) httpParams = httpParams.set('temporada_id', params.temporada_id);
+    if (params.categoria_id) httpParams = httpParams.set('categoria_id', params.categoria_id);
+    if (params.tipo_id) httpParams = httpParams.set('tipo_id', params.tipo_id);
+    if (params.marca_id) httpParams = httpParams.set('marca_id', params.marca_id);
 
-    return this.http.get<any>(`${this.apiUrl}/producto?page=${page}&pageSize=${pageSize}`).pipe(
-      map(response => {
-        // Transformamos los productos agregando el nombre del tipo
-        response.productos = response.productos.map((producto: any) => ({
-          ...producto,
-          nombreTipo: producto.TipoProducto ? producto.TipoProducto.nombre : 'Sin Tipo' // Asignamos el nombre del tipo
-        }));
-        return response;
-      })
-    );
+    return this.http.get(`${this.apiUrl}/producto`, { params: httpParams });
   }
   getProductoById(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/producto/${id}`);

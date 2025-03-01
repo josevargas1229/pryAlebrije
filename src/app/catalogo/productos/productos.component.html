@@ -2,7 +2,6 @@
   <div class="contenido">
     <!-- Filtro con diseño acordeón -->
     <aside class="filtro-container">
-      <!-- Botón para ocultar filtros -->
       <div class="filtro-header">
         <span (click)="toggleFiltros()">Ocultar filtros</span>
         <button mat-icon-button (click)="toggleFiltros()">
@@ -14,7 +13,7 @@
         <!-- Input de búsqueda -->
         <mat-form-field appearance="fill" class="filtro-busqueda">
           <mat-label>Buscar producto</mat-label>
-          <input matInput [(ngModel)]="searchText" (input)="filtrarProductos()" placeholder="Buscar por nombre">
+          <input matInput [(ngModel)]="searchText" (ngModelChange)="applyFilters()" placeholder="Buscar por nombre">
         </mat-form-field>
 
         <!-- Filtro de Categorías -->
@@ -25,7 +24,7 @@
           </div>
           <div class="filtro-opciones" [class.oculto]="!categoriaVisibles">
             <label *ngFor="let categoria of categorias">
-              <input type="checkbox" [(ngModel)]="categoria.seleccionado" (change)="filtrarProductos()" />
+              <input type="checkbox" [(ngModel)]="categoria.seleccionado" (change)="applyFilters()" />
               {{ categoria.nombre }}
             </label>
           </div>
@@ -39,7 +38,7 @@
           </div>
           <div class="filtro-opciones" [class.oculto]="!tipoProductoVisibles">
             <label *ngFor="let tipo of tiposProductos">
-              <input type="checkbox" [(ngModel)]="tipo.seleccionado" (change)="filtrarProductos()" />
+              <input type="checkbox" [(ngModel)]="tipo.seleccionado" (change)="applyFilters()" />
               {{ tipo.nombre }}
             </label>
           </div>
@@ -53,7 +52,7 @@
           </div>
           <div class="filtro-opciones" [class.oculto]="!marcaVisibles">
             <label *ngFor="let marca of marcas">
-              <input type="checkbox" [(ngModel)]="marca.seleccionado" (change)="filtrarProductos()" />
+              <input type="checkbox" [(ngModel)]="marca.seleccionado" (change)="applyFilters()" />
               {{ marca.nombre }}
             </label>
           </div>
@@ -67,58 +66,51 @@
           </div>
           <div class="filtro-opciones" [class.oculto]="!tallaVisibles">
             <label *ngFor="let talla of tallas">
-              <input type="checkbox" [(ngModel)]="talla.seleccionado" (change)="filtrarProductos()" />
+              <input type="checkbox" [(ngModel)]="talla.seleccionado" (change)="applyFilters()" />
               {{ talla.talla }}
             </label>
           </div>
         </div>
 
-      <!-- Filtro de Colores -->
-      <div class="filtro-item">
-        <div class="filtro-titulo" (click)="toggleSeccion('colores')">
-          <span>Color</span>
-          <mat-icon>{{ coloresVisibles ? 'remove' : 'add' }}</mat-icon>
-        </div>
-        <div class="filtro-opciones color-palette" [class.oculto]="!coloresVisibles">
-          <div *ngFor="let color of colores" class="color-box" [ngStyle]="{ 'background-color': color.colorHex }"
-            (click)="toggleColor(color)" [class.selected]="color.seleccionado">
+        <!-- Filtro de Colores -->
+        <div class="filtro-item">
+          <div class="filtro-titulo" (click)="toggleSeccion('colores')">
+            <span>Color</span>
+            <mat-icon>{{ coloresVisibles ? 'remove' : 'add' }}</mat-icon>
+          </div>
+          <div class="filtro-opciones color-palette" [class.oculto]="!coloresVisibles">
+            <div *ngFor="let color of colores" class="color-box" [ngStyle]="{ 'background-color': color.colorHex }"
+              (click)="toggleFilter(color, 'color')" [class.selected]="color.seleccionado">
+            </div>
           </div>
         </div>
-      </div>
-
       </div>
     </aside>
 
     <section class="catalogo-content fade-in" #productosContainer>
       <h1>Catálogo</h1>
-
       <section class="todos-productos">
         <h2>Todos los productos</h2>
 
-        <!-- Mostrar mensaje si no hay productos disponibles -->
-        <div *ngIf="filteredProductos.length === 0" class="no-productos">
-          <p>No hay productos disponibles con los filtros seleccionados.</p>
-        </div>
-
-        <div class="grid-productos" *ngIf="filteredProductos.length > 0">
+        <div class="grid-productos">
           <div class="producto" *ngFor="let producto of filteredProductos">
             <a [routerLink]="['/menu-catalogo/productos/producto-detalle', producto.id]">
               <img [src]="producto.imagen ? producto.imagen : 'assets/images/ropa.jpg'"
-                   [alt]="producto.TipoProducto?.nombre || 'Producto'">
+                [alt]="producto.nombre || 'Producto'">
             </a>
-
-            <p>{{ producto.TipoProducto?.nombre || 'Sin tipo' }}</p>
+            <p>{{ producto.nombre || 'Sin nombre' }}</p>
             <p>{{ producto.precio | currency }}</p>
-
-            <p *ngIf="producto.tallas.length > 0"><strong>Tallas:</strong> {{ producto.tallas.join(', ') }}</p>
-
-            <app-loading-button [text]="'Agregar al carrito'" [loading]="loadingCarrito[producto.id] || false" [color]="'primary'"
-              (click)="agregarAlCarrito(producto.id)">
+            <p *ngIf="getTallasDisponibles(producto)"><strong>Tallas:</strong> {{ getTallasDisponibles(producto) }}</p>
+            <app-loading-button [text]="'Agregar al carrito'" [loading]="loadingCarrito[producto.id] || false"
+              [color]="'primary'" (click)="agregarAlCarrito(producto.id)">
               <mat-icon>shopping_cart</mat-icon>
             </app-loading-button>
+          </div>
+          <div class="no-productos" *ngIf="filteredProductos.length === 0 && !isLoading">
+            <p>No hay productos disponibles con los filtros seleccionados.</p>
           </div>
         </div>
       </section>
     </section>
-    </div>
-    </div>
+  </div>
+</div>

@@ -3,8 +3,9 @@ import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { ProductoService } from '../services/producto.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DialogComponent } from '../../../components/dialog/dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { DialogComponent } from '../../../components/dialog/dialog.component';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-list',
@@ -12,29 +13,40 @@ import { MatDialog } from '@angular/material/dialog';
   styleUrls: ['./list.component.scss']
 })
 export class ListComponent implements OnInit {
-  displayedColumns: string[] = [ 'temporada','nombre', 'precio', 'estado', 'acciones'];
+  displayedColumns: string[] = ['temporada', 'nombre', 'precio', 'estado', 'acciones'];
   productos: any[] = [];
+  filteredProducts = new MatTableDataSource<any>([]);
   currentPage: number = 1;
   pageSize: number = 10;
+  totalItems: number = 0; // Total de productos para el paginador
   categorias: any[] = [];
   tipos: any[] = [];
   marcas: any[] = [];
   tallas: any[] = [];
   temporadas: any[] = [];
+
   filters = {
-    estado: '',           // "" para todos, true o false para filtrado específico
+    estado: '',
     temporada_id: '',
     categoria_id: '',
     tipo_id: '',
     marca_id: ''
   };
 
-  filteredProducts = new MatTableDataSource(this.productos);
-
-  constructor(private productoService: ProductoService, private router: Router, private snackBar: MatSnackBar,private dialog: MatDialog) { }
+  constructor(
+    private productoService: ProductoService,
+    private router: Router,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
+    this.loadFilters();
     this.loadProductos();
+  }
+
+  // Cargar filtros desde el backend
+  loadFilters(): void {
     this.productoService.getAllFilters().subscribe({
       next: (data) => {
         this.temporadas = data.temporadas;
@@ -49,50 +61,56 @@ export class ListComponent implements OnInit {
     });
   }
 
-  // Cargar los productos desde el backend
-  loadProductos(page: number = 1): void {
-    this.productoService.getAllProductos(page, this.pageSize).subscribe(response => {
-      console.log(response)
-      this.productos = response.productos.map(product => ({
-        id: product.id,
-        nombre_producto:`${product.TipoProducto.nombre} ${product.Marca.nombre} ${product.Categorium.nombre}`,
-        categoria_id: product.categoria_id,
-        categoria_nombre: product.Categorium.nombre,  // Relación con categoria
-        marca_id: product.marca_id,
-        marca_nombre: product.Marca.nombre,  // Relación con Marca
-        precio: product.precio,
-        stock: product.stock,
-        estado: product.estado,
-        temporada_nombre: product.Temporada.temporada,  // Relación con Temporada
-        tipo_nombre: product.TipoProducto.nombre  // Relación con TipoProducto
-      }));
-      this.filteredProducts.data = this.productos;  // Actualizar la tabla
+  // Cargar productos con filtros y paginación
+  loadProductos(): void {
+    const params = {
+      page: this.currentPage,
+      pageSize: this.pageSize,
+      ...this.filters
+    };
+
+    this.productoService.getAllProductos(params).subscribe({
+      next: (response) => {
+        this.productos = response.productos;
+        this.totalItems = response.totalItems || this.productos.length; // Ajustar si el backend devuelve totalItems
+        this.filteredProducts.data = this.productos;
+      },
+      error: (error) => {
+        console.error('Error al cargar productos:', error);
+        this.snackBar.open('Error al cargar los productos', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+      }
     });
   }
 
-  applyFilters() {
-    this.filteredProducts.data = this.productos.filter(producto => {
-      return (
-        (this.filters.estado === '' || producto.estado === (this.filters.estado === 'true')) &&
-        (this.filters.categoria_id === '' || producto.categoria_id === +this.filters.categoria_id) &&
-        (this.filters.marca_id === '' || producto.marca_id === +this.filters.marca_id)
-      );
-    });
+  // Aplicar filtros al cambiar una selección
+  applyFilters(): void {
+    this.currentPage = 1; // Resetear a la primera página al filtrar
+    this.loadProductos();
   }
 
-  navigateTo(path: string) {
+  // Manejar cambio de página
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex + 1; // mat-paginator usa índice baseado en 0
+    this.pageSize = event.pageSize;
+    this.loadProductos();
+  }
+
+  navigateTo(path: string): void {
     this.router.navigate([path]);
   }
-  // Navegar a la vista de detalles del producto
-  previewProducto(id: number) {
+
+  previewProducto(id: number): void {
     this.router.navigate(['/admin/productos/preview', id]);
   }
 
-  editProducto(id: number) {
+  editProducto(id: number): void {
     this.router.navigate(['/admin/productos/edit', id]);
   }
 
-  deleteProducto(id: number) {
+  deleteProducto(id: number): void {
     const dialogRef = this.dialog.open(DialogComponent, {
       width: '350px',
       data: {
@@ -100,24 +118,19 @@ export class ListComponent implements OnInit {
         content: '¿Estás seguro de que deseas eliminar este producto?'
       }
     });
-  
+
     dialogRef.afterClosed().subscribe(result => {
-      if (result === true) { // Si el usuario confirmó la eliminación
+      if (result === true) {
         this.productoService.deleteProducto(id).subscribe({
           next: () => {
-            this.productos = this.productos.filter(producto => producto.id !== id);
-            this.filteredProducts.data = this.productos;
-  
-            // Mostrar mensaje de éxito
             this.snackBar.open('Producto eliminado exitosamente', 'Cerrar', {
               duration: 3000,
               panelClass: ['success-snackbar']
             });
+            this.loadProductos(); // Recargar la lista tras eliminar
           },
           error: (error) => {
             console.error('Error al eliminar producto:', error);
-  
-            // Mostrar mensaje de error
             this.snackBar.open('Error al eliminar el producto', 'Cerrar', {
               duration: 3000,
               panelClass: ['error-snackbar']
@@ -127,5 +140,4 @@ export class ListComponent implements OnInit {
       }
     });
   }
-  
 }
