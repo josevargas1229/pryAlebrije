@@ -1,6 +1,6 @@
 const sequelize = require('../config/database');
 const { Product, Empleado, Temporada, Categoria, TipoProducto, Marca, Talla, ColorProducto, ProductoTallaColor } = require('../models/associations');
-
+const { Op } = require('sequelize');
 exports.createProducto = async (req, res) => {
     const transaction = await sequelize.transaction(); // Inicia la transacción
     try {
@@ -82,15 +82,22 @@ exports.getAllFilters = async (req, res) => {
     }
 };
 exports.getAllProductos = async (req, res) => {
-    const { page = 1, pageSize = 10, temporada_id, categoria_id, tipo_id, marca_id, estado } = req.query;
+    const { page = 1, pageSize = 10, estado, categoria_id, tipo_id, marca_id, talla_id, color_id, search } = req.query;
     const offset = (page - 1) * pageSize;
     const whereCondition = { is_deleted: false };
 
-    if (temporada_id) whereCondition.temporada_id = temporada_id;
-    if (categoria_id) whereCondition.categoria_id = categoria_id;
-    if (tipo_id) whereCondition.tipo_id = tipo_id;
-    if (marca_id) whereCondition.marca_id = marca_id;
-    if (estado !== '' && estado !== undefined) whereCondition.estado = estado === 'true';
+    if (estado) whereCondition.estado = estado === 'true';
+
+    // Manejar filtros como arreglos o valores únicos
+    if (categoria_id) {
+        whereCondition.categoria_id = Array.isArray(categoria_id) ? { [Op.in]: categoria_id } : categoria_id;
+    }
+    if (tipo_id) {
+        whereCondition.tipo_id = Array.isArray(tipo_id) ? { [Op.in]: tipo_id } : tipo_id;
+    }
+    if (marca_id) {
+        whereCondition.marca_id = Array.isArray(marca_id) ? { [Op.in]: marca_id } : marca_id;
+    }
 
     try {
         const { count, rows } = await Product.findAndCountAll({
@@ -102,8 +109,21 @@ exports.getAllProductos = async (req, res) => {
                 { model: Temporada, attributes: ['temporada'] },
                 { model: Categoria, attributes: ['nombre'] },
                 { model: TipoProducto, attributes: ['nombre'] },
-                { model: Marca, attributes: ['nombre'] }
-            ]
+                { model: Marca, attributes: ['nombre'] },
+                {
+                    model: ProductoTallaColor,
+                    required: false, // Permitir productos sin tallas/colores específicos
+                    where: {
+                        ...(talla_id ? { talla_id: Array.isArray(talla_id) ? { [Op.in]: talla_id } : talla_id } : {}),
+                        ...(color_id ? { color_id: Array.isArray(color_id) ? { [Op.in]: color_id } : color_id } : {})
+                    },
+                    include: [
+                        { model: Talla, attributes: ['talla'] },
+                        { model: ColorProducto, attributes: ['color', 'colorHex'] }
+                    ]
+                }
+            ],
+            distinct: true // Evitar duplicados si un producto tiene múltiples tallas/colores
         });
 
         const productosCatalogo = rows.map(producto => ({
@@ -111,14 +131,17 @@ exports.getAllProductos = async (req, res) => {
             nombre: `${producto.TipoProducto?.nombre || ''} ${producto.Marca?.nombre || ''} ${producto.Categorium?.nombre || ''}`.trim(),
             precio: producto.precio,
             temporada: producto.Temporada?.temporada || null,
-            estado: producto.estado
+            variantes: producto.ProductoTallaColors.map(ptc => ({
+                talla: ptc.Talla?.talla,
+                color: ptc.ColorProducto?.color
+            }))
         }));
 
         res.json({
             productos: productosCatalogo,
             currentPage: parseInt(page),
             pageSize: parseInt(pageSize),
-            totalItems: count // Total para el paginador
+            totalItems: count
         });
     } catch (error) {
         console.error('Error al obtener productos:', error);

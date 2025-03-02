@@ -21,13 +21,35 @@ export class ProductoService {
       .set('page', params.page.toString())
       .set('pageSize', params.pageSize.toString());
 
-    // Agregar filtros si están definidos
-    if (params.estado !== '') httpParams = httpParams.set('estado', params.estado);
-    if (params.temporada_id) httpParams = httpParams.set('temporada_id', params.temporada_id);
-    if (params.categoria_id) httpParams = httpParams.set('categoria_id', params.categoria_id);
-    if (params.tipo_id) httpParams = httpParams.set('tipo_id', params.tipo_id);
-    if (params.marca_id) httpParams = httpParams.set('marca_id', params.marca_id);
+    if (params.estado) httpParams = httpParams.set('estado', params.estado);
+    if (params.search) httpParams = httpParams.set('search', params.search);
 
+    // Manejar arreglos para filtros múltiples
+    if (params.categoria_id && params.categoria_id.length > 0) {
+      params.categoria_id.forEach((id: string) => {
+        httpParams = httpParams.append('categoria_id', id);
+      });
+    }
+    if (params.tipo_id && params.tipo_id.length > 0) {
+      params.tipo_id.forEach((id: string) => {
+        httpParams = httpParams.append('tipo_id', id);
+      });
+    }
+    if (params.marca_id && params.marca_id.length > 0) {
+      params.marca_id.forEach((id: string) => {
+        httpParams = httpParams.append('marca_id', id);
+      });
+    }
+    if (params.talla_id && params.talla_id.length > 0) {
+      params.talla_id.forEach((id: string) => {
+        httpParams = httpParams.append('talla_id', id);
+      });
+    }
+    if (params.color_id && params.color_id.length > 0) {
+      params.color_id.forEach((id: string) => {
+        httpParams = httpParams.append('color_id', id);
+      });
+    }
     return this.http.get(`${this.apiUrl}/producto`, { params: httpParams });
   }
   getProductoById(id: number): Observable<any> {

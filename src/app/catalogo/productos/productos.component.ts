@@ -64,7 +64,6 @@ export class ProductosComponent implements OnInit, AfterViewInit {
     this.loadMoreProducts();
     this.searchService.search$.subscribe(text => {
       this.searchText = text;
-      console.log('Búsqueda actualizada:', text);
       this.resetAndLoad();
     });
   }
@@ -87,9 +86,7 @@ export class ProductosComponent implements OnInit, AfterViewInit {
 
 @HostListener('window:scroll', ['$event'])
 onWindowScroll(): void {
-  console.log('Scroll de ventana detectado');
   if (!this.isLoading && this.hasMore && this.isNearBottom()) {
-    console.log('Scroll detectado, cargando más productos');
     this.loadMoreProducts();
   }
 }
@@ -99,9 +96,7 @@ onWindowScroll(): void {
     const threshold = 300; // Píxeles antes del final
     const scrollPosition = window.scrollY + window.innerHeight;
     const totalHeight = document.documentElement.scrollHeight;
-    console.log('ScrollY:', window.scrollY, 'InnerHeight:', window.innerHeight, 'ScrollPosition:', scrollPosition, 'TotalHeight:', totalHeight);
     const nearBottom = scrollPosition >= totalHeight - threshold;
-    console.log('Near bottom:', nearBottom);
     return nearBottom;
   }
 
@@ -126,25 +121,18 @@ onWindowScroll(): void {
       search: this.searchText.trim() || undefined
     };
   
-    console.log('Cargando productos con parámetros:', params);
     this.productoService.getAllProductos(params).subscribe({
       next: (response) => {
-        console.log('Respuesta del backend:', response);
         const nuevosProductos = response.productos.map(producto => ({
           ...producto,
           tallas: producto.variantes ? producto.variantes.map(v => v.talla) : []
         }));
         this.productos = [...this.productos, ...nuevosProductos];
         this.filteredProductos = [...this.productos];
-        console.log('filteredProductos actualizado:', this.filteredProductos);
         this.totalItems = response.totalItems || this.productos.length;
         this.currentPage++;
         this.isLoading = false;
         this.hasMore = nuevosProductos.length === this.pageSize && this.productos.length < this.totalItems;
-  
-        // Verificar dimensiones de la página
-        console.log('Window height:', window.innerHeight);
-        console.log('Document height:', document.documentElement.scrollHeight);
       },
       error: (error) => {
         console.error('Error al obtener productos:', error);
@@ -170,7 +158,6 @@ onWindowScroll(): void {
         this.marcas = response.marcas.map(m => ({ ...m, seleccionado: false }));
         this.colores = response.colores.map(c => ({ ...c, seleccionado: false }));
         this.tallas = response.tallas.map(t => ({ ...t, seleccionado: false }));
-        console.log('Filtros cargados:', { categorias: this.categorias.length, tipos: this.tiposProductos.length });
       },
       error: (error) => {
         console.error('Error al obtener filtros:', error);
@@ -180,16 +167,22 @@ onWindowScroll(): void {
 
   getFiltrosSeleccionados(): any {
     const filtros: any = {};
+  
     const categoriasSeleccionadas = this.categorias.filter(c => c.seleccionado).map(c => c.id);
-    if (categoriasSeleccionadas.length > 0) filtros.categoria_id = categoriasSeleccionadas[0];
+    if (categoriasSeleccionadas.length > 0) filtros.categoria_id = categoriasSeleccionadas; // Arreglo completo
+  
     const tiposSeleccionados = this.tiposProductos.filter(t => t.seleccionado).map(t => t.id);
-    if (tiposSeleccionados.length > 0) filtros.tipo_id = tiposSeleccionados[0];
+    if (tiposSeleccionados.length > 0) filtros.tipo_id = tiposSeleccionados;
+  
     const marcasSeleccionadas = this.marcas.filter(m => m.seleccionado).map(m => m.id);
-    if (marcasSeleccionadas.length > 0) filtros.marca_id = marcasSeleccionadas[0];
+    if (marcasSeleccionadas.length > 0) filtros.marca_id = marcasSeleccionadas;
+  
     const tallasSeleccionadas = this.tallas.filter(t => t.seleccionado).map(t => t.id);
-    if (tallasSeleccionadas.length > 0) filtros.talla_id = tallasSeleccionadas[0];
+    if (tallasSeleccionadas.length > 0) filtros.talla_id = tallasSeleccionadas;
+  
     const coloresSeleccionados = this.colores.filter(c => c.seleccionado).map(c => c.id);
-    if (coloresSeleccionados.length > 0) filtros.color_id = coloresSeleccionados[0];
+    if (coloresSeleccionados.length > 0) filtros.color_id = coloresSeleccionados;
+  
     return filtros;
   }
 
