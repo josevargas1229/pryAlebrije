@@ -64,6 +64,10 @@ Product.belongsTo(Marca, { foreignKey: 'marca_id' });
 Product.hasMany(ImagenProducto, { foreignKey: 'producto_id' });
 ImagenProducto.belongsTo(Product, { foreignKey: 'producto_id' });
 
+// asociación con ColorProducto
+ColorProducto.hasMany(ImagenProducto, { foreignKey: 'color_id' });
+ImagenProducto.belongsTo(ColorProducto, { foreignKey: 'color_id' });
+
 // Asociaciones de Carrito
 User.hasOne(Carrito, { foreignKey: 'usuario_id' });
 Carrito.belongsTo(User, { foreignKey: 'usuario_id' });

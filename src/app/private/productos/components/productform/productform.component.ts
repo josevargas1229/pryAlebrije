@@ -27,8 +27,8 @@ export class ProductformComponent implements OnInit {
   temporadas: any[] = [];
   colores: any[] = [];
   tallasColoresStock: any[] = [];
-  imagenes: File[] = [];
-  imagenesVista: string[] = [];
+  imagenesPorColor: { [colorId: number]: File[] } = {};
+  imagenesVistaPorColor: { [colorId: number]: string[] } = {};
   readonly MAX_FILE_SIZE = 2 * 1024 * 1024;
   constructor(private fb: FormBuilder, private snackBar: MatSnackBar, private dialog: MatDialog, private productoService: ProductoService) {
     this.productoForm = this.fb.group({
@@ -69,20 +69,14 @@ export class ProductformComponent implements OnInit {
   }
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['producto'] && changes['producto'].currentValue) {
-      console.log('Producto actualizado:', this.producto);
-      console.log(this.producto.tallasColoresStock);
-      // Parchear los valores extraídos del objeto recibido
       this.productoForm.patchValue({
-        temporada: this.producto.temporada.id || '',
-        categoria: this.producto.categoria.id || '',
-        tipo: this.producto.tipo.id || '',
-        marca: this.producto.marca.id || '',
+        temporada: this.producto.temporada?.id || '',
+        categoria: this.producto.categoria?.id || '',
+        tipo: this.producto.tipo?.id || '',
+        marca: this.producto.marca?.id || '',
         precio: this.producto.precio || 0,
-        stock: this.producto.stock || 0,
         estado: this.producto.estado || false
       });
-  
-      // Si tienes un array de tallas y colores, actualízalo también
       this.actualizarTallasColores();
     }
   }
@@ -112,19 +106,55 @@ export class ProductformComponent implements OnInit {
     return this.productoForm.get('tallasColoresStock') as FormArray;
   }
   
-  onFileSelected(event: any) {
-    for (let file of event.target.files) {
-      this.imagenes.push(file);
+  // Obtener colores únicos de las variantes
+  get coloresUnicos(): any[] {
+    const coloresMap = new Map<number, any>();
+    this.tallasColoresStockArray.controls.forEach(control => {
+      const color = control.get('coloresStock')?.value;
+      if (color && color.id) {
+        coloresMap.set(color.id, color);
+      }
+    });
+    return Array.from(coloresMap.values());
+  }
+
+  // Manejar selección de archivos por color
+  onFileSelected(event: any, colorId: number) {
+    const files: File[] = Array.from(event.target.files);
+    for (let file of files) {
+      if (file.size > this.MAX_FILE_SIZE) {
+        this.snackBar.open('El archivo excede el tamaño máximo de 2MB', 'Cerrar', { duration: 3000 });
+        continue;
+      }
+      if (!this.imagenesPorColor[colorId]) {
+        this.imagenesPorColor[colorId] = [];
+        this.imagenesVistaPorColor[colorId] = [];
+      }
+      this.imagenesPorColor[colorId].push(file);
       const reader = new FileReader();
-      reader.onload = (e: any) => this.imagenesVista.push(e.target.result);
+      reader.onload = (e: any) => this.imagenesVistaPorColor[colorId].push(e.target.result);
       reader.readAsDataURL(file);
     }
   }
-
-  eliminarImagen(index: number) {
-    this.imagenes.splice(index, 1);
-    this.imagenesVista.splice(index, 1);
+  getImagenesVista(colorId: number): string[] {
+    return this.imagenesVistaPorColor[colorId] || [];
   }
+
+  // Eliminar imagen por color
+  eliminarImagen(colorId: number, index: number) {
+    this.imagenesPorColor[colorId].splice(index, 1);
+    this.imagenesVistaPorColor[colorId].splice(index, 1);
+  }
+
+  // Activar input de archivos
+  triggerFileInput(colorId: number) {
+    const fileInput = document.getElementById(`fileInput-${colorId}`) as HTMLInputElement;
+    if (fileInput) {
+        fileInput.click();
+    } else {
+        console.error(`No se encontró el input con id: fileInput-${colorId}`);
+    }
+}
   get coloresArray(): FormArray {
     return this.productoForm.get('colores') as FormArray;
   }
@@ -132,36 +162,36 @@ export class ProductformComponent implements OnInit {
     if (this.productoForm.valid) {
       const formData = new FormData();
       const formValues = this.productoForm.value;
-  
-      formData.append('temporada_id', formValues.temporada); // Agregar temporada_id
+
+      formData.append('temporada_id', formValues.temporada);
       formData.append('categoria_id', formValues.categoria);
       formData.append('tipo_id', formValues.tipo);
       formData.append('marca_id', formValues.marca);
       formData.append('precio', formValues.precio.toString());
-      formData.append('estado', formValues.estado ? 'true' : 'false');
-  
-      // Convertir tallasColoresStock en el formato esperado
-      const variantes = this.tallasColoresStockArray.value.map((variante: any) => {
-        return  ({
-          talla_id: variante.talla.id,  // Asegurar que se envía el ID de la talla
-          color_id: variante.coloresStock.id, // Asegurar que se envía el ID del color
-          stock: variante.coloresStock.stock
-        });
-      }).flat(); // Aplanar el array ya que `coloresStock` es una lista dentro de cada variante
-  
+      formData.append('estado', formValues.estado ? 'activo' : 'inactivo');
+
+      // Preparar variantes
+      const variantes = this.tallasColoresStockArray.value.map((variante: any) => ({
+        talla_id: variante.talla.id,
+        color_id: variante.coloresStock.id,
+        stock: variante.coloresStock.stock
+      }));
       formData.append('variantes', JSON.stringify(variantes));
-  
-      // Agregar imágenes
-      this.imagenes.forEach((img, index) => {
-        formData.append(`imagen${index}`, img);
+
+      // Agregar imágenes por color
+      Object.keys(this.imagenesPorColor).forEach((colorId: string) => {
+        const imagenes = this.imagenesPorColor[+colorId];
+        imagenes.forEach((img, index) => {
+          formData.append(`imagenes[${colorId}][${index}]`, img);
+        });
       });
-  
+
       this.guardar.emit(formData);
     } else {
       console.log('Formulario inválido:', this.productoForm.value);
+      this.snackBar.open('Por favor, completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
     }
-  }  
-  
+  }
 
   openDialog(type: string): void {
     const dialogRef = this.dialog.open(DetallesFormComponent, {

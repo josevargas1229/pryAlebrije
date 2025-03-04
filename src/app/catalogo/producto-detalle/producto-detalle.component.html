@@ -2,26 +2,21 @@
   <div class="contenedor fade-in" #detalleContainer>
     <!-- Miniaturas a la izquierda -->
     <div class="miniaturas">
-      <img src="assets/images/ropa.jpg" class="miniatura">
-      <img src="assets/images/ropa.jpg" class="miniatura">
-      <img src="assets/images/ropa.jpg" class="miniatura">
-      <img src="assets/images/ropa.jpg" class="miniatura">
+      <img *ngFor="let imagen of imagenesActuales" [src]="imagen.url" class="miniatura" (click)="cambiarImagenPrincipal(imagen.url)">
     </div>
 
     <!-- Imagen principal en el centro -->
     <div class="imagen-container">
-      <img src="assets/images/ropa.jpg" class="imagen-principal">
+      <img [src]="imagenPrincipal" class="imagen-principal">
     </div>
 
-    <!-- Información del producto en un card a la derecha -->
+    <!-- Información del producto a la derecha -->
     <mat-card class="info">
       <h3 *ngIf="producto.tipo">{{ producto.tipo.nombre }} {{ producto.marca.nombre }} {{ producto.categoria.nombre }}</h3>
-
       <p class="metodo-pago">La mejor prenda de la moda hasta el momento</p>
       <div class="precio">
         <span class="descuento">{{ producto.precio | currency }}</span>
       </div>
-
       <div class="entrega">
         <p><strong>Llega gratis mañana</strong> por ser tu primera compra</p>
       </div>
@@ -30,30 +25,35 @@
 
       <!-- Opciones de color -->
       <div class="colores">
-        <div *ngFor="let variante of producto.tallasColoresStock" class="color-opcion"
-          [ngStyle]="{ 'background-color': variante.coloresStock.colorHex }">
+        <div *ngFor="let color of coloresUnicos" class="color-opcion"
+          [ngStyle]="{ 'background-color': color.colorHex }"
+          [class.selected]="colorSeleccionado?.id === color.id"
+          (click)="seleccionarColor(color)">
         </div>
       </div>
 
-      <!-- Opciones de talla con Angular Material -->
+      <!-- Opciones de talla -->
       <mat-form-field appearance="outline" class="talla">
         <mat-label>Talla</mat-label>
-        <mat-select>
-          <mat-option *ngFor="let variante of producto.tallasColoresStock" [value]="variante.talla.id">
-            {{ variante.talla.talla }}
+        <mat-select [(value)]="tallaSeleccionada" (selectionChange)="verificarStock()">
+          <mat-option *ngFor="let talla of tallasUnicas" [value]="talla.id">
+            {{ talla.talla }}
           </mat-option>
         </mat-select>
       </mat-form-field>
 
-      <p class="stock">Stock disponible: {{ producto.tallasColoresStock?.[0]?.stock }}</p>
+      <!-- Stock o alerta -->
+      <p class="stock" *ngIf="stockDisponible > 0">Stock disponible: {{ stockDisponible }}</p>
+      <mat-card class="alerta-stock" *ngIf="stockDisponible === 0">
+        <mat-icon>warning</mat-icon>
+        <span>No hay stock disponible para esta combinación</span>
+      </mat-card>
 
-      <div class="botones">
-        <!-- Botón de Comprar -->
+      <!-- Botones (solo si hay stock) -->
+      <div class="botones" *ngIf="stockDisponible > 0">
         <app-loading-button [text]="'Comprar ahora'" [loading]="loadingCompra" [color]="'primary'" class="comprar"
           (click)="comprarAhora()">
         </app-loading-button>
-
-        <!-- Botón de Agregar al carrito con icono -->
         <app-loading-button [text]="'Agregar al carrito'" [loading]="loadingCarrito" [color]="'accent'" class="carrito"
           (click)="agregarAlCarrito()">
           <mat-icon style="margin-right: 5px;">shopping_cart</mat-icon>
@@ -62,8 +62,6 @@
     </mat-card>
   </div>
 </mat-card>
-
-
 <!-- Sección de productos relacionados -->
 <div class="productos-relacionados">
   <h2>Quienes vieron este producto también compraron</h2>

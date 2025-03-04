@@ -1,24 +1,27 @@
 const sequelize = require('../config/database');
-const { Product, Empleado, Temporada, Categoria, TipoProducto, Marca, Talla, ColorProducto, ProductoTallaColor } = require('../models/associations');
+const { Product, Empleado, Temporada, Categoria, TipoProducto, Marca, Talla, ColorProducto, ProductoTallaColor, ImagenProducto } = require('../models/associations');
 const { Op } = require('sequelize');
-exports.createProducto = async (req, res) => {
-    const transaction = await sequelize.transaction(); // Inicia la transacción
-    try {
-        // Obtener el usuario del token autenticado
-        const { temporada_id, categoria_id, tipo_id, marca_id, variantes, precio, estado, calificacion } = req.body;
-        const { userId: userIdFromToken } = req.user; // El ID del usuario que crea el producto
+const { uploadImageToCloudinary } = require('../config/cloudinaryConfig');
 
-        // Obtener el ID del empleado relacionado con el usuario
+exports.createProducto = async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+        // Obtener datos del request
+        const { temporada_id, categoria_id, tipo_id, marca_id, variantes, precio, estado, calificacion } = req.body;
+        const { userId: userIdFromToken } = req.user;
+
+        // Obtener empleado
         const empleado = await Empleado.findOne({
             where: { usuario_id: userIdFromToken },
             transaction
         });
 
         if (!empleado) {
+            await transaction.rollback();
             return res.status(404).json({ message: "Empleado no encontrado para este usuario." });
         }
 
-        const createdBy = empleado.dataValues.id;
+        const createdBy = empleado.id;
 
         // Crear el producto
         const nuevoProducto = await Product.create({
@@ -29,20 +32,30 @@ exports.createProducto = async (req, res) => {
             precio,
             estado,
             calificacion,
-            created_by: createdBy, // Asignar el ID del empleado que crea el producto
-            updated_by: createdBy, // Asignar el ID del empleado que hace la primera modificación
-            created_at: new Date(), // Fecha de creación
-            updated_at: new Date()  // Fecha de la primera modificación
+            created_by: createdBy,
+            updated_by: createdBy,
+            created_at: new Date(),
+            updated_at: new Date()
         }, { transaction });
 
+        // Parsear variantes
         let variantesParsed = Array.isArray(variantes) ? variantes : JSON.parse(variantes);
-        // Manejar las variantes (cada una tiene talla, color y stock)
+
+        // Manejar variantes y sus imágenes
         if (variantesParsed && variantesParsed.length > 0) {
             for (const variante of variantesParsed) {
-                const { talla_id, color_id, stock } = variante;
-                let talla = await Talla.findByPk(talla_id, { transaction });
-                let color = await ColorProducto.findByPk(color_id, { transaction });
-                // Guardar la relación en la tabla intermedia con el stock
+                const { talla_id, color_id, stock, imagenes } = variante;
+
+                // Validar talla y color
+                const talla = await Talla.findByPk(talla_id, { transaction });
+                const color = await ColorProducto.findByPk(color_id, { transaction });
+
+                if (!talla || !color) {
+                    await transaction.rollback();
+                    return res.status(400).json({ message: "Talla o color inválido" });
+                }
+
+                // Guardar relación producto-talla-color
                 await ProductoTallaColor.create({
                     producto_id: nuevoProducto.id,
                     talla_id: talla.id,
@@ -51,16 +64,32 @@ exports.createProducto = async (req, res) => {
                 }, { transaction });
             }
         }
+        // Manejar imágenes si existen
+        if (req.files && req.files.length > 0) {
+            for (const file of req.files) {
+                // Extraer color_id del nombre del campo (ejemplo: "imagenes[1][0]" -> color_id: 1)
+                const match = file.fieldname.match(/imagenes\[(\d+)\]/);
+                if (match) {
+                    const color_id = parseInt(match[1], 10);
+                    const imagenUrl = await uploadImageToCloudinary(file);
+                    await ImagenProducto.create({
+                        producto_id: nuevoProducto.id,
+                        color_id,
+                        imagen_url: imagenUrl
+                    }, { transaction });
+                }
+            }
+        }
 
-        await transaction.commit(); // Confirma la transacción si todo salió bien
+        await transaction.commit();
         res.status(201).json({
             message: "Producto creado con éxito",
             producto: nuevoProducto
         });
 
     } catch (error) {
-        await transaction.rollback(); // Revierte la transacción en caso de error
-        console.error('Error al crear el producto:', error); // Agregar más detalle en el log de error
+        await transaction.rollback();
+        console.error('Error al crear el producto:', error);
         res.status(400).json({ message: "Error al crear el producto", error: error.message });
     }
 };
@@ -130,6 +159,7 @@ exports.getAllProductos = async (req, res) => {
             id: producto.id,
             nombre: `${producto.TipoProducto?.nombre || ''} ${producto.Marca?.nombre || ''} ${producto.Categorium?.nombre || ''}`.trim(),
             precio: producto.precio,
+            estado: producto.estado,
             temporada: producto.Temporada?.temporada || null,
             variantes: producto.ProductoTallaColors.map(ptc => ({
                 talla: ptc.Talla?.talla,
@@ -242,7 +272,17 @@ exports.getProductoById = async (req, res) => {
                     attributes: ['id', 'producto_id', 'talla_id', 'color_id', 'stock'],
                     include: [
                         { model: Talla, attributes: ['id', 'talla'] },
-                        { model: ColorProducto, attributes: ['id', 'color', 'colorHex'] }
+                        { 
+                            model: ColorProducto, 
+                            attributes: ['id', 'color', 'colorHex'],
+                            include: [
+                                { 
+                                    model: ImagenProducto, 
+                                    attributes: ['id', 'imagen_url'], 
+                                    where: { producto_id: id } // Aseguramos que las imágenes sean del producto actual
+                                }
+                            ]
+                        }
                     ]
                 }
             ]
@@ -269,7 +309,15 @@ exports.getProductoById = async (req, res) => {
                 producto_id: ptc.producto_id,
                 stock: ptc.stock,
                 talla: ptc.Talla ? { id: ptc.Talla.id, talla: ptc.Talla.talla } : null,
-                coloresStock: ptc.ColorProducto ? { id: ptc.ColorProducto.id, color: ptc.ColorProducto.color, colorHex: ptc.ColorProducto.colorHex } : null
+                coloresStock: ptc.ColorProducto ? { 
+                    id: ptc.ColorProducto.id, 
+                    color: ptc.ColorProducto.color, 
+                    colorHex: ptc.ColorProducto.colorHex,
+                    imagenes: ptc.ColorProducto.ImagenProductos ? ptc.ColorProducto.ImagenProductos.map(img => ({
+                        id: img.id,
+                        url: img.imagen_url
+                    })) : []
+                } : null
             })) : []
         };
 
@@ -433,5 +481,20 @@ exports.restoreProducto = async (req, res) => {
         await transaction.rollback();
         console.error('Error al restaurar el producto:', error);
         res.status(500).json({ message: "Error al restaurar el producto", error: error.message });
+    }
+};
+// Ejemplo de controlador para obtener imágenes
+exports.getImagenesPorProductoYColor = async (req, res) => {
+    try {
+        const { producto_id, color_id } = req.query;
+        const imagenes = await ImagenProducto.findAll({
+            where: {
+                producto_id,
+                color_id
+            }
+        });
+        res.json(imagenes);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };

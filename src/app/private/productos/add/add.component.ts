@@ -18,33 +18,22 @@ export class AddComponent {
 
   guardarProducto(datos: FormData) {
     console.log('Añadiendo producto...', datos);
-  
-    // Convertir FormData a un objeto JSON
-    const producto: any = {};
-    datos.forEach((value, key) => {
-      producto[key] = value;
-    });
-  
-    console.log('Producto:', producto);
+    
+    // No conviertas FormData a objeto, déjalo como está
     this.isLoading = true;
-    // Llamar al servicio para crear el producto con el objeto JSON
-    this.productoService.createProducto(producto).subscribe(
+    
+    this.productoService.createProducto(datos).subscribe(
       response => {
         console.log('Producto creado con éxito:', response);
-        
-        // Mostrar snackbar de éxito
-        this.snackBar.open('Producto creado con éxito', 'Cerrar', {
-          duration: 3000
-        });
-        
-        // Redireccionar a la lista de productos
+        this.snackBar.open('Producto creado con éxito', 'Cerrar', { duration: 3000 });
         this.router.navigate(['/admin/productos/list']);
       },
       error => {
         console.error('Error al crear producto:', error);
+        this.snackBar.open('Error al crear el producto', 'Cerrar', { duration: 3000 });
       }
     ).add(() => {
-      this.isLoading = false; // Desactivar el estado de carga cuando termine la petición
+      this.isLoading = false;
     });
   }
   

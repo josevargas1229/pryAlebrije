@@ -1,14 +1,6 @@
 // controllers/companyProfileController.js
-const cloudinary = require('cloudinary').v2;
 const { PerfilEmpresa } = require('../models/associations');
-
-// Configura Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true
-});
+const { uploadImageToCloudinary } = require('../config/cloudinaryConfig');
 
 // Obtener el perfil de la empresa
 exports.getCompanyProfile = async (req, res) => {
@@ -39,11 +31,11 @@ exports.updateCompanyProfile = async (req, res) => {
                 direccion,
                 telefono,
                 email,
-                redSocial, // Actualiza red social
-                logo: logoUrl || undefined // Guarda la URL solo si existe
+                redSocial,
+                logo: logoUrl || undefined
             },
             {
-                where: { id: 1 } // Asumiendo que solo hay un perfil
+                where: { id: 1 }
             }
         );
 
@@ -51,16 +43,4 @@ exports.updateCompanyProfile = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-};
-
-// Función para subir la imagen a Cloudinary y retornar la URL
-const uploadImageToCloudinary = (file) => {
-    return new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream({ resource_type: 'image' }, (error, result) => {
-            if (error) {
-                return reject(new Error('Error al subir el archivo a Cloudinary: ' + error.message));
-            }
-            resolve(result.secure_url);
-        }).end(file.buffer);
-    });
 };

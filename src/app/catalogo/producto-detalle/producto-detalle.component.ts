@@ -30,32 +30,32 @@ import { LoadingButtonComponent } from '../../components/loading-button/loading-
 export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   producto: any = null;
   productoId!: number;
+  coloresUnicos: any[] = [];
+  tallasUnicas: any[] = [];
+  colorSeleccionado: any = null;
+  tallaSeleccionada: number | null = null;
+  imagenesActuales: any[] = [];
+  imagenPrincipal: string = '';
+  stockDisponible: number = 0;
+  @ViewChild('scrollContainer', { static: false }) scrollContainer!: ElementRef;
+  @ViewChild('detalleContainer', { static: false }) detalleContainer!: ElementRef;
+  loadingCompra: boolean = false;
+  loadingCarrito: boolean = false;
+
   constructor(
     private productoService: ProductoService,
     private route: ActivatedRoute,
     private renderer: Renderer2
-  ){}
+  ) { }
 
-  @ViewChild('scrollContainer', { static: false }) scrollContainer!: ElementRef;
-  @ViewChild('detalleContainer', { static: false }) detalleContainer!: ElementRef;
-  @ViewChild('relaContainer', { static: false }) relaContainer!: ElementRef;
-  loadingCompra: boolean = false;
-  loadingCarrito: boolean = false;
-
-  comprarAhora(): void {
-    this.loadingCompra = true;
-    setTimeout(() => {
-      this.loadingCompra = false;
-      console.log('Compra realizada'); // Aquí puedes redirigir a una página de pago
-    }, 2000);
-  }
-
-  agregarAlCarrito(): void {
-    this.loadingCarrito = true;
-    setTimeout(() => {
-      this.loadingCarrito = false;
-      console.log('Producto agregado al carrito'); // Aquí puedes hacer la lógica real
-    }, 2000);
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.productoId = +id;
+        this.obtenerProductoDetalle(this.productoId);
+      }
+    });
   }
 
   ngAfterViewInit(): void {
@@ -68,16 +68,91 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
           }
         });
       },
-      { threshold: 0.2 } // Se activa cuando el 20% del elemento es visible
+      { threshold: 0.2 }
     );
 
     if (this.detalleContainer) {
       observer.observe(this.detalleContainer.nativeElement);
     }
+  }
 
-    if (this.relaContainer) {
-      observer.observe(this.relaContainer.nativeElement);
+  obtenerProductoDetalle(id: number): void {
+    this.productoService.getProductoById(id).subscribe(response => {
+      this.producto = response.producto;
+      console.log('Producto obtenido:', this.producto);
+      this.inicializarDatos();
+    }, error => {
+      console.error('Error al obtener detalles del producto:', error);
+    });
+  }
+
+  inicializarDatos(): void {
+    // Extraer colores únicos
+    const coloresMap = new Map<number, any>();
+    this.producto.tallasColoresStock.forEach((variante: any) => {
+      const color = variante.coloresStock;
+      if (color && !coloresMap.has(color.id)) {
+        coloresMap.set(color.id, color);
+      }
+    });
+    this.coloresUnicos = Array.from(coloresMap.values());
+
+    // Extraer tallas únicas
+    const tallasMap = new Map<number, any>();
+    this.producto.tallasColoresStock.forEach((variante: any) => {
+      const talla = variante.talla;
+      if (talla && !tallasMap.has(talla.id)) {
+        tallasMap.set(talla.id, talla);
+      }
+    });
+    this.tallasUnicas = Array.from(tallasMap.values());
+
+    // Seleccionar el primer color y talla por defecto
+    if (this.coloresUnicos.length > 0) {
+      this.seleccionarColor(this.coloresUnicos[0]);
     }
+    if (this.tallasUnicas.length > 0) {
+      this.tallaSeleccionada = this.tallasUnicas[0].id;
+      this.verificarStock();
+    }
+  }
+
+  seleccionarColor(color: any): void {
+    this.colorSeleccionado = color;
+    this.imagenesActuales = color.imagenes || [];
+    this.imagenPrincipal = this.imagenesActuales.length > 0 ? this.imagenesActuales[0].url : 'assets/images/ropa.jpg'; // Imagen por defecto si no hay
+    this.verificarStock();
+  }
+
+  cambiarImagenPrincipal(url: string): void {
+    this.imagenPrincipal = url;
+  }
+
+  verificarStock(): void {
+    if (this.colorSeleccionado && this.tallaSeleccionada) {
+      const variante = this.producto.tallasColoresStock.find((v: any) =>
+        v.talla.id === this.tallaSeleccionada && v.coloresStock.id === this.colorSeleccionado.id
+      );
+      this.stockDisponible = variante ? variante.stock : 0;
+    } else {
+      this.stockDisponible = 0;
+    }
+  }
+
+  comprarAhora(): void {
+    this.loadingCompra = true;
+    setTimeout(() => {
+      this.loadingCompra = false;
+      console.log('Compra realizada');
+    }, 2000);
+  }
+
+  agregarAlCarrito(): void {
+    this.loadingCarrito = true;
+    setTimeout(() => {
+      this.loadingCarrito = false;
+      console.log('Producto agregado al carrito');
+    }, 2000);
   }
 
   scrollIzquierda() {
@@ -91,24 +166,4 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
       this.scrollContainer.nativeElement.scrollLeft += 300;
     }
   }
-
-  ngOnInit(): void {
-    // Obtener el ID del producto desde la URL
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.productoId = +id;
-        this.obtenerProductoDetalle(this.productoId);
-      }
-    });
-  }
-  obtenerProductoDetalle(id: number): void {
-    this.productoService.getProductoById(id).subscribe(response => {
-      this.producto = response.producto;
-      console.log('Producto obtenido:', this.producto); // Verificar si el tipo de producto llega correctamente
-    }, error => {
-      console.error('Error al obtener detalles del producto:', error);
-    });
-  }
-
- }
+}

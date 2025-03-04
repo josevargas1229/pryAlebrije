@@ -66,14 +66,7 @@
                     </mat-error>
                 </mat-form-field>
 
-                <mat-form-field appearance="outline">
-                    <mat-label>Stock</mat-label>
-                    <input matInput type="number" formControlName="stock">
-                    <mat-error *ngIf="productoForm.get('stock')?.errors?.['min']">
-                        El stock debe ser al menos 0
-                    </mat-error>
-                </mat-form-field>
-
+                <mat-checkbox formControlName="estado">Activo en catálogo</mat-checkbox>
             </div>
 
             <mat-card class="tallas-colores-card">
@@ -126,28 +119,37 @@
 
                 </mat-card-content>
             </mat-card>
-            <div class="images-section">
-                <div class="file-upload-container">
-                    <button type="button" mat-stroked-button (click)="fileInput.click()">
-                        <mat-icon>add_photo_alternate</mat-icon>
-                        Subir imágenes
-                    </button>
-                    <input #fileInput type="file" hidden accept=".jpg,.jpeg,.png" (change)="onFileSelected($event)"
-                        multiple>
-                    <mat-hint>Máximo 2MB por imagen. Formatos: JPG, PNG</mat-hint>
-                </div>
-
-                <div class="images-preview" *ngIf="imagenesVista.length">
-                    <div class="image-container" *ngFor="let img of imagenesVista; let i = index">
-                        <img [src]="img" alt="Preview">
-                        <button mat-icon-button color="warn" (click)="eliminarImagen(i)">
-                            <mat-icon>delete</mat-icon>
-                        </button>
+            <mat-card class="images-card">
+                <mat-card-title>Imágenes por color</mat-card-title>
+                <mat-card-content>
+                    <div *ngFor="let color of coloresUnicos" class="color-images-row">
+                        <div class="color-label">
+                            <span [style.background-color]="color.colorHex"
+                                style="width: 15px; height: 15px; display: inline-block; border-radius: 50%; margin-right: 5px;"></span>
+                            {{ color.color }}
+                        </div>
+                        <div class="file-upload-container">
+                            <button type="button" mat-stroked-button (click)="triggerFileInput(color.id)">
+                                <mat-icon>add_photo_alternate</mat-icon>
+                                Subir imágenes
+                            </button>
+                            <input type="file" [id]="'fileInput-' + color.id" hidden accept=".jpg,.jpeg,.png" multiple
+                                (change)="onFileSelected($event, color.id)">
+                            <mat-hint>Máximo 2MB por imagen. Formatos: JPG, PNG</mat-hint>
+                        </div>
+                        <div class="images-preview" *ngIf="getImagenesVista(color.id).length">
+                            <div class="image-container"
+                                *ngFor="let img of getImagenesVista(color.id); let imgIndex = index">
+                                <img [src]="img" alt="Preview">
+                                <button mat-icon-button color="warn" (click)="eliminarImagen(color.id, imgIndex)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
+                </mat-card-content>
+            </mat-card>
 
-            <mat-checkbox formControlName="estado">Activo en catálogo</mat-checkbox>
             <div class="form-footer">
                 <div class="action-buttons">
                     <button mat-button type="button" (click)="cancelar()">Cancelar</button>
