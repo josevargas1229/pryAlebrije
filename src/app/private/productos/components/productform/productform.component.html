@@ -137,11 +137,21 @@
                                 (change)="onFileSelected($event, color.id)">
                             <mat-hint>Máximo 2MB por imagen. Formatos: JPG, PNG</mat-hint>
                         </div>
-                        <div class="images-preview" *ngIf="getImagenesVista(color.id).length">
+                        <!-- Imágenes existentes -->
+                        <div class="images-preview" *ngIf="imagenesExistentesPorColor[color.id]?.length">
                             <div class="image-container"
-                                *ngFor="let img of getImagenesVista(color.id); let imgIndex = index">
+                                *ngFor="let img of imagenesExistentesPorColor[color.id]; let i = index">
+                                <img [src]="img.url" alt="Preview">
+                                <button mat-icon-button type="button" color="warn" (click)="eliminarImagenExistente(color.id, i)">
+                                    <mat-icon>delete</mat-icon>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Imágenes nuevas -->
+                        <div class="images-preview" *ngIf="getImagenesVista(color.id).length">
+                            <div class="image-container" *ngFor="let img of getImagenesVista(color.id); let i = index">
                                 <img [src]="img" alt="Preview">
-                                <button mat-icon-button color="warn" (click)="eliminarImagen(color.id, imgIndex)">
+                                <button mat-icon-button type="button" color="warn" (click)="eliminarImagenNueva(color.id, i)">
                                     <mat-icon>delete</mat-icon>
                                 </button>
                             </div>
@@ -149,7 +159,6 @@
                     </div>
                 </mat-card-content>
             </mat-card>
-
             <div class="form-footer">
                 <div class="action-buttons">
                     <button mat-button type="button" (click)="cancelar()">Cancelar</button>

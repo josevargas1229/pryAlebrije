@@ -29,6 +29,8 @@ export class ProductformComponent implements OnInit {
   tallasColoresStock: any[] = [];
   imagenesPorColor: { [colorId: number]: File[] } = {};
   imagenesVistaPorColor: { [colorId: number]: string[] } = {};
+  imagenesExistentesPorColor: { [colorId: number]: { id: number, url: string }[] } = {};
+  imagenesAEliminar: number[] = [];
   readonly MAX_FILE_SIZE = 2 * 1024 * 1024;
   constructor(private fb: FormBuilder, private snackBar: MatSnackBar, private dialog: MatDialog, private productoService: ProductoService) {
     this.productoForm = this.fb.group({
@@ -44,13 +46,6 @@ export class ProductformComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Si hay un producto, cargar sus valores en el formulario
-    if (this.producto) {
-      this.productoForm.patchValue(this.producto);
-      console.log('Producto:', this.producto);
-    }
-
-    // Llamar al servicio para obtener los filtros dinámicos
     this.productoService.getAllFilters().subscribe({
       next: (data) => {
         this.temporadas = data.temporadas;
@@ -59,7 +54,9 @@ export class ProductformComponent implements OnInit {
         this.marcas = data.marcas;
         this.tallas = data.tallas;
         this.colores = data.colores;
-        
+        if (this.producto?.id) {
+          this.cargarDatosProducto();
+        }
       },
       error: (error) => {
         console.error('Error al obtener los filtros:', error);
@@ -80,7 +77,37 @@ export class ProductformComponent implements OnInit {
       this.actualizarTallasColores();
     }
   }
-  
+  cargarDatosProducto() {
+    this.productoForm.patchValue({
+      temporada: this.producto.temporada?.id || '',
+      categoria: this.producto.categoria?.id || '',
+      tipo: this.producto.tipo?.id || '',
+      marca: this.producto.marca?.id || '',
+      precio: this.producto.precio || 0,
+      estado: this.producto.estado === 'activo',
+    });
+
+    this.tallasColoresStockArray.clear();
+    this.producto.tallasColoresStock.forEach(tc => {
+      this.tallasColoresStockArray.push(this.fb.group({
+        talla: [tc.talla, Validators.required],
+        coloresStock: this.fb.group({
+          id: [tc.coloresStock.id, Validators.required],
+          color: [tc.coloresStock.color, Validators.required],
+          colorHex: [tc.coloresStock.colorHex || ''],
+          stock: [tc.stock, [Validators.required, Validators.min(0)]]
+        })
+      }));
+
+      // Cargar imágenes existentes
+      const colorId = tc.coloresStock.id;
+      if (tc.coloresStock.imagenes?.length > 0) {
+        this.imagenesExistentesPorColor[colorId] = tc.coloresStock.imagenes;
+      }
+    });
+
+    this.dataSource.data = this.tallasColoresStockArray.controls.map(control => control.value);
+  }
   actualizarTallasColores() {
     this.tallasColoresStockArray.clear(); // Limpiar array antes de insertar nuevos valores
   
@@ -140,10 +167,15 @@ export class ProductformComponent implements OnInit {
     return this.imagenesVistaPorColor[colorId] || [];
   }
 
-  // Eliminar imagen por color
-  eliminarImagen(colorId: number, index: number) {
+  eliminarImagenNueva(colorId: number, index: number) {
     this.imagenesPorColor[colorId].splice(index, 1);
     this.imagenesVistaPorColor[colorId].splice(index, 1);
+  }
+
+  eliminarImagenExistente(colorId: number, index: number) {
+    const imagen = this.imagenesExistentesPorColor[colorId][index];
+    this.imagenesAEliminar.push(imagen.id);
+    this.imagenesExistentesPorColor[colorId].splice(index, 1);
   }
 
   // Activar input de archivos
@@ -170,7 +202,6 @@ export class ProductformComponent implements OnInit {
       formData.append('precio', formValues.precio.toString());
       formData.append('estado', formValues.estado ? 'activo' : 'inactivo');
 
-      // Preparar variantes
       const variantes = this.tallasColoresStockArray.value.map((variante: any) => ({
         talla_id: variante.talla.id,
         color_id: variante.coloresStock.id,
@@ -178,7 +209,7 @@ export class ProductformComponent implements OnInit {
       }));
       formData.append('variantes', JSON.stringify(variantes));
 
-      // Agregar imágenes por color
+      // Imágenes nuevas
       Object.keys(this.imagenesPorColor).forEach((colorId: string) => {
         const imagenes = this.imagenesPorColor[+colorId];
         imagenes.forEach((img, index) => {
@@ -186,9 +217,13 @@ export class ProductformComponent implements OnInit {
         });
       });
 
+      // Imágenes a eliminar
+      if (this.imagenesAEliminar.length > 0) {
+        formData.append('imagenesAEliminar', JSON.stringify(this.imagenesAEliminar));
+      }
+
       this.guardar.emit(formData);
     } else {
-      console.log('Formulario inválido:', this.productoForm.value);
       this.snackBar.open('Por favor, completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
     }
   }

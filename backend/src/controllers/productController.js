@@ -183,25 +183,30 @@ exports.updateProducto = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
         const { id } = req.params;
-        const { temporada_id, categoria_id, tipo_id, marca_id, variantes, precio, estado, calificacion } = req.body;
+        const { temporada_id, categoria_id, tipo_id, marca_id, variantes, precio, estado, calificacion, imagenesAEliminar } = req.body;
         const { userId: userIdFromToken } = req.user;
 
+        // Obtener empleado
         const empleado = await Empleado.findOne({
             where: { usuario_id: userIdFromToken },
             transaction
         });
 
         if (!empleado) {
+            await transaction.rollback();
             return res.status(404).json({ message: "Empleado no encontrado para este usuario." });
         }
 
-        const updatedBy = empleado.dataValues.id;
+        const updatedBy = empleado.id;
 
+        // Verificar producto
         const producto = await Product.findByPk(id, { transaction });
         if (!producto) {
+            await transaction.rollback();
             return res.status(404).json({ message: "Producto no encontrado." });
         }
 
+        // Actualizar datos básicos del producto
         await producto.update({
             temporada_id,
             categoria_id,
@@ -214,7 +219,10 @@ exports.updateProducto = async (req, res) => {
             updated_at: new Date()
         }, { transaction });
 
-        let variantesParsed = Array.isArray(variantes) ? variantes : JSON.parse(variantes);
+        // Parsear variantes
+        let variantesParsed = Array.isArray(variantes) ? variantes : JSON.parse(variantes || '[]');
+
+        // Sincronizar variantes (tallas y colores)
         if (variantesParsed && variantesParsed.length > 0) {
             const existingVariantes = await ProductoTallaColor.findAll({
                 where: { producto_id: id },
@@ -240,8 +248,41 @@ exports.updateProducto = async (req, res) => {
                 }
             }
 
+            // Eliminar variantes que ya no existen
             for (const [, variante] of existingMap) {
                 await variante.destroy({ transaction });
+            }
+        }
+
+        // Manejar imágenes
+        // 1. Eliminar imágenes marcadas para eliminación
+        let imagenesAEliminarParsed = [];
+        if (imagenesAEliminar) {
+            imagenesAEliminarParsed = Array.isArray(imagenesAEliminar) ? imagenesAEliminar : JSON.parse(imagenesAEliminar);
+        }
+        if (imagenesAEliminarParsed.length > 0) {
+            await ImagenProducto.destroy({
+                where: {
+                    id: imagenesAEliminarParsed,
+                    producto_id: id
+                },
+                transaction
+            });
+        }
+
+        // 2. Agregar nuevas imágenes desde req.files
+        if (req.files && req.files.length > 0) {
+            for (const file of req.files) {
+                const match = file.fieldname.match(/imagenes\[(\d+)\]/);
+                if (match) {
+                    const color_id = parseInt(match[1], 10);
+                    const imagenUrl = await uploadImageToCloudinary(file);
+                    await ImagenProducto.create({
+                        producto_id: id,
+                        color_id,
+                        imagen_url: imagenUrl
+                    }, { transaction });
+                }
             }
         }
 
@@ -250,7 +291,7 @@ exports.updateProducto = async (req, res) => {
     } catch (error) {
         await transaction.rollback();
         console.error('Error al actualizar el producto:', error);
-        res.status(400).json({ message: "Error al actualizar el producto", error: error.message });
+        res.status(500).json({ message: "Error al actualizar el producto", error: error.message });
     }
 };
 
@@ -279,7 +320,8 @@ exports.getProductoById = async (req, res) => {
                                 { 
                                     model: ImagenProducto, 
                                     attributes: ['id', 'imagen_url'], 
-                                    where: { producto_id: id } // Aseguramos que las imágenes sean del producto actual
+                                    where: { producto_id: id }, // Aseguramos que las imágenes sean del producto actual
+                                    required: false // Hacer la relación opcional
                                 }
                             ]
                         }
@@ -317,7 +359,7 @@ exports.getProductoById = async (req, res) => {
                         id: img.id,
                         url: img.imagen_url
                     })) : []
-                } : null
+                } : { id: ptc.color_id, color: null, colorHex: null, imagenes: [] } // Fallback si no hay ColorProducto
             })) : []
         };
 

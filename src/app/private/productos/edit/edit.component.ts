@@ -6,12 +6,13 @@ import { ProductoService } from '../services/producto.service';
 @Component({
   selector: 'app-edit',
   templateUrl: './edit.component.html',
-  styleUrl: './edit.component.scss'
+  styleUrls: ['./edit.component.scss']
 })
 export class EditComponent implements OnInit {
   productoExistente: any = {};
   productoId!: number;
   isLoading = false;
+
   constructor(
     private route: ActivatedRoute,
     private productoService: ProductoService,
@@ -31,8 +32,8 @@ export class EditComponent implements OnInit {
 
   cargarProducto(id: number) {
     this.productoService.getProductoById(id).subscribe({
-      next: (producto) => {
-        this.productoExistente = producto.producto;
+      next: (response) => {
+        this.productoExistente = response.producto;
         console.table(this.productoExistente);
       },
       error: (error) => {
@@ -43,18 +44,11 @@ export class EditComponent implements OnInit {
   }
 
   actualizarProducto(datos: FormData) {
-    // Convertir FormData a un objeto JSON
-    const producto: any = {};
-    datos.forEach((value, key) => {
-      producto[key] = value;
-    });
-
-    console.log('Producto:', producto);
     this.isLoading = true;
-    this.productoService.updateProducto(this.productoId, producto).subscribe({
+    this.productoService.updateProducto(this.productoId, datos).subscribe({
       next: () => {
         this.snackBar.open('Producto actualizado con éxito', 'Cerrar', { duration: 3000 });
-        this.router.navigate(['/admin/productos/list']); // Redirige a la lista de productos
+        this.router.navigate(['/admin/productos/list']);
       },
       error: (error) => {
         console.error('Error al actualizar producto:', error);
