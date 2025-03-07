@@ -4,10 +4,10 @@ import { ProductosComponent } from './productos.component';
 import { ListComponent } from './list/list.component';
 import { AddComponent } from './add/add.component';
 import { EditComponent } from './edit/edit.component';
-import { PreviewComponent } from './preview/preview.component';
 import { AuthGuard } from '../../guards/auth/auth.guard';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { DeletedProductsComponent } from './deleted-products/deleted-products.component';
+import { ProductoDetalleComponent } from '../../catalogo/producto-detalle/producto-detalle.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'inicio', pathMatch: 'full' },
@@ -16,7 +16,7 @@ const routes: Routes = [
   { path: 'add', component: AddComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Crear-producto" } },
   { path: 'eliminated', component: DeletedProductsComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Productos Eliminados" } },
   { path: 'edit/:id', component: EditComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Editar-producto" } },
-  { path: 'preview/:id', component: PreviewComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Detalle-producto" } },
+  { path: 'preview/:id', component: ProductoDetalleComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Detalle-producto" } },
   // { path: 'history', component: HistoryComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Historial de Movimientos" } },
   // { path: 'low-stock', component: LowStockComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Productos con Bajo Stock" } }
 ];

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 import { ProductosRoutingModule } from './productos-routing.module';
 import { ProductosComponent } from './productos.component';
-import { PreviewComponent } from './preview/preview.component';
 import { EditComponent } from './edit/edit.component';
 import { AddComponent } from './add/add.component';
 import { ListComponent } from './list/list.component';
@@ -39,7 +38,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     ListComponent,
     AddComponent,
     EditComponent,
-    PreviewComponent,
     ProductformComponent,
     DetallesFormComponent,
     VarianteFormComponent,

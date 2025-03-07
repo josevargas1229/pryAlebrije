@@ -84,7 +84,7 @@ export class ProductformComponent implements OnInit {
       tipo: this.producto.tipo?.id || '',
       marca: this.producto.marca?.id || '',
       precio: this.producto.precio || 0,
-      estado: this.producto.estado === 'activo',
+      estado: this.producto.estado === true,
     });
 
     this.tallasColoresStockArray.clear();
@@ -200,7 +200,7 @@ export class ProductformComponent implements OnInit {
       formData.append('tipo_id', formValues.tipo);
       formData.append('marca_id', formValues.marca);
       formData.append('precio', formValues.precio.toString());
-      formData.append('estado', formValues.estado ? 'activo' : 'inactivo');
+      formData.append('estado', formValues.estado);
 
       const variantes = this.tallasColoresStockArray.value.map((variante: any) => ({
         talla_id: variante.talla.id,

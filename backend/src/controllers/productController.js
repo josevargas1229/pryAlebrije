@@ -525,7 +525,7 @@ exports.restoreProducto = async (req, res) => {
         res.status(500).json({ message: "Error al restaurar el producto", error: error.message });
     }
 };
-// Ejemplo de controlador para obtener imágenes
+// controlador para obtener imágenes
 exports.getImagenesPorProductoYColor = async (req, res) => {
     try {
         const { producto_id, color_id } = req.query;

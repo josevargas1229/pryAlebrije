@@ -1,5 +1,14 @@
 <mat-card class="producto-detalle">
+  <mat-card *ngIf="esPrevisualizacion" class="preview-notice">
+    <mat-card-content>
+      <mat-icon>info</mat-icon>
+      <span>Esto es una previsualización del producto. </span>
+      <span *ngIf="!producto.estado">El producto no es visible en el catálogo.</span>
+    </mat-card-content>
+  </mat-card>
   <div class="contenedor fade-in" #detalleContainer>
+    <!-- Nota de previsualización -->
+
     <!-- Miniaturas a la izquierda -->
     <div class="miniaturas">
       <img *ngFor="let imagen of imagenesActuales" [src]="imagen.url" class="miniatura" (click)="cambiarImagenPrincipal(imagen.url)">
@@ -49,8 +58,8 @@
         <span>No hay stock disponible para esta combinación</span>
       </mat-card>
 
-      <!-- Botones (solo si hay stock) -->
-      <div class="botones" *ngIf="stockDisponible > 0">
+      <!-- Botones (solo si hay stock y no es previsualización) -->
+      <div class="botones" *ngIf="stockDisponible > 0 && !esPrevisualizacion">
         <app-loading-button [text]="'Comprar ahora'" [loading]="loadingCompra" [color]="'primary'" class="comprar"
           (click)="comprarAhora()">
         </app-loading-button>
@@ -62,15 +71,14 @@
     </mat-card>
   </div>
 </mat-card>
-<!-- Sección de productos relacionados -->
-<div class="productos-relacionados">
-  <h2>Quienes vieron este producto también compraron</h2>
 
+<!-- Sección de productos relacionados -->
+<div class="productos-relacionados" *ngIf="!esPrevisualizacion">
+  <h2>Quienes vieron este producto también compraron</h2>
 
   <button mat-icon-button class="flecha izquierda" (click)="scrollIzquierda()">
     <mat-icon>chevron_left</mat-icon>
   </button>
-
 
   <div class="productos-grid" #scrollContainer>
     <div class="producto-container">
