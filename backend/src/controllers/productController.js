@@ -2,7 +2,7 @@ const sequelize = require('../config/database');
 const { Product, Empleado, Temporada, Categoria, TipoProducto, Marca, Talla, ColorProducto, ProductoTallaColor, ImagenProducto } = require('../models/associations');
 const { Op } = require('sequelize');
 const { uploadImageToCloudinary } = require('../config/cloudinaryConfig');
-
+const logAudit = require('../utils/audit');
 exports.createProducto = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
@@ -81,6 +81,7 @@ exports.createProducto = async (req, res) => {
             }
         }
 
+        await logAudit('productos', userIdFromToken, 'crear_producto', { producto_id: nuevoProducto.id, datos: nuevoProducto });
         await transaction.commit();
         res.status(201).json({
             message: "Producto creado con éxito",
@@ -110,12 +111,15 @@ exports.getAllFilters = async (req, res) => {
         res.status(500).json({ message: "Error al obtener los datos", error: error.message });
     }
 };
+
 exports.getAllProductos = async (req, res) => {
-    const { page = 1, pageSize = 10, estado, categoria_id, tipo_id, marca_id, talla_id, color_id, search } = req.query;
+    const { page = 1, pageSize = 10, estado, categoria_id, tipo_id, marca_id, talla_id, color_id, temporada_id, search } = req.query;
     const offset = (page - 1) * pageSize;
     const whereCondition = { is_deleted: false };
 
-    if (estado) whereCondition.estado = estado === 'true';
+    if (estado !== undefined && estado !== '') {
+        whereCondition.estado = estado === 'true' || estado === '1' ? true : estado === 'false' || estado === '0' ? false : undefined;
+    }
 
     // Manejar filtros como arreglos o valores únicos
     if (categoria_id) {
@@ -126,6 +130,23 @@ exports.getAllProductos = async (req, res) => {
     }
     if (marca_id) {
         whereCondition.marca_id = Array.isArray(marca_id) ? { [Op.in]: marca_id } : marca_id;
+    }
+    if (temporada_id) {
+        whereCondition.temporada_id = Array.isArray(temporada_id) ? { [Op.in]: temporada_id } : temporada_id;
+    }
+    // Búsqueda por palabra clave en el nombre
+    if (search) {
+        whereCondition[Op.or] = [
+            {
+                '$TipoProducto.nombre$': { [Op.like]: `%${search}%` },
+            },
+            {
+                '$Marca.nombre$': { [Op.like]: `%${search}%` },
+            },
+            {
+                '$Categorium.nombre$': { [Op.like]: `%${search}%` },
+            }
+        ];
     }
 
     try {
@@ -141,7 +162,7 @@ exports.getAllProductos = async (req, res) => {
                 { model: Marca, attributes: ['nombre'] },
                 {
                     model: ProductoTallaColor,
-                    required: false, // Permitir productos sin tallas/colores específicos
+                    required: false,
                     where: {
                         ...(talla_id ? { talla_id: Array.isArray(talla_id) ? { [Op.in]: talla_id } : talla_id } : {}),
                         ...(color_id ? { color_id: Array.isArray(color_id) ? { [Op.in]: color_id } : color_id } : {})
@@ -152,7 +173,7 @@ exports.getAllProductos = async (req, res) => {
                     ]
                 }
             ],
-            distinct: true // Evitar duplicados si un producto tiene múltiples tallas/colores
+            distinct: true
         });
 
         const productosCatalogo = rows.map(producto => ({
@@ -219,32 +240,20 @@ exports.updateProducto = async (req, res) => {
             updated_at: new Date()
         }, { transaction });
 
-        // Parsear variantes
+        // Manejo de variantes (sin cambios en la lógica, solo la auditoría al final)
         let variantesParsed = Array.isArray(variantes) ? variantes : JSON.parse(variantes || '[]');
-
-        // Sincronizar variantes (tallas y colores)
         if (variantesParsed && variantesParsed.length > 0) {
-            const existingVariantes = await ProductoTallaColor.findAll({
-                where: { producto_id: id },
-                transaction
-            });
-
+            const existingVariantes = await ProductoTallaColor.findAll({ where: { producto_id: id }, transaction });
             const existingMap = new Map(existingVariantes.map(v => [`${v.talla_id}-${v.color_id}`, v]));
 
             for (const variante of variantesParsed) {
                 const { talla_id, color_id, stock } = variante;
                 const key = `${talla_id}-${color_id}`;
-
                 if (existingMap.has(key)) {
                     await existingMap.get(key).update({ stock }, { transaction });
                     existingMap.delete(key);
                 } else {
-                    await ProductoTallaColor.create({
-                        producto_id: id,
-                        talla_id,
-                        color_id,
-                        stock
-                    }, { transaction });
+                    await ProductoTallaColor.create({ producto_id: id, talla_id, color_id, stock }, { transaction });
                 }
             }
 
@@ -261,13 +270,7 @@ exports.updateProducto = async (req, res) => {
             imagenesAEliminarParsed = Array.isArray(imagenesAEliminar) ? imagenesAEliminar : JSON.parse(imagenesAEliminar);
         }
         if (imagenesAEliminarParsed.length > 0) {
-            await ImagenProducto.destroy({
-                where: {
-                    id: imagenesAEliminarParsed,
-                    producto_id: id
-                },
-                transaction
-            });
+            await ImagenProducto.destroy({ where: { id: imagenesAEliminarParsed, producto_id: id }, transaction });
         }
 
         // 2. Agregar nuevas imágenes desde req.files
@@ -277,14 +280,19 @@ exports.updateProducto = async (req, res) => {
                 if (match) {
                     const color_id = parseInt(match[1], 10);
                     const imagenUrl = await uploadImageToCloudinary(file);
-                    await ImagenProducto.create({
-                        producto_id: id,
-                        color_id,
-                        imagen_url: imagenUrl
-                    }, { transaction });
+                    await ImagenProducto.create({ producto_id: id, color_id, imagen_url: imagenUrl }, { transaction });
                 }
             }
         }
+
+        // Registrar auditoría
+        await logAudit('productos', userIdFromToken, 'actualizar_producto', {
+            producto_id: id,
+            datos: { temporada_id, categoria_id, tipo_id, marca_id, precio, estado, calificacion },
+            variantes: variantesParsed,
+            imagenes_eliminadas: imagenesAEliminarParsed,
+            nuevas_imagenes: req.files ? req.files.map(f => f.fieldname) : []
+        });
 
         await transaction.commit();
         res.status(200).json({ message: "Producto actualizado con éxito." });
@@ -313,13 +321,13 @@ exports.getProductoById = async (req, res) => {
                     attributes: ['id', 'producto_id', 'talla_id', 'color_id', 'stock'],
                     include: [
                         { model: Talla, attributes: ['id', 'talla'] },
-                        { 
-                            model: ColorProducto, 
+                        {
+                            model: ColorProducto,
                             attributes: ['id', 'color', 'colorHex'],
                             include: [
-                                { 
-                                    model: ImagenProducto, 
-                                    attributes: ['id', 'imagen_url'], 
+                                {
+                                    model: ImagenProducto,
+                                    attributes: ['id', 'imagen_url'],
                                     where: { producto_id: id }, // Aseguramos que las imágenes sean del producto actual
                                     required: false // Hacer la relación opcional
                                 }
@@ -351,9 +359,9 @@ exports.getProductoById = async (req, res) => {
                 producto_id: ptc.producto_id,
                 stock: ptc.stock,
                 talla: ptc.Talla ? { id: ptc.Talla.id, talla: ptc.Talla.talla } : null,
-                coloresStock: ptc.ColorProducto ? { 
-                    id: ptc.ColorProducto.id, 
-                    color: ptc.ColorProducto.color, 
+                coloresStock: ptc.ColorProducto ? {
+                    id: ptc.ColorProducto.id,
+                    color: ptc.ColorProducto.color,
                     colorHex: ptc.ColorProducto.colorHex,
                     imagenes: ptc.ColorProducto.ImagenProductos ? ptc.ColorProducto.ImagenProductos.map(img => ({
                         id: img.id,
@@ -402,12 +410,17 @@ exports.deleteProducto = async (req, res) => {
             return res.status(400).json({ message: "El producto ya está marcado como eliminado." });
         }
 
-        // Realizar la eliminación lógica
+        // Eliminación lógica
         await producto.update({
             is_deleted: true,
             deleted_at: new Date(),
             deleted_by: deletedBy
         }, { transaction });
+
+        // Registrar auditoría
+        await logAudit('productos', userIdFromToken, 'eliminar_producto', {
+            producto_id: id
+        });
 
         await transaction.commit();
         res.status(200).json({ message: "Producto eliminado lógicamente con éxito." });
@@ -417,13 +430,12 @@ exports.deleteProducto = async (req, res) => {
         res.status(500).json({ message: "Error al eliminar el producto", error: error.message });
     }
 };
-
 exports.getDeletedProductos = async (req, res) => {
     const { page = 1, pageSize = 10 } = req.query; // Paginación opcional
     const offset = (page - 1) * pageSize;
 
     try {
-        const productosEliminados = await Product.findAll({
+        const { count, rows } = await Product.findAndCountAll({
             where: { is_deleted: true }, // Filtrar solo productos eliminados
             limit: parseInt(pageSize, 10),
             offset: offset,
@@ -443,13 +455,14 @@ exports.getDeletedProductos = async (req, res) => {
                         { model: ColorProducto, attributes: ['id', 'color', 'colorHex'] }
                     ]
                 }
-            ]
+            ],
+            distinct: true
         });
 
         // Transformar los datos para la respuesta
-        const productosTransformados = productosEliminados.map(producto => ({
+        const productosTransformados = rows.map(producto => ({
             id: producto.id,
-            nombre_producto: `${producto.TipoProducto.nombre} ${producto.Marca.nombre} ${producto.Categorium.nombre}`,
+            nombre_producto: `${producto.TipoProducto?.nombre || ''} ${producto.Marca?.nombre || ''} ${producto.Categorium?.nombre || ''}`.trim(),
             temporada: producto.Temporada ? { id: producto.Temporada.id, temporada: producto.Temporada.temporada } : null,
             categoria: producto.Categorium ? { id: producto.Categorium.id, nombre: producto.Categorium.nombre } : null,
             tipo: producto.TipoProducto ? { id: producto.TipoProducto.id, nombre: producto.TipoProducto.nombre } : null,
@@ -473,7 +486,8 @@ exports.getDeletedProductos = async (req, res) => {
         res.status(200).json({
             productos: productosTransformados,
             currentPage: parseInt(page, 10),
-            pageSize: parseInt(pageSize, 10)
+            pageSize: parseInt(pageSize, 10),
+            total: count
         });
     } catch (error) {
         console.error('Error al obtener productos eliminados:', error);
@@ -509,6 +523,7 @@ exports.restoreProducto = async (req, res) => {
             return res.status(400).json({ message: "El producto no está marcado como eliminado." });
         }
 
+        // Restauración
         await producto.update({
             is_deleted: false,
             deleted_at: null,
@@ -516,6 +531,11 @@ exports.restoreProducto = async (req, res) => {
             updated_by: updatedBy,
             updated_at: new Date()
         }, { transaction });
+
+        // Registrar auditoría
+        await logAudit('productos', userIdFromToken, 'restaurar_producto', {
+            producto_id: id
+        });
 
         await transaction.commit();
         res.status(200).json({ message: "Producto restaurado con éxito." });

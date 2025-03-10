@@ -18,3 +18,17 @@ exports.createTalla = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+exports.updateTalla = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { talla } = req.body;
+        const tallaExistente = await Talla.findByPk(id);
+        if (!tallaExistente) {
+            return res.status(404).json({ message: 'Talla no encontrada' });
+        }
+        await tallaExistente.update({ talla });
+        res.json(tallaExistente);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};

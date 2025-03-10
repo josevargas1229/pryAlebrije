@@ -1,43 +1,101 @@
 .list-container {
     padding: 20px;
-}
-
-.header {
+    overflow: hidden; // Evita desbordamientos durante animaciones
+  }
+  
+  .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-}
-
-.activo-chip {
+  }
+  
+  .activo-chip {
     background-color: #4caf50 !important;
-    span{
-        color: white !important;
+    span {
+      color: white !important;
     }
-}
-
-.inactivo-chip {
+  }
+  
+  .inactivo-chip {
     background-color: #f44336 !important;
-    span{
-        color: white !important;
+    span {
+      color: white !important;
     }
-}
-
-.filters {
+  }
+  
+  .filters {
     display: flex;
     gap: 15px;
     flex-wrap: wrap;
     margin-bottom: 20px;
-}
-
-mat-form-field {
+  }
+  
+  mat-form-field {
     width: 200px;
-}
-
-table {
+  }
+  
+  table {
     width: 100%;
-}
-
-mat-chip {
+  }
+  
+  mat-chip {
     font-size: 12px;
-}
+  }
+  
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    .spinner {
+      animation: spin 1.2s infinite ease-in-out;
+    }
+    p {
+      margin-top: 20px;
+      font-size: 20px;
+      color: #555;
+      animation: bounce 1.5s infinite;
+    }
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: 30px;
+    .empty-icon {
+      font-size: 70px;
+      height: 70px;
+      width: 70px;
+      color: #888;
+      animation: wobble 2s infinite;
+    }
+    p {
+      font-size: 22px;
+      color: #666;
+    }
+  }
+  
+  mat-paginator {
+    margin-top: 20px;
+  }
+  
+  // Animaciones CSS personalizadas
+  @keyframes spin {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.3); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  
+  @keyframes wobble {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(20deg); }
+    50% { transform: rotate(-20deg); }
+    75% { transform: rotate(10deg); }
+    100% { transform: rotate(0deg); }
+  }

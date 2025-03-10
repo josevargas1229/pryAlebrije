@@ -45,6 +45,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatChipListbox, MatChipsModule } from '@angular/material/chips';
 import { ProductosModule } from './productos/productos.module';
 import { DashboardPanelComponent } from '../components/dashboard-panel-component/dashboard-panel-component.component';
+import { AuditLogsComponent } from './components/audit-logs/audit-logs.component';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -59,6 +60,7 @@ import { DashboardPanelComponent } from '../components/dashboard-panel-component
     LogsComponent,
     CompanySettingsComponent,
     LegalSettingsComponent,
+    AuditLogsComponent,
   ],
   imports: [
     CommonModule,
@@ -110,6 +112,7 @@ import { DashboardPanelComponent } from '../components/dashboard-panel-component
     DashboardPanelComponent,
     ProductosModule,
     AngularToastifyModule,
+    AuditLogsComponent,
   ],
   providers:[ToastService]
 })

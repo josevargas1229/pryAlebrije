@@ -15,7 +15,7 @@ export class DetallesFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<DetallesFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { title: string, type: string }
+    @Inject(MAT_DIALOG_DATA) public data: { title: string, type: string, item?: any }
   ) {
     this.titulo = data.title;
     this.esColor = data.type === 'color';
@@ -24,6 +24,14 @@ export class DetallesFormComponent implements OnInit {
       nombre: ['', [Validators.required]],
       hex: this.esColor ? ['#000000', Validators.required] : null,
     });
+
+    // Si hay un item (edición), prellenar el formulario
+    if (data.item) {
+      this.detalleForm.patchValue({
+        nombre: data.item.nombre?data.item.nombre:(data.item.color?data.item.color:data.item.talla),
+        hex: data.item.colorHex || '#000000'
+      });
+    }
   }
 
   ngOnInit(): void {}

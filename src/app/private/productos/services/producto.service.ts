@@ -4,7 +4,7 @@ import { map, Observable } from "rxjs";
 import { environment } from "../../../../environments/environment";
 
 @Injectable({
-  providedIn: `root`
+  providedIn: 'root'
 })
 export class ProductoService {
   private apiUrl = `${environment.API_URL}`;
@@ -21,7 +21,9 @@ export class ProductoService {
       .set('page', params.page.toString())
       .set('pageSize', params.pageSize.toString());
 
-    if (params.estado) httpParams = httpParams.set('estado', params.estado);
+    if (params.estado !== undefined && params.estado !== '') {
+      httpParams = httpParams.set('estado', params.estado.toString());
+    }
     if (params.search) httpParams = httpParams.set('search', params.search);
 
     // Manejar arreglos para filtros múltiples
@@ -50,8 +52,15 @@ export class ProductoService {
         httpParams = httpParams.append('color_id', id);
       });
     }
+    if (params.temporada_id && params.temporada_id.length > 0) {
+      params.temporada_id.forEach((id: string) => {
+        httpParams = httpParams.append('temporada_id', id);
+      });
+    }
+
     return this.http.get(`${this.apiUrl}/producto`, { params: httpParams });
   }
+
   getProductoById(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/producto/${id}`);
   }
@@ -82,8 +91,12 @@ export class ProductoService {
     return this.http.get(`${this.apiUrl}/categorias`);
   }
 
-  createCategoria(nombre: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/categorias`, {nombre});
+  createCategoria(nombre: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/categorias`, { nombre });
+  }
+
+  updateCategoria(id: number, nombre: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/categorias/${id}`, { nombre });
   }
 
   // Tipos de producto
@@ -91,8 +104,12 @@ export class ProductoService {
     return this.http.get(`${this.apiUrl}/tipoProducto`);
   }
 
-  createTipoProducto(nombre: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/tipoProducto`, {nombre});
+  createTipoProducto(nombre: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/tipoProducto`, { nombre });
+  }
+
+  updateTipoProducto(id: number, nombre: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/tipoProducto/${id}`, { nombre });
   }
 
   // Tallas
@@ -100,8 +117,12 @@ export class ProductoService {
     return this.http.get(`${this.apiUrl}/talla`);
   }
 
-  createTalla(talla: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/talla`, {talla});
+  createTalla(talla: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/talla`, { talla });
+  }
+
+  updateTalla(id: number, talla: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/talla/${id}`, { talla });
   }
 
   // Colores
@@ -109,8 +130,12 @@ export class ProductoService {
     return this.http.get(`${this.apiUrl}/color`);
   }
 
-  createColor(color: any,colorHex:any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/color`, {color,colorHex});
+  createColor(color: string, colorHex: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/color`, { color, colorHex });
+  }
+
+  updateColor(id: number, color: string, colorHex: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/color/${id}`, { color, colorHex });
   }
 
   // Marcas
@@ -118,15 +143,24 @@ export class ProductoService {
     return this.http.get(`${this.apiUrl}/marca`);
   }
 
-  createMarca(nombre: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/marca`, {nombre});
+  createMarca(nombre: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/marca`, { nombre });
   }
+
+  updateMarca(id: number, nombre: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/marca/${id}`, { nombre });
+  }
+
   // Temporadas
   getTemporadas(): Observable<any> {
     return this.http.get(`${this.apiUrl}/temporada`);
   }
 
-  createTemporada(temporada: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/temporada`, {temporada});
+  createTemporada(temporada: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/temporada`, { temporada });
+  }
+
+  updateTemporada(id: number, temporada: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/temporada/${id}`, { temporada });
   }
 }

@@ -11,8 +11,8 @@ export class ErrorHandlerService {
   constructor(private router: Router, private http: HttpClient) {}
 
   handleError(error: HttpErrorResponse) {
-    if (error.status === 400) {
-      this.router.navigate(['/error-400']);
+    if (error.status === 429) {
+      this.router.navigate(['/error-429']);
     } else if (error.status === 500) {
       this.router.navigate(['/error-500']);
     } else {

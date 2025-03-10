@@ -24,12 +24,16 @@ const DetalleCarrito = require('./DetalleCarrito');
 const CalificacionProducto = require('./CalificacionProducto');
 const LegalDocument = require('./LegalDocument');
 const Empleado = require('./Empleado');
+const HistorialActividades = require('./HistorialActividades');
 // Definir la asociación entre User y Rol
 Rol.hasMany(User, { foreignKey: 'rol_id' });
 User.belongsTo(Rol, { foreignKey: 'rol_id' });
 // Asociación entre User y Empleado
 User.hasOne(Empleado, { foreignKey: 'usuario_id' });
 Empleado.belongsTo(User, { foreignKey: 'usuario_id' });
+// Asociación entre User y HistorialActividades
+User.hasMany(HistorialActividades, { foreignKey: 'usuario_id' });
+HistorialActividades.belongsTo(User, { foreignKey: 'usuario_id' });
 // Asociación entre Producto y ProductoTallaColor
 Product.hasMany(ProductoTallaColor, { foreignKey: 'producto_id' });
 ProductoTallaColor.belongsTo(Product, { foreignKey: 'producto_id' });
@@ -131,5 +135,6 @@ module.exports = {
     CalificacionProducto,
     LegalDocument,
     ProductoTallaColor,
-    Empleado
+    Empleado,
+    HistorialActividades
 };

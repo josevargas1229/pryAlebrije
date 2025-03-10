@@ -1,69 +1,90 @@
-<div class="container">
-    <h2>Productos Eliminados</h2>
+<div class="container" @fadeIn>
+    <h2>Productos eliminados</h2>
 
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-        <!-- ID Column -->
-        <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef>ID</th>
-            <td mat-cell *matCellDef="let element">{{element.id}}</td>
-        </ng-container>
+    <!-- Indicador de carga -->
+    <div *ngIf="isLoading" class="loading-container">
+        <mat-spinner diameter="60" class="spinner"></mat-spinner>
+        <p>Cargando...</p>
+    </div>
 
-        <!-- Nombre Column -->
-        <ng-container matColumnDef="nombre">
-            <th mat-header-cell *matHeaderCellDef>Nombre</th>
-            <td mat-cell *matCellDef="let element">{{element.nombre_producto}}</td>
-        </ng-container>
+    <!-- Tabla o mensaje de "sin elementos" -->
+    <div *ngIf="!isLoading">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8"
+            *ngIf="dataSource.data.length > 0; else emptyTemplate">
+            <!-- ID Column -->
+            <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef>ID</th>
+                <td mat-cell *matCellDef="let element" @rowEnter>{{element.id}}</td>
+            </ng-container>
 
-        <!-- Temporada Column -->
-        <ng-container matColumnDef="temporada">
-            <th mat-header-cell *matHeaderCellDef>Temporada</th>
-            <td mat-cell *matCellDef="let element">{{element.temporada?.temporada || 'N/A'}}</td>
-        </ng-container>
+            <!-- Nombre Column -->
+            <ng-container matColumnDef="nombre">
+                <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                <td mat-cell *matCellDef="let element" @rowEnter>{{element.nombre_producto}}</td>
+            </ng-container>
 
-        <!-- Categoria Column -->
-        <ng-container matColumnDef="categoria">
-            <th mat-header-cell *matHeaderCellDef>Categoría</th>
-            <td mat-cell *matCellDef="let element">{{element.categoria?.nombre || 'N/A'}}</td>
-        </ng-container>
+            <!-- Temporada Column -->
+            <ng-container matColumnDef="temporada">
+                <th mat-header-cell *matHeaderCellDef>Temporada</th>
+                <td mat-cell *matCellDef="let element" @rowEnter>{{element.temporada?.temporada || 'N/A'}}</td>
+            </ng-container>
 
-        <!-- Marca Column -->
-        <ng-container matColumnDef="marca">
-            <th mat-header-cell *matHeaderCellDef>Marca</th>
-            <td mat-cell *matCellDef="let element">{{element.marca?.nombre || 'N/A'}}</td>
-        </ng-container>
+            <!-- Categoria Column -->
+            <ng-container matColumnDef="categoria">
+                <th mat-header-cell *matHeaderCellDef>Categoría</th>
+                <td mat-cell *matCellDef="let element" @rowEnter>{{element.categoria?.nombre || 'N/A'}}</td>
+            </ng-container>
 
-        <!-- Tipo Column -->
-        <ng-container matColumnDef="tipo">
-            <th mat-header-cell *matHeaderCellDef>Tipo</th>
-            <td mat-cell *matCellDef="let element">{{element.tipo?.nombre || 'N/A'}}</td>
-        </ng-container>
+            <!-- Marca Column -->
+            <ng-container matColumnDef="marca">
+                <th mat-header-cell *matHeaderCellDef>Marca</th>
+                <td mat-cell *matCellDef="let element" @rowEnter>{{element.marca?.nombre || 'N/A'}}</td>
+            </ng-container>
 
-        <!-- Precio Column -->
-        <ng-container matColumnDef="precio">
-            <th mat-header-cell *matHeaderCellDef>Precio</th>
-            <td mat-cell *matCellDef="let element">{{element.precio | currency}}</td>
-        </ng-container>
+            <!-- Tipo Column -->
+            <ng-container matColumnDef="tipo">
+                <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                <td mat-cell *matCellDef="let element" @rowEnter>{{element.tipo?.nombre || 'N/A'}}</td>
+            </ng-container>
 
-        <!-- Deleted At Column -->
-        <ng-container matColumnDef="deleted_at">
-            <th mat-header-cell *matHeaderCellDef>Eliminado el</th>
-            <td mat-cell *matCellDef="let element">{{element.deleted_at | date:'short'}}</td>
-        </ng-container>
+            <!-- Precio Column -->
+            <ng-container matColumnDef="precio">
+                <th mat-header-cell *matHeaderCellDef>Precio</th>
+                <td mat-cell *matCellDef="let element" @rowEnter>{{element.precio | currency}}</td>
+            </ng-container>
 
-        <!-- Actions Column -->
-        <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Acciones</th>
-            <td mat-cell *matCellDef="let element">
-                <button mat-icon-button color="primary" (click)="restoreProduct(element.id)" title="Restaurar producto" matTooltip="Restaurar producto">
-                    <mat-icon>restore</mat-icon>
-                </button>
-            </td>
-        </ng-container>
+            <!-- Deleted At Column -->
+            <ng-container matColumnDef="deleted_at">
+                <th mat-header-cell *matHeaderCellDef>Eliminado el</th>
+                <td mat-cell *matCellDef="let element" @rowEnter>{{element.deleted_at | date:'short'}}</td>
+            </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                <td mat-cell *matCellDef="let element" @rowEnter>
+                    <button mat-icon-button color="primary" (click)="restoreProduct(element.id)"
+                        (mouseenter)="onButtonHover(element.id, true)" (mouseleave)="onButtonHover(element.id, false)"
+                        matTooltip="Restaurar producto" [@buttonHover]="getButtonState(element.id)">
+                        <mat-icon>restore</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
 
-    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons (page)="onPageChange($event)">
-    </mat-paginator>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <!-- Template para cuando no hay elementos -->
+        <ng-template #emptyTemplate>
+            <div class="empty-state" @emptyState>
+                <mat-icon class="empty-icon">delete_forever</mat-icon>
+                <p>¡Nada eliminado por aquí! Todo está a salvo... por ahora.</p>
+            </div>
+        </ng-template>
+
+        <!-- Paginador -->
+        <mat-paginator [length]="totalItems" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]"
+            (page)="onPageChange($event)" showFirstLastButtons @paginatorFade></mat-paginator>
+    </div>
 </div>

@@ -1,6 +1,6 @@
-/* deleted-products.component.css */
 .container {
     padding: 20px;
+    overflow: hidden; // Evita desbordamientos durante animaciones
 }
 
 table {
@@ -16,4 +16,100 @@ table {
 
 th.mat-header-cell {
     font-weight: bold;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    opacity: 0.9;
+
+    .spinner {
+        animation: spin 1.5s infinite ease-in-out;
+    }
+
+    p {
+        margin-top: 20px;
+        font-size: 18px;
+        color: #555;
+        animation: pulse 1.5s infinite;
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 30px;
+
+    .empty-icon {
+        font-size: 60px;
+        height: 60px;
+        width: 60px;
+        color: #999;
+        animation: shake 2s infinite;
+    }
+
+    p {
+        font-size: 20px;
+        color: #777;
+    }
+}
+
+mat-paginator {
+    margin-top: 20px;
+}
+
+// Animaciones CSS personalizadas
+@keyframes spin {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(180deg) scale(1.2);
+    }
+
+    100% {
+        transform: rotate(360deg) scale(1);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-10px) rotate(-5deg);
+    }
+
+    50% {
+        transform: translateX(10px) rotate(5deg);
+    }
+
+    75% {
+        transform: translateX(-5px) rotate(-2deg);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
 }

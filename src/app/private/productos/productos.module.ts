@@ -30,6 +30,9 @@ import { LoadingButtonComponent } from '../../components/loading-button/loading-
 import { DeletedProductsComponent } from './deleted-products/deleted-products.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CatalogComponent } from './components/catalog/catalog.component';
+import { MatSpinner } from '@angular/material/progress-spinner';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @NgModule({
   declarations: [
@@ -42,6 +45,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     DetallesFormComponent,
     VarianteFormComponent,
     DeletedProductsComponent,
+    CatalogComponent
     // HistoryComponent,    // Nuevo componente para historial
     // LowStockComponent    // Nuevo componente para productos con bajo stock
   ],
@@ -68,7 +72,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     DialogComponent,
     LoadingButtonComponent,
     MatPaginatorModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSpinner,
+    MatExpansionModule
   ]
 })
 export class ProductosModule { }

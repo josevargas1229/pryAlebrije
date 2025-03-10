@@ -7,7 +7,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const {generateToken,doubleCsrfProtection} = require('./config/csrfConfig');
 const corsConfig = require('./config/corsConfig');
-const logger = require('./config/logger');
+const { combinedLogger } = require('./config/logger');
 const rateLimit = require('./config/rateLimitConfig');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -26,9 +26,12 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const tipoProductoRoutes = require('./routes/tipoProductoRoutes');
 const temporadaRoutes = require('./routes/temporadaRoutes');
 const productoRoutes = require('./routes/productRoutes');
+const historialRoutes = require('./routes/historialRoutes');
 const { authenticateToken, authorize, ROLES } = require('./middlewares/auth');
 const app = express();
+
 app.set('trust proxy', process.env.NODE_ENV === 'production' ? 1 : false);
+
 // Middleware de seguridad
 app.use(helmet());
 
@@ -53,7 +56,7 @@ app.use(doubleCsrfProtection);
 // Integrar Morgan con Winston para el registro de solicitudes HTTP
 app.use(morgan('combined', {
     stream: {
-        write: (message) => logger.info(message.trim()) // Envía las solicitudes HTTP a Winston
+        write: (message) => combinedLogger.info(message.trim()) // Usa combinedLogger aquí
     }
 }));
 
@@ -78,7 +81,7 @@ app.use('/tipoProducto', tipoProductoRoutes);
 app.use('/temporada', temporadaRoutes);
 app.use('/producto', productoRoutes);
 app.use('/categorias', categoryRoutes);
-
+app.use('/historial',historialRoutes);
 app.use(errorHandler);
 module.exports = app;
 

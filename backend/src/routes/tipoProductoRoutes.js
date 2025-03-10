@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const tipoProductoController = require('../controllers/tipoProductoController');
+const { getTiposProducto, createTipoProducto, updateTipoProducto } = require('../controllers/tipoProductoController');
 const { authenticateToken, authorize, ROLES } = require('../middlewares/auth');
-router.get('/', tipoProductoController.getTiposProducto);
-router.post('/', authenticateToken, authorize(ROLES.ADMINISTRADOR),  tipoProductoController.createTipoProducto);
+
+router.get('/', getTiposProducto);
+router.post('/', authenticateToken, authorize(ROLES.ADMINISTRADOR), createTipoProducto);
+router.put('/:id', authenticateToken, authorize(ROLES.ADMINISTRADOR), updateTipoProducto);
 
 module.exports = router;

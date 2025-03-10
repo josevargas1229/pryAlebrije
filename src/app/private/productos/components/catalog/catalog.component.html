@@ -1,0 +1,58 @@
+<mat-card class="catalog-card" @fadeIn>
+    <mat-card-header>
+        <mat-card-title>{{ catalogType | titlecase }}</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <button mat-raised-button color="primary" (click)="addItem()" (mouseenter)="onButtonHover(true)"
+            (mouseleave)="onButtonHover(false)" class="add-button" [@buttonHover]="buttonState">
+            <mat-icon>add</mat-icon> Añadir {{ catalogType }}
+        </button>
+
+        <!-- Indicador de carga -->
+        <div *ngIf="isLoading" class="loading-container">
+            <mat-spinner diameter="50"></mat-spinner>
+            <p>Cargando {{ catalogType }} con estilo...</p>
+        </div>
+
+        <!-- Tabla o mensaje de "sin elementos" -->
+        <div *ngIf="!isLoading">
+            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8"
+                *ngIf="dataSource.length > 0; else emptyTemplate">
+                <ng-container matColumnDef="nombre">
+                    <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                    <td mat-cell *matCellDef="let element" @rowEnter>
+                        {{ element.nombre || element.color || element.talla || element.temporada}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="hex" *ngIf="isColorCatalog">
+                    <th mat-header-cell *matHeaderCellDef>Color</th>
+                    <td mat-cell *matCellDef="let element" @rowEnter>
+                        <span [style.backgroundColor]="element.colorHex" class="color-preview"></span>
+                        {{ element.colorHex }}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="acciones">
+                    <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                    <td mat-cell *matCellDef="let element" @rowEnter>
+                        <button mat-icon-button color="primary" type="button" (click)="editItem(element)">
+                            <mat-icon>edit</mat-icon>
+                        </button>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+
+            <!-- Template para cuando no hay elementos -->
+            <ng-template #emptyTemplate>
+                <div class="empty-state" @emptyState>
+                    <mat-icon class="empty-icon">sentiment_very_dissatisfied</mat-icon>
+                    <p>¡Oops! No hay {{ catalogType }} aquí. ¡Añade algunos!</p>
+                </div>
+            </ng-template>
+        </div>
+    </mat-card-content>
+</mat-card>
