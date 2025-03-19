@@ -14,9 +14,9 @@ export class ConfiguracionSistemaComponent implements OnInit {
   loading: boolean = false;
 
   constructor(
-    private fb: FormBuilder,
-    private configuracionSistema: ConfiguracionSistemaService,
-    private toastService: ToastService
+    private readonly fb: FormBuilder,
+    private readonly configuracionSistema: ConfiguracionSistemaService,
+    private readonly toastService: ToastService
   ) {}
 
   ngOnInit(): void {

@@ -27,10 +27,10 @@ export class HeaderComponent {
   searchText: string = ''; // Almacena el texto de búsqueda
 
   constructor(
-    private authService: AuthService,
-    private companyService: CompanyService,
-    private router: Router,
-    private searchService: SearchService // Inyecta el servicio
+    private readonly authService: AuthService,
+    private readonly companyService: CompanyService,
+    private readonly router: Router,
+    private readonly searchService: SearchService // Inyecta el servicio
   ) {}
 
   ngOnInit(): void {

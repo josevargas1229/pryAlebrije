@@ -1,0 +1,61 @@
+<div class="container">
+    <h2>Productos con bajo stock</h2>
+
+    <mat-table [dataSource]="dataSource" class="mat-elevation-z8" @fadeIn>
+        <!-- Columna Nombre -->
+        <ng-container matColumnDef="nombre">
+            <mat-header-cell *matHeaderCellDef>Producto</mat-header-cell>
+            <mat-cell *matCellDef="let product">{{ product.nombre }}</mat-cell>
+        </ng-container>
+
+        <!-- Columna Categoría -->
+        <ng-container matColumnDef="categoria">
+            <mat-header-cell *matHeaderCellDef>Categoría</mat-header-cell>
+            <mat-cell *matCellDef="let product">{{ product.categoria }}</mat-cell>
+        </ng-container>
+
+        <!-- Columna Talla -->
+        <ng-container matColumnDef="talla">
+            <mat-header-cell *matHeaderCellDef>Talla</mat-header-cell>
+            <mat-cell *matCellDef="let product">{{ product.talla }}</mat-cell>
+        </ng-container>
+
+        <!-- Columna Color -->
+        <ng-container matColumnDef="color">
+            <mat-header-cell *matHeaderCellDef>Color</mat-header-cell>
+            <mat-cell *matCellDef="let product">
+                <span [style.background-color]="product.color.hex" class="color-swatch"></span>
+                {{ product.color.nombre }}
+            </mat-cell>
+        </ng-container>
+
+        <!-- Columna Stock -->
+        <ng-container matColumnDef="stock">
+            <mat-header-cell *matHeaderCellDef>Stock actual</mat-header-cell>
+            <mat-cell *matCellDef="let product" [ngClass]="{'low-stock': product.stock <= nivelMinimoDefault}">
+                {{ product.stock }}
+                <mat-icon *ngIf="product.stock <= nivelMinimoDefault" class="alert-icon" title="Bajo stock">warning</mat-icon>
+            </mat-cell>
+        </ng-container>
+
+        <!-- Encabezado y filas -->
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;" class="row-hover"></mat-row>
+
+        <!-- Mensaje cuando no hay datos -->
+        <ng-container *matNoDataRow>
+            <mat-cell class="no-data" colspan="5">
+                <mat-card class="no-data-card" @fadeIn>
+                    <mat-card-content>
+                        <mat-icon class="no-data-icon">check_circle</mat-icon>
+                        <p>No hay productos con bajo stock actualmente.</p>
+                        <p class="subtext">El inventario está en niveles óptimos.</p>
+                    </mat-card-content>
+                </mat-card>
+            </mat-cell>
+        </ng-container>
+    </mat-table>
+
+    <!-- Paginador -->
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons @paginatorFade></mat-paginator>
+</div>

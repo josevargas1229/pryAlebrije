@@ -11,7 +11,7 @@
 
     <!-- Miniaturas a la izquierda -->
     <div class="miniaturas">
-      <img *ngFor="let imagen of imagenesActuales" [src]="imagen.url" class="miniatura" (click)="cambiarImagenPrincipal(imagen.url)">
+      <img *ngFor="let imagen of imagenesActuales" [src]="imagen.url" class="miniatura" (mouseover)="cambiarImagenPrincipal(imagen.url)">
     </div>
 
     <!-- Imagen principal en el centro -->

@@ -7,9 +7,9 @@ import { catchError, Observable, of, switchMap, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class LegalService {
-  private apiUrl = `${environment.API_URL}`;
+  private readonly apiUrl = `${environment.API_URL}`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   // Subir documento (nuevo método)
   uploadDocument(file: File, tipo: string): Observable<any> {

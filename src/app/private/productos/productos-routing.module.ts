@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ProductosComponent } from './productos.component';
 import { ListComponent } from './list/list.component';
 import { AddComponent } from './add/add.component';
 import { EditComponent } from './edit/edit.component';
@@ -10,13 +9,14 @@ import { DeletedProductsComponent } from './deleted-products/deleted-products.co
 import { ProductoDetalleComponent } from '../../catalogo/producto-detalle/producto-detalle.component';
 import { CatalogComponent } from './components/catalog/catalog.component';
 import { AuditLogsComponent } from '../components/audit-logs/audit-logs.component';
+import { LowStockComponent } from './low-stock/low-stock.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'inicio', pathMatch: 'full' },
   { path: 'inicio', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'list', component: ListComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Lista-productos" } },
   { path: 'add', component: AddComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Crear-producto" } },
-  { path: 'eliminated', component: DeletedProductsComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Productos Eliminados" } },
+  { path: 'eliminated', component: DeletedProductsComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Productos eliminados" } },
   { path: 'edit/:id', component: EditComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Editar-producto" } },
   { path: 'preview/:id', component: ProductoDetalleComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Detalle-producto" } },
   { path: 'categorias', component: CatalogComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Categorías", catalogType: "categoria" } },
@@ -26,7 +26,7 @@ const routes: Routes = [
   { path: 'temporadas', component: CatalogComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Temporadas", catalogType: "temporada" } },
   { path: 'colores', component: CatalogComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Colores", catalogType: "color" } },
   { path: 'history', component: AuditLogsComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Historial de movimientos", modulo:"productos" } },
-  // { path: 'low-stock', component: LowStockComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Productos con Bajo Stock" } }
+  { path: 'low-stock', component: LowStockComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Productos con bajo stock" } }
 ];
 
 

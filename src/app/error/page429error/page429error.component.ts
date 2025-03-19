@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   styleUrl: './page429error.component.scss'
 })
 export class Page429errorComponent {
-  constructor(private router: Router) {}
+  constructor(private readonly router: Router) {}
 
   goBack() {
     window.history.back();

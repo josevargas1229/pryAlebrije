@@ -7,9 +7,9 @@ import { environment } from '../../../../../src/environments/environment.develop
   providedIn: 'root'
 })
 export class BloqueosService {
-  private apiUrl = `${environment.API_URL}/bloqueos`;
+  private readonly apiUrl = `${environment.API_URL}/bloqueos`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   obtenerUsuariosBloqueados(periodo?: string): Observable<any> {
     let params = new HttpParams();

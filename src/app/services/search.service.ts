@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class SearchService {
-  private searchSubject = new BehaviorSubject<string>('');
+  private readonly searchSubject = new BehaviorSubject<string>('');
   search$ = this.searchSubject.asObservable();
 
   setSearchText(text: string) {

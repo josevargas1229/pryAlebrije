@@ -13,9 +13,9 @@ export class EmailTypesComponent implements OnInit {
   types: any[] = [];  // Lista de tipos de correo
 
   constructor(
-    private emailService: EmailManagementService,
-    private dialog: MatDialog,
-    private toastService: ToastService
+    private readonly emailService: EmailManagementService,
+    private readonly dialog: MatDialog,
+    private readonly toastService: ToastService
   ) {}
 
   ngOnInit(): void {

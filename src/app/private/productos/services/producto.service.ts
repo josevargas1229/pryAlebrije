@@ -7,9 +7,9 @@ import { environment } from "../../../../environments/environment";
   providedIn: 'root'
 })
 export class ProductoService {
-  private apiUrl = `${environment.API_URL}`;
+  private readonly apiUrl = `${environment.API_URL}`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   // Productos
   createProducto(formData: FormData): Observable<any> {

@@ -7,11 +7,11 @@ import { environment } from '../../../../src/environments/environment.developmen
   providedIn: 'root'
 })
 export class CompanyService {
-  private apiUrl = `${environment.API_URL}`;
+  private readonly apiUrl = `${environment.API_URL}`;
   private companyProfileSubject = new BehaviorSubject<any>(null);
   companyProfile$ = this.companyProfileSubject.asObservable();
 
-  constructor(private http: HttpClient) {
+  constructor(private readonly http: HttpClient) {
     this.loadInitialCompanyProfile();
   }
 

@@ -19,7 +19,7 @@ interface Product {
 })
 export class HomeComponent implements OnInit, AfterViewInit {
 
-  constructor(private renderer: Renderer2) {}
+  constructor(private readonly renderer: Renderer2) {}
 
   @ViewChild('homeContainer', { static: false }) homeContainer!: ElementRef;
   @ViewChild('liquiContainer', { static: false }) liquiContainer!: ElementRef;

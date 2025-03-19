@@ -56,8 +56,8 @@ export class DeletedProductsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
-    private productoService: ProductoService,
-    private snackBar: MatSnackBar
+    private readonly productoService: ProductoService,
+    private readonly snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {

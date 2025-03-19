@@ -13,7 +13,7 @@ export class DetallesFormComponent implements OnInit {
   titulo: string = '';
 
   constructor(
-    private fb: FormBuilder,
+    private readonly fb: FormBuilder,
     public dialogRef: MatDialogRef<DetallesFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { title: string, type: string, item?: any }
   ) {

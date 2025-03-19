@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./page400error.component.scss'] // Cambio de 'styleUrl' a 'styleUrls'
 })
 export class Page400errorComponent {
-  constructor(private router: Router) {}
+  constructor(private readonly router: Router) {}
 
   goBack() {
     window.history.back();

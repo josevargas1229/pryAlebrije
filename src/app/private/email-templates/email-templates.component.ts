@@ -13,9 +13,9 @@ export class EmailTemplatesComponent implements OnInit {
   templates: any[] = [];  // Lista de plantillas de correo
 
   constructor(
-    private emailService: EmailManagementService,
-    private dialog: MatDialog,
-    private toastService: ToastService
+    private readonly emailService: EmailManagementService,
+    private readonly dialog: MatDialog,
+    private readonly toastService: ToastService
   ) {}
 
   ngOnInit(): void {

@@ -19,20 +19,19 @@ import { MenuCatalogoComponent } from './catalogo/menu-catalogo/menu-catalogo.co
 import { CartComponent } from './cart/cart.component';
 import { ContactoComponent } from './contacto/contacto.component';
 import { ProductoDetalleComponent } from './catalogo/producto-detalle/producto-detalle.component';
-import { Breadcrumb } from 'primeng/breadcrumb';
 
 export const routes: Routes = [
   //rutas públicas
-  { path: "", component: HomeComponent, data: { Breadcrumb: "Home" },  },
-  { path: "terminos-condiciones", component: TerminosCondicionesComponent,data: { Breadcrumb: "Terminos-condiciones" } },
+  { path: "", component: HomeComponent, data: { Breadcrumb: "Home" }, },
+  { path: "terminos-condiciones", component: TerminosCondicionesComponent, data: { Breadcrumb: "Terminos-condiciones" } },
   { path: "politicas-privacidad", component: PoliticasPrivacidadComponent, data: { Breadcrumb: "Politicas-privacidad" } },
-  { path: 'editdeslinde', component:EditperfilemComponent},
-  { path: 'editperfilem', component:EditperfilemComponent},
   { path: 'editdeslinde', component: EditperfilemComponent },
   { path: 'editperfilem', component: EditperfilemComponent },
-  { path: 'verificacion', component:EmailVerificacionComponent},
-  { path: 'cart', component:CartComponent, data: { Breadcrumb: "Carrito" } },
-  { path: 'contacto', component:ContactoComponent, data: { Breadcrumb: "Contacto" } },
+  { path: 'editdeslinde', component: EditperfilemComponent },
+  { path: 'editperfilem', component: EditperfilemComponent },
+  { path: 'verificacion', component: EmailVerificacionComponent },
+  { path: 'cart', component: CartComponent, data: { Breadcrumb: "Carrito" } },
+  { path: 'contacto', component: ContactoComponent, data: { Breadcrumb: "Contacto" } },
 
 
   //rutas para usuarios autenticados
@@ -45,21 +44,22 @@ export const routes: Routes = [
           { path: 'config', component: ConfigComponent, data: { Breadcrumb: "Configuracion" } },
         ]
       },
-      { path: 'admin',loadChildren: () => import('./private/private.module').then(m => m.PrivateModule)},
+      { path: 'admin', loadChildren: () => import('./private/private.module').then(m => m.PrivateModule) },
     ], canActivate: [AuthGuard]
   },
   {
-    path:'', children:[
+    path: '', children: [
       {
-        path:'menu-catalogo', data: { Breadcrumb: "Catalogo" },
-        children:[
-          { path:'', component:MenuCatalogoComponent},
-          { path:'productos', data: { Breadcrumb: "Productos" },
-          children:[
-            {path:'', component:ProductosComponent},
-            { path: 'producto-detalle/:id', component:ProductoDetalleComponent, data: {Breadcrumb: "detalle-producto"}}
-          ]
-           },
+        path: 'menu-catalogo', data: { Breadcrumb: "Catalogo" },
+        children: [
+          { path: '', component: MenuCatalogoComponent },
+          {
+            path: 'productos', data: { Breadcrumb: "Productos" },
+            children: [
+              { path: '', component: ProductosComponent },
+              { path: 'producto-detalle/:id', component: ProductoDetalleComponent, data: { Breadcrumb: "detalle-producto" } }
+            ]
+          },
 
         ]
       }
@@ -68,12 +68,12 @@ export const routes: Routes = [
   //rutas para usuarios no autenticados
   {
     path: '', children: [
-      { path: "home", component: HomeComponent,},
+      { path: "home", component: HomeComponent, },
       { path: "login", component: LoginComponent, data: { Breadcrumb: "Login" } },
       { path: "register", component: RegisterComponent, data: { Breadcrumb: "Registro" } },
-      { path: 'recupera', component:RecuperaComponent, data: { Breadcrumb: "Recuperar-contraseña" } },
+      { path: 'recupera', component: RecuperaComponent, data: { Breadcrumb: "Recuperar-contraseña" } },
 
-    ],canActivate:[NoAuthGuard]
+    ], canActivate: [NoAuthGuard]
   },
   { path: "error-400", component: Page400errorComponent },
   { path: "error-500", component: Page500errorComponent },

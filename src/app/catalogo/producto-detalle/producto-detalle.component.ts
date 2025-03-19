@@ -6,8 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { ProductoService } from '../../private/productos/services/producto.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CurrencyPipe } from '@angular/common';
-import { CommonModule } from '@angular/common';
+import { CurrencyPipe, CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { LoadingButtonComponent } from '../../components/loading-button/loading-button.component';
 
@@ -46,10 +45,10 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   loadingCarrito: boolean = false;
 
   constructor(
-    private productoService: ProductoService,
-    private route: ActivatedRoute,
-    private renderer: Renderer2,
-    private router: Router
+    private readonly productoService: ProductoService,
+    private readonly route: ActivatedRoute,
+    private readonly renderer: Renderer2,
+    private readonly router: Router
   ) { }
 
   ngOnInit(): void {

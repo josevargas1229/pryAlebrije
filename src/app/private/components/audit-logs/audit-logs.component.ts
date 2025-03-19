@@ -38,8 +38,8 @@ export class AuditLogsComponent implements OnInit {
   dataSource = new MatTableDataSource<AuditLog>();
 
   constructor(
-    private auditLogService: HistorialService,
-    private route: ActivatedRoute
+    private readonly auditLogService: HistorialService,
+    private readonly route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {

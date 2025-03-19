@@ -17,9 +17,9 @@ export interface AuditLog {
   providedIn: 'root'
 })
 export class HistorialService {
-  private apiUrl = `${environment.API_URL}/historial`;
+  private readonly apiUrl = `${environment.API_URL}/historial`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   getAuditLogs(modulo?: string): Observable<AuditLog[]> {
     const url = modulo ? `${this.apiUrl}?modulo=${modulo}` : this.apiUrl;

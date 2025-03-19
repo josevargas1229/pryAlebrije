@@ -32,7 +32,7 @@ export class ProductformComponent implements OnInit {
   imagenesExistentesPorColor: { [colorId: number]: { id: number, url: string }[] } = {};
   imagenesAEliminar: number[] = [];
   readonly MAX_FILE_SIZE = 2 * 1024 * 1024;
-  constructor(private fb: FormBuilder, private snackBar: MatSnackBar, private dialog: MatDialog, private productoService: ProductoService) {
+  constructor(private readonly fb: FormBuilder, private readonly snackBar: MatSnackBar, private readonly dialog: MatDialog, private readonly productoService: ProductoService) {
     this.productoForm = this.fb.group({
       temporada: ['', Validators.required],
       categoria: ['', Validators.required],

@@ -66,7 +66,4 @@ export class ConfigComponent {
       }
     });
   }
-  editarCampo(campo:string){
-
-  }
 }

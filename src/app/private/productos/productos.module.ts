@@ -33,6 +33,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CatalogComponent } from './components/catalog/catalog.component';
 import { MatSpinner } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { LowStockComponent } from './low-stock/low-stock.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
     DetallesFormComponent,
     VarianteFormComponent,
     DeletedProductsComponent,
-    CatalogComponent
+    CatalogComponent,
+    LowStockComponent
     // HistoryComponent,    // Nuevo componente para historial
     // LowStockComponent    // Nuevo componente para productos con bajo stock
   ],

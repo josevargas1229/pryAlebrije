@@ -7,9 +7,9 @@ import { Observable, switchMap } from 'rxjs';
   providedIn: 'root'
 })
 export class EmailManagementService {
-  private apiUrl = `${environment.API_URL}`;
+  private readonly apiUrl = `${environment.API_URL}`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   getAllTemplates(): Observable<any> {
     return this.http.get(`${this.apiUrl}/email-templates`, { withCredentials: true });

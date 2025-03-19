@@ -27,9 +27,9 @@ export class BloqueosComponent implements OnInit {
   cargandoRecientes = false;
   
   constructor(
-    private bloqueosService: BloqueosService,
-    private fb: FormBuilder,
-    private snackBar: MatSnackBar
+    private readonly bloqueosService: BloqueosService,
+    private readonly fb: FormBuilder,
+    private readonly snackBar: MatSnackBar
   ) {
     this.bloqueoForm = this.fb.group({
       cantidad: ['', [Validators.required, Validators.min(1)]],

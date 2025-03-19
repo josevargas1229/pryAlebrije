@@ -14,9 +14,9 @@ export class CompanySettingsComponent implements OnInit {
   companyProfile: any;
 
   constructor(
-    private fb: FormBuilder,
-    private companyService: CompanyService,
-    private toastService: ToastService
+    private readonly fb: FormBuilder,
+    private readonly companyService: CompanyService,
+    private readonly toastService: ToastService
   ) {
     this.companyForm = this.fb.group({
       nombre: ['', [Validators.required, Validators.maxLength(60)]],
