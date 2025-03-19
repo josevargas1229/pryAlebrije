@@ -9,7 +9,7 @@
       </a>
 
       <!-- Catálogo -->
-      <a mat-list-item routerLink="/menu-catalogo" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+      <a mat-list-item routerLink="/menu-catalogo/productos" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
         matTooltip="Ver catálogo de productos">
         <mat-icon matListIcon>category</mat-icon>
         <span matLine>Catálogo</span>
@@ -53,25 +53,25 @@
         </ng-container>
 
         <!-- Cliente -->
-        <ng-container *ngIf="userRole === 3">
-          <a mat-list-item routerLink="/mis-compras" routerLinkActive="active" matTooltip="Ver mis compras">
+        <ng-container *ngIf="userRole === 1">
+          <a mat-list-item routerLink="/perfil/pedidos" routerLinkActive="active" matTooltip="Ver mis compras"  [routerLinkActiveOptions]="{ exact: true }">
             <mat-icon matListIcon>shopping_basket</mat-icon>
             <span matLine>Mis Compras</span>
           </a>
 
-          <a mat-list-item routerLink="/ofertas" routerLinkActive="active" matTooltip="Ver ofertas disponibles">
+          <!-- <a mat-list-item routerLink="/ofertas" routerLinkActive="active" matTooltip="Ver ofertas disponibles">
             <mat-icon matListIcon>local_offer</mat-icon>
             <span matLine>Ofertas</span>
-          </a>
+          </a> -->
 
-          <a mat-list-item routerLink="/creditos" routerLinkActive="active" matTooltip="Ver mis créditos">
+          <!-- <a mat-list-item routerLink="/creditos" routerLinkActive="active" matTooltip="Ver mis créditos">
             <mat-icon matListIcon>credit_card</mat-icon>
             <span matLine>Créditos</span>
-          </a>
+          </a> -->
         </ng-container>
 
         <!-- Perfil y Logout -->
-        <a mat-list-item routerLink="/perfil" routerLinkActive="active" matTooltip="Ir a mi perfil">
+        <a mat-list-item routerLink="/perfil" routerLinkActive="active" matTooltip="Ir a mi perfil"  [routerLinkActiveOptions]="{ exact: true }">
           <mat-icon matListIcon>person</mat-icon>
           <span matLine>Mi perfil</span>
         </a>

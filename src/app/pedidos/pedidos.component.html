@@ -1,0 +1,38 @@
+<!-- Lista de pedidos -->
+<mat-card *ngFor="let pedido of pedidos" class="pedido-card">
+  <mat-card-header>
+    <mat-card-title>Pedido #{{ pedido.id }}</mat-card-title>
+    <mat-card-subtitle>Fecha: {{ pedido.fecha_venta | date:'medium' }}</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+    <p><strong>Total:</strong> {{ pedido.total | currency }}</p>
+    <p><strong>Recoger en tienda:</strong> {{ pedido.recoger_en_tienda ? 'Sí' : 'No' }}</p>
+  </mat-card-content>
+
+  <mat-divider></mat-divider>
+
+  <h3>Productos Comprados</h3>
+  <div *ngIf="pedido.detalles; else noProductos">
+  <div *ngFor="let detalle of pedido.detalles" class="producto-item">
+    <img [src]="detalle.producto.imagen || 'assets/placeholder.jpg'" alt="{{ detalle.producto.tipoProducto.nombre }}">
+    <div class="producto-info">
+      <p><strong>Producto:</strong> {{ detalle.producto.tipoProducto.nombre }}</p>
+      <p><strong>Talla:</strong> {{ detalle.talla.talla }}</p>
+      <p><strong>Color:</strong>
+        <span [style.background]="detalle.color.colorHex" class="color-box"></span>
+        {{ detalle.color.color }}
+      </p>
+      <p><strong>Cantidad:</strong> {{ detalle.cantidad }}</p>
+      <p><strong>Subtotal:</strong> {{ detalle.subtotal | currency }}</p>
+    </div>
+  </div>
+</div>
+
+<ng-template #noProductos>
+  <p class="no-pedido">
+    <mat-icon>cancel</mat-icon> No hay productos en este pedido.
+  </p>
+</ng-template>
+</mat-card>

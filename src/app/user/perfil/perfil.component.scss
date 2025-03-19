@@ -32,6 +32,23 @@
     }
   }
 
+  .pedido-card {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: white;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+
+  .ver-mas-container {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .pedidos-section {
+    background-color: #f8f8f8;
+  }
+
   .info-row {
     display: flex;
     align-items: center;

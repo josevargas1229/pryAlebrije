@@ -9,6 +9,8 @@ import { RouterLink } from '@angular/router';
 import { SearchService } from '../../services/search.service';
 import { ProductoService } from '../../private/productos/services/producto.service';
 import { LoadingButtonComponent } from '../../components/loading-button/loading-button.component';
+import { CartService } from '../../services/cart/cart.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-productos',
@@ -55,7 +57,9 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   constructor(
     private searchService: SearchService,
     private productoService: ProductoService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private cartService: CartService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
@@ -100,17 +104,20 @@ onWindowScroll(): void {
     return nearBottom;
   }
 
-  agregarAlCarrito(productoId: number): void {
-    this.loadingCarrito[productoId] = true;
+  agregarAlCarrito(producto: any): void {
+    this.loadingCarrito[producto.id] = true;
     setTimeout(() => {
-      this.loadingCarrito[productoId] = false;
-      console.log(`Producto ${productoId} agregado al carrito`);
-    }, 2000);
+      this.loadingCarrito[producto.id] = false;
+      this.cartService.addToCart(producto); // Agregar producto al carrito
+      this.snackBar.open(`agregado exitosamente al carrito 🛒`, 'Cerrar', { // Mostrar notificación
+        duration: 3000
+      });
+    }, 1000);
   }
 
   loadMoreProducts(): void {
     if (this.isLoading || !this.hasMore) return;
-  
+
     this.isLoading = true;
     const filtros = this.getFiltrosSeleccionados();
     const params = {
@@ -120,7 +127,7 @@ onWindowScroll(): void {
       estado: 'true',
       search: this.searchText.trim() || undefined
     };
-  
+
     this.productoService.getAllProductos(params).subscribe({
       next: (response) => {
         const nuevosProductos = response.productos.map(producto => ({
@@ -167,22 +174,22 @@ onWindowScroll(): void {
 
   getFiltrosSeleccionados(): any {
     const filtros: any = {};
-  
+
     const categoriasSeleccionadas = this.categorias.filter(c => c.seleccionado).map(c => c.id);
     if (categoriasSeleccionadas.length > 0) filtros.categoria_id = categoriasSeleccionadas; // Arreglo completo
-  
+
     const tiposSeleccionados = this.tiposProductos.filter(t => t.seleccionado).map(t => t.id);
     if (tiposSeleccionados.length > 0) filtros.tipo_id = tiposSeleccionados;
-  
+
     const marcasSeleccionadas = this.marcas.filter(m => m.seleccionado).map(m => m.id);
     if (marcasSeleccionadas.length > 0) filtros.marca_id = marcasSeleccionadas;
-  
+
     const tallasSeleccionadas = this.tallas.filter(t => t.seleccionado).map(t => t.id);
     if (tallasSeleccionadas.length > 0) filtros.talla_id = tallasSeleccionadas;
-  
+
     const coloresSeleccionados = this.colores.filter(c => c.seleccionado).map(c => c.id);
     if (coloresSeleccionados.length > 0) filtros.color_id = coloresSeleccionados;
-  
+
     return filtros;
   }
 

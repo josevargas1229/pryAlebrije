@@ -39,6 +39,10 @@ export class AuthService {
       catchError(this.handleLoginError)
     );
   }
+  getCurrentUser(): Observable<Usuario | null> {
+    return this.currentUserSubject.asObservable();
+  }
+
 
   private handleLoginError(error: HttpErrorResponse) {
     if (error.status === 401) {

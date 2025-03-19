@@ -20,6 +20,8 @@ import { CartComponent } from './cart/cart.component';
 import { ContactoComponent } from './contacto/contacto.component';
 import { ProductoDetalleComponent } from './catalogo/producto-detalle/producto-detalle.component';
 import { Breadcrumb } from 'primeng/breadcrumb';
+import { CheckoutComponent } from './checkout/checkout.component';
+import { PedidosComponent } from './pedidos/pedidos.component';
 
 export const routes: Routes = [
   //rutas públicas
@@ -33,6 +35,7 @@ export const routes: Routes = [
   { path: 'verificacion', component:EmailVerificacionComponent},
   { path: 'cart', component:CartComponent, data: { Breadcrumb: "Carrito" } },
   { path: 'contacto', component:ContactoComponent, data: { Breadcrumb: "Contacto" } },
+  { path: 'checkout', component:CheckoutComponent, data: { Breadcrumb: "Checkout" } },
 
 
   //rutas para usuarios autenticados
@@ -43,6 +46,8 @@ export const routes: Routes = [
         children: [
           { path: '', component: PerfilComponent },
           { path: 'config', component: ConfigComponent, data: { Breadcrumb: "Configuracion" } },
+          { path: 'pedidos', component: PedidosComponent, data: { Breadcrumb: "Pedidos" } },
+
         ]
       },
       { path: 'admin',loadChildren: () => import('./private/private.module').then(m => m.PrivateModule)},

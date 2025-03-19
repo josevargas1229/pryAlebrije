@@ -1,0 +1,69 @@
+<h1 class="checkout-title">Finalizar Compra</h1>
+
+<mat-card class="checkout-container">
+  <form #checkoutForm="ngForm" (ngSubmit)="procesarPedido()" class="checkout-form">
+
+    <!-- 🛒 Sección de Resumen de Productos -->
+    <div class="cart-preview" *ngIf="cartItems.length > 0">
+      <h2>Resumen de Productos</h2>
+      <div class="cart-items">
+        <mat-card class="cart-item" *ngFor="let item of cartItems">
+          <div class="product-details-container">
+            <img [src]="item.imagen" alt="{{ item.nombre }}" class="product-image">
+            <div class="product-info">
+              <h3>{{ item.nombre }}</h3>
+              <p><strong>Talla:</strong> {{ item.talla }}</p>
+              <p><strong>Precio:</strong> {{ item.precio | currency }}</p>
+              <p><strong>Cantidad:</strong> {{ item.cantidad }}</p>
+            </div>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+
+    <!-- 📝 Formulario de Datos -->
+    <!-- <h2>Datos de Contacto</h2>
+
+    <div class="form-group">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput [(ngModel)]="cliente.nombre" name="nombre" required #nombre="ngModel">
+        <mat-error *ngIf="nombre.invalid && nombre.touched">El nombre es obligatorio</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Apellidos</mat-label>
+        <input matInput [(ngModel)]="cliente.apellidos" name="apellidos" required #apellidos="ngModel">
+        <mat-error *ngIf="apellidos.invalid && apellidos.touched">Los apellidos son obligatorios</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="form-group">
+      <mat-form-field appearance="outline">
+        <mat-label>Teléfono</mat-label>
+        <input matInput type="tel" [(ngModel)]="cliente.telefono" name="telefono" required pattern="[0-9]{10}" #telefono="ngModel">
+        <mat-error *ngIf="telefono.invalid && telefono.touched">
+          {{ telefono.errors?.['required'] ? 'El teléfono es obligatorio' : 'Debe tener 10 dígitos' }}
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Correo electrónico</mat-label>
+        <input matInput type="email" [(ngModel)]="cliente.correo" name="correo" required email #correo="ngModel">
+        <mat-error *ngIf="correo.invalid && correo.touched">
+          {{ correo.errors?.['required'] ? 'El correo es obligatorio' : 'Formato de correo inválido' }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="checkbox-container">
+      <mat-checkbox [(ngModel)]="recogerEnTienda" name="recogerEnTienda" [ngModelOptions]="{standalone: true}">
+        Recoger en tienda
+      </mat-checkbox>
+    </div> -->
+
+    <button mat-button color="primary" class="finalizar-compra" type="submit" [disabled]="checkoutForm.invalid">
+      Confirmar Pedido
+    </button>
+  </form>
+</mat-card>

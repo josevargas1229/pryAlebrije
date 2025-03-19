@@ -30,14 +30,12 @@
       </button>
 
       <!-- Botón de carrito -->
-      <button
-        mat-icon-button
-        routerLink="/cart"
-        aria-label="Carrito de compras"
-        matTooltip="Ver carrito"
-        matTooltipPosition="below">
-        <mat-icon>shopping_cart</mat-icon>
-      </button>
+      <div class="cart-container">
+        <button mat-icon-button routerLink="/cart" aria-label="Carrito de compras" matTooltip="Ver carrito">
+          <mat-icon>shopping_cart</mat-icon>
+          <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+        </button>
+      </div>
       <button
         mat-icon-button
         routerLink="/perfil"

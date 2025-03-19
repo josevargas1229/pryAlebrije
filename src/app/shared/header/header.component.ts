@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { CartService } from './../../services/cart/cart.service';
+import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { CommonModule } from '@angular/common';
@@ -19,7 +20,8 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
+  cartCount: number = 0;
   isLoggedIn: boolean = false;
   userRole: number | null = null;
   logoUrl: string | undefined;
@@ -30,7 +32,8 @@ export class HeaderComponent {
     private authService: AuthService,
     private companyService: CompanyService,
     private router: Router,
-    private searchService: SearchService // Inyecta el servicio
+    private searchService: SearchService,
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
@@ -52,6 +55,11 @@ export class HeaderComponent {
     this.router.events.subscribe(() => {
       this.resetSearch();
     });
+
+    this.cartService.cart$.subscribe(cart => {
+      this.cartCount = cart.reduce((acc, item) => acc + item.cantidad, 0);
+    });
+
   }
 
   // Muestra el modal de búsqueda

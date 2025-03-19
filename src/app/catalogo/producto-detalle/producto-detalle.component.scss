@@ -120,6 +120,75 @@ h1 {
   gap: 10px;
   justify-content: start;
 }
+.calificacion {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.estrella-activa {
+  color: #ffb400; // Amarillo
+  cursor: pointer;
+}
+
+.estrella-inactiva {
+  color: #ccc; // Gris
+  cursor: pointer;
+}
+
+.calificacion-texto {
+  font-size: 14px;
+  color: #666;
+}
+.ranking {
+  margin-top: 15px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #f9f9f9;
+  width: 100%;
+}
+
+.ranking h4 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 5px 0;
+}
+
+.estrella-texto {
+  width: 80px;
+  text-align: right;
+  font-size: 14px;
+}
+
+.barra-container {
+  flex: 1;
+  height: 10px;
+  background: #ddd;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.barra {
+  height: 100%;
+  background: #ffb400;
+  transition: width 0.5s ease-in-out;
+}
+
+.cantidad {
+  font-size: 14px;
+  color: #666;
+}
+
 
 /* 📱 Diseño responsivo */
 @media (max-width: 768px) {

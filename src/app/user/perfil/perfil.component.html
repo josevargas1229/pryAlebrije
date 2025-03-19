@@ -59,6 +59,32 @@
 
     <mat-card class="perfil-seccion">
       <div class="seccion-header">
+        <h2>Pedidos Recientes</h2>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div *ngIf="pedidos.length > 0; else noPedidos">
+        <mat-card *ngFor="let pedido of pedidos" class="pedido-card">
+          <h3>Pedido #{{ pedido.id }}</h3>
+          <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+          <p><strong>Total:</strong> {{ pedido.total | currency }}</p>
+          <p><strong>Fecha:</strong> {{ pedido.fecha_venta | date:'medium' }}</p>
+        </mat-card>
+
+        <div class="ver-mas-container">
+          <a routerLink="pedidos" class="ver-mas">Ver todos los pedidos</a>
+        </div>
+      </div>
+
+      <ng-template #noPedidos>
+        <p>No tienes pedidos aún.</p>
+      </ng-template>
+    </mat-card>
+  </div>
+
+    <mat-card class="perfil-seccion">
+      <div class="seccion-header">
         <h2>Direcciones</h2>
         <p class="info-subtitle">
           Las direcciones se utilizan para personalizar tus experiencias.
@@ -76,4 +102,3 @@
       </div>
     </mat-card>
   </div>
-</div>

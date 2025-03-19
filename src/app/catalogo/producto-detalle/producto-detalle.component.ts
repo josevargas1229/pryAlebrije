@@ -10,6 +10,9 @@ import { CurrencyPipe } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { LoadingButtonComponent } from '../../components/loading-button/loading-button.component';
+import { CartService } from '../../services/cart/cart.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { CalificacionService } from '../../services/califica/calificacion.service';
 @Component({
   selector: 'app-producto-detalle',
   standalone: true,
@@ -30,6 +33,11 @@ import { LoadingButtonComponent } from '../../components/loading-button/loading-
 export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   producto: any = null;
   productoId!: number;
+  calificacionPromedio: number = 0;
+  totalCalificaciones: number = 0;
+  ranking: { [key: number]: number } = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  estrellasArray: number[] = Array(5).fill(0);
+  usuarioId: number = 2; // Simulación de usuario autenticado
   coloresUnicos: any[] = [];
   tallasUnicas: any[] = [];
   colorSeleccionado: any = null;
@@ -45,7 +53,10 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   constructor(
     private productoService: ProductoService,
     private route: ActivatedRoute,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private cartService: CartService,
+    private snackBar: MatSnackBar,
+    private calificacionService: CalificacionService
   ) { }
 
   ngOnInit(): void {
@@ -54,9 +65,12 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
       if (id) {
         this.productoId = +id;
         this.obtenerProductoDetalle(this.productoId);
+        this.obtenerCalificacionProducto();
       }
     });
   }
+
+
 
   ngAfterViewInit(): void {
     const observer = new IntersectionObserver(
@@ -148,12 +162,72 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   }
 
   agregarAlCarrito(): void {
+    if (!this.colorSeleccionado || !this.tallaSeleccionada) {
+      this.snackBar.open('Selecciona una talla antes de agregar al carrito', 'Cerrar', {
+        duration: 3000
+      });
+      return;
+    }
+
+    if (this.stockDisponible <= 0) {
+      this.snackBar.open('Este producto está agotado', 'Cerrar', {
+        duration: 3000
+      });
+      return;
+    }
+
     this.loadingCarrito = true;
     setTimeout(() => {
       this.loadingCarrito = false;
-      console.log('Producto agregado al carrito');
-    }, 2000);
+      this.cartService.addToCart({
+        id: this.producto.id,
+        nombre: this.producto.nombre,
+        talla: this.tallasUnicas.find(t => t.id === this.tallaSeleccionada)?.talla || 'Sin talla',
+        precio: this.producto.precio,
+        imagen: this.imagenPrincipal,
+        stock: this.stockDisponible // Se agrega el stock al carrito
+      });
+
+      this.snackBar.open(`Agregado exitosamente al carrito 🛒`, 'Cerrar', {
+        duration: 3000
+      });
+    }, 1000);
   }
+
+  obtenerCalificacionProducto(): void {
+    this.calificacionService.getCalificacionProducto(this.productoId).subscribe(response => {
+      this.calificacionPromedio = response.promedio;
+      this.totalCalificaciones = response.total;
+      this.calcularRanking(response.detalle); // Llamamos a calcular el ranking
+    });
+  }
+
+  calificar(valor: number): void {
+    this.calificacionService.addCalificacionProducto(this.productoId, this.usuarioId, valor)
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Calificación registrada correctamente', 'Cerrar', { duration: 3000 });
+          this.obtenerCalificacionProducto(); // Recargar ranking y calificación
+        },
+        error: (err) => {
+          this.snackBar.open(err.message, 'Cerrar', { duration: 3000 });
+        }
+      });
+  }
+
+  calcularRanking(detalleCalificaciones: { estrella: number; cantidad: number }[]): void {
+    this.ranking = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    detalleCalificaciones.forEach(item => {
+      this.ranking[item.estrella] = item.cantidad;
+    });
+  }
+
+  obtenerPorcentajeRanking(estrella: number): number {
+    if (this.totalCalificaciones === 0) return 0;
+    return (this.ranking[estrella] / this.totalCalificaciones) * 100;
+  }
+
+
 
   scrollIzquierda() {
     if (this.scrollContainer) {

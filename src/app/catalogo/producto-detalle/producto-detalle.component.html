@@ -2,7 +2,8 @@
   <div class="contenedor fade-in" #detalleContainer>
     <!-- Miniaturas a la izquierda -->
     <div class="miniaturas">
-      <img *ngFor="let imagen of imagenesActuales" [src]="imagen.url" class="miniatura" (click)="cambiarImagenPrincipal(imagen.url)">
+      <img *ngFor="let imagen of imagenesActuales" [src]="imagen.url" class="miniatura"
+        (click)="cambiarImagenPrincipal(imagen.url)">
     </div>
 
     <!-- Imagen principal en el centro -->
@@ -12,23 +13,39 @@
 
     <!-- Información del producto a la derecha -->
     <mat-card class="info">
-      <h3 *ngIf="producto.tipo">{{ producto.tipo.nombre }} {{ producto.marca.nombre }} {{ producto.categoria.nombre }}</h3>
+      <h3 *ngIf="producto.tipo">{{ producto.tipo.nombre }} {{ producto.marca.nombre }} {{ producto.categoria.nombre }}
+      </h3>
       <p class="metodo-pago">La mejor prenda de la moda hasta el momento</p>
+      <!-- Calificación con estrellas -->
+      <div class="calificacion">
+        <span *ngFor="let estrella of estrellasArray; let i = index" (click)="calificar(i + 1)">
+          <mat-icon [ngClass]="i < calificacionPromedio ? 'estrella-activa' : 'estrella-inactiva'">star</mat-icon>
+        </span>
+        <span class="calificacion-texto">({{ calificacionPromedio }} de 5 - {{ totalCalificaciones }} votos)</span>
+      </div>
+
+      <!-- Sección de Ranking -->
+      <div class="ranking">
+        <h4>Ranking de calificaciones</h4>
+        <div *ngFor="let estrella of [5,4,3,2,1]" class="ranking-item">
+          <span class="estrella-texto">{{ estrella }} estrellas</span>
+          <div class="barra-container">
+            <div class="barra" [style.width.%]="obtenerPorcentajeRanking(estrella)"></div>
+          </div>
+          <span class="cantidad">({{ ranking[estrella] }} votos)</span>
+        </div>
+      </div>
+
       <div class="precio">
         <span class="descuento">{{ producto.precio | currency }}</span>
-      </div>
-      <div class="entrega">
-        <p><strong>Llega gratis mañana</strong> por ser tu primera compra</p>
       </div>
 
       <mat-divider></mat-divider>
 
       <!-- Opciones de color -->
       <div class="colores">
-        <div *ngFor="let color of coloresUnicos" class="color-opcion"
-          [ngStyle]="{ 'background-color': color.colorHex }"
-          [class.selected]="colorSeleccionado?.id === color.id"
-          (click)="seleccionarColor(color)">
+        <div *ngFor="let color of coloresUnicos" class="color-opcion" [ngStyle]="{ 'background-color': color.colorHex }"
+          [class.selected]="colorSeleccionado?.id === color.id" (click)="seleccionarColor(color)">
         </div>
       </div>
 

@@ -26,6 +26,8 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const tipoProductoRoutes = require('./routes/tipoProductoRoutes');
 const temporadaRoutes = require('./routes/temporadaRoutes');
 const productoRoutes = require('./routes/productRoutes');
+const ventasRoutes = require('./routes/ventasRoutes');
+const calificacionProductoRoutes = require('./routes/calificacionProductoRoutes');
 const { authenticateToken, authorize, ROLES } = require('./middlewares/auth');
 const app = express();
 app.set('trust proxy', process.env.NODE_ENV === 'production' ? 1 : false);
@@ -78,6 +80,8 @@ app.use('/tipoProducto', tipoProductoRoutes);
 app.use('/temporada', temporadaRoutes);
 app.use('/producto', productoRoutes);
 app.use('/categorias', categoryRoutes);
+app.use('/ventas', authenticateToken, ventasRoutes);
+app.use('/calificacion', calificacionProductoRoutes);
 
 app.use(errorHandler);
 module.exports = app;
