@@ -14,10 +14,10 @@ export class EditComponent implements OnInit {
   isLoading = false;
 
   constructor(
-    private route: ActivatedRoute,
-    private productoService: ProductoService,
-    private snackBar: MatSnackBar,
-    private router: Router
+    private readonly route: ActivatedRoute,
+    private readonly productoService: ProductoService,
+    private readonly snackBar: MatSnackBar,
+    private readonly router: Router
   ) { }
 
   ngOnInit(): void {

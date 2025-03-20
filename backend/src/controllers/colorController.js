@@ -18,3 +18,17 @@ exports.createColor = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+exports.updateColor = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { color, colorHex } = req.body;
+        const colorExistente = await ColorProducto.findByPk(id);
+        if (!colorExistente) {
+            return res.status(404).json({ message: 'Color no encontrado' });
+        }
+        await colorExistente.update({ color, colorHex });
+        res.json(colorExistente);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};

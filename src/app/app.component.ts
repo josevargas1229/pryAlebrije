@@ -1,16 +1,15 @@
 import { Component, ViewEncapsulation } from '@angular/core';
-import { Router, NavigationEnd, ActivatedRoute, RouterOutlet } from '@angular/router';
-import { HeaderComponent } from "./shared/header/header.component";
-import { FooterComponent } from "./shared/footer/footer.component";
+import { Router, NavigationEnd, ActivatedRoute, RouterOutlet, RouterModule } from '@angular/router';
+import { HeaderComponent } from './shared/header/header.component';
+import { FooterComponent } from './shared/footer/footer.component';
 import { SidebarComponent } from './shared/sidebar/sidebar.component';
 import { AngularToastifyModule, ToastService } from 'angular-toastify';
 import { AuthService } from './services/auth/auth.service';
-import { ScrollToTopComponent } from "./scroll-to-top/scroll-to-top.component";
+import { ScrollToTopComponent } from './scroll-to-top/scroll-to-top.component';
 import { CompanyService } from './private/services/company.service.ts.service';
 import { Title } from '@angular/platform-browser';
-import { BreadcrumbModule } from 'primeng/breadcrumb'; // Importación de PrimeNG
+import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { filter, map } from 'rxjs/operators';
-import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -24,44 +23,44 @@ import { CommonModule } from '@angular/common';
     ScrollToTopComponent,
     SidebarComponent,
     BreadcrumbModule,
-    RouterModule,
-    CommonModule
+    RouterModule, // Agregado para soportar routerLink
+    CommonModule,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
 export class AppComponent {
   title = 'pryAlebrije';
   BreadcrumbItems: any[] = [];
 
   constructor(
-    private authService: AuthService,
-    private toastService: ToastService,
-    private router: Router,
-    private companyService: CompanyService,
-    private titleService: Title,
-    private activatedRoute: ActivatedRoute
+    private readonly authService: AuthService,
+    private readonly toastService: ToastService,
+    private readonly router: Router,
+    private readonly companyService: CompanyService,
+    private readonly titleService: Title,
+    private readonly activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit() {
-    // Actualiza el título de la página con el nombre de la empresa
     this.companyService.companyProfile$.subscribe(profile => {
-      if (profile && profile.nombre) {
-        this.titleService.setTitle(profile.nombre);
+      const companyName = profile?.nombre;
+      if (companyName) {
+        this.titleService.setTitle(companyName);
       }
     });
 
-    // Verifica el estado de autenticación del usuario
     this.authService.checkAuthStatus()
-      .then((response) => {
-        if (response && response.isValid === false) {
+      .then(response => {
+        if (response?.isValid === false) {
           this.toastService.info('Por favor, verifique su cuenta.');
           this.router.navigate(['/verificacion']);
-        } else {
-          if (response && response.tipo) {
-            this.authService.setUserRole(response.tipo);
-          }
+          return;
+        }
+        const userRole = response?.tipo;
+        if (userRole) {
+          this.authService.setUserRole(userRole);
         }
       })
       .catch(error => {
@@ -70,27 +69,24 @@ export class AppComponent {
         }
       });
 
-    // Actualiza las migas de pan al cambiar de ruta
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
       map(() => this.buildBreadcrumb(this.activatedRoute.root))
     ).subscribe(items => {
-      // Agregar la ruta raíz (Home) al inicio de las migas de pan
       this.BreadcrumbItems = [{ label: 'Home', route: '/home', icon: 'pi pi-home' }, ...items];
     });
   }
 
   private buildBreadcrumb(route: ActivatedRoute, url: string = '', Breadcrumbs: any[] = []): any[] {
-    const label = route.routeConfig?.data?.['Breadcrumb']; // Usa 'Breadcrumb' como dato
+    const label = route.routeConfig?.data?.['Breadcrumb'];
     const path = route.routeConfig?.path;
-    const icon = route.routeConfig?.data?.['icon']; // Recuperamos el icono desde el data
+    const icon = route.routeConfig?.data?.['icon'];
 
     if (path && label) {
-      const routeUrl = `${url}/${path}`; // Concatenamos las rutas correctamente
-      Breadcrumbs.push({ label, route: routeUrl, icon: icon || 'pi pi-folder' }); // Si no hay icono, usamos uno por defecto
+      const routeUrl = `${url}/${path}`;
+      Breadcrumbs.push({ label, route: routeUrl, icon: icon || 'pi pi-folder' });
     }
 
-    // Llamada recursiva si hay una ruta hija
     if (route.firstChild) {
       return this.buildBreadcrumb(route.firstChild, url + (path ? `/${path}` : ''), Breadcrumbs);
     }

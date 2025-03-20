@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 
 import { ProductosRoutingModule } from './productos-routing.module';
 import { ProductosComponent } from './productos.component';
-import { PreviewComponent } from './preview/preview.component';
 import { EditComponent } from './edit/edit.component';
 import { AddComponent } from './add/add.component';
 import { ListComponent } from './list/list.component';
@@ -31,6 +30,10 @@ import { LoadingButtonComponent } from '../../components/loading-button/loading-
 import { DeletedProductsComponent } from './deleted-products/deleted-products.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { CatalogComponent } from './components/catalog/catalog.component';
+import { MatSpinner } from '@angular/material/progress-spinner';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { LowStockComponent } from './low-stock/low-stock.component';
 
 @NgModule({
   declarations: [
@@ -39,11 +42,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     ListComponent,
     AddComponent,
     EditComponent,
-    PreviewComponent,
     ProductformComponent,
     DetallesFormComponent,
     VarianteFormComponent,
     DeletedProductsComponent,
+    CatalogComponent,
+    LowStockComponent
     // HistoryComponent,    // Nuevo componente para historial
     // LowStockComponent    // Nuevo componente para productos con bajo stock
   ],
@@ -70,7 +74,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     DialogComponent,
     LoadingButtonComponent,
     MatPaginatorModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatSpinner,
+    MatExpansionModule
   ]
 })
 export class ProductosModule { }

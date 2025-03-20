@@ -19,23 +19,32 @@ import { MenuCatalogoComponent } from './catalogo/menu-catalogo/menu-catalogo.co
 import { CartComponent } from './cart/cart.component';
 import { ContactoComponent } from './contacto/contacto.component';
 import { ProductoDetalleComponent } from './catalogo/producto-detalle/producto-detalle.component';
+<<<<<<< HEAD
 import { Breadcrumb } from 'primeng/breadcrumb';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { PedidosComponent } from './pedidos/pedidos.component';
+=======
+>>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
 
 export const routes: Routes = [
   //rutas públicas
-  { path: "", component: HomeComponent, data: { Breadcrumb: "Home" },  },
-  { path: "terminos-condiciones", component: TerminosCondicionesComponent,data: { Breadcrumb: "Terminos-condiciones" } },
+  { path: "", component: HomeComponent, data: { Breadcrumb: "Home" }, },
+  { path: "terminos-condiciones", component: TerminosCondicionesComponent, data: { Breadcrumb: "Terminos-condiciones" } },
   { path: "politicas-privacidad", component: PoliticasPrivacidadComponent, data: { Breadcrumb: "Politicas-privacidad" } },
-  { path: 'editdeslinde', component:EditperfilemComponent},
-  { path: 'editperfilem', component:EditperfilemComponent},
   { path: 'editdeslinde', component: EditperfilemComponent },
   { path: 'editperfilem', component: EditperfilemComponent },
+<<<<<<< HEAD
   { path: 'verificacion', component:EmailVerificacionComponent},
   { path: 'cart', component:CartComponent, data: { Breadcrumb: "Carrito" } },
   { path: 'contacto', component:ContactoComponent, data: { Breadcrumb: "Contacto" } },
   { path: 'checkout', component:CheckoutComponent, data: { Breadcrumb: "Checkout" } },
+=======
+  { path: 'editdeslinde', component: EditperfilemComponent },
+  { path: 'editperfilem', component: EditperfilemComponent },
+  { path: 'verificacion', component: EmailVerificacionComponent },
+  { path: 'cart', component: CartComponent, data: { Breadcrumb: "Carrito" } },
+  { path: 'contacto', component: ContactoComponent, data: { Breadcrumb: "Contacto" } },
+>>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
 
 
   //rutas para usuarios autenticados
@@ -50,21 +59,22 @@ export const routes: Routes = [
 
         ]
       },
-      { path: 'admin',loadChildren: () => import('./private/private.module').then(m => m.PrivateModule)},
+      { path: 'admin', loadChildren: () => import('./private/private.module').then(m => m.PrivateModule) },
     ], canActivate: [AuthGuard]
   },
   {
-    path:'', children:[
+    path: '', children: [
       {
-        path:'menu-catalogo', data: { Breadcrumb: "Catalogo" },
-        children:[
-          { path:'', component:MenuCatalogoComponent},
-          { path:'productos', data: { Breadcrumb: "Productos" },
-          children:[
-            {path:'', component:ProductosComponent},
-            { path: 'producto-detalle/:id', component:ProductoDetalleComponent, data: {Breadcrumb: "detalle-producto"}}
-          ]
-           },
+        path: 'menu-catalogo', data: { Breadcrumb: "Catalogo" },
+        children: [
+          { path: '', component: MenuCatalogoComponent },
+          {
+            path: 'productos', data: { Breadcrumb: "Productos" },
+            children: [
+              { path: '', component: ProductosComponent },
+              { path: 'producto-detalle/:id', component: ProductoDetalleComponent, data: { Breadcrumb: "detalle-producto" } }
+            ]
+          },
 
         ]
       }
@@ -73,12 +83,12 @@ export const routes: Routes = [
   //rutas para usuarios no autenticados
   {
     path: '', children: [
-      { path: "home", component: HomeComponent,},
+      { path: "home", component: HomeComponent, },
       { path: "login", component: LoginComponent, data: { Breadcrumb: "Login" } },
       { path: "register", component: RegisterComponent, data: { Breadcrumb: "Registro" } },
-      { path: 'recupera', component:RecuperaComponent, data: { Breadcrumb: "Recuperar-contraseña" } },
+      { path: 'recupera', component: RecuperaComponent, data: { Breadcrumb: "Recuperar-contraseña" } },
 
-    ],canActivate:[NoAuthGuard]
+    ], canActivate: [NoAuthGuard]
   },
   { path: "error-400", component: Page400errorComponent },
   { path: "error-500", component: Page500errorComponent },

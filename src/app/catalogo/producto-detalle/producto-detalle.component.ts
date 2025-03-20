@@ -5,14 +5,17 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { ProductoService } from '../../private/productos/services/producto.service';
-import { ActivatedRoute } from '@angular/router';
-import { CurrencyPipe } from '@angular/common';
-import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CurrencyPipe, CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { LoadingButtonComponent } from '../../components/loading-button/loading-button.component';
+<<<<<<< HEAD
 import { CartService } from '../../services/cart/cart.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CalificacionService } from '../../services/califica/calificacion.service';
+=======
+
+>>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
 @Component({
   selector: 'app-producto-detalle',
   standalone: true,
@@ -45,18 +48,27 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   imagenesActuales: any[] = [];
   imagenPrincipal: string = '';
   stockDisponible: number = 0;
+  esPrevisualizacion: boolean = false; // Determina si es previsualización
+
   @ViewChild('scrollContainer', { static: false }) scrollContainer!: ElementRef;
   @ViewChild('detalleContainer', { static: false }) detalleContainer!: ElementRef;
   loadingCompra: boolean = false;
   loadingCarrito: boolean = false;
 
   constructor(
+<<<<<<< HEAD
     private productoService: ProductoService,
     private route: ActivatedRoute,
     private renderer: Renderer2,
     private cartService: CartService,
     private snackBar: MatSnackBar,
     private calificacionService: CalificacionService
+=======
+    private readonly productoService: ProductoService,
+    private readonly route: ActivatedRoute,
+    private readonly renderer: Renderer2,
+    private readonly router: Router
+>>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
   ) { }
 
   ngOnInit(): void {
@@ -64,6 +76,8 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
       const id = params.get('id');
       if (id) {
         this.productoId = +id;
+        // Determinar si estamos en la ruta de previsualización
+        this.esPrevisualizacion = this.router.url.includes('/preview');
         this.obtenerProductoDetalle(this.productoId);
         this.obtenerCalificacionProducto();
       }
@@ -101,7 +115,6 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   }
 
   inicializarDatos(): void {
-    // Extraer colores únicos
     const coloresMap = new Map<number, any>();
     this.producto.tallasColoresStock.forEach((variante: any) => {
       const color = variante.coloresStock;
@@ -111,7 +124,6 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
     });
     this.coloresUnicos = Array.from(coloresMap.values());
 
-    // Extraer tallas únicas
     const tallasMap = new Map<number, any>();
     this.producto.tallasColoresStock.forEach((variante: any) => {
       const talla = variante.talla;
@@ -121,7 +133,6 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
     });
     this.tallasUnicas = Array.from(tallasMap.values());
 
-    // Seleccionar el primer color y talla por defecto
     if (this.coloresUnicos.length > 0) {
       this.seleccionarColor(this.coloresUnicos[0]);
     }
@@ -134,7 +145,7 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   seleccionarColor(color: any): void {
     this.colorSeleccionado = color;
     this.imagenesActuales = color.imagenes || [];
-    this.imagenPrincipal = this.imagenesActuales.length > 0 ? this.imagenesActuales[0].url : 'assets/images/ropa.jpg'; // Imagen por defecto si no hay
+    this.imagenPrincipal = this.imagenesActuales.length > 0 ? this.imagenesActuales[0].url : 'assets/images/ropa.jpg';
     this.verificarStock();
   }
 
@@ -154,14 +165,17 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   }
 
   comprarAhora(): void {
-    this.loadingCompra = true;
-    setTimeout(() => {
-      this.loadingCompra = false;
-      console.log('Compra realizada');
-    }, 2000);
+    if (!this.esPrevisualizacion) {
+      this.loadingCompra = true;
+      setTimeout(() => {
+        this.loadingCompra = false;
+        console.log('Compra realizada');
+      }, 2000);
+    }
   }
 
   agregarAlCarrito(): void {
+<<<<<<< HEAD
     if (!this.colorSeleccionado || !this.tallaSeleccionada) {
       this.snackBar.open('Selecciona una talla antes de agregar al carrito', 'Cerrar', {
         duration: 3000
@@ -192,6 +206,15 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
         duration: 3000
       });
     }, 1000);
+=======
+    if (!this.esPrevisualizacion) {
+      this.loadingCarrito = true;
+      setTimeout(() => {
+        this.loadingCarrito = false;
+        console.log('Producto agregado al carrito');
+      }, 2000);
+    }
+>>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
   }
 
   obtenerCalificacionProducto(): void {

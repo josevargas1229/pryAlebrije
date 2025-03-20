@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const marcaController = require('../controllers/marcaController');
+const { getMarcas, createMarca, updateMarca } = require('../controllers/marcaController');
 const { authenticateToken, authorize, ROLES } = require('../middlewares/auth');
-router.get('/', marcaController.getMarcas);
-router.post('/', authenticateToken, authorize(ROLES.ADMINISTRADOR),  marcaController.createMarca);
+
+router.get('/', getMarcas);
+router.post('/', authenticateToken, authorize(ROLES.ADMINISTRADOR), createMarca);
+router.put('/:id', authenticateToken, authorize(ROLES.ADMINISTRADOR), updateMarca);
 
 module.exports = router;

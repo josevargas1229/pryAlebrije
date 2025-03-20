@@ -1,0 +1,155 @@
+.error-429-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #1a237e, #311b92);
+    position: relative;
+    overflow: hidden;
+}
+
+.background-animation {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+}
+
+.error-card {
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(4px);
+    padding: 24px;
+}
+
+.error-code {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #d81b60;
+    font-size: 3.5rem;
+    margin: 0;
+}
+
+.number-flip {
+    display: inline-block;
+    animation: flip 2s infinite;
+    animation-delay: calc(var(--i) * 0.2s);
+}
+
+.pulse-icon {
+    animation: pulse 1.5s infinite;
+}
+
+.glitch-text {
+    color: #e91e63;
+    position: relative;
+    animation: glitch 2s linear infinite alternate;
+}
+
+.progress-container {
+    margin: 24px 0;
+}
+
+.cool-progress {
+    border-radius: 4px;
+    height: 8px !important;
+}
+
+.progress-text {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    display: block;
+}
+
+.suggestions {
+    margin: 20px 0;
+}
+
+.list-item-hover:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: translateX(5px);
+    transition: all 0.3s ease;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.btn-glow {
+    transition: all 0.3s ease;
+}
+
+.btn-glow:hover {
+    box-shadow: 0 0 15px rgba(233, 30, 99, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Animations */
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes flip {
+
+    0%,
+    80% {
+        transform: rotateX(0deg);
+    }
+
+    100% {
+        transform: rotateX(360deg);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes glitch {
+    0% {
+        transform: translate(0);
+    }
+
+    20% {
+        transform: translate(-2px, 2px);
+    }
+
+    40% {
+        transform: translate(-2px, -2px);
+    }
+
+    60% {
+        transform: translate(2px, 2px);
+    }
+
+    80% {
+        transform: translate(2px, -2px);
+    }
+
+    100% {
+        transform: translate(0);
+    }
+}

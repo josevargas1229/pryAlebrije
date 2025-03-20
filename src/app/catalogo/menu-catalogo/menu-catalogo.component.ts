@@ -1,46 +1,29 @@
-import { Component, ElementRef, OnInit, ViewChild, AfterViewInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { CATEGORIAS, Categoria } from './menu-catalogo-config';
+import { BaseObservable } from '../../AcercaDe/base-observable';
 
 @Component({
   selector: 'app-menu-catalogo',
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './menu-catalogo.component.html',
-  styleUrl: './menu-catalogo.component.scss'
+  styleUrls: ['./menu-catalogo.component.scss'],
 })
-export class MenuCatalogoComponent implements OnInit, AfterViewInit {
-  constructor(
-    private renderer: Renderer2
-  ) {}
+export class MenuCatalogoComponent extends BaseObservable implements OnInit {
   @ViewChild('menuContainer', { static: false }) menuContainer!: ElementRef;
+  categorias: Categoria[] = CATEGORIAS;
 
-  ngAfterViewInit(): void {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            this.renderer.addClass(this.menuContainer.nativeElement, 'visible');
-            observer.disconnect();
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    observer.observe(this.menuContainer.nativeElement);
+  constructor(renderer: Renderer2) {
+    super(renderer);
   }
 
   ngOnInit(): void {
-    throw new Error('Method not implemented.');
+    // Implementación básica, elimina el throw si no es necesario
   }
-  categorias = [
-    { nombre: 'Niñas', imagen: 'assets/images/ropa.jpg' },
-    { nombre: 'Niños', imagen: 'assets/images/ropa.jpg' },
-    { nombre: 'Rec. Nacidos', imagen: 'assets/images/ropa.jpg'},
-    { nombre: '1-3X', imagen: 'assets/images/ropa.jpg' },
-    { nombre: 'H-10', imagen: 'assets/images/ropa.jpg' },
-    { nombre: '12-16', imagen: 'assets/images/ropa.jpg' },
-  ];
 
+  protected getObservedElement(): ElementRef {
+    return this.menuContainer;
   }
+}

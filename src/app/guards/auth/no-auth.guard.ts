@@ -7,7 +7,7 @@ import { from, map, Observable, tap } from 'rxjs';
   providedIn: 'root'
 })
 export class NoAuthGuard implements CanActivate {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private readonly authService: AuthService, private readonly router: Router) {}
 
   canActivate(): Observable<boolean> {
     return from(this.authService.checkAuthStatus()).pipe(

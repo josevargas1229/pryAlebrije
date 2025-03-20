@@ -7,9 +7,9 @@ import { environment } from '../../../../../src/environments/environment.develop
   providedIn: 'root'
 })
 export class LogsService {
-  private apiUrl = `${environment.API_URL}/logs`;
+  private readonly apiUrl = `${environment.API_URL}/logs`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   obtenerLogs(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}`,{withCredentials:true});

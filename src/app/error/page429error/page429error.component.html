@@ -1,0 +1,51 @@
+<div class="error-429-container">
+    <div class="background-animation"></div>
+
+    <mat-card class="error-card animate__animated animate__zoomIn">
+        <mat-card-header class="header-container">
+            <mat-card-title>
+                <h1 class="error-code">
+                    <span class="number-flip">4</span>
+                    <span class="number-flip">2</span>
+                    <span class="number-flip">9</span>
+                    <mat-icon class="pulse-icon">timer</mat-icon>
+                </h1>
+            </mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content class="content-wrapper">
+            <div class="message-container">
+                <h2 class="glitch-text" data-text="¡Demasiadas solicitudes!">¡Demasiadas solicitudes!</h2>
+                <p class="fade-in-text">
+                    Parece que has sido demasiado rápido para nosotros.
+                    ¡Nos halaga tu entusiasmo! Necesitamos un pequeño descanso.
+                </p>
+
+                <div class="suggestions bounce-in">
+                    <h3>Mientras esperas:</h3>
+                    <mat-list>
+                        <mat-list-item class="list-item-hover">
+                            <mat-icon matListItemIcon>coffee</mat-icon>
+                            <span matListItemTitle>Tómate un café</span>
+                        </mat-list-item>
+                        <mat-list-item class="list-item-hover">
+                            <mat-icon matListItemIcon>refresh</mat-icon>
+                            <span matListItemTitle>Intenta de nuevo en unos segundos</span>
+                        </mat-list-item>
+                        <mat-list-item class="list-item-hover">
+                            <mat-icon matListItemIcon>support</mat-icon>
+                            <span matListItemTitle>Contáctanos si persiste</span>
+                        </mat-list-item>
+                    </mat-list>
+                </div>
+
+                <div class="action-buttons">
+                    <button mat-stroked-button color="accent" class="btn-glow" (click)="goHome()">
+                        <mat-icon>home</mat-icon>
+                        Volver al inicio
+                    </button>
+                </div>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</div>

@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
 export class ContactoComponent {
   companyInfo: any = {}; // Cambia el tipo según lo que devuelva tu API
 
-    constructor(private companyService: CompanyService) { }
+    constructor(private readonly companyService: CompanyService) { }
 
     ngOnInit(): void {
       this.companyService.companyProfile$.subscribe((data: any) => {

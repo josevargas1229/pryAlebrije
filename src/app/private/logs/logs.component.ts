@@ -11,7 +11,7 @@ export class LogsComponent implements OnInit {
   logs: any[] = []; // Cambiar a un array de objetos
   cargando = false;
 
-  constructor(private logsService: LogsService, private snackBar: MatSnackBar) { }
+  constructor(private readonly logsService: LogsService, private readonly snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.cargarLogs();

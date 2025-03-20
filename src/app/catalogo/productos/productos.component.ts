@@ -55,11 +55,17 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   hasMore: boolean = true; // Controla si hay más productos por cargar
 
   constructor(
+<<<<<<< HEAD
     private searchService: SearchService,
     private productoService: ProductoService,
     private renderer: Renderer2,
     private cartService: CartService,
     private snackBar: MatSnackBar
+=======
+    private readonly searchService: SearchService,
+    private readonly productoService: ProductoService,
+    private readonly renderer: Renderer2
+>>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
   ) { }
 
   ngOnInit(): void {

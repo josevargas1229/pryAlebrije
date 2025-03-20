@@ -7,9 +7,9 @@ import { environment } from '../../../../../src/environments/environment.develop
   providedIn: 'root'
 })
 export class ConfiguracionSistemaService {
-  private apiUrl = `${environment.API_URL}`;
+  private readonly apiUrl = `${environment.API_URL}`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   // Obtener la configuración actual
   getConfiguration(): Observable<any> {

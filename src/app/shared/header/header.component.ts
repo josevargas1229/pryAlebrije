@@ -29,11 +29,18 @@ export class HeaderComponent implements OnInit {
   searchText: string = ''; // Almacena el texto de búsqueda
 
   constructor(
+<<<<<<< HEAD
     private authService: AuthService,
     private companyService: CompanyService,
     private router: Router,
     private searchService: SearchService,
     private cartService: CartService
+=======
+    private readonly authService: AuthService,
+    private readonly companyService: CompanyService,
+    private readonly router: Router,
+    private readonly searchService: SearchService // Inyecta el servicio
+>>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
   ) {}
 
   ngOnInit(): void {

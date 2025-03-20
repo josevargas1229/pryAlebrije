@@ -15,10 +15,10 @@ export class EmailTypeDialogComponent implements OnInit, AfterViewInit, OnDestro
   dialogTitle: string = '';
   @ViewChild('dialogTop') dialogTop!: ElementRef;
   constructor(
-    private fb: FormBuilder,
+    private readonly fb: FormBuilder,
     public dialogRef: MatDialogRef<EmailTypeDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any, // Aquí se inyectan los datos
-    private focusMonitor: FocusMonitor
+    private readonly focusMonitor: FocusMonitor
   ) {}
 
   ngOnInit(): void {

@@ -129,13 +129,16 @@
                             {{ color.color }}
                         </div>
                         <div class="file-upload-container">
-                            <button type="button" mat-stroked-button (click)="triggerFileInput(color.id)">
-                                <mat-icon>add_photo_alternate</mat-icon>
-                                Subir imágenes
-                            </button>
-                            <input type="file" [id]="'fileInput-' + color.id" hidden accept=".jpg,.jpeg,.png" multiple
-                                (change)="onFileSelected($event, color.id)">
-                            <mat-hint>Máximo 2MB por imagen. Formatos: JPG, PNG</mat-hint>
+                            <!-- Usamos un label para hacer el área clickable -->
+                            <label [for]="'fileInput-' + color.id" class="upload-label">
+                                <button type="button" mat-stroked-button>
+                                    <mat-icon>add_photo_alternate</mat-icon>
+                                    Subir imágenes
+                                </button>
+                                <input type="file" [id]="'fileInput-' + color.id" hidden accept=".jpg,.jpeg,.png" multiple
+                                    (change)="onFileSelected($event, color.id)">
+                                <mat-hint>Máximo 2MB por imagen. Formatos: JPG, PNG</mat-hint>
+                            </label>
                         </div>
                         <!-- Imágenes existentes -->
                         <div class="images-preview" *ngIf="imagenesExistentesPorColor[color.id]?.length">

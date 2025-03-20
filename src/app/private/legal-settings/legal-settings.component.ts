@@ -39,10 +39,10 @@ export class LegalSettingsComponent implements OnInit {
   documentToEdit: LegalDocument | null = null;
   tabType:string='';
   constructor(
-    private legalService: LegalService,
-    private route: ActivatedRoute,
-    private toastService: ToastService,
-    private router: Router
+    private readonly legalService: LegalService,
+    private readonly route: ActivatedRoute,
+    private readonly toastService: ToastService,
+    private readonly router: Router
   ) {}
 
   ngOnInit() {

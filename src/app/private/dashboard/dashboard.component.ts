@@ -18,9 +18,9 @@ export class DashboardComponent {
   @ViewChild('sidenav') sidenav!: MatSidenav;
 
   constructor(
-    private breakpointObserver: BreakpointObserver,
-    private router: Router,
-    private toastService:ToastService
+    private readonly breakpointObserver: BreakpointObserver,
+    private readonly router: Router,
+    private readonly toastService:ToastService
   ) {}
 
   ngOnInit(): void {

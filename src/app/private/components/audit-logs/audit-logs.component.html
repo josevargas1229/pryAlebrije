@@ -1,0 +1,59 @@
+<div class="container">
+    <h2>Historial de movimientos - {{ modulo | titlecase }}</h2>
+
+    <mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+        <!-- Columna Fecha y Hora -->
+        <ng-container matColumnDef="timestamp">
+            <mat-header-cell *matHeaderCellDef>Fecha y Hora</mat-header-cell>
+            <mat-cell *matCellDef="let log">{{ log.created_at | date:'yyyy-MM-dd HH:mm:ss' }}</mat-cell>
+        </ng-container>
+
+        <!-- Columna Nombre de Usuario -->
+        <ng-container matColumnDef="nombre_usuario">
+            <mat-header-cell *matHeaderCellDef>Usuario</mat-header-cell>
+            <mat-cell *matCellDef="let log">{{ log.nombre_usuario }}</mat-cell>
+        </ng-container>
+
+        <!-- Columna Rol -->
+        <ng-container matColumnDef="rol">
+            <mat-header-cell *matHeaderCellDef>Rol</mat-header-cell>
+            <mat-cell *matCellDef="let log">{{ log.rol }}</mat-cell>
+        </ng-container>
+
+        <!-- Columna Acción -->
+        <ng-container matColumnDef="accion">
+            <mat-header-cell *matHeaderCellDef>Acción</mat-header-cell>
+            <mat-cell *matCellDef="let log">{{ log.accion }}</mat-cell>
+        </ng-container>
+
+        <!-- Columna Detalle con expansión -->
+        <ng-container matColumnDef="detalle">
+            <mat-header-cell *matHeaderCellDef>Detalle</mat-header-cell>
+            <mat-cell *matCellDef="let log">
+                <mat-expansion-panel #panel >
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>{{ getDetalleSummary(log.detalle) }}</mat-panel-title>
+                    </mat-expansion-panel-header>
+                    <pre>{{ parseDetalle(log.detalle) }}</pre>
+                </mat-expansion-panel>
+            </mat-cell>
+        </ng-container>
+
+        <!-- Encabezado y filas -->
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;" [@rowEnter]></mat-row>
+
+        <!-- Mensaje mejorado para cuando no hay datos -->
+        <ng-container *matNoDataRow>
+            <td class="no-data" colspan="5" [@noDataAnimation]="'in'">
+                <mat-card class="no-data-card">
+                    <mat-card-content>
+                        <mat-icon class="no-data-icon">info</mat-icon>
+                        <p>No hay movimientos registrados para el módulo "{{ modulo | titlecase }}" aún.</p>
+                        <p class="subtext">¡Realiza alguna acción para comenzar a ver el historial!</p>
+                    </mat-card-content>
+                </mat-card>
+            </td>
+        </ng-container>
+    </mat-table>
+</div>

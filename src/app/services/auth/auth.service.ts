@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, tap, map, switchMap } from 'rxjs/operators';
+import { catchError, tap, map } from 'rxjs/operators';
 import { Usuario } from '../user/user.models';
 import { Cuenta } from '../account/account.models';
 import { AuthResponse, LoginCredentials } from './auth.models';
@@ -17,7 +17,7 @@ export class AuthService {
   public currentUser: Observable<any>;
   private isCheckingAuth: boolean = false;
   private userRoleSubject = new BehaviorSubject<number | null>(null);
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private readonly http: HttpClient, private readonly router: Router) {
     this.currentUser = this.currentUserSubject.asObservable();
   }
 

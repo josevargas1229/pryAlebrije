@@ -11,9 +11,9 @@ import { Router } from '@angular/router';
 export class AddComponent {
   isLoading = false;
   constructor(
-    private productoService: ProductoService,
-    private snackBar: MatSnackBar,
-    private router: Router
+    private readonly productoService: ProductoService,
+    private readonly snackBar: MatSnackBar,
+    private readonly router: Router
   ) {}
 
   guardarProducto(datos: FormData) {

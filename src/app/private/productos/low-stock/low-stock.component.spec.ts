@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PreviewComponent } from './preview.component';
+import { LowStockComponent } from './low-stock.component';
 
-describe('PreviewComponent', () => {
-  let component: PreviewComponent;
-  let fixture: ComponentFixture<PreviewComponent>;
+describe('LowStockComponent', () => {
+  let component: LowStockComponent;
+  let fixture: ComponentFixture<LowStockComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PreviewComponent]
+      imports: [LowStockComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(PreviewComponent);
+    fixture = TestBed.createComponent(LowStockComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

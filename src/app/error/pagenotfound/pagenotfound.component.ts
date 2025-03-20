@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   styleUrl: './pagenotfound.component.scss'
 })
 export class PagenotfoundComponent {
-  constructor(private router: Router) {}
+  constructor(private readonly router: Router) {}
 
   goBack() {
     window.history.back();

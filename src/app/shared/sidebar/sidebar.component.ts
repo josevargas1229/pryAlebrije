@@ -20,7 +20,7 @@ export class SidebarComponent {
   isLoggedIn: boolean = false;
   userRole: number | null = null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private readonly authService: AuthService, private readonly router: Router) {}
 
   ngOnInit(): void {
     // Verifica el estado de autenticación del usuario

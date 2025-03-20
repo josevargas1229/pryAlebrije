@@ -439,3 +439,23 @@ h1 {
     opacity: 1;
   }
 }
+<<<<<<< HEAD
+=======
+.preview-notice {
+  background-color: #fff3e0; /* Fondo naranja claro */
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+
+  mat-icon {
+    margin-right: 8px;
+    color: #ff9800; /* Ícono naranja */
+  }
+
+  span {
+    color: #ff9800;
+    font-weight: bold;
+  }
+}
+>>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a

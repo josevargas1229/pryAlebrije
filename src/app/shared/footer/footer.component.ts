@@ -4,11 +4,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { CompanyService } from '../../private/services/company.service.ts.service';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [RouterLink, MatToolbarModule, MatButtonModule, CommonModule],
+  imports: [RouterLink, MatToolbarModule, MatButtonModule, CommonModule,MatIconModule],
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.scss']
 })

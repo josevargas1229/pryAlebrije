@@ -17,11 +17,11 @@ export class EmailTemplateDialogComponent implements OnInit, AfterViewInit, OnDe
   dialogTitle: string = '';
   @ViewChild('dialogTop') dialogTop!: ElementRef;
   constructor(
-    private fb: FormBuilder,
+    private readonly fb: FormBuilder,
     public dialogRef: MatDialogRef<EmailTemplateDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,  // Inyectar datos (crear, editar, ver)
-    private emailService: EmailManagementService,  // Servicio para cargar tipos de correos
-    private focusMonitor: FocusMonitor
+    private readonly emailService: EmailManagementService,  // Servicio para cargar tipos de correos
+    private readonly focusMonitor: FocusMonitor
   ) {}
 
   ngOnInit(): void {

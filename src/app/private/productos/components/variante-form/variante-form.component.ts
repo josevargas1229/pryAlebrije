@@ -23,11 +23,11 @@ export class VarianteFormComponent implements OnInit {
   @Input() colores: Color[] = [];
 
   constructor(
-    private fb: FormBuilder,
+    private readonly fb: FormBuilder,
     public dialogRef: MatDialogRef<VarianteFormComponent>,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog,
-    private productoService: ProductoService,
+    private readonly snackBar: MatSnackBar,
+    private readonly dialog: MatDialog,
+    private readonly productoService: ProductoService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.varianteForm = this.fb.group({

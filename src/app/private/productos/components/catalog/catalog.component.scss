@@ -1,0 +1,93 @@
+.catalog-card {
+    max-width: 600px;
+    margin: 16px auto;
+    padding: 16px;
+    overflow: hidden; // Evita desbordamientos durante animaciones
+}
+
+table {
+    width: 100%;
+}
+
+.color-preview {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ccc;
+    margin-right: 8px;
+}
+
+.add-button {
+    margin-bottom: 16px;
+    transition: all 0.3s ease; // Suaviza la animación
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    opacity: 0.8;
+
+    p {
+        margin-top: 16px;
+        font-size: 16px;
+        color: #666;
+        animation: bounce 1.5s infinite;
+    }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 20px;
+
+    .empty-icon {
+        font-size: 48px;
+        height: 48px;
+        width: 48px;
+        color: #888;
+        animation: wobble 2s infinite;
+    }
+
+    p {
+        font-size: 18px;
+        color: #666;
+    }
+}
+
+// Animación personalizada para el texto de carga
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+// Animación para el ícono de "sin elementos"
+@keyframes wobble {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(15deg);
+    }
+
+    50% {
+        transform: rotate(-15deg);
+    }
+
+    75% {
+        transform: rotate(10deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
+}

@@ -1,6 +1,6 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, switchMap } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Usuario } from './user.models';
 import { environment } from '../../../environments/environment.development';
 

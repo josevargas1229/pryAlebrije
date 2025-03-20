@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { RouterLink } from '@angular/router';
-import { trigger, state, style, transition, animate } from '@angular/animations';
+import { trigger, style, transition, animate } from '@angular/animations';
 
 interface ConfigOption {
   icon: string;
