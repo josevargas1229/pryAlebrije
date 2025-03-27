@@ -19,12 +19,9 @@ import { MenuCatalogoComponent } from './catalogo/menu-catalogo/menu-catalogo.co
 import { CartComponent } from './cart/cart.component';
 import { ContactoComponent } from './contacto/contacto.component';
 import { ProductoDetalleComponent } from './catalogo/producto-detalle/producto-detalle.component';
-<<<<<<< HEAD
 import { Breadcrumb } from 'primeng/breadcrumb';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { PedidosComponent } from './pedidos/pedidos.component';
-=======
->>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
 
 export const routes: Routes = [
   //rutas públicas
@@ -33,18 +30,16 @@ export const routes: Routes = [
   { path: "politicas-privacidad", component: PoliticasPrivacidadComponent, data: { Breadcrumb: "Politicas-privacidad" } },
   { path: 'editdeslinde', component: EditperfilemComponent },
   { path: 'editperfilem', component: EditperfilemComponent },
-<<<<<<< HEAD
   { path: 'verificacion', component:EmailVerificacionComponent},
   { path: 'cart', component:CartComponent, data: { Breadcrumb: "Carrito" } },
   { path: 'contacto', component:ContactoComponent, data: { Breadcrumb: "Contacto" } },
   { path: 'checkout', component:CheckoutComponent, data: { Breadcrumb: "Checkout" } },
-=======
+
   { path: 'editdeslinde', component: EditperfilemComponent },
   { path: 'editperfilem', component: EditperfilemComponent },
   { path: 'verificacion', component: EmailVerificacionComponent },
   { path: 'cart', component: CartComponent, data: { Breadcrumb: "Carrito" } },
   { path: 'contacto', component: ContactoComponent, data: { Breadcrumb: "Contacto" } },
->>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
 
 
   //rutas para usuarios autenticados

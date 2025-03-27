@@ -5,29 +5,72 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class CartService {
-  private cart = new BehaviorSubject<{ id: number, cantidad: number, nombre: string, talla: string, precio: number, imagen: string, stock: number }[]>([]);
+  private cart = new BehaviorSubject<{
+    id: number,
+    cantidad: number,
+    nombre: string,
+    tipoProducto?: string,
+    marca?: string,
+    categoria?: string,
+    color?: string,
+    talla: string,
+    precio: number,
+    imagen: string,
+    stock: number,
+    talla_id: number,
+    color_id: number
+  }[]>([]);
   cart$ = this.cart.asObservable();
 
-  addToCart(producto: { id: number, nombre: string, talla: string, precio: number, imagen: string, stock: number }) {
+  addToCart(producto: {
+    id: number,
+    nombre: string,
+    tipoProducto?: string,
+    marca?: string,
+    categoria?: string,
+    color?: string,
+    talla_id: number,
+    color_id: number,
+    talla: string,
+    precio: number,
+    imagen: string,
+    stock: number,
+    cantidad: number
+  }) {
     let currentCart = this.cart.value;
-    let index = currentCart.findIndex(item => item.id === producto.id && item.talla === producto.talla);
+    let index = currentCart.findIndex(item =>
+      item.id === producto.id &&
+      item.talla_id === producto.talla_id &&
+      item.color_id === producto.color_id
+    );
 
     if (index > -1) {
-      if (currentCart[index].cantidad < producto.stock) {
-        currentCart[index].cantidad += 1;
-      } else {
+      const nuevaCantidad = currentCart[index].cantidad + producto.cantidad;
+      if (nuevaCantidad > producto.stock) {
         alert(`❌ No puedes agregar más de ${producto.stock} unidades de ${producto.nombre}.`);
-        return; // Salimos sin actualizar el carrito
+        return;
       }
+      currentCart[index].cantidad = nuevaCantidad;
     } else {
+      if (producto.cantidad > producto.stock) {
+        alert(`❌ No puedes agregar más de ${producto.stock} unidades de ${producto.nombre}.`);
+        return;
+      }
+
       currentCart.push({
         id: producto.id,
-        cantidad: 1,
+        cantidad: producto.cantidad,
         nombre: producto.nombre,
+        tipoProducto: producto.tipoProducto || 'Tipo desconocido',
+        marca: producto.marca || 'Marca desconocida',
+        categoria: producto.categoria || 'Categoría desconocida',
+        color: producto.color || 'Color desconocido',
         talla: producto.talla,
         precio: producto.precio,
         imagen: producto.imagen,
-        stock: producto.stock
+        stock: producto.stock,
+        talla_id: producto.talla_id,
+        color_id: producto.color_id
       });
     }
 
@@ -38,9 +81,8 @@ export class CartService {
   updateQuantity(productoId: number, talla: string, cantidad: number): boolean {
     let currentCart = this.cart.value.map(item => {
       if (item.id === productoId && item.talla === talla) {
-        // Verifica si la cantidad supera el stock disponible
         if (cantidad > item.stock) {
-          return { ...item, cantidad: item.stock }; // No permite pasar del stock
+          return { ...item, cantidad: item.stock };
         }
         return { ...item, cantidad };
       }
@@ -50,11 +92,8 @@ export class CartService {
     this.cart.next([...currentCart]);
     this.saveCartToStorage();
 
-    // Retorna `true` si se sobrepasó el stock, para que el componente muestre alerta
     return cantidad > this.cart.value.find(i => i.id === productoId && i.talla === talla)?.stock!;
   }
-
-
 
   removeFromCart(productoId: number, talla: string) {
     let currentCart = this.cart.value.filter(item => !(item.id === productoId && item.talla === talla));
@@ -64,7 +103,7 @@ export class CartService {
 
   clearCart() {
     this.cart.next([]);
-    localStorage.removeItem('cart');
+    sessionStorage.removeItem('cart');
   }
 
   getCartItems() {
@@ -72,11 +111,11 @@ export class CartService {
   }
 
   private saveCartToStorage() {
-    localStorage.setItem('cart', JSON.stringify(this.cart.value));
+    sessionStorage.setItem('cart', JSON.stringify(this.cart.value));
   }
 
   private loadCartFromStorage() {
-    const storedCart = localStorage.getItem('cart');
+    const storedCart = sessionStorage.getItem('cart');
     if (storedCart) {
       this.cart.next(JSON.parse(storedCart));
     }
@@ -85,5 +124,4 @@ export class CartService {
   constructor() {
     this.loadCartFromStorage();
   }
-
 }

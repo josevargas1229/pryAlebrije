@@ -58,8 +58,21 @@ export class ProductoService {
       });
     }
 
+    if (params.precio_min !== undefined) {
+      httpParams = httpParams.set('precio_min', params.precio_min.toString());
+    }
+    if (params.precio_max !== undefined) {
+      httpParams = httpParams.set('precio_max', params.precio_max.toString());
+    }
+
+
     return this.http.get(`${this.apiUrl}/producto`, { params: httpParams });
   }
+
+  updateStock(producto_id: number, talla_id: number, color_id: number, cantidad: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/producto/${producto_id}/actualizarStock`, { talla_id, color_id, cantidad });
+  }
+
 
   getProductoById(id: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/producto/${id}`);

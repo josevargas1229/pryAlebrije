@@ -11,6 +11,7 @@ import { ProductoService } from '../../private/productos/services/producto.servi
 import { LoadingButtonComponent } from '../../components/loading-button/loading-button.component';
 import { CartService } from '../../services/cart/cart.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-productos',
@@ -23,7 +24,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     MatFormFieldModule,
     FormsModule,
     RouterLink,
-    LoadingButtonComponent
+    LoadingButtonComponent,
+    MatSelectModule
   ],
   templateUrl: './productos.component.html',
   styleUrls: ['./productos.component.scss']
@@ -54,18 +56,18 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   isLoading: boolean = false;
   hasMore: boolean = true; // Controla si hay más productos por cargar
 
+  precioVisibles: boolean = false; // Controla la visibilidad del filtro por precio
+  rangoPrecios: { precio_min: number, precio_max: number } = { precio_min: 0, precio_max: 0 };
+  precioMinSeleccionado: number | null = null;
+  precioMaxSeleccionado: number | null = null;
+  ordenSeleccionado: string = 'mayor-menor';
+
   constructor(
-<<<<<<< HEAD
     private searchService: SearchService,
     private productoService: ProductoService,
     private renderer: Renderer2,
     private cartService: CartService,
     private snackBar: MatSnackBar
-=======
-    private readonly searchService: SearchService,
-    private readonly productoService: ProductoService,
-    private readonly renderer: Renderer2
->>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
   ) { }
 
   ngOnInit(): void {
@@ -112,16 +114,40 @@ onWindowScroll(): void {
 
   agregarAlCarrito(producto: any): void {
     this.loadingCarrito[producto.id] = true;
+
     setTimeout(() => {
       this.loadingCarrito[producto.id] = false;
-      this.cartService.addToCart(producto); // Agregar producto al carrito
-      this.snackBar.open(`agregado exitosamente al carrito 🛒`, 'Cerrar', { // Mostrar notificación
+
+      const productoAlCarrito = {
+        id: producto.id,
+        nombre: producto.nombre,
+        precio: producto.precio,
+        imagen: producto.imagenPrincipal || 'assets/images/ropa.jpg',
+        talla: this.getTallasDisponibles(producto),
+        stock: producto.stock || 100,
+        cantidad: 1,
+        talla_id: producto.talla_id || 0,
+        color_id: producto.color_id || 0,
+
+        // Agregar estos campos adicionales
+        tipoProducto: producto.tipo?.nombre || 'Tipo desconocido',
+        marca: producto.marca?.nombre || 'Marca desconocida',
+        categoria: producto.categoria?.nombre || 'Categoría desconocida',
+        color: producto.variantes?.[0]?.ColorProducto?.color || 'Color desconocido'
+      };
+
+      this.cartService.addToCart(productoAlCarrito);
+
+      this.snackBar.open(`🛒 ${producto.nombre} agregado al carrito exitosamente`, 'Cerrar', {
         duration: 3000
       });
     }, 1000);
   }
 
-  loadMoreProducts(): void {
+
+
+
+    loadMoreProducts(): void {
     if (this.isLoading || !this.hasMore) return;
 
     this.isLoading = true;
@@ -136,16 +162,22 @@ onWindowScroll(): void {
 
     this.productoService.getAllProductos(params).subscribe({
       next: (response) => {
+        console.log("📦 Productos recibidos del backend (Estructura completa):", JSON.stringify(response.productos, null, 2));
+
         const nuevosProductos = response.productos.map(producto => ({
           ...producto,
-          tallas: producto.variantes ? producto.variantes.map(v => v.talla) : []
+          imagenPrincipal: this.getImagenPrincipal(producto)  // Obtén la imagen principal por producto
         }));
+
+        console.log("🖼️ Productos procesados con imágenes:", nuevosProductos);
+
         this.productos = [...this.productos, ...nuevosProductos];
         this.filteredProductos = [...this.productos];
         this.totalItems = response.totalItems || this.productos.length;
         this.currentPage++;
         this.isLoading = false;
         this.hasMore = nuevosProductos.length === this.pageSize && this.productos.length < this.totalItems;
+        this.ordenarProductos();
       },
       error: (error) => {
         console.error('Error al obtener productos:', error);
@@ -153,6 +185,30 @@ onWindowScroll(): void {
       }
     });
   }
+
+  getImagenPrincipal(producto: any): string {
+    console.log("📸 Producto recibido para obtener imagen:", producto);
+
+    if (producto.imagenes && producto.imagenes.length > 0) {
+      console.log("✅ Imagen encontrada para el producto:", producto.imagenes[0].url);
+      return producto.imagenes[0].url;
+    } else {
+      console.log("⚠️ No se encontraron imágenes, usando imagen por defecto.");
+      return 'assets/images/ropa.jpg';
+    }
+  }
+
+  ordenarProductos(): void {
+    this.filteredProductos.sort((a, b) => {
+      if (this.ordenSeleccionado === 'mayor-menor') {
+        return b.precio - a.precio;
+      } else if (this.ordenSeleccionado === 'menor-mayor') {
+        return a.precio - b.precio;
+      }
+      return 0; // En caso de que no haya criterio válido
+    });
+  }
+
 
   resetAndLoad(): void {
     console.log('Reseteando y recargando productos');
@@ -171,6 +227,10 @@ onWindowScroll(): void {
         this.marcas = response.marcas.map(m => ({ ...m, seleccionado: false }));
         this.colores = response.colores.map(c => ({ ...c, seleccionado: false }));
         this.tallas = response.tallas.map(t => ({ ...t, seleccionado: false }));
+        this.rangoPrecios = response.rangoPrecios;
+        this.precioMinSeleccionado = null;  // No se inicializa con el precio mínimo recibido
+        this.precioMaxSeleccionado = null;  // No se inicializa con el precio máximo recibido
+
       },
       error: (error) => {
         console.error('Error al obtener filtros:', error);
@@ -195,6 +255,10 @@ onWindowScroll(): void {
 
     const coloresSeleccionados = this.colores.filter(c => c.seleccionado).map(c => c.id);
     if (coloresSeleccionados.length > 0) filtros.color_id = coloresSeleccionados;
+
+    if (this.precioMinSeleccionado !== null) filtros.precio_min = this.precioMinSeleccionado;
+    if (this.precioMaxSeleccionado !== null) filtros.precio_max = this.precioMaxSeleccionado;
+
 
     return filtros;
   }
@@ -229,5 +293,6 @@ onWindowScroll(): void {
     if (seccion === 'tipoProducto') this.tipoProductoVisibles = !this.tipoProductoVisibles;
     if (seccion === 'marca') this.marcaVisibles = !this.marcaVisibles;
     if (seccion === 'talla') this.tallaVisibles = !this.tallaVisibles;
+    if (seccion === 'precio') this.precioVisibles = !this.precioVisibles;
   }
 }

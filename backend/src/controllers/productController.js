@@ -84,6 +84,15 @@ const buildWhereCondition = (query) => {
         whereCondition.estado = parseEstado(estado);
     }
 
+    if (query.precio_min && query.precio_max) {
+      whereCondition.precio = { [Op.between]: [Number(query.precio_min), Number(query.precio_max)] };
+    } else if (query.precio_min) {
+      whereCondition.precio = { [Op.gte]: Number(query.precio_min) };
+    } else if (query.precio_max) {
+      whereCondition.precio = { [Op.lte]: Number(query.precio_max) };
+    }
+
+
     addFilter(whereCondition, 'categoria_id', categoria_id);
     addFilter(whereCondition, 'tipo_id', tipo_id);
     addFilter(whereCondition, 'marca_id', marca_id);
@@ -227,64 +236,94 @@ exports.createProducto = async (req, res) => {
 };
 exports.getAllFilters = async (req, res) => {
     try {
-        const [temporadas, categorias, tipos, marcas, tallas, colores] = await Promise.all([
+        const [temporadas, categorias, tipos, marcas, tallas, colores, precios] = await Promise.all([
             fetchModelData(Temporada, 'temporada'),
             fetchModelData(Categoria, 'nombre'),
             fetchModelData(TipoProducto, 'nombre'),
             fetchModelData(Marca, 'nombre'),
             fetchModelData(Talla, 'talla'),
             fetchModelData(ColorProducto, 'color'),
+            Product.findAll({
+              attributes: [
+                  [sequelize.fn('MIN', sequelize.col('precio')), 'precio_min'],
+                  [sequelize.fn('MAX', sequelize.col('precio')), 'precio_max']
+              ],
+              where: { is_deleted: false }
+          })
         ]);
 
-        res.status(200).json({ temporadas, categorias, tipos, marcas, tallas, colores });
+        const rangoPrecios = {
+          precio_min: precios[0].dataValues.precio_min,
+          precio_max: precios[0].dataValues.precio_max
+      };
+
+        res.status(200).json({ temporadas, categorias, tipos, marcas, tallas, colores, rangoPrecios });
     } catch (error) {
         res.status(500).json({ message: 'Error al obtener los datos', error: error.message });
     }
 };
 exports.getAllProductos = async (req, res) => {
-    try {
-        const { page = 1, pageSize = 10 } = req.query;
-        const offset = (page - 1) * pageSize;
+  try {
+      const { page = 1, pageSize = 10 } = req.query;
+      const offset = (page - 1) * pageSize;
 
-        const whereCondition = buildWhereCondition(req.query);
-        const productoTallaColorWhere = buildProductoTallaColorWhere(req.query);
+      const whereCondition = buildWhereCondition(req.query);
+      const productoTallaColorWhere = buildProductoTallaColorWhere(req.query);
 
-        const { count, rows } = await Product.findAndCountAll({
-            where: whereCondition,
-            limit: parseInt(pageSize),
-            offset,
-            attributes: ['id', 'precio', 'estado'],
-            include: [
-                { model: Temporada, attributes: ['temporada'] },
-                { model: Categoria, attributes: ['nombre'] },
-                { model: TipoProducto, attributes: ['nombre'] },
-                { model: Marca, attributes: ['nombre'] },
-                {
-                    model: ProductoTallaColor,
-                    required: false,
-                    where: productoTallaColorWhere,
-                    include: [
-                        { model: Talla, attributes: ['talla'] },
-                        { model: ColorProducto, attributes: ['color', 'colorHex'] },
-                    ],
-                },
-            ],
-            distinct: true,
-        });
-
-        const productosCatalogo = rows.map(mapProductoCatalogo);
-
-        res.json({
-            productos: productosCatalogo,
-            currentPage: parseInt(page),
-            pageSize: parseInt(pageSize),
-            totalItems: count,
-        });
-    } catch (error) {
-        console.error('Error al obtener productos:', error);
-        res.status(500).json({ message: 'Error al obtener el catálogo de productos' });
-    }
+      const { count, rows } = await Product.findAndCountAll({
+          where: whereCondition,
+          limit: parseInt(pageSize),
+          offset,
+          attributes: ['id', 'precio', 'estado'],
+          include: [
+              { model: Temporada, attributes: ['temporada'] },
+              { model: Categoria, attributes: ['nombre'] },
+              { model: TipoProducto, attributes: ['nombre'] },
+              { model: Marca, attributes: ['nombre'] },
+              {
+                  model: ProductoTallaColor,
+                  required: false,
+                  where: productoTallaColorWhere,
+                  include: [
+                      { model: Talla, attributes: ['talla'] },
+                      {
+                          model: ColorProducto,
+                          attributes: ['color', 'colorHex'],
+                          include: [
+                              {
+                                  model: ImagenProducto,
+                                  attributes: ['id', 'imagen_url', 'producto_id'],
+                                  where: { producto_id: sequelize.col('Producto.id') },
+                                  required: false,
+                              }
+                          ]
+                      },
+                  ],
+              },
+          ],
+          distinct: true,
+      });
+      const productosCatalogo = rows.map(producto => ({
+          ...mapProductoCatalogo(producto),
+          imagenes: producto.ProductoTallaColors.flatMap(ptc =>
+              (ptc.ColorProducto?.ImagenProductos || []).filter(img => img.producto_id === producto.id).map(img => ({
+                  url: img.imagen_url,
+                  color_id: ptc.color_id
+              }))
+          )
+      }));
+      res.json({
+          productos: productosCatalogo,
+          currentPage: parseInt(page),
+          pageSize: parseInt(pageSize),
+          totalItems: count,
+      });
+  } catch (error) {
+      console.error('Error al obtener productos:', error);
+      res.status(500).json({ message: 'Error al obtener el catálogo de productos' });
+  }
 };
+
 exports.updateProducto = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {

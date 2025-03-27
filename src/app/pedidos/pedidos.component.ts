@@ -6,6 +6,7 @@ import { AuthService } from '../services/auth/auth.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-pedidos',
@@ -19,7 +20,7 @@ export class PedidosComponent implements OnInit {
   isLoading: boolean = true;
   usuarioId: number | null = null;
 
-  constructor(private ventaService: VentaService, private authService: AuthService) {}
+  constructor(private ventaService: VentaService, private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
     console.log(" Obteniendo usuario autenticado...");
@@ -41,6 +42,10 @@ export class PedidosComponent implements OnInit {
     });
   }
 
+  verProductoDetalle(productoId: number): void {
+    this.router.navigate([`/menu-catalogo/productos/producto-detalle/${productoId}`]);
+  }
+
   cargarPedidos(): void {
     if (!this.usuarioId) {
       console.warn("Intento de cargar pedidos sin usuarioId.");
@@ -49,11 +54,16 @@ export class PedidosComponent implements OnInit {
 
     this.ventaService.getVentasByUsuario(this.usuarioId).subscribe({
       next: ventas => {
-        console.log(" Pedidos obtenidos en el componente:", ventas);
-        ventas.forEach(pedido => {
-          console.log(` Pedido #${pedido.id} - Productos:`, pedido.detalles);
-        });
-        this.pedidos = ventas;
+        console.log("Pedidos obtenidos en el componente:", ventas);
+
+        this.pedidos = ventas.map(venta => ({
+          ...venta,
+          detalles: venta.detalles.map(detalle => ({
+            ...detalle,
+            talla: detalle.talla || { talla: 'Sin talla' },
+            color: detalle.color || { color: 'Sin color', colorHex: '#FFFFFF' },
+          }))
+        }));
       },
       error: error => console.error('Error al obtener pedidos:', error)
     });

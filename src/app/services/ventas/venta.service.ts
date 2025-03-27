@@ -26,13 +26,15 @@ export interface DetalleVenta {
   precio_unitario: number;
   subtotal: number;
   producto: {
-    tipoProducto: { nombre: string };
+    id: number;
     precio: number;
-    imagen?: string;
+    tipoProducto: { nombre: string };
+    imagenes: { imagen_url: string }[]; // Ahora se incluye la lista de imágenes
   };
   talla: { talla: string };
   color: { color: string; colorHex: string };
 }
+
 
 @Injectable({
   providedIn: 'root'
@@ -55,10 +57,17 @@ export class VentaService {
   getVentasByUsuario(usuarioId: number): Observable<Venta[]> {
     return this.http.get<{ ventas: Venta[] }>(`${this.apiUrl}/usuario/${usuarioId}`, { withCredentials: true }).pipe(
       map(response => {
-        console.log("🔍 Respuesta completa del backend:", response);
+        console.log("🔍 Respuesta completa del backend:", response);  // 👈 Log para revisar la respuesta cruda
+
         return response.ventas.map(venta => ({
           ...venta,
-          detalles: venta.detalles ?? [] // Asegurar que detalles no sea undefined
+          detalles: Array.isArray(venta.detalles) ? venta.detalles.map(detalle => ({
+            ...detalle,
+            producto: {
+              ...detalle.producto,
+              imagenes: detalle.producto?.imagenes || []  // 👈 Asegura que 'imagenes' exista
+            }
+          })) : []
         }));
       }),
       catchError(this.handleError)

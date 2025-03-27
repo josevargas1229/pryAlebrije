@@ -48,7 +48,13 @@ export class CalificacionService {
       .pipe(
         catchError(this.handleError)
       );
+  }
+
+verificarCalificacionUsuario(productoId: number, usuarioId: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/verificar/${productoId}/${usuarioId}`, { withCredentials: true })
+    .pipe(catchError(this.handleError));
 }
+
 
 
   //  Manejo de errores

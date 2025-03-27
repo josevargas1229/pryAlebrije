@@ -4,22 +4,28 @@
   <form #checkoutForm="ngForm" (ngSubmit)="procesarPedido()" class="checkout-form">
 
     <!-- 🛒 Sección de Resumen de Productos -->
-    <div class="cart-preview" *ngIf="cartItems.length > 0">
-      <h2>Resumen de Productos</h2>
-      <div class="cart-items">
-        <mat-card class="cart-item" *ngFor="let item of cartItems">
-          <div class="product-details-container">
-            <img [src]="item.imagen" alt="{{ item.nombre }}" class="product-image">
-            <div class="product-info">
-              <h3>{{ item.nombre }}</h3>
-              <p><strong>Talla:</strong> {{ item.talla }}</p>
-              <p><strong>Precio:</strong> {{ item.precio | currency }}</p>
-              <p><strong>Cantidad:</strong> {{ item.cantidad }}</p>
-            </div>
-          </div>
-        </mat-card>
+    <!-- 🔍 Sección de Resumen de Productos -->
+<div class="cart-preview" *ngIf="cartItems.length > 0">
+  <h2>Resumen de Productos</h2>
+  <div class="cart-items">
+    <mat-card class="cart-item" *ngFor="let item of cartItems">
+      <div class="product-details-container">
+        <img [src]="item.imagen" alt="{{ item.nombre }}" class="product-image">
+        <div class="product-info">
+          <p><strong>Nombre:</strong> {{ item.tipoProducto }} {{ item.nombre }}</p>
+          <p><strong>Talla:</strong> {{ item.talla }}</p>
+          <p><strong>Color:</strong> {{ item.color }}</p>
+          <p><strong>Precio:</strong> {{ item.precio | currency }}</p>
+          <p><strong>Cantidad:</strong> {{ item.cantidad }}</p>
+          <!-- 🔒 Añadimos estos inputs ocultos para asegurarnos que se envían correctamente -->
+          <input type="hidden" [value]="item.talla_id">
+          <input type="hidden" [value]="item.color_id">
+        </div>
       </div>
-    </div>
+    </mat-card>
+  </div>
+</div>
+
 
     <!-- 📝 Formulario de Datos -->
     <!-- <h2>Datos de Contacto</h2>

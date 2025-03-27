@@ -11,12 +11,8 @@
 
     <!-- Miniaturas a la izquierda -->
     <div class="miniaturas">
-<<<<<<< HEAD
       <img *ngFor="let imagen of imagenesActuales" [src]="imagen.url" class="miniatura"
         (click)="cambiarImagenPrincipal(imagen.url)">
-=======
-      <img *ngFor="let imagen of imagenesActuales" [src]="imagen.url" class="miniatura" (mouseover)="cambiarImagenPrincipal(imagen.url)">
->>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
     </div>
 
     <!-- Imagen principal en el centro -->
@@ -78,6 +74,28 @@
         <mat-icon>warning</mat-icon>
         <span>No hay stock disponible para esta combinación</span>
       </mat-card>
+
+        <!-- Sección de selección de cantidad -->
+        <div class="cantidad-seleccion">
+          <div class="cantidad-label-container">
+            <label for="cantidad" class="cantidad-label">Seleccionar cantidad</label>
+          </div>
+
+          <div class="cantidad-control">
+            <button mat-icon-button (click)="decrementarCantidad()" [disabled]="cantidadSeleccionada <= 1">
+              <mat-icon>remove</mat-icon>
+            </button>
+
+            <input type="number" id="cantidad" [(ngModel)]="cantidadSeleccionada" [min]="1" [max]="stockDisponible"
+              class="cantidad-input" />
+
+            <button mat-icon-button (click)="incrementarCantidad()" [disabled]="cantidadSeleccionada >= stockDisponible">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </div>
+
+
 
       <!-- Botones (solo si hay stock y no es previsualización) -->
       <div class="botones" *ngIf="stockDisponible > 0 && !esPrevisualizacion">

@@ -26,12 +26,10 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const tipoProductoRoutes = require('./routes/tipoProductoRoutes');
 const temporadaRoutes = require('./routes/temporadaRoutes');
 const productoRoutes = require('./routes/productRoutes');
-<<<<<<< HEAD
 const ventasRoutes = require('./routes/ventasRoutes');
 const calificacionProductoRoutes = require('./routes/calificacionProductoRoutes');
-=======
 const historialRoutes = require('./routes/historialRoutes');
->>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
+const contactoRoutes = require('./routes/contactoRoutes');
 const { authenticateToken, authorize, ROLES } = require('./middlewares/auth');
 const app = express();
 
@@ -86,13 +84,10 @@ app.use('/tipoProducto', tipoProductoRoutes);
 app.use('/temporada', temporadaRoutes);
 app.use('/producto', productoRoutes);
 app.use('/categorias', categoryRoutes);
-<<<<<<< HEAD
 app.use('/ventas', authenticateToken, ventasRoutes);
 app.use('/calificacion', calificacionProductoRoutes);
-
-=======
 app.use('/historial',historialRoutes);
->>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
+app.use('/contacto', contactoRoutes);
 app.use(errorHandler);
 module.exports = app;
 

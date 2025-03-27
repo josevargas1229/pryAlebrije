@@ -15,14 +15,19 @@
 
   <h3>Productos Comprados</h3>
   <div *ngIf="pedido.detalles; else noProductos">
-  <div *ngFor="let detalle of pedido.detalles" class="producto-item">
-    <img [src]="detalle.producto.imagen || 'assets/placeholder.jpg'" alt="{{ detalle.producto.tipoProducto.nombre }}">
+    <div *ngFor="let detalle of pedido.detalles" class="producto-item" (click)="verProductoDetalle(detalle.producto.id)" style="cursor: pointer;">
+
+    <img
+    [src]="detalle.producto.imagenes.length ? detalle.producto.imagenes[0].imagen_url : 'assets/images/ropa.jpg'"
+    alt="{{ detalle.producto.tipoProducto.nombre || 'Producto sin nombre' }}"
+    width="150" height="150"
+    style="object-fit: cover; border-radius: 8px;">
     <div class="producto-info">
       <p><strong>Producto:</strong> {{ detalle.producto.tipoProducto.nombre }}</p>
       <p><strong>Talla:</strong> {{ detalle.talla.talla }}</p>
       <p><strong>Color:</strong>
-        <span [style.background]="detalle.color.colorHex" class="color-box"></span>
-        {{ detalle.color.color }}
+        <span [style.background]="detalle.color.colorHex || 'transparent'" class="color-box"></span>
+        {{ detalle.color.color || 'Sin color' }}
       </p>
       <p><strong>Cantidad:</strong> {{ detalle.cantidad }}</p>
       <p><strong>Subtotal:</strong> {{ detalle.subtotal | currency }}</p>

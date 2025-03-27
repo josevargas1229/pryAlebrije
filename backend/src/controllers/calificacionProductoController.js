@@ -39,10 +39,7 @@ exports.agregarCalificacionProducto = async (req, res) => {
   try {
       const { producto_id, usuario_id, calificacion } = req.body;
 
-      //  Verifica qué datos está recibiendo
-      console.log(" Datos recibidos en Backend:", req.body);
-
-      // Verifica si los datos están completos
+      // Verificar que los datos son válidos
       if (!producto_id || !usuario_id || !calificacion) {
           return res.status(400).json({ message: 'Todos los campos son obligatorios' });
       }
@@ -51,16 +48,51 @@ exports.agregarCalificacionProducto = async (req, res) => {
           return res.status(400).json({ message: 'La calificación debe estar entre 1 y 5' });
       }
 
-      const nuevaCalificacion = await CalificacionProducto.create({
-          producto_id,
-          usuario_id,
-          calificacion
+      // Buscar si ya existe una calificación de este usuario para este producto
+      const calificacionExistente = await CalificacionProducto.findOne({
+          where: { producto_id, usuario_id }
       });
 
-      res.status(201).json({ message: 'Calificación registrada', calificacion: nuevaCalificacion });
+      let nuevaCalificacion;
+
+      if (calificacionExistente) {
+          // Si existe, actualizamos la calificación
+          calificacionExistente.calificacion = calificacion;
+          await calificacionExistente.save();
+          nuevaCalificacion = calificacionExistente;
+      } else {
+          // Si no existe, creamos una nueva calificación
+          nuevaCalificacion = await CalificacionProducto.create({
+              producto_id,
+              usuario_id,
+              calificacion
+          });
+      }
+
+      res.status(201).json({ message: 'Calificación registrada o actualizada', calificacion: nuevaCalificacion });
+
   } catch (error) {
       console.error(" Error al registrar calificación:", error);
       res.status(500).json({ message: 'Error al registrar calificación', error });
   }
 };
 
+// Verificar si un usuario ya calificó un producto
+exports.verificarCalificacionUsuario = async (req, res) => {
+  try {
+      const { producto_id, usuario_id } = req.params;
+
+      // Buscar si existe una calificación para ese producto y usuario
+      const calificacionExistente = await CalificacionProducto.findOne({
+          where: { producto_id, usuario_id }
+      });
+
+      if (!calificacionExistente) {
+          return res.status(404).json({ message: 'No se encontró la calificación.' });
+      }
+
+      res.status(200).json({ yaCalifico: true, calificacion: calificacionExistente.calificacion });
+  } catch (error) {
+      res.status(500).json({ message: 'Error al verificar la calificación', error });
+  }
+};

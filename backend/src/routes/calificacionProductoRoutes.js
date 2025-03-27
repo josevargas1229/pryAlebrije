@@ -8,4 +8,8 @@ router.get('/producto/:producto_id', calificacionController.obtenerCalificacionP
 // Ruta para agregar una nueva calificación a un producto
 router.post('/producto', calificacionController.agregarCalificacionProducto);
 
+// Ruta para verificar si un usuario ya calificó un producto
+router.get('/verificar/:producto_id/:usuario_id', calificacionController.verificarCalificacionUsuario);
+
+
 module.exports = router;

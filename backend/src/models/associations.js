@@ -24,12 +24,9 @@ const DetalleCarrito = require('./DetalleCarrito');
 const CalificacionProducto = require('./CalificacionProducto');
 const LegalDocument = require('./LegalDocument');
 const Empleado = require('./Empleado');
-<<<<<<< HEAD
 const Venta = require('./Ventas');
 const DetalleVenta = require('./DetalleVenta');
-=======
 const HistorialActividades = require('./HistorialActividades');
->>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
 // Definir la asociación entre User y Rol
 Rol.hasMany(User, { foreignKey: 'rol_id' });
 User.belongsTo(Rol, { foreignKey: 'rol_id' });
@@ -125,23 +122,28 @@ Empleado.hasMany(Venta, { foreignKey: 'empleado_id' });
 Venta.belongsTo(Empleado, { foreignKey: 'empleado_id' });
 
 // Asociación entre Venta y DetalleVenta (Una venta puede tener muchos detalles)
-Venta.hasMany(DetalleVenta, { foreignKey: 'venta_id' });
-DetalleVenta.belongsTo(Venta, { foreignKey: 'venta_id' });
+Venta.hasMany(DetalleVenta, { foreignKey: 'venta_id', as: 'detalles' });
+DetalleVenta.belongsTo(Venta, { foreignKey: 'venta_id', as: 'detalles' });
 
 // Asociación entre DetalleVenta y Producto (Cada detalle pertenece a un producto)
 DetalleVenta.belongsTo(Product, { foreignKey: 'producto_id', as: 'producto' });
 
 // Asociación entre DetalleVenta y Talla (Cada detalle tiene una talla)
 Talla.hasMany(DetalleVenta, { foreignKey: 'talla_id' });
-DetalleVenta.belongsTo(Talla, { foreignKey: 'talla_id' });
+DetalleVenta.belongsTo(Talla, { foreignKey: 'talla_id', as: 'talla' });  // Agregué alias aquí
 
 // Asociación entre DetalleVenta y ColorProducto (Cada detalle tiene un color)
 ColorProducto.hasMany(DetalleVenta, { foreignKey: 'color_id' });
-DetalleVenta.belongsTo(ColorProducto, { foreignKey: 'color_id' });
+DetalleVenta.belongsTo(ColorProducto, { foreignKey: 'color_id', as: 'color' });  // Agregué alias aquí
 
 // Relación entre Producto y TipoProducto (cada producto tiene un tipo)
 TipoProducto.hasMany(Product, { foreignKey: 'tipo_id' });
-Product.belongsTo(TipoProducto, { foreignKey: 'tipo_id' });
+Product.belongsTo(TipoProducto, { foreignKey: 'tipo_id', as: 'tipoProducto' });
+
+// Asociación entre Producto y ImagenProducto (Un producto puede tener muchas imágenes)
+Product.hasMany(ImagenProducto, { foreignKey: 'producto_id', as: 'imagenes' });
+ImagenProducto.belongsTo(Product, { foreignKey: 'producto_id' });
+
 
 
 
@@ -172,10 +174,7 @@ module.exports = {
     LegalDocument,
     ProductoTallaColor,
     Empleado,
-<<<<<<< HEAD
     Venta,
-    DetalleVenta
-=======
+    DetalleVenta,
     HistorialActividades
->>>>>>> 09c09f21e88beb9567dd52e4fe4ccbc8fd360b5a
 };

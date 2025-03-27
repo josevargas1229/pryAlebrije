@@ -13,9 +13,10 @@
 
         <!-- Contenedor de la información del producto -->
         <div class="product-details">
-          <h2><a href="#">{{ item.nombre }}</a></h2>
-          <p><strong>Talla:</strong> {{ item.talla }}</p>
-          <p class="price">{{ item.precio | currency }}</p>
+          <p><strong>Nombre:</strong> {{ item.tipoProducto }} {{ item.nombre }}</p>
+  <p><strong>Color:</strong> {{ item.color }}</p>
+  <p><strong>Talla:</strong> {{ item.talla }}</p>
+  <p class="price">{{ item.precio | currency }}</p>
         </div>
 
         <!-- Contenedor de cantidad -->

@@ -2,31 +2,45 @@
   <div class="info">
     <h1>Contacta con nosotros</h1>
     <p>¡Nos encantaría saber de usted!</p>
-    <p><strong>Correo electrónico</strong><br>{{companyInfo.email}}</p>
-    <p><strong>Teléfono</strong><br>{{companyInfo.telefono}}</p>
-    <p><strong>Dirección</strong><br>{{companyInfo.direccion}}<br></p>
+    <p><strong>Correo electrónico</strong><br>{{companyInfo?.email}}</p>
+    <p><strong>Teléfono</strong><br>{{companyInfo?.telefono}}</p>
+    <p><strong>Dirección</strong><br>{{companyInfo?.direccion}}<br></p>
   </div>
 
   <div class="formulario">
-    <form>
+    <form [formGroup]="contactoForm" (ngSubmit)="enviarMensaje()">
       <mat-form-field appearance="outline" class="input-full">
         <mat-label>Nombre</mat-label>
-        <input matInput placeholder="Ingrese su nombre">
+        <input matInput formControlName="nombre" placeholder="Ingrese su nombre">
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="input-full">
         <mat-label>Correo electrónico</mat-label>
-        <input matInput type="email" placeholder="Ingrese su correo">
+        <input matInput type="email" formControlName="email" placeholder="Ingrese su correo">
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="input-full">
         <mat-label>Escribe tu mensaje aquí</mat-label>
-        <textarea matInput placeholder="Ingrese su mensaje" rows="4"></textarea>
+        <textarea matInput formControlName="mensaje" placeholder="Ingrese su mensaje" rows="4"></textarea>
       </mat-form-field>
 
-      <button mat-raised-button color="primary" class="boton-enviar">
-        Enviar mensaje
-      </button>
+      <div #botonEnviar>
+        <app-loading-button
+          [text]="'Enviar mensaje'"
+          [loading]="enviandoMensaje"
+          [disabled]="enviandoMensaje"
+          [type]="'submit'">
+        </app-loading-button>
+      </div>
     </form>
+
+    <!-- Popup de Éxito -->
+    <div *ngIf="mostrarVentanaExito" class="popup-exito-overlay">
+      <div class="popup-exito">
+        <h2>¡Mensaje Enviado Exitosamente!</h2>
+        <p>Nos pondremos en contacto contigo lo antes posible.</p>
+        <button mat-raised-button color="primary" (click)="cerrarVentanaExito()">Aceptar</button>
+      </div>
+    </div>
   </div>
-</div>
+

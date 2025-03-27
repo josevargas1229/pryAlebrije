@@ -5,12 +5,24 @@
   .contenido {
     display: flex;
     width: 100%;
+    flex-direction: row; /* Mantiene el filtro y productos en fila por defecto */
   }
 
   .filtro-busqueda {
     width: 100%;
     margin-bottom: 10px;
   }
+  
+  .ordenamiento-precio {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+
+    button {
+      font-weight: bold;
+    }
+  }
+
 
   .filtro-container {
     width: 250px;
@@ -29,7 +41,6 @@
       align-items: center;
       font-weight: bold;
       font-size: 1.2rem;
-      cursor: pointer;
     }
 
     .filtro-item {
@@ -117,7 +128,7 @@
 
       img {
         width: 100%;
-        height: 200px; /* Aumenté la altura para mejor visualización */
+        height: 200px;
         object-fit: cover;
         border-radius: 10px;
       }
@@ -139,7 +150,7 @@
     .no-productos {
       text-align: center;
       padding: 20px;
-      grid-column: 1 / -1; /* Ocupa toda la fila */
+      grid-column: 1 / -1;
     }
   }
 
@@ -155,26 +166,34 @@
     transform: scale(1);
   }
 
-  /* Media queries para responsividad */
+  /* === Responsividad mejorada === */
+
+  /* Pantallas grandes (Computadoras de escritorio) */
   @media (min-width: 1200px) {
     .grid-productos {
-      grid-template-columns: repeat(4, 1fr); /* 4 productos en pantallas grandes */
+      grid-template-columns: repeat(4, 1fr);
     }
   }
 
-  @media (max-width: 768px) {
-    .grid-productos {
-      grid-template-columns: repeat(2, 1fr); /* 2 productos en pantallas medianas */
+  /* Tablets y dispositivos medianos */
+  @media (max-width: 992px) {
+    .contenido {
+      flex-direction: row;
     }
 
     .filtro-container {
-      width: 200px;
+      width: 220px;
+    }
+
+    .grid-productos {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 
-  @media (max-width: 480px) {
-    .grid-productos {
-      grid-template-columns: 1fr; /* 1 producto en pantallas pequeñas */
+  /* Móviles (Smartphones) */
+  @media (max-width: 768px) {
+    .contenido {
+      flex-direction: column;
     }
 
     .filtro-container {
@@ -188,8 +207,20 @@
       padding-left: 0;
     }
 
-    .contenido {
-      flex-direction: column;
+    .grid-productos {
+      grid-template-columns: 1fr;
+      padding: 0;
+    }
+  }
+
+  /* Teléfonos muy pequeños */
+  @media (max-width: 480px) {
+    .grid-productos {
+      grid-template-columns: 1fr;
+    }
+
+    .filtro-container {
+      width: 100%;
     }
   }
 }

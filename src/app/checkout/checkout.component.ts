@@ -46,23 +46,15 @@ export class CheckoutComponent implements OnInit {
 
     // 🔹 Cargar productos del carrito
     this.cartService.cart$.subscribe(items => {
+      console.log('Contenido del carrito:', this.cartItems);
+
       this.cartItems = items;
     });
   }
 
-
   procesarPedido(): void {
-    console.log(" Usuario antes de la venta:", this.usuario);
-
     if (!this.usuario || !this.usuario.userId) {
       alert('Debes iniciar sesión para completar la compra.');
-      return;
-    }
-
-    console.log("Rol del usuario:", this.userRole);
-
-    if (this.userRole !== 1) {
-      alert('Solo los administradores pueden realizar compras en modo prueba.');
       return;
     }
 
@@ -71,40 +63,45 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
-    const nuevaVenta = {
-      usuario_id: this.usuario.userId, // 🔹 Corregido de `id` a `userId`
-      direccion_id: this.usuario.direccion_id || null,
-      total: this.cartItems.reduce((acc, item) => acc + item.precio * item.cantidad, 0),
-      recoger_en_tienda: this.recogerEnTienda,
-      productos: this.cartItems.map(item => ({
-        producto_id: item.id,
-        talla_id: 1,
-        color_id: 1,
-        cantidad: item.cantidad,
-        precio_unitario: item.precio
-      }))
-    };
+    try {
+      const nuevaVenta = {
+        usuario_id: this.usuario.userId,
+        direccion_id: this.usuario.direccion_id || null,
+        total: this.cartItems.reduce((acc, item) => acc + item.precio * item.cantidad, 0),
+        recogerEnTienda: this.recogerEnTienda,
+        productos: this.cartItems.map(item => {
+          if (!item.talla_id || !item.color_id) {
+            console.error("🚨 Producto sin talla o color:", item);
+            throw new Error('Producto sin talla o color.');
+          }
+          return {
+            producto_id: item.id,
+            talla_id: item.talla_id,
+            color_id: item.color_id,
+            cantidad: item.cantidad,
+            precio_unitario: item.precio
+          };
+        })
+      };
 
-    console.log("🛒 Venta a enviar:", nuevaVenta);
+      console.log("📦 Venta a enviar:", nuevaVenta);
 
-    this.ventaService.createVenta(nuevaVenta).subscribe({
-      next: (response) => {
-        console.log("Venta creada con éxito:", response);
+      this.ventaService.createVenta(nuevaVenta).subscribe({
+        next: (response) => {
+          console.log("✅ Venta creada con éxito:", response);
+          alert('¡Pedido confirmado con éxito!');
+          this.cartService.clearCart();
+          this.router.navigate(['/perfil']);
+        },
+        error: (error) => {
+          console.error('❌ Error al procesar la compra:', error);
+          alert('Hubo un problema al procesar tu pedido.');
+        }
+      });
 
-        // 🔹 Forzar actualización del usuario en authService
-        this.authService.checkAuthStatus().then(() => {
-          console.log("Usuario recargado después de la compra.");
-        });
-
-        alert('¡Pedido confirmado con éxito!');
-        this.cartService.clearCart();
-        this.router.navigate(['/perfil']);
-      },
-      error: (error) => {
-        console.error('Error al procesar la compra:', error);
-        alert('Hubo un problema al procesar tu pedido.');
-      }
-    });
-
+    } catch (error) {
+      console.error("❌ Error procesando la venta:", error);
+      alert("Por favor, asegúrate de que todos los productos tengan talla y color seleccionados.");
+    }
   }
 }
