@@ -87,7 +87,7 @@ export class RegisterComponent implements OnInit {
     if (result.errors.length > 0) {
       this.passwordStrengthMessage = 'Contraseña débil: ' + result.errors.join(', ');
     } else {
-      this.passwordStrengthMessage = 'Contraseña fuerte';
+      this.passwordStrengthMessage = 'La contraseña es aceptable';
     }
   }
   

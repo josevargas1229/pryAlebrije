@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
-import { Observable, from } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -10,18 +10,19 @@ import { map } from 'rxjs/operators';
 export class AuthGuard implements CanActivate {
   constructor(private readonly authService: AuthService, private readonly router: Router) {}
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-    return from(this.authService.checkAuthStatus()).pipe(
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> {
+    return this.authService.currentUser.pipe(
+      take(1), // Tomar solo el primer valor emitido para evitar suscripciones continuas
       map(user => {
         if (user) {
           return true; // El usuario está autenticado
         } else {
+          // Guardar la URL a la que el usuario intentaba acceder
           if (typeof window !== 'undefined' && window.localStorage) {
-            // Verificamos que estamos en un entorno del cliente antes de usar localStorage
-            localStorage.setItem('redirectUrl', state.url); // Guarda la URL a la que el usuario intentaba acceder
+            localStorage.setItem('redirectUrl', state.url);
           }
-          this.router.navigate(['/login']); // El usuario no está autenticado, redirigir al login
-          return false;
+          // Retornar un UrlTree para redirigir al login
+          return this.router.parseUrl('/login');
         }
       })
     );

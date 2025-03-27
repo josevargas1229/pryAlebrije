@@ -1,0 +1,115 @@
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.two-columns {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.left-column {
+    flex: 1;
+    min-width: 300px;
+}
+
+.right-column {
+    flex: 1;
+    min-width: 400px;
+    display: flex;
+    flex-direction: column; /* Asegura que la fórmula esté arriba del gráfico */
+    gap: 15px; /* Espacio entre fórmula y gráfico */
+}
+
+.controls {
+    display: flex;
+    flex-direction: row;
+    /* Cambiado a row para una sola línea */
+    gap: 15px;
+    margin-bottom: 10px;
+    justify-content: center;
+    /* Centra los inputs horizontalmente */
+    align-items: center;
+    /* Alinea verticalmente los inputs */
+
+    mat-form-field {
+        width: 200px;
+        /* Tamaño fijo para que no se expandan demasiado */
+    }
+}
+
+.results {
+    text-align: center;
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    .initial-data {
+        width: 80%;
+        margin: 10px auto;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 14px;
+
+        th,
+        td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #3f51b5;
+            color: white;
+            font-weight: bold;
+        }
+
+        td {
+            background-color: #ffffff;
+            color: #333;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+    }
+
+    p {
+        font-size: 16px;
+        color: #555;
+        margin: 10px 0;
+
+        strong {
+            color: #3f51b5;
+        }
+    }
+}
+
+.formula {
+    font-size: 16px;
+    color: #3f51b5;
+    margin-bottom: 10px;
+    background-color: #e8eaf6;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+
+    sup {
+        font-size: 12px;
+        vertical-align: super;
+    }
+}
+
+.chart-container {
+    position: relative;
+    height: 600px;
+    width: 100%;
+}
+
+.mat-title {
+    text-align: center;
+    color: #3f51b5;
+    margin-bottom: 20px;
+}

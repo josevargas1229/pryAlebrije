@@ -46,6 +46,7 @@ import { MatChipListbox, MatChipsModule } from '@angular/material/chips';
 import { ProductosModule } from './productos/productos.module';
 import { DashboardPanelComponent } from '../components/dashboard-panel-component/dashboard-panel-component.component';
 import { AuditLogsComponent } from './components/audit-logs/audit-logs.component';
+import { ClientGrowComponent } from './client-grow/client-grow.component';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -61,6 +62,7 @@ import { AuditLogsComponent } from './components/audit-logs/audit-logs.component
     CompanySettingsComponent,
     LegalSettingsComponent,
     AuditLogsComponent,
+    ClientGrowComponent
   ],
   imports: [
     CommonModule,

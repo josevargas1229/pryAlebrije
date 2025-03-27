@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { CanActivate, Router, UrlTree } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
-import { from, map, Observable, tap } from 'rxjs';
+import { Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -9,16 +10,17 @@ import { from, map, Observable, tap } from 'rxjs';
 export class NoAuthGuard implements CanActivate {
   constructor(private readonly authService: AuthService, private readonly router: Router) {}
 
-  canActivate(): Observable<boolean> {
-    return from(this.authService.checkAuthStatus()).pipe(
-      tap(user => console.log('Usuario autenticado:', user)),
-    map(user => {
-      if (user) {
-        this.router.navigate(['/']);
-        return false; // No permitir el acceso a la ruta protegida
-      }
-      return true; // Permitir el acceso a la ruta si no está autenticado
-    })
-  );
-}
+  canActivate(): Observable<boolean | UrlTree> {
+    return this.authService.currentUser.pipe(
+      take(1), // Tomar solo el primer valor emitido
+      map(user => {
+        if (user) {
+          // Si el usuario está autenticado, redirigir a la página principal
+          return this.router.parseUrl('/');
+        }
+        // Si no está autenticado, permitir el acceso
+        return true;
+      })
+    );
+  }
 }
