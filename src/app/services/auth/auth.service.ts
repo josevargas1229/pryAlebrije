@@ -49,7 +49,7 @@ export class AuthService implements OnDestroy {
   register(usuario: Partial<Usuario>, cuenta: Partial<Cuenta>): Observable<Usuario> {
     return this.http.post<Usuario>(`${this.apiUrl}/register`, { usuario, cuenta }, { withCredentials: true }).pipe(
       tap(() => this.router.navigate(['/verificacion'], { queryParams: { email: usuario.email } })),
-      catchError(this.handleError)
+      catchError((error: HttpErrorResponse) => this.handleRegisterError(error))
     );
   }
 
@@ -174,6 +174,25 @@ export class AuthService implements OnDestroy {
     } else {
       return throwError(() => new Error('Ocurrió un error inesperado. Inténtelo de nuevo más tarde.'));
     }
+  }
+
+  private handleRegisterError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'Ocurrió un error al registrar el usuario.';
+    
+    if (error.status === 400 && error.error.errors) {
+      // Errores de validación del backend (como unicidad)
+      const validationErrors = error.error.errors.map((err: { field: string; message: string }) => 
+        `${err.field}: ${err.message}`
+      ).join(', ');
+      errorMessage = validationErrors || 'Error de validación en los datos proporcionados.';
+    } else if (error.status === 500) {
+      errorMessage = 'Error interno del servidor. Por favor, intenta de nuevo más tarde.';
+    } else if (error.status === 403) {
+      errorMessage = error.error.message || 'Acceso denegado.';
+    }
+
+    // Propagar el mensaje detallado al frontend
+    return throwError(() => new Error(errorMessage));
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {

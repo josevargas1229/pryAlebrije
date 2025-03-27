@@ -49,9 +49,8 @@ export class RegisterComponent implements OnInit {
         email: ['', [Validators.required, Validators.email, Validators.pattern(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)]],
         phone: ['', [Validators.required, Validators.pattern('^[0-9]{10}$')]],
         password: ['', [Validators.required, Validators.minLength(8), this.strongPasswordValidator.bind(this)]],
-        confirmPassword: ['', [Validators.required]],
-      },
-      { validators: this.matchPassword.bind(this) } // Aplicamos la validación a nivel del FormGroup
+        confirmPassword: ['', [Validators.required, this.matchPassword.bind(this)]],
+      }
     );
     
     owasp.config({
@@ -93,12 +92,9 @@ export class RegisterComponent implements OnInit {
   
 
   matchPassword(control: AbstractControl): ValidationErrors | null {
-    if (!this.registrationForm) {
-      return null;
-    }
+    if (!this.registrationForm) return null;
     const password = this.registrationForm.get('password')?.value;
     const confirmPassword = control.value;
-
     return password === confirmPassword ? null : { passwordMismatch: true };
   }
   getConfirmPasswordErrorMessage(): string {
@@ -149,7 +145,6 @@ export class RegisterComponent implements OnInit {
     }
   }
   private registerUser() {
-    // Sanitizar los valores del formulario antes de procesarlos
     const sanitizedNombre = this.sanitizeInput(this.registrationForm.value.name);
     const sanitizedApellidoPaterno = this.sanitizeInput(this.registrationForm.value.surnamePaterno);
     const sanitizedApellidoMaterno = this.sanitizeInput(this.registrationForm.value.surnameMaterno);
@@ -170,39 +165,17 @@ export class RegisterComponent implements OnInit {
       contraseña_hash: this.registrationForm.value.password
     };
 
-    this.authService.register(usuario, cuenta).subscribe(
-      (response) => {
+    this.authService.register(usuario, cuenta).subscribe({
+      next: () => {
         this.toastService.success('Usuario registrado exitosamente.');
         this.isSubmitting = false;
-        this.authService.sendVerificationCode(sanitizedEmail).subscribe(
-          () => {
-            this.toastService.info('Se ha enviado un correo de verificación. Por favor, revisa tu bandeja de entrada.');
-            this.router.navigate(['/verificacion'], { queryParams: { email: sanitizedEmail } });
-          },
-          (error) => {
-            this.toastService.error('Error al enviar el correo de verificación.');
-            console.error('Error al enviar el correo de verificación:', error);
-          }
-        );
+        // La navegación ya está manejada en el servicio
       },
-      (error) => {
-        if (error.status === 400 && error.error.errors) {
-          error.error.errors.forEach((err: { field: string, message: string }) => {
-            if (err.field === 'email') {
-              this.toastService.error('El correo electrónico ya está registrado.');
-            } else if (err.field === 'telefono') {
-              this.toastService.error('El número de teléfono ya está registrado.');
-            } else {
-              this.toastService.error(`Error en ${err.field}: ${err.message}`);
-            }
-          });
-        } else {
-          this.toastService.error('Error al registrar el usuario.');
-        }
+      error: (err: Error) => {
+        this.toastService.error(err.message); // Mostrar el mensaje detallado del servidor
         this.isSubmitting = false;
-        console.error('Error al registrar el usuario:', error);
       }
-    );
+    });
   }
 
 }
