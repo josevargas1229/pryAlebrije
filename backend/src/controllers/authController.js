@@ -4,8 +4,8 @@ const { User, Account, PassHistory, IntentoFallido, ConfiguracionSistema, Histor
 const { Op } = require('sequelize');
 require('dotenv').config();
 const { RecaptchaEnterpriseServiceClient } = require('@google-cloud/recaptcha-enterprise');
-const nodemailer = require('nodemailer');
 const EmailTemplate = require('../models/EmailTemplate');
+const transporter = require('../config/emailConfig');
 /**
  * The `createAssessment` function uses the Google reCAPTCHA Enterprise API to assess the validity of 
  * a CAPTCHA token provided by the client during a user action (e.g., login). It returns the score 
@@ -53,7 +53,7 @@ async function checkAccountLock(account, tiempoBloqueoMinutos) {
     if (account.bloqueada) {
         const tiempoDesbloqueo = new Date(account.bloqueada_desde);
         tiempoDesbloqueo.setMinutes(tiempoDesbloqueo.getMinutes() + tiempoBloqueoMinutos);
-        
+
         if (new Date() < tiempoDesbloqueo) {
             return { locked: true, tiempoDesbloqueo };
         } else {
@@ -82,17 +82,17 @@ exports.login = async (req, res, next) => {
                 include: [{ model: Account, attributes: ["id", "contraseña_hash", "bloqueada", "bloqueada_desde", "verified"] }]
             })
         ]);
-        
+
         if (!configuracion) {
             return res.status(500).json({ message: "Error en la configuración del sistema." });
         }
-        
+
         if (!user) {
             return res.status(401).json({ message: "Credenciales inválidas" });
         }
-        
+
         const { max_intentos_login, tiempo_bloqueo_minutos } = configuracion;
-        
+
         const { locked, tiempoDesbloqueo } = await checkAccountLock(user.Account, tiempo_bloqueo_minutos);
         if (locked) {
             return res.status(403).json({ message: `Cuenta bloqueada hasta ${tiempoDesbloqueo.toLocaleTimeString()}` });
@@ -107,17 +107,17 @@ exports.login = async (req, res, next) => {
                 recaptchaAction: "LOGIN"
             })
         ]);
-        
+
         if (score === null || score < 0.5) {
             return res.status(400).json({ message: "Fallo en reCAPTCHA. Intente nuevamente." });
         }
-        
+
         if (intentosFallidos >= max_intentos_login) {
             await user.Account.update({ bloqueada: true, bloqueada_desde: new Date() });
             await HistorialBloqueos.create({ account_id: user.Account.id, intentos: intentosFallidos, fechaBloqueo: new Date() });
             return res.status(403).json({ message: "Cuenta bloqueada por intentos fallidos." });
         }
-        
+
         const isMatch = await bcrypt.compare(contraseña, user.Account.contraseña_hash);
         if (!isMatch) {
             await handleFailedLogin(user.Account.id, ip);
@@ -128,7 +128,7 @@ exports.login = async (req, res, next) => {
             IntentoFallido.destroy({ where: { account_id: user.Account.id } }),
             user.Account.update({ ultimo_acceso: new Date() })
         ]);
-        
+
         const token = jwt.sign(
             { userId: user.id, tipo: user.rol_id },
             process.env.JWT_SECRET,
@@ -205,26 +205,27 @@ exports.changePassword = async (req, res, next) => {
  */
 exports.checkAuth = async (req, res, next) => {
     try {
-        const token = req.cookies.token;
+        // El middleware authenticateToken ya validó el token y pobló req.user
+        const decoded = req.user;
 
-        if (!token) {
-            return res.status(401).json({ message: 'No autenticado' });
+        // Verificar inactividad desde el token (si se incluye ultimaActividad)
+        const tiempoMaximoInactividad = 15 * 60 * 1000; // 15 minutos
+        if (decoded.ultimaActividad) {
+            const tiempoInactivo = Date.now() - new Date(decoded.ultimaActividad).getTime();
+            if (tiempoInactivo > tiempoMaximoInactividad) {
+                res.clearCookie('token', {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict'
+                });
+                return res.status(401).json({ message: 'Sesión cerrada por inactividad' });
+            }
         }
 
-        let decoded;
-        try {
-            decoded = jwt.verify(token, process.env.JWT_SECRET);
-        } catch (err) {
-            return res.status(401).json({ message: 'Token inválido o expirado' });
-        }
-
+        // Consultar la base de datos solo si es necesario (por ejemplo, para verificar bloqueo o verificación)
         const user = await User.findOne({
             where: { id: decoded.userId },
-            include: [{
-                model: Account,
-                attributes: ['id', 'nombre_usuario', 'bloqueada','verified']
-            }],
-            attributes: ['id', 'email', 'rol_id']
+            include: [{ model: Account, attributes: ['bloqueada', 'verified', 'nombre_usuario'] }]
         });
 
         if (!user) {
@@ -234,20 +235,28 @@ exports.checkAuth = async (req, res, next) => {
         if (user.Account.bloqueada) {
             return res.status(403).json({ message: 'Cuenta bloqueada' });
         }
-        if(!user.Account.verified){
+
+        if (!user.Account.verified) {
             res.clearCookie('token', {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production'?'None':'Strict'
+                sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict'
             });
-            return res.status(403).json({isVerified:false})
+            return res.status(403).json({ isVerified: false });
         }
-        console.log(user.Account.verified)
-        // Renovar el token si está cerca de expirar 
+
+        // Renovar token si está cerca de expirar
         const expirationThreshold = 15 * 60; // 15 minutos en segundos
         if (decoded.exp - (Date.now() / 1000) < expirationThreshold) {
             const newToken = jwt.sign(
-                { userId: user.id, tipo: user.rol_id },
+                {
+                    userId: user.id,
+                    tipo: user.rol_id,
+                    nombreUsuario: user.Account.nombre_usuario,
+                    ultimaActividad: new Date().toISOString(), // Actualizar en el token
+                    verified: user.Account.verified,
+                    bloqueada: user.Account.bloqueada
+                },
                 process.env.JWT_SECRET,
                 { expiresIn: '1h' }
             );
@@ -255,14 +264,13 @@ exports.checkAuth = async (req, res, next) => {
             res.cookie('token', newToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production'?'None':'Strict',
+                sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict',
                 maxAge: 3600000
             });
         }
 
         res.json({
             userId: user.id,
-            email: user.email,
             tipo: user.rol_id,
             nombreUsuario: user.Account.nombre_usuario
         });
@@ -290,7 +298,7 @@ exports.logout = (req, res, next) => {
         res.clearCookie('token', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production'?'None':'Strict'
+            sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict'
         });
 
         res.status(200).json({ message: 'Logout exitoso' });
@@ -298,14 +306,6 @@ exports.logout = (req, res, next) => {
         next(error);
     }
 };
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
 
 // Función para enviar el enlace de verificación
 exports.sendVerificationLink = async (req, res) => {
@@ -334,7 +334,7 @@ exports.sendVerificationLink = async (req, res) => {
         }
 
         // 4. Generar un token JWT para la verificación
-        const token = jwt.sign({ userId: user.id, tipo: user.rol_id  }, process.env.JWT_SECRET, { expiresIn: '30m' });
+        const token = jwt.sign({ userId: user.id, tipo: user.rol_id }, process.env.JWT_SECRET, { expiresIn: '30m' });
 
         // 5. Crear el enlace de verificación
         const verificationLink = `${process.env.URL_DOMAIN}/verificacion?token=${token}`;
@@ -372,8 +372,8 @@ exports.sendVerificationLink = async (req, res) => {
         return res.status(500).json({ error: 'Error interno al procesar la solicitud' });
     }
 };
-exports.completeEmailVerification = async (req, res,next) => {
-    const decoded=req.user; // Obteniendo el id de la cuenta del middleware
+exports.completeEmailVerification = async (req, res, next) => {
+    const decoded = req.user; // Obteniendo el id de la cuenta del middleware
 
     try {
         const user = await User.findOne({

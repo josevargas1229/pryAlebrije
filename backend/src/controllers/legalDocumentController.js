@@ -6,21 +6,19 @@ const sanitizeHtml = require('sanitize-html');
 const he = require('he');
 
 function isSuspiciousContent(content) {
-  // Patrones sospechosos
-  const suspiciousPatterns = [
-    /<!DOCTYPE html>/i,
-    /<html.*?>/i,
-    /<script.*?>.*?<\/script>/i,
-    /<meta.*?>/i,
-    /<style.*?>.*?<\/style>/i,
-    /<iframe.*?>.*?<\/iframe>/i,
-    /<object.*?>.*?<\/object>/i,
-    /<embed.*?>.*?<\/embed>/i,
-    /<link.*?>/i,
-  ];
+  // Limitar el tamaño del contenido para prevenir ataques DoS
+  if (content.length > 10000) {
+    return true; // Rechazar contenido excesivamente largo
+  }
 
-  // Validar el contenido completamente limpio contra los patrones
-  return suspiciousPatterns.some((pattern) => pattern.test(content));
+  // Sanitizar el contenido y compararlo con el original
+  const cleanContent = sanitizeHtml(content, {
+    allowedTags: [], // No permitir ninguna etiqueta
+    allowedAttributes: {}, // No permitir atributos
+  });
+
+  // Si el contenido limpio es diferente del original, asumimos que había HTML sospechoso
+  return content !== cleanContent;
 }
 
 

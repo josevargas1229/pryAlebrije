@@ -8,6 +8,7 @@ import { EmailManagementComponent } from './email-management/email-management.co
 import { ConfiguracionSistemaComponent } from './configuracion-sistema/configuracion-sistema.component';
 import { BloqueosComponent } from './bloqueos/bloqueos.component';
 import { LogsComponent } from './logs/logs.component';
+import { ClientGrowComponent } from './client-grow/client-grow.component';
 
 const routes: Routes = [
   { 
@@ -22,8 +23,10 @@ const routes: Routes = [
       { path: 'correos', component: EmailManagementComponent, data: { Breadcrumb: "Correos" } },
       { path: 'bloqueos', component: BloqueosComponent, data: { Breadcrumb: "Bloqueos" } },
       { path: 'incidencias', component: LogsComponent, data: { Breadcrumb: "Incidencias" } },
+      
     ] 
   },
+  { path: 'calculadora', component: ClientGrowComponent, data: { Breadcrumb: "Calculadora" } },
   { path: 'productos', loadChildren: () => import('./productos/productos.module').then(m => m.ProductosModule), data: { Breadcrumb: "Panel-productos" }  }
 ];
 

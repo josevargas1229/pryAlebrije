@@ -71,7 +71,6 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
-    console.log('ngOnInit: Iniciando componente');
     this.obtenerFiltros();
     this.loadMoreProducts();
     this.searchService.search$.subscribe(text => {
@@ -81,7 +80,6 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    console.log('ngAfterViewInit: Configurando observer');
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -211,7 +209,6 @@ onWindowScroll(): void {
 
 
   resetAndLoad(): void {
-    console.log('Reseteando y recargando productos');
     this.currentPage = 1;
     this.productos = [];
     this.filteredProductos = [];

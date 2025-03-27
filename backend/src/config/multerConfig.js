@@ -14,6 +14,9 @@ const storage = multer.diskStorage({
 // Configuración de Multer
 const upload = multer({
   storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // Límite de 5 MB (en bytes)
+  },
   fileFilter: (req, file, cb) => {
     const filetypes = /doc|docx/;
     const mimetype = /application\/msword|application\/vnd.openxmlformats-officedocument.wordprocessingml.document/;

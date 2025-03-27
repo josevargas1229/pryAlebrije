@@ -1,10 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
 const { Op } = require('sequelize');
 const { User, Account, PassHistory, VerificationCode, EmailTemplate } = require('../models/associations');
-
+const transporter = require('../config/emailConfig');
 // Cargar la lista de contraseñas al iniciar el controlador
 let passwordList = new Set();
 fs.readFile(path.join(__dirname, '../100k-most-used-passwords-NCSC.txt'), 'utf8', (err, data) => {
@@ -14,15 +13,6 @@ fs.readFile(path.join(__dirname, '../100k-most-used-passwords-NCSC.txt'), 'utf8'
     }
     passwordList = new Set(data.split('\n').map(password => password.trim()));
     console.log('Lista de contraseñas cargada correctamente');
-});
-
-// Configuración de Nodemailer
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
 });
 
 // Controlador para verificar contraseñas
@@ -43,8 +33,13 @@ exports.checkPassword = (req, res) => {
 
 // Función para generar un código aleatorio
 function generateCode() {
-    return Math.random().toString(36).substring(2, 8).toUpperCase(); // Código de 6 dígitos alfanumérico
+    const salt = bcrypt.genSaltSync(10); // Genera una sal segura
+    return salt
+        .replace(/[^a-zA-Z0-9]/g, '') // Elimina caracteres no alfanuméricos (como . y /)
+        .substring(0, 6)              // Toma los primeros 6 caracteres
+        .toUpperCase();               // Convierte a mayúsculas
 }
+
 exports.sendVerificationCode = async (req, res) => {
     const { email, tipo_id = 1 } = req.body; // Usar tipo_id para referenciar la plantilla
     if (!email) {

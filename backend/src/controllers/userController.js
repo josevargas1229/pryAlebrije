@@ -1,8 +1,8 @@
 /* This code snippet is a set of functions that handle CRUD operations for users in a Node.js
 application. Here's a breakdown of what each function does: */
+const sequelize = require('../config/database');
 const { User, Account, PassHistory } = require('../models/associations');
 const bcrypt = require('bcryptjs');
-
 // Obtener información del usuario por ID
 exports.getUserInfo = async (req, res) => {
     try {
@@ -41,55 +41,96 @@ exports.updateUserInfo = async (req, res) => {
 
 /* The `exports.createUser` function is responsible for creating a new user in the database. Here's a
 breakdown of what it does: */
+function generateCode() {
+    const salt = bcrypt.genSaltSync(10); // Genera una sal segura
+    return salt
+        .replace(/[^a-zA-Z0-9]/g, '') // Elimina caracteres no alfanuméricos (como . y /)
+        .substring(0, 6)              // Toma los primeros 6 caracteres
+        .toUpperCase();               // Convierte a mayúsculas
+}
+
 exports.createUser = async (req, res, next) => {
+    const transaction = await sequelize.transaction();
+
     try {
         const { usuario, cuenta } = req.body;
-        console.log(usuario)
-        console.log('cuenta: ',cuenta.contraseña_hash)
-        const user = await User.create({
-            nombre: usuario.nombre,
-            apellido_paterno: usuario.apellido_paterno,
-            apellido_materno: usuario.apellido_materno,
-            email: usuario.email,
-            telefono: usuario.telefono,
-            rol_id: usuario.rol_id
-        });
-        console.log(user)
 
+        // Validación básica de entrada
+        if (!usuario || !cuenta || !cuenta.contraseña_hash) {
+            throw new Error('Datos incompletos en la solicitud');
+        }
+
+        console.log('Datos recibidos - Usuario:', usuario);
+        console.log('Datos recibidos - Cuenta:', { ...cuenta, contraseña_hash: '[oculta]' });
+
+        // Crear el usuario
+        const user = await User.create(
+            {
+                nombre: usuario.nombre,
+                apellido_paterno: usuario.apellido_paterno,
+                apellido_materno: usuario.apellido_materno,
+                email: usuario.email,
+                telefono: usuario.telefono,
+                rol_id: usuario.rol_id || 3,
+            },
+            { transaction }
+        );
+
+        // Generar un nombre de usuario único
+        const uniqueIdentifier = generateCode();
+        const uniqueUsername = `${cuenta.nombre_usuario}_${uniqueIdentifier}`;
+
+        // Hashear la contraseña
         const hashedPassword = await bcrypt.hash(cuenta.contraseña_hash, 10);
 
-        const account = await Account.create({
-            user_id: user.id,
-            nombre_usuario: cuenta.nombre_usuario,
-            contraseña_hash: hashedPassword
-        });
+        // Crear la cuenta
+        const account = await Account.create(
+            {
+                user_id: user.id,
+                nombre_usuario: uniqueUsername,
+                contraseña_hash: hashedPassword,
+            },
+            { transaction }
+        );
 
-        await PassHistory.create({
-            account_id: account.id,
-            contraseña_hash: hashedPassword
-        });
+        // Registrar la contraseña en el historial
+        await PassHistory.create(
+            {
+                account_id: account.id,
+                contraseña_hash: hashedPassword,
+            },
+            { transaction }
+        );
 
-        res.status(201).json({ message: 'Usuario creado exitosamente' });
+        // Confirmar la transacción
+        await transaction.commit();
+
+        return res.status(201).json({
+            message: 'Usuario creado exitosamente',
+            data: {
+                userId: user.id,
+                username: uniqueUsername,
+            },
+        });
     } catch (error) {
-        console.log(error)
-        if (error.name === 'SequelizeUniqueConstraintError') {
-            const errors = error.errors.map(err => {
-                return { field: err.path, message: `${err.path} debe ser único` };
-            });
+        await transaction.rollback();
 
+        console.error('Error en createUser:', error);
+
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            const errors = error.errors.map((err) => ({
+                field: err.path,
+                message: `${err.path} debe ser único`,
+            }));
             return res.status(400).json({
                 message: 'Error de validación',
-                errors: errors
+                errors,
             });
         }
 
-        // Otros errores se envían al middleware de manejo de errores
-        next(error);
+        return next(error);
     }
 };
-
-
-
 /* The `exports.deleteUser` function is an asynchronous function that handles the deletion of a user
 from the database based on the user's ID. */
 exports.deleteUser = async (req, res, next) => {

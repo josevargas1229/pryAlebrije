@@ -1,0 +1,60 @@
+<div class="container" @fadeIn>
+    <h2 class="mat-title">Predicción de crecimiento de clientes</h2>
+
+    <div class="two-columns">
+        <!-- Columna izquierda: Controles y resultados -->
+        <div class="left-column">
+            <!-- Controles de entrada -->
+            <div class="controls">
+                <mat-form-field appearance="fill">
+                    <mat-label>Días</mat-label>
+                    <input matInput type="number" [(ngModel)]="days" (change)="updateValues()" min="1" max="365">
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>Probabilidad de Conversión (%)</mat-label>
+                    <input matInput type="number" [(ngModel)]="p" (change)="updateValues()" min="0" max="100">
+                </mat-form-field>
+            </div>
+
+            <!-- Resultados y datos iniciales -->
+            <mat-card class="results">
+                <mat-card-content>
+                    <p><strong>Datos iniciales:</strong></p>
+                    <table class="initial-data">
+                        <thead>
+                            <tr>
+                                <th>Tiempo (t)</th>
+                                <th>Clientes Alcanzados (C(t))</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>0 días</td>
+                                <td>10 clientes</td>
+                            </tr>
+                            <tr>
+                                <td>30 días</td>
+                                <td>1,431 clientes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>Clientes alcanzados en {{ days }} días: <strong>{{ clients[days] }}</strong></p>
+                    <p>Ventas estimadas: <strong>{{ sales[days] }}</strong></p>
+                </mat-card-content>
+            </mat-card>
+        </div>
+
+        <!-- Columna derecha: Fórmula y Gráfico -->
+        <div class="right-column">
+            <p class="formula">
+                <strong>Fórmula utilizada:</strong> 
+                C(t) = M - [M - C(0)] · e<sup>-kt</sup>, 
+                V(t) = p · C(t)
+            </p>
+            <div class="chart-container">
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>

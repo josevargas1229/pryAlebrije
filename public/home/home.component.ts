@@ -46,7 +46,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    throw new Error('Method not implemented.');
   }
 
   imageUrl = 'assets/images/ropa.jpg';

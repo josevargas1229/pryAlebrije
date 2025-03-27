@@ -1,9 +1,9 @@
 const { ValidationError } = require('sequelize');
-const logger = require('../config/logger');
+const { combinedLogger } = require('../config/logger');
 
 const errorHandler = (err, req, res, next) => {
     // Loguear el error usando Winston
-    logger.error(`Error: ${err.message}`, { stack: err.stack });
+    combinedLogger.error(`Error: ${err.message}`, { stack: err.stack });
 
     if (err instanceof ValidationError) {
         return res.status(400).json({

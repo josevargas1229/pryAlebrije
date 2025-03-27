@@ -27,6 +27,7 @@ const Empleado = require('./Empleado');
 const Venta = require('./Ventas');
 const DetalleVenta = require('./DetalleVenta');
 const HistorialActividades = require('./HistorialActividades');
+const VerificationCode =require('./VerificationCode')
 // Definir la asociación entre User y Rol
 Rol.hasMany(User, { foreignKey: 'rol_id' });
 User.belongsTo(Rol, { foreignKey: 'rol_id' });
@@ -176,5 +177,7 @@ module.exports = {
     Empleado,
     Venta,
     DetalleVenta,
-    HistorialActividades
+    HistorialActividades,
+    HistorialActividades,
+    VerificationCode
 };
