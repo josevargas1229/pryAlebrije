@@ -3,10 +3,11 @@
     <!-- Filtro con diseño acordeón -->
     <aside class="filtro-container">
       <div class="filtro-header">
-        <span (click)="toggleFiltros()">Ocultar filtros</span>
+        <mat-label>Filtros</mat-label>
+        <!-- <span (click)="toggleFiltros()">Ocultar filtros</span>
         <button mat-icon-button (click)="toggleFiltros()">
           <mat-icon>tune</mat-icon>
-        </button>
+        </button> -->
       </div>
 
       <div class="filtro-contenido" [class.oculto]="!filtrosVisibles">
@@ -57,9 +58,29 @@
             </label>
           </div>
         </div>
+        <!-- Filtro por Precio -->
+<div class="filtro-item">
+  <div class="filtro-titulo" (click)="toggleSeccion('precio')">
+    <span>Precio</span>
+    <mat-icon>{{ precioVisibles ? 'remove' : 'add' }}</mat-icon>
+  </div>
+  <div class="filtro-opciones" [class.oculto]="!precioVisibles">
+    <div class="precio-rango">
+      <mat-form-field appearance="outline">
+        <mat-label>Precio Mínimo</mat-label>
+        <input matInput type="number" [(ngModel)]="precioMinSeleccionado" (input)="applyFilters()" placeholder="0">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Precio Máximo</mat-label>
+        <input matInput type="number" [(ngModel)]="precioMaxSeleccionado" (input)="applyFilters()" placeholder="10000">
+      </mat-form-field>
+    </div>
+  </div>
+</div>
 
         <!-- Filtro de Tallas -->
-        <div class="filtro-item">
+        <!-- <div class="filtro-item">
           <div class="filtro-titulo" (click)="toggleSeccion('talla')">
             <span>Talla</span>
             <mat-icon>{{ tallaVisibles ? 'remove' : 'add' }}</mat-icon>
@@ -70,10 +91,10 @@
               {{ talla.talla }}
             </label>
           </div>
-        </div>
+        </div> -->
 
         <!-- Filtro de Colores -->
-        <div class="filtro-item">
+        <!-- <div class="filtro-item">
           <div class="filtro-titulo" (click)="toggleSeccion('colores')">
             <span>Color</span>
             <mat-icon>{{ coloresVisibles ? 'remove' : 'add' }}</mat-icon>
@@ -83,27 +104,48 @@
               (click)="toggleFilter(color, 'color')" [class.selected]="color.seleccionado">
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </aside>
 
     <section class="catalogo-content fade-in" #productosContainer>
       <h1>Catálogo</h1>
       <section class="todos-productos">
+ <!-- Selector de ordenamiento -->
+ <div class="ordenamiento-precio">
+  <mat-form-field appearance="outline">
+    <mat-label>Ordenar por</mat-label>
+    <mat-select [(value)]="ordenSeleccionado" (selectionChange)="ordenarProductos()">
+      <mat-option value="mayor-menor">Mayor a menor precio</mat-option>
+      <mat-option value="menor-mayor">Menor a mayor precio</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
         <h2>Todos los productos</h2>
 
         <div class="grid-productos">
           <div class="producto" *ngFor="let producto of filteredProductos">
             <a [routerLink]="['/menu-catalogo/productos/producto-detalle', producto.id]">
-              <img [src]="producto.imagen ? producto.imagen : 'assets/images/ropa.jpg'"
-                [alt]="producto.nombre || 'Producto'">
+              <a [routerLink]="['/menu-catalogo/productos/producto-detalle', producto.id]">
+                <img [src]="producto.imagenPrincipal" [alt]="producto.nombre || 'Producto'">
+              </a>
             </a>
             <p><b>{{ producto.nombre || 'Sin nombre' }}</b></p>
             <p>{{ producto.precio | currency }}</p>
-            <app-loading-button [text]="'Agregar al carrito'" [loading]="loadingCarrito[producto.id] || false"
-              [color]="'primary'" (click)="agregarAlCarrito(producto.id)">
+            <!-- Mostrar las estrellas -->
+<div class="calificacion">
+  <span *ngFor="let estrella of generarEstrellasArray(producto.calificacionPromedio); let i = index">
+    <mat-icon [ngClass]="estrella === 1 ? 'estrella-activa' : 'estrella-inactiva'">star</mat-icon>
+  </span>
+  <span *ngIf="producto.calificacionPromedio">({{ producto.calificacionPromedio }} / 5)</span>
+</div>
+
+            <!-- <app-loading-button [text]="'Agregar al carrito'" [loading]="loadingCarrito[producto.id] || false"
+              [color]="'primary'" (click)="agregarAlCarrito(producto)">
               <mat-icon>shopping_cart</mat-icon>
-            </app-loading-button>
+            </app-loading-button> -->
+
           </div>
           <div class="no-productos" *ngIf="filteredProductos.length === 0 && !isLoading">
             <p>No hay productos disponibles con los filtros seleccionados.</p>

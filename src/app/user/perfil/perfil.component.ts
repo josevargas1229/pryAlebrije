@@ -5,12 +5,9 @@ import { UserService } from '../../services/user/user.service';
 import { Usuario } from '../../services/user/user.models';// Asegúrate de que la ruta sea correcta
 import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
-// Asegúrate de que esta interfaz esté definida en tu código
-interface Service {
-  title: string;
-  description: string;
-  icon: string;
-}
+import { VentaService, Venta } from '../../services/ventas/venta.service';
+import { AuthService } from '../../services/auth/auth.service';
+
 
 @Component({
   selector: 'app-perfil',
@@ -20,46 +17,59 @@ interface Service {
   styleUrls: ['./perfil.component.scss'],
 })
 export class PerfilComponent implements OnInit {
-  services: Service[] = [
-    {
-      title: 'Política de Privacidad',
-      description: 'Este apartado se encarga de editar, actualizar o eliminar las políticas de privacidad',
-      icon: 'fas fa-search'
-    },
-    {
-      title: 'Términos y Condiciones',
-      description: 'Este apartado se encarga de editar, actualizar o eliminar los términos y condiciones',
-      icon: 'fas fa-pencil-alt'
-    },
-    {
-      title: 'Deslinde Legal',
-      description: 'Este apartado se encarga de editar, actualizar o eliminar el deslinde legal sobre la empresa',
-      icon: 'fas fa-share-alt'
-    },
-    {
-      title: 'Perfil de la Empresa',
-      description: 'Este apartado se encarga de editar, actualizar o eliminar el perfil de la empresa',
-      icon: 'fas fa-mouse-pointer'
-    }
-  ];
 
-  selectedService: Service | null = null;
   user: Usuario | null = null; // Variable para almacenar la información del usuario
+  pedidos: Venta[] = []; // Pedidos del usuario
+  usuarioId: number | null = null;
 
-  constructor(private userService: UserService) { }
+  constructor(
+    private userService: UserService,
+    private ventaService: VentaService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
-    this.userService.getUserInfo().subscribe(
-      (data) => {
-        this.user = data; // Asigna la información del usuario a la variable
-      },
-      (error) => {
-        console.error('Error al obtener el usuario:', error);
+    console.log("Obteniendo usuario autenticado desde authService...");
+
+    this.authService.currentUser.subscribe(user => {
+      console.log("Usuario autenticado recibido en perfil:", user);
+
+      if (user) {
+        this.usuarioId = user?.userId || null; // ✅ Corregido para usar `userId`
+        console.log("ID del usuario:", this.usuarioId);
+
+        if (this.usuarioId) {
+          this.cargarPedidos();
+        }
+      } else {
+        console.warn("⚠️ No se recibió usuario autenticado, no se cargarán pedidos.");
       }
+    });
+
+    this.userService.getUserInfo().subscribe(
+      data => {
+        console.log("✅ Datos del usuario obtenidos desde el backend:", data);
+        this.user = data;
+      },
+      error => console.error('❌ Error al obtener el usuario:', error)
     );
   }
 
-  showServiceDetails(service: Service): void {
-    this.selectedService = service;
+
+
+  cargarPedidos(): void {
+    if (!this.usuarioId) {
+      console.warn("Intento de cargar pedidos sin usuarioId.");
+      return;
+    }
+
+    this.ventaService.getVentasByUsuario(this.usuarioId).subscribe({
+      next: ventas => {
+        console.log("Pedidos obtenidos:", ventas); // 🔍 Verifica si llegan pedidos del backend
+        this.pedidos = ventas.slice(0, 3);
+      },
+      error: error => console.error('Error al obtener pedidos:', error)
+    });
   }
+
 }

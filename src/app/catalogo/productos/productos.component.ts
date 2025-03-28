@@ -9,6 +9,10 @@ import { RouterLink } from '@angular/router';
 import { SearchService } from '../../services/search.service';
 import { ProductoService } from '../../private/productos/services/producto.service';
 import { LoadingButtonComponent } from '../../components/loading-button/loading-button.component';
+import { CartService } from '../../services/cart/cart.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { CalificacionService } from '../../services/califica/calificacion.service';
 
 @Component({
   selector: 'app-productos',
@@ -21,7 +25,8 @@ import { LoadingButtonComponent } from '../../components/loading-button/loading-
     MatFormFieldModule,
     FormsModule,
     RouterLink,
-    LoadingButtonComponent
+    LoadingButtonComponent,
+    MatSelectModule
   ],
   templateUrl: './productos.component.html',
   styleUrls: ['./productos.component.scss']
@@ -52,10 +57,21 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   isLoading: boolean = false;
   hasMore: boolean = true; // Controla si hay más productos por cargar
 
+  precioVisibles: boolean = false; // Controla la visibilidad del filtro por precio
+  rangoPrecios: { precio_min: number, precio_max: number } = { precio_min: 0, precio_max: 0 };
+  precioMinSeleccionado: number | null = null;
+  precioMaxSeleccionado: number | null = null;
+  ordenSeleccionado: string = 'mayor-menor';
+  estrellasArray: number[] = Array(5).fill(0);
+
+
   constructor(
-    private readonly searchService: SearchService,
-    private readonly productoService: ProductoService,
-    private readonly renderer: Renderer2
+    private searchService: SearchService,
+    private productoService: ProductoService,
+    private renderer: Renderer2,
+    private cartService: CartService,
+    private snackBar: MatSnackBar,
+    private calificacionService: CalificacionService
   ) { }
 
   ngOnInit(): void {
@@ -98,17 +114,68 @@ onWindowScroll(): void {
     return nearBottom;
   }
 
-  agregarAlCarrito(productoId: number): void {
-    this.loadingCarrito[productoId] = true;
+  agregarAlCarrito(producto: any): void {
+    this.loadingCarrito[producto.id] = true;
+
     setTimeout(() => {
-      this.loadingCarrito[productoId] = false;
-      console.log(`Producto ${productoId} agregado al carrito`);
-    }, 2000);
+      this.loadingCarrito[producto.id] = false;
+
+      if (!producto.variantes || producto.variantes.length === 0) {
+        this.snackBar.open(`❌ El producto ${producto.nombre} no tiene variantes disponibles.`, 'Cerrar', { duration: 3000 });
+        return;
+      }
+
+      // Si el producto no tiene una variante seleccionada, tomamos la primera disponible
+      let varianteConStock = producto.variantes.find((variante: any) => variante.stock > 0);
+
+      if (!varianteConStock) {
+        this.snackBar.open(`❌ No hay stock disponible para ${producto.nombre}.`, 'Cerrar', { duration: 3000 });
+        return;
+      }
+
+      // Tomar la primera talla y color si no existen en el objeto
+      const talla_id = varianteConStock.talla_id || producto.variantes[0].talla_id;
+      const color_id = varianteConStock.color_id || producto.variantes[0].color_id;
+      const talla = varianteConStock.talla || producto.variantes[0].talla;
+      const color = varianteConStock.color || producto.variantes[0].color;
+
+      const productoAlCarrito = {
+        id: producto.id,
+        nombre: producto.nombre,
+        tipoProducto: producto.tipo?.nombre || 'Tipo desconocido',
+        marca: producto.marca?.nombre || 'Marca desconocida',
+        categoria: producto.categoria?.nombre || 'Categoría desconocida',
+        talla: talla || 'Sin talla',
+        color: color || 'Color desconocido',
+        precio: producto.precio,
+        imagen: producto.imagenPrincipal || 'assets/images/ropa.jpg',
+        stock: varianteConStock.stock,
+        talla_id: talla_id,
+        color_id: color_id,
+        cantidad: 1
+      };
+
+      this.cartService.addToCart(productoAlCarrito);
+
+      this.snackBar.open(`✅ ${producto.nombre} agregado al carrito exitosamente.`, 'Cerrar', { duration: 3000 });
+
+    }, 1000);
   }
 
-  loadMoreProducts(): void {
+  obtenerCalificacionProducto(producto: any): void {
+    this.calificacionService.getCalificacionProducto(producto.id).subscribe(response => {
+      producto.calificacionPromedio = response.promedio;
+    });
+  }
+
+  generarEstrellasArray(calificacionPromedio: number): number[] {
+    return Array(5).fill(0).map((_, index) => index < calificacionPromedio ? 1 : 0);
+  }
+
+
+    loadMoreProducts(): void {
     if (this.isLoading || !this.hasMore) return;
-  
+
     this.isLoading = true;
     const filtros = this.getFiltrosSeleccionados();
     const params = {
@@ -118,19 +185,25 @@ onWindowScroll(): void {
       estado: 'true',
       search: this.searchText.trim() || undefined
     };
-  
+
     this.productoService.getAllProductos(params).subscribe({
       next: (response) => {
+
         const nuevosProductos = response.productos.map(producto => ({
           ...producto,
-          tallas: producto.variantes ? producto.variantes.map(v => v.talla) : []
+          imagenPrincipal: this.getImagenPrincipal(producto)  // Obtén la imagen principal por producto
         }));
+
         this.productos = [...this.productos, ...nuevosProductos];
+        this.productos.forEach(producto => {
+          this.obtenerCalificacionProducto(producto);
+        });
         this.filteredProductos = [...this.productos];
         this.totalItems = response.totalItems || this.productos.length;
         this.currentPage++;
         this.isLoading = false;
         this.hasMore = nuevosProductos.length === this.pageSize && this.productos.length < this.totalItems;
+        this.ordenarProductos();
       },
       error: (error) => {
         console.error('Error al obtener productos:', error);
@@ -138,6 +211,27 @@ onWindowScroll(): void {
       }
     });
   }
+
+  getImagenPrincipal(producto: any): string {
+
+    if (producto.imagenes && producto.imagenes.length > 0) {
+      return producto.imagenes[0].url;
+    } else {
+      return 'assets/images/ropa.jpg';
+    }
+  }
+
+  ordenarProductos(): void {
+    this.filteredProductos.sort((a, b) => {
+      if (this.ordenSeleccionado === 'mayor-menor') {
+        return b.precio - a.precio;
+      } else if (this.ordenSeleccionado === 'menor-mayor') {
+        return a.precio - b.precio;
+      }
+      return 0; // En caso de que no haya criterio válido
+    });
+  }
+
 
   resetAndLoad(): void {
     this.currentPage = 1;
@@ -155,6 +249,10 @@ onWindowScroll(): void {
         this.marcas = response.marcas.map(m => ({ ...m, seleccionado: false }));
         this.colores = response.colores.map(c => ({ ...c, seleccionado: false }));
         this.tallas = response.tallas.map(t => ({ ...t, seleccionado: false }));
+        this.rangoPrecios = response.rangoPrecios;
+        this.precioMinSeleccionado = null;  // No se inicializa con el precio mínimo recibido
+        this.precioMaxSeleccionado = null;  // No se inicializa con el precio máximo recibido
+
       },
       error: (error) => {
         console.error('Error al obtener filtros:', error);
@@ -164,22 +262,26 @@ onWindowScroll(): void {
 
   getFiltrosSeleccionados(): any {
     const filtros: any = {};
-  
+
     const categoriasSeleccionadas = this.categorias.filter(c => c.seleccionado).map(c => c.id);
     if (categoriasSeleccionadas.length > 0) filtros.categoria_id = categoriasSeleccionadas; // Arreglo completo
-  
+
     const tiposSeleccionados = this.tiposProductos.filter(t => t.seleccionado).map(t => t.id);
     if (tiposSeleccionados.length > 0) filtros.tipo_id = tiposSeleccionados;
-  
+
     const marcasSeleccionadas = this.marcas.filter(m => m.seleccionado).map(m => m.id);
     if (marcasSeleccionadas.length > 0) filtros.marca_id = marcasSeleccionadas;
-  
+
     const tallasSeleccionadas = this.tallas.filter(t => t.seleccionado).map(t => t.id);
     if (tallasSeleccionadas.length > 0) filtros.talla_id = tallasSeleccionadas;
-  
+
     const coloresSeleccionados = this.colores.filter(c => c.seleccionado).map(c => c.id);
     if (coloresSeleccionados.length > 0) filtros.color_id = coloresSeleccionados;
-  
+
+    if (this.precioMinSeleccionado !== null) filtros.precio_min = this.precioMinSeleccionado;
+    if (this.precioMaxSeleccionado !== null) filtros.precio_max = this.precioMaxSeleccionado;
+
+
     return filtros;
   }
 
@@ -213,5 +315,6 @@ onWindowScroll(): void {
     if (seccion === 'tipoProducto') this.tipoProductoVisibles = !this.tipoProductoVisibles;
     if (seccion === 'marca') this.marcaVisibles = !this.marcaVisibles;
     if (seccion === 'talla') this.tallaVisibles = !this.tallaVisibles;
+    if (seccion === 'precio') this.precioVisibles = !this.precioVisibles;
   }
 }

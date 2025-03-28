@@ -60,6 +60,79 @@ h1 {
   font-size: 24px;
 }
 
+.cantidad-seleccion {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px;
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cantidad-label-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.cantidad-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #424242;
+}
+
+.cantidad-info {
+  font-size: 13px;
+  color: #757575;
+}
+
+.cantidad-control {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  gap: 10px;
+  width: 100%;
+}
+
+.cantidad-input {
+  width: 60px;
+  text-align: center;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  outline: none;
+  transition: border 0.3s;
+}
+
+.cantidad-input:focus {
+  border-color: #3f51b5;
+  box-shadow: 0 0 5px rgba(63, 81, 181, 0.4);
+}
+
+mat-icon {
+  color: #3f51b5;
+}
+
+button[mat-icon-button] {
+  background-color: #e3f2fd;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+button[mat-icon-button]:hover {
+  background-color: #bbdefb;
+}
+
+button[mat-icon-button]:disabled {
+  background-color: #f0f0f0;
+  color: #ccc;
+}
+
+
 .precio {
   display: flex;
   align-items: center;
@@ -120,6 +193,75 @@ h1 {
   gap: 10px;
   justify-content: start;
 }
+.calificacion {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.estrella-activa {
+  color: #ffb400; // Amarillo
+  cursor: pointer;
+}
+
+.estrella-inactiva {
+  color: #ccc; // Gris
+  cursor: pointer;
+}
+
+.calificacion-texto {
+  font-size: 14px;
+  color: #666;
+}
+.ranking {
+  margin-top: 15px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #f9f9f9;
+  width: 100%;
+}
+
+.ranking h4 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.ranking-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 5px 0;
+}
+
+.estrella-texto {
+  width: 80px;
+  text-align: right;
+  font-size: 14px;
+}
+
+.barra-container {
+  flex: 1;
+  height: 10px;
+  background: #ddd;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.barra {
+  height: 100%;
+  background: #ffb400;
+  transition: width 0.5s ease-in-out;
+}
+
+.cantidad {
+  font-size: 14px;
+  color: #666;
+}
+
 
 /* 📱 Diseño responsivo */
 @media (max-width: 768px) {
@@ -387,3 +529,5 @@ h1 {
     font-weight: bold;
   }
 }
+
+

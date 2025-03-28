@@ -29,7 +29,7 @@ header {
     justify-content: center;
     align-items: center;
 
-    
+
   }
 
   .right-section {
@@ -48,6 +48,33 @@ header {
     }
   }
 
+ /* Contenedor del carrito */
+ .cart-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  button {
+    position: relative;
+  }
+
+  /* Estilos corregidos para el badge */
+  .cart-badge {
+    background-color: red;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: -5px; /* 🔹 Mueve el badge más arriba */
+    right: -8px; /* 🔹 Ajusta la posición a la derecha */
+  }
+}
   .search-modal {
     position: fixed;
     top: 0;
@@ -160,5 +187,37 @@ header {
         }
       }
     }
+  /* Responsividad */
+  @media (max-width: 768px) {
+    mat-toolbar {
+      padding: 0 10px;
+    }
+
+    .cart-badge {
+      width: 16px;
+      height: 16px;
+      font-size: 10px;
+      top: -4px; /* 🔹 Ajusta para que no se desplace en móviles */
+      right: -6px;
+    }
   }
+
+  @media (max-width: 480px) {
+    mat-toolbar {
+      padding: 0 5px;
+    }
+
+    .cart-badge {
+      width: 14px;
+      height: 14px;
+      font-size: 9px;
+      top: -3px;
+      right: -5px;
+    }
+
+    .right-section {
+      gap: 8px;
+    }
+  }
+}
 }

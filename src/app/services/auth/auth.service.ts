@@ -44,6 +44,10 @@ export class AuthService implements OnDestroy {
       catchError(this.handleLoginError)
     );
   }
+  getCurrentUser(): Observable<Usuario | null> {
+    return this.currentUserSubject.asObservable();
+  }
+
 
   // Registro
   register(usuario: Partial<Usuario>, cuenta: Partial<Cuenta>): Observable<Usuario> {
