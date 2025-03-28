@@ -1,43 +1,59 @@
 <!-- Lista de pedidos -->
-<mat-card *ngFor="let pedido of pedidos" class="pedido-card">
-  <mat-card-header>
-    <mat-card-title>Pedido #{{ pedido.id }}</mat-card-title>
-    <mat-card-subtitle>Fecha: {{ pedido.fecha_venta | date:'medium' }}</mat-card-subtitle>
-  </mat-card-header>
+<div class="pedidos-container">
+  <h1>Mis Pedidos</h1>
+  <mat-accordion multi>
+    <mat-expansion-panel *ngFor="let pedido of pedidos">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Pedido #{{ pedido.id }}
+        </mat-panel-title>
+        <mat-panel-description>
+          Fecha: {{ pedido.fecha_venta | date:'medium' }} - Total: {{ pedido.total | currency }}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
 
-  <mat-card-content>
-    <p><strong>Estado:</strong> {{ pedido.estado }}</p>
-    <p><strong>Total:</strong> {{ pedido.total | currency }}</p>
-    <p><strong>Recoger en tienda:</strong> {{ pedido.recoger_en_tienda ? 'Sí' : 'No' }}</p>
-  </mat-card-content>
+      <mat-card class="pedido-card">
+        <mat-card-header>
+          <mat-card-title>Detalles del Pedido</mat-card-title>
+          <mat-card-subtitle>Recoger en tienda: {{ pedido.recoger_en_tienda ? 'Sí' : 'No' }}</mat-card-subtitle>
+        </mat-card-header>
 
-  <mat-divider></mat-divider>
+        <mat-card-content>
+          <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+        </mat-card-content>
 
-  <h3>Productos Comprados</h3>
-  <div *ngIf="pedido.detalles; else noProductos">
-    <div *ngFor="let detalle of pedido.detalles" class="producto-item" (click)="verProductoDetalle(detalle.producto.id)" style="cursor: pointer;">
+        <mat-divider></mat-divider>
 
-    <img
-    [src]="detalle.producto.imagenes.length ? detalle.producto.imagenes[0].imagen_url : 'assets/images/ropa.jpg'"
-    alt="{{ detalle.producto.tipoProducto.nombre || 'Producto sin nombre' }}"
-    width="150" height="150"
-    style="object-fit: cover; border-radius: 8px;">
-    <div class="producto-info">
-      <p><strong>Producto:</strong> {{ detalle.producto.tipoProducto.nombre }}</p>
-      <p><strong>Talla:</strong> {{ detalle.talla.talla }}</p>
-      <p><strong>Color:</strong>
-        <span [style.background]="detalle.color.colorHex || 'transparent'" class="color-box"></span>
-        {{ detalle.color.color || 'Sin color' }}
-      </p>
-      <p><strong>Cantidad:</strong> {{ detalle.cantidad }}</p>
-      <p><strong>Subtotal:</strong> {{ detalle.subtotal | currency }}</p>
-    </div>
-  </div>
+        <h3>Productos Comprados</h3>
+        <div *ngIf="pedido.detalles; else noProductos">
+          <div *ngFor="let detalle of pedido.detalles" class="producto-item" (click)="verProductoDetalle(detalle.producto.id)" style="cursor: pointer;">
+            <mat-card class="producto-card">
+              <img
+                [src]="detalle.producto.imagenes.length ? detalle.producto.imagenes[0].imagen_url : 'assets/images/ropa.jpg'"
+                alt="{{ detalle.producto.tipoProducto.nombre || 'Producto sin nombre' }}"
+                width="150" height="150"
+                style="object-fit: cover; border-radius: 8px;">
+
+              <div class="producto-info">
+                <p><strong>Producto:</strong> {{ detalle.producto.tipoProducto.nombre }}</p>
+                <p><strong>Talla:</strong> {{ detalle.talla.talla }}</p>
+                <p><strong>Color:</strong>
+                  <span [style.background]="detalle.color.colorHex || 'transparent'" class="color-box"></span>
+                  {{ detalle.color.color || 'Sin color' }}
+                </p>
+                <p><strong>Cantidad:</strong> {{ detalle.cantidad }}</p>
+                <p><strong>Subtotal:</strong> {{ detalle.subtotal | currency }}</p>
+              </div>
+            </mat-card>
+          </div>
+        </div>
+
+        <ng-template #noProductos>
+          <p class="no-pedido">
+            <mat-icon>cancel</mat-icon> No hay productos en este pedido.
+          </p>
+        </ng-template>
+      </mat-card>
+    </mat-expansion-panel>
+  </mat-accordion>
 </div>
-
-<ng-template #noProductos>
-  <p class="no-pedido">
-    <mat-icon>cancel</mat-icon> No hay productos en este pedido.
-  </p>
-</ng-template>
-</mat-card>

@@ -1,40 +1,86 @@
 .pedidos-container {
-  max-width: 800px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 20px;
-}
 
-h1 {
-  text-align: center;
-  font-size: 2rem;
-  color: #333;
-  margin-bottom: 20px;
+  h1 {
+    text-align: center;
+    font-size: 1.6rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
 }
 
 mat-card {
-  padding: 20px;
-  margin-top: 20px;
+  padding: 15px;
+  margin: 15px auto; /* Centramos las tarjetas */
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  width: 90%;
+  max-width: 800px;
 }
 
+/* Producto Item */
 .producto-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   border-bottom: 1px solid #ddd;
   padding: 10px 0;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 100%;
+
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
+/* Card del Producto */
+.producto-card {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  width: 100%;
+  max-width: 300px;
+  flex-direction: column;
+  margin: 0 auto; /* Centramos el contenido */
+
+  &:hover {
+    transform: scale(1.01);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* Imagen del Producto */
 .producto-item img {
-  width: 60px;
-  height: 60px;
-  border-radius: 5px;
-  margin-right: 15px;
+  width: 100%;
+  max-width: 120px;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  object-fit: cover;
 }
 
-.producto-info p {
-  margin: 5px 0;
+/* Información del Producto */
+.producto-info {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 5px;
+
+  p {
+    margin: 4px 0;
+    font-size: 0.85rem;
+    word-wrap: break-word;
+  }
 }
 
+/* Caja de Color */
 .color-box {
   display: inline-block;
   width: 15px;
@@ -44,9 +90,48 @@ mat-card {
   margin-left: 5px;
 }
 
+/* Mensaje cuando no hay pedidos */
 .no-pedido {
   text-align: center;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: #666;
   margin-top: 20px;
+}
+
+/* ----- Estilos Responsivos ----- */
+
+/* Tablets (768px o menos) */
+@media (max-width: 768px) {
+  .producto-card {
+    max-width: 100%;
+    flex-direction: row;
+  }
+
+  .producto-info {
+    padding-left: 10px;
+  }
+}
+
+/* Móviles Pequeños (480px o menos) */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.4rem;
+  }
+
+  .producto-card {
+    max-width: 100%;
+    flex-direction: column;
+  }
+
+  .producto-info {
+    padding: 5px;
+  }
+
+  .producto-info p {
+    font-size: 0.8rem;
+  }
+
+  mat-card {
+    padding: 10px;
+  }
 }

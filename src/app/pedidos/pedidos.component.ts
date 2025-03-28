@@ -7,11 +7,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
+import { MatAccordion } from '@angular/material/expansion';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @Component({
   selector: 'app-pedidos',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatDividerModule, MatProgressSpinnerModule, MatIconModule],
+  imports: [CommonModule, MatCardModule, MatDividerModule, MatProgressSpinnerModule, MatIconModule, MatAccordion, MatExpansionModule ],
   templateUrl: './pedidos.component.html',
   styleUrls: ['./pedidos.component.scss'],
 })

@@ -38,6 +38,14 @@ export class CartService {
     cantidad: number
   }) {
     let currentCart = this.cart.value;
+    if (!producto.talla_id || producto.talla_id === 0) {
+      producto.talla_id = 1; // Suponemos que la primera talla tiene ID 1
+      producto.talla = producto.talla || 'Sin talla';
+    }
+    if (!producto.color_id || producto.color_id === 0) {
+      producto.color_id = 1; // Suponemos que el primer color tiene ID 1
+      producto.color = producto.color || 'Sin color';
+    }
     let index = currentCart.findIndex(item =>
       item.id === producto.id &&
       item.talla_id === producto.talla_id &&
@@ -61,7 +69,7 @@ export class CartService {
         id: producto.id,
         cantidad: producto.cantidad,
         nombre: producto.nombre,
-        tipoProducto: producto.tipoProducto || 'Tipo desconocido',
+        tipoProducto: producto.tipoProducto,
         marca: producto.marca || 'Marca desconocida',
         categoria: producto.categoria || 'Categoría desconocida',
         color: producto.color || 'Color desconocido',

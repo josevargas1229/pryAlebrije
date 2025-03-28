@@ -284,11 +284,12 @@ exports.getAllProductos = async (req, res) => {
                   model: ProductoTallaColor,
                   required: false,
                   where: productoTallaColorWhere,
+                  attributes: ['stock'],
                   include: [
-                      { model: Talla, attributes: ['talla'] },
+                      { model: Talla, attributes: ['id', 'talla'] },
                       {
                           model: ColorProducto,
-                          attributes: ['color', 'colorHex'],
+                          attributes: ['id', 'color', 'colorHex'],
                           include: [
                               {
                                   model: ImagenProducto,
@@ -303,6 +304,7 @@ exports.getAllProductos = async (req, res) => {
           ],
           distinct: true,
       });
+
       const productosCatalogo = rows.map(producto => ({
           ...mapProductoCatalogo(producto),
           imagenes: producto.ProductoTallaColors.flatMap(ptc =>
@@ -310,8 +312,14 @@ exports.getAllProductos = async (req, res) => {
                   url: img.imagen_url,
                   color_id: ptc.color_id
               }))
-          )
+          ),
+          variantes: producto.ProductoTallaColors.map(ptc => ({
+              talla: ptc.Talla?.talla,
+              color: ptc.ColorProducto?.color,
+              stock: ptc.stock
+          }))
       }));
+
       res.json({
           productos: productosCatalogo,
           currentPage: parseInt(page),

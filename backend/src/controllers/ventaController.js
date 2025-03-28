@@ -26,10 +26,10 @@ exports.createVenta = async (req, res) => {
       for (const item of productos) {
           const { producto_id, talla_id, color_id, cantidad, precio_unitario } = item;
 
-          if (!talla_id || !color_id) {
-              await transaction.rollback();
-              return res.status(400).json({ message: "Los productos deben tener talla y color." });
-          }
+          if (talla_id === null || talla_id === undefined || color_id === null || color_id === undefined) {
+            await transaction.rollback();
+            return res.status(400).json({ message: "Los productos deben tener talla y color." });
+        }
 
           const productoTallaColor = await ProductoTallaColor.findOne({
               where: { producto_id, talla_id, color_id }
@@ -117,7 +117,7 @@ exports.getVentasByUsuario = async (req, res) => {
         order: [['fecha_venta', 'DESC']],
     });
 
-      
+
       return res.status(200).json({ ventas });
 
   } catch (error) {

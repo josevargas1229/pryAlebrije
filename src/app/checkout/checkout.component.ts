@@ -70,19 +70,21 @@ export class CheckoutComponent implements OnInit {
         total: this.cartItems.reduce((acc, item) => acc + item.precio * item.cantidad, 0),
         recogerEnTienda: this.recogerEnTienda,
         productos: this.cartItems.map(item => {
-          if (!item.talla_id || !item.color_id) {
-            console.error("🚨 Producto sin talla o color:", item);
-            throw new Error('Producto sin talla o color.');
-          }
-          return {
-            producto_id: item.id,
-            talla_id: item.talla_id,
-            color_id: item.color_id,
-            cantidad: item.cantidad,
-            precio_unitario: item.precio
-          };
+            if (item.talla_id === null || item.talla_id === undefined || item.color_id === null || item.color_id === undefined) {
+                console.error("🚨 Producto sin talla o color:", item);
+                throw new Error('Producto sin talla o color.');
+            }
+            return {
+                producto_id: item.id,
+                talla_id: item.talla_id, // Permitir 0 como valor válido
+                color_id: item.color_id, // Permitir 0 como valor válido
+                cantidad: item.cantidad,
+                precio_unitario: item.precio
+            };
         })
-      };
+    };
+
+
 
       console.log("📦 Venta a enviar:", nuevaVenta);
 

@@ -133,10 +133,18 @@
             </a>
             <p><b>{{ producto.nombre || 'Sin nombre' }}</b></p>
             <p>{{ producto.precio | currency }}</p>
-            <app-loading-button [text]="'Agregar al carrito'" [loading]="loadingCarrito[producto.id] || false"
+            <!-- Mostrar las estrellas -->
+<div class="calificacion">
+  <span *ngFor="let estrella of generarEstrellasArray(producto.calificacionPromedio); let i = index">
+    <mat-icon [ngClass]="estrella === 1 ? 'estrella-activa' : 'estrella-inactiva'">star</mat-icon>
+  </span>
+  <span *ngIf="producto.calificacionPromedio">({{ producto.calificacionPromedio }} / 5)</span>
+</div>
+
+            <!-- <app-loading-button [text]="'Agregar al carrito'" [loading]="loadingCarrito[producto.id] || false"
               [color]="'primary'" (click)="agregarAlCarrito(producto)">
               <mat-icon>shopping_cart</mat-icon>
-            </app-loading-button>
+            </app-loading-button> -->
 
           </div>
           <div class="no-productos" *ngIf="filteredProductos.length === 0 && !isLoading">

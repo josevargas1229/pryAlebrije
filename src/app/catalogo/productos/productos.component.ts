@@ -12,6 +12,7 @@ import { LoadingButtonComponent } from '../../components/loading-button/loading-
 import { CartService } from '../../services/cart/cart.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { CalificacionService } from '../../services/califica/calificacion.service';
 
 @Component({
   selector: 'app-productos',
@@ -61,13 +62,16 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   precioMinSeleccionado: number | null = null;
   precioMaxSeleccionado: number | null = null;
   ordenSeleccionado: string = 'mayor-menor';
+  estrellasArray: number[] = Array(5).fill(0);
+
 
   constructor(
     private searchService: SearchService,
     private productoService: ProductoService,
     private renderer: Renderer2,
     private cartService: CartService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private calificacionService: CalificacionService
   ) { }
 
   ngOnInit(): void {
@@ -116,33 +120,57 @@ onWindowScroll(): void {
     setTimeout(() => {
       this.loadingCarrito[producto.id] = false;
 
+      if (!producto.variantes || producto.variantes.length === 0) {
+        this.snackBar.open(`❌ El producto ${producto.nombre} no tiene variantes disponibles.`, 'Cerrar', { duration: 3000 });
+        return;
+      }
+
+      // Si el producto no tiene una variante seleccionada, tomamos la primera disponible
+      let varianteConStock = producto.variantes.find((variante: any) => variante.stock > 0);
+
+      if (!varianteConStock) {
+        this.snackBar.open(`❌ No hay stock disponible para ${producto.nombre}.`, 'Cerrar', { duration: 3000 });
+        return;
+      }
+
+      // Tomar la primera talla y color si no existen en el objeto
+      const talla_id = varianteConStock.talla_id || producto.variantes[0].talla_id;
+      const color_id = varianteConStock.color_id || producto.variantes[0].color_id;
+      const talla = varianteConStock.talla || producto.variantes[0].talla;
+      const color = varianteConStock.color || producto.variantes[0].color;
+
       const productoAlCarrito = {
         id: producto.id,
         nombre: producto.nombre,
-        precio: producto.precio,
-        imagen: producto.imagenPrincipal || 'assets/images/ropa.jpg',
-        talla: this.getTallasDisponibles(producto),
-        stock: producto.stock || 100,
-        cantidad: 1,
-        talla_id: producto.talla_id || 0,
-        color_id: producto.color_id || 0,
-
-        // Agregar estos campos adicionales
         tipoProducto: producto.tipo?.nombre || 'Tipo desconocido',
         marca: producto.marca?.nombre || 'Marca desconocida',
         categoria: producto.categoria?.nombre || 'Categoría desconocida',
-        color: producto.variantes?.[0]?.ColorProducto?.color || 'Color desconocido'
+        talla: talla || 'Sin talla',
+        color: color || 'Color desconocido',
+        precio: producto.precio,
+        imagen: producto.imagenPrincipal || 'assets/images/ropa.jpg',
+        stock: varianteConStock.stock,
+        talla_id: talla_id,
+        color_id: color_id,
+        cantidad: 1
       };
 
       this.cartService.addToCart(productoAlCarrito);
 
-      this.snackBar.open(`🛒 ${producto.nombre} agregado al carrito exitosamente`, 'Cerrar', {
-        duration: 3000
-      });
+      this.snackBar.open(`✅ ${producto.nombre} agregado al carrito exitosamente.`, 'Cerrar', { duration: 3000 });
+
     }, 1000);
   }
 
+  obtenerCalificacionProducto(producto: any): void {
+    this.calificacionService.getCalificacionProducto(producto.id).subscribe(response => {
+      producto.calificacionPromedio = response.promedio;
+    });
+  }
 
+  generarEstrellasArray(calificacionPromedio: number): number[] {
+    return Array(5).fill(0).map((_, index) => index < calificacionPromedio ? 1 : 0);
+  }
 
 
     loadMoreProducts(): void {
@@ -160,16 +188,16 @@ onWindowScroll(): void {
 
     this.productoService.getAllProductos(params).subscribe({
       next: (response) => {
-        console.log("📦 Productos recibidos del backend (Estructura completa):", JSON.stringify(response.productos, null, 2));
 
         const nuevosProductos = response.productos.map(producto => ({
           ...producto,
           imagenPrincipal: this.getImagenPrincipal(producto)  // Obtén la imagen principal por producto
         }));
 
-        console.log("🖼️ Productos procesados con imágenes:", nuevosProductos);
-
         this.productos = [...this.productos, ...nuevosProductos];
+        this.productos.forEach(producto => {
+          this.obtenerCalificacionProducto(producto);
+        });
         this.filteredProductos = [...this.productos];
         this.totalItems = response.totalItems || this.productos.length;
         this.currentPage++;
@@ -185,13 +213,10 @@ onWindowScroll(): void {
   }
 
   getImagenPrincipal(producto: any): string {
-    console.log("📸 Producto recibido para obtener imagen:", producto);
 
     if (producto.imagenes && producto.imagenes.length > 0) {
-      console.log("✅ Imagen encontrada para el producto:", producto.imagenes[0].url);
       return producto.imagenes[0].url;
     } else {
-      console.log("⚠️ No se encontraron imágenes, usando imagen por defecto.");
       return 'assets/images/ropa.jpg';
     }
   }

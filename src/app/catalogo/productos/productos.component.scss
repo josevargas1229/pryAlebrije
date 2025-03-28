@@ -12,7 +12,7 @@
     width: 100%;
     margin-bottom: 10px;
   }
-  
+
   .ordenamiento-precio {
     display: flex;
     justify-content: flex-end;
@@ -224,6 +224,31 @@
     }
   }
 }
+/* Estilo para las estrellas */
+.calificacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;  /* Centramos horizontalmente */
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.estrella-activa {
+  color: #ffb400; /* Color amarillo para estrellas activas */
+  cursor: pointer;
+}
+
+.estrella-inactiva {
+  color: #ccc; /* Color gris para estrellas inactivas */
+  cursor: pointer;
+}
+
+.calificacion span {
+  font-size: 14px;
+  color: #666;
+}
+
+
 
 .color-indicator {
   width: 20px;
