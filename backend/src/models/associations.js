@@ -25,7 +25,7 @@ const CalificacionProducto = require('./CalificacionProducto');
 const LegalDocument = require('./LegalDocument');
 const Empleado = require('./Empleado');
 const HistorialActividades = require('./HistorialActividades');
-const VerificationCode =require('./VerificationCode')
+const VerificationCode = require('./VerificationCode')
 // Definir la asociación entre User y Rol
 Rol.hasMany(User, { foreignKey: 'rol_id' });
 User.belongsTo(Rol, { foreignKey: 'rol_id' });
@@ -100,9 +100,23 @@ IntentoFallido.belongsTo(Account, { foreignKey: 'account_id' });
 Account.hasMany(HistorialBloqueos, { foreignKey: 'account_id' });
 HistorialBloqueos.belongsTo(Account, { foreignKey: 'account_id', as: 'cuenta' });
 
-Account.hasMany(PassHistory, { foreignKey: 'account_id' });
-PassHistory.belongsTo(Account, { foreignKey: 'account_id' });
+Account.hasMany(PassHistory, {
+    foreignKey: 'account_id',
+    onDelete: 'CASCADE', // Si quieres mantener esta regla
+    onUpdate: 'CASCADE', // Si quieres mantener esta regla
+    constraints: true,   // Asegura que se aplique la restricción
+    foreignKeyConstraint: true,
+    constraintName: 'fk_historialPass_account_id' // Nombre único para la restricción
+});
 
+PassHistory.belongsTo(Account, {
+    foreignKey: 'account_id',
+    onDelete: 'CASCADE', // Si quieres mantener esta regla
+    onUpdate: 'CASCADE', // Si quieres mantener esta regla
+    constraints: true,   // Asegura que se aplique la restricción
+    foreignKeyConstraint: true,
+    constraintName: 'fk_historialPass_account_id' // El mismo nombre único
+});
 // Asociaciones de Email
 EmailType.belongsTo(User, { as: 'creador', foreignKey: 'creado_por' });
 EmailTemplate.belongsTo(EmailType, { foreignKey: 'tipo_id', as: 'tipo' });
