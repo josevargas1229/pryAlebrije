@@ -34,7 +34,11 @@ export interface DetalleVenta {
   talla: { talla: string };
   color: { color: string; colorHex: string };
 }
-
+export interface ProductoParaPago {
+  nombre: string;
+  precio_unitario: number;
+  cantidad: number;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -46,11 +50,12 @@ export class VentaService {
 
   // 🛒 Crear una nueva venta
   createVenta(venta: Partial<Venta>): Observable<Venta> {
-    console.log("➡️ Enviando venta al backend:", venta); // ✅ Agrega log para depuración
-    return this.http.post<Venta>(`${this.apiUrl}/crear`, venta, { withCredentials: true }).pipe(
-      catchError(this.handleError)
-    );
-  }
+  return this.http.post<{ venta: Venta }>(`${this.apiUrl}/crear`, venta, { withCredentials: true }).pipe(
+    map(res => res.venta),
+    catchError(this.handleError)
+  );
+}
+
 
 
   // 📜 Obtener todas las ventas de un usuario
@@ -105,4 +110,56 @@ export class VentaService {
     }
     return throwError(() => new Error(errorMessage));
   }
+
+  // 🧾 Crear una orden de PayPal
+crearOrdenPaypal(total: number): Observable<{ id: string }> {
+  return this.http.post<{ id: string }>(
+    `${this.apiUrl}/paypal/create-order`,
+    { total },
+    { withCredentials: true }
+  ).pipe(
+    catchError(this.handleError)
+  );
 }
+
+// ✅ Capturar una orden de PayPal
+capturarOrdenPaypal(orderID: string, venta_id: number, usuario_id: number): Observable<any> {
+  return this.http.post(
+    `${this.apiUrl}/paypal/capture-order/${orderID}`,
+    { venta_id, usuario_id }, // 👈 Enviar IDs
+    { withCredentials: true }
+  ).pipe(
+    catchError(this.handleError)
+  );
+}
+
+ crearPreferenciaMercadoPago(productos: ProductoParaPago[], total: number): Observable<{ id: string }> {
+  const productosFormateados = productos.map(p => ({
+    nombre: p.nombre,
+    precio_unitario: Number(p.precio_unitario),
+    cantidad: Number(p.cantidad)
+  }));
+
+  console.log("📦 Enviando preferencia a backend:", { productos: productosFormateados, total });
+
+  return this.http.post<{ id: string }>(
+    `${this.apiUrl}/mercadopago/create-preference`,
+    { productos: productosFormateados, total },
+    { withCredentials: true }
+  ).pipe(
+    catchError(this.handleError)
+  );
+}
+
+getEstadisticasVentas(rango: 'semana' | 'mes' | 'año' = 'mes') {
+  return this.http.get<any>(
+    `${this.apiUrl}/estadisticas/ventas?rango=${rango}`,
+    { withCredentials: true } // ✅ necesario si tu backend usa cookies o sesiones
+  ).pipe(
+    catchError(this.handleError)
+  );
+}
+
+
+}
+

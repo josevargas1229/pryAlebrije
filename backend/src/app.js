@@ -30,6 +30,7 @@ const ventasRoutes = require('./routes/ventasRoutes');
 const calificacionProductoRoutes = require('./routes/calificacionProductoRoutes');
 const historialRoutes = require('./routes/historialRoutes');
 const contactoRoutes = require('./routes/contactoRoutes');
+const transaccionesRoutes = require('./routes/transaccionesRoutes');
 const { authenticateToken, authorize, ROLES } = require('./middlewares/auth');
 const app = express();
 
@@ -88,6 +89,7 @@ app.use('/ventas', authenticateToken, ventasRoutes);
 app.use('/calificacion', calificacionProductoRoutes);
 app.use('/historial',historialRoutes);
 app.use('/contacto', contactoRoutes);
+app.use('/transacciones', transaccionesRoutes);
 app.use(errorHandler);
 module.exports = app;
 

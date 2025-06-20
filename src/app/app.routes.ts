@@ -22,6 +22,10 @@ import { ProductoDetalleComponent } from './catalogo/producto-detalle/producto-d
 import { Breadcrumb } from 'primeng/breadcrumb';
 import { CheckoutComponent } from './checkout/checkout.component';
 import { PedidosComponent } from './pedidos/pedidos.component';
+import { SuccessPageComponent } from './success/success-page/success-page.component';
+import { FailurePageComponent } from './success/failure-page/failure-page.component';
+import { PendingPageComponent } from './success/pending-page/pending-page.component';
+import { TransaccionesComponent } from './transacciones/transacciones.component';
 
 export const routes: Routes = [
   //rutas públicas
@@ -40,6 +44,10 @@ export const routes: Routes = [
   { path: 'verificacion', component: EmailVerificacionComponent },
   { path: 'cart', component: CartComponent, data: { Breadcrumb: "Carrito" } },
   { path: 'contacto', component: ContactoComponent, data: { Breadcrumb: "Contacto" } },
+  { path: 'success', component: SuccessPageComponent, data: { Breadcrumb: "Exito" } },
+  { path: 'failure', component: FailurePageComponent, data: { Breadcrumb: "Fallo" } },
+  { path: 'pending', component: PendingPageComponent, data: { Breadcrumb: "Pendiente" } },
+  { path: 'transacciones', component: TransaccionesComponent, data: { Breadcrumb: "Transacciones" } },
 
 
   //rutas para usuarios autenticados

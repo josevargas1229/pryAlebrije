@@ -1,6 +1,20 @@
 const sequelize = require('../config/database');
 const { Venta, DetalleVenta, User, Product, Talla, ColorProducto, TipoProducto, ProductoTallaColor, ImagenProducto } = require('../models/associations');
 const { Op } = require('sequelize');
+const axios = require('axios');
+const Transaccion = require('../models/Transaccion');
+require('dotenv').config();
+const mercadopago = require('mercadopago');
+
+const mp = new mercadopago.MercadoPagoConfig({
+  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
+  locale: 'es-MX',
+});
+
+const preferenceClient = new mercadopago.Preference(mp);
+
+
+
 
 /**
  * Crear una nueva venta con detalles
@@ -58,8 +72,8 @@ exports.createVenta = async (req, res) => {
               precio_unitario,
               subtotal: precio_unitario * cantidad
           }, { transaction });
-      }
 
+      }
       await transaction.commit();
       return res.status(201).json({ message: "Venta creada con éxito.", venta: nuevaVenta });
 
@@ -186,4 +200,198 @@ exports.getVentaById = async (req, res) => {
       return res.status(500).json({ message: "Error al obtener la venta.", error: error.message });
   }
 };
+
+// Obtiene un token de acceso válido desde PayPal
+async function getAccessToken() {
+  const response = await axios({
+    url: 'https://api-m.sandbox.paypal.com/v1/oauth2/token',
+    method: 'post',
+    headers: {
+      Accept: 'application/json',
+      'Accept-Language': 'en_US',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    auth: {
+      username: process.env.PAYPAL_CLIENT_ID,
+      password: process.env.PAYPAL_CLIENT_SECRET,
+    },
+    params: {
+      grant_type: 'client_credentials',
+    },
+  });
+
+  return response.data.access_token;
+}
+
+exports.createOrder = async (req, res) => {
+  try {
+    const accessToken = await getAccessToken();
+    const { total } = req.body;
+
+    const response = await axios({
+      url: 'https://api-m.sandbox.paypal.com/v2/checkout/orders',
+      method: 'post',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      data: {
+        intent: 'CAPTURE',
+        purchase_units: [
+          {
+            amount: {
+              currency_code: 'MXN',
+              value: total,
+            },
+          },
+        ],
+      },
+    });
+
+    res.json({ id: response.data.id });
+  } catch (error) {
+    console.error('Error al crear la orden:', error);
+    res.status(500).json({ error: 'Error al crear la orden' });
+  }
+};
+exports.captureOrder = async (req, res) => {
+  try {
+    const accessToken = await getAccessToken();
+    const { orderID } = req.params;
+    const { venta_id, usuario_id } = req.body;
+
+    const response = await axios({
+      url: `https://api-m.sandbox.paypal.com/v2/checkout/orders/${orderID}/capture`,
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      data: {}
+    });
+
+    await Transaccion.create({
+      venta_id,
+      usuario_id,
+      metodo_pago: 'paypal',
+      estado: 'exitoso',
+      respuesta_raw: response.data,
+      created_at: new Date()
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('❌ Error al capturar la orden:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Error al capturar la orden' });
+  }
+};
+
+
+exports.createPreference = async (req, res) => {
+  try {
+    const { productos, total } = req.body;
+
+    if (!productos || productos.length === 0) {
+      return res.status(400).json({ message: "No se pueden procesar preferencias sin productos." });
+    }
+
+    const items = productos.map((p, i) => {
+      if (!p.precio_unitario || !p.cantidad) {
+        throw new Error(`Producto [${i}] inválido: falta precio o cantidad`);
+      }
+
+      return {
+        title: p.nombre || 'Producto sin nombre',
+        unit_price: Number(p.precio_unitario),
+        quantity: Number(p.cantidad),
+        currency_id: 'MXN'
+      };
+    });
+
+    const preference = {
+  items,
+  back_urls: {
+    success: 'http://localhost:4200/success',
+    failure: 'http://localhost:4200/failure',
+    pending: 'http://localhost:4200/pending'
+  }
+  // auto_return: 'approved' <== quítalo temporalmente
+};
+
+
+    const response = await preferenceClient.create({ body: preference });
+    return res.status(200).json({ id: response.id });
+
+  } catch (error) {
+    console.error('❌ Error al crear preferencia:', error);
+    return res.status(500).json({ error: 'Error al crear preferencia con Mercado Pago.' });
+  }
+};
+exports.getEstadisticasVentas = async (req, res) => {
+  try {
+    const { rango = 'mes' } = req.query;
+
+    // Productos más vendidos (top 5)
+    const productosMasVendidos = await DetalleVenta.findAll({
+      attributes: [
+        'producto_id',
+        [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas']
+      ],
+      group: ['producto_id'],
+      order: [[sequelize.literal('totalVendidas'), 'DESC']],
+      limit: 5,
+      include: [{
+        model: Product,
+        as: 'producto',
+        attributes: ['id'],
+        include: [{
+          model: TipoProducto,
+          as: 'tipoProducto',
+          attributes: ['nombre']
+        }]
+      }]
+    });
+
+    let agrupamiento;
+    let campo;
+
+    switch (rango) {
+      case 'semana':
+        agrupamiento = sequelize.literal('FLOOR((DAY(fecha_venta)-1)/7)+1');
+        campo = [agrupamiento, 'semana'];
+        break;
+      case 'mes':
+        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m-%d');
+        campo = [agrupamiento, 'dia'];
+        break;
+      case 'año':
+        agrupamiento = sequelize.fn('MONTH', sequelize.col('fecha_venta'));
+        campo = [agrupamiento, 'mes'];
+        break;
+      default:
+        agrupamiento = sequelize.fn('DATE', sequelize.col('fecha_venta'));
+        campo = [agrupamiento, 'dia'];
+        break;
+    }
+
+    const ventasAgrupadas = await Venta.findAll({
+      attributes: [
+        campo,
+        [sequelize.fn('COUNT', '*'), 'total']
+      ],
+      group: [agrupamiento],
+      order: [[agrupamiento, 'ASC']]
+    });
+
+    return res.status(200).json({
+      productosMasVendidos,
+      ventasAgrupadas
+    });
+  } catch (error) {
+    console.error('Error en getEstadisticasVentas:', error);
+    return res.status(500).json({ error: 'No se pudieron obtener las estadísticas de ventas.' });
+  }
+};
+
+
 

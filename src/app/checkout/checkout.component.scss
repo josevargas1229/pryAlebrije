@@ -5,6 +5,17 @@
   color: #333;
   margin-bottom: 20px;
 }
+.mp-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+
+  #mercado-pago-button {
+    width: 100%;
+    max-width: 300px; // puedes ajustar según tu diseño
+  }
+}
 
 .checkout-container {
   max-width: 600px;
