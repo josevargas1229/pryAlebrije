@@ -9,9 +9,15 @@ const sequelize = new Sequelize(
   process.env.DB_PASSWORD,  // Contraseña
   {
     host: process.env.DB_HOST,   // Host
+    port: process.env.DB_PORT,
     dialect: 'mysql',
+    dialectModule: require('mysql2'),
     dialectOptions: {
-      charset: 'utf8mb4'
+      charset: 'utf8mb4',
+      ssl: process.env.DB_SSL_CA 
+      ? { ca: Buffer.from(process.env.DB_SSL_CA, 'utf-8') } 
+      : undefined
+
     }
   }
 );
