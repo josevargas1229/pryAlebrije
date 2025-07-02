@@ -31,7 +31,7 @@ export const routes: Routes = [
   //rutas públicas
   { path: "", component: HomeComponent, data: { Breadcrumb: "Home" }, },
   { path: "terminos-condiciones", component: TerminosCondicionesComponent, data: { Breadcrumb: "Terminos-condiciones" } },
-  { path: "politicas-privacidad", component: PoliticasPrivacidadComponent, data: { Breadcrumb: "Politicas-privacidad" } },
+  { path: "aviso-privacidad", component: PoliticasPrivacidadComponent, data: { Breadcrumb: "Aviso-privacidad" } },
   { path: 'editdeslinde', component: EditperfilemComponent },
   { path: 'editperfilem', component: EditperfilemComponent },
   { path: 'verificacion', component:EmailVerificacionComponent},

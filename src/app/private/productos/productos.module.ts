@@ -34,7 +34,11 @@ import { CatalogComponent } from './components/catalog/catalog.component';
 import { MatSpinner } from '@angular/material/progress-spinner';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { LowStockComponent } from './low-stock/low-stock.component';
-
+import { PromocionesComponent } from './promociones/promociones.component';
+import { MatListItem } from '@angular/material/list';
+import { MatListModule } from '@angular/material/list';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 @NgModule({
   declarations: [
     ProductosComponent,
@@ -47,7 +51,8 @@ import { LowStockComponent } from './low-stock/low-stock.component';
     VarianteFormComponent,
     DeletedProductsComponent,
     CatalogComponent,
-    LowStockComponent
+    LowStockComponent,
+    PromocionesComponent
     // HistoryComponent,    // Nuevo componente para historial
     // LowStockComponent    // Nuevo componente para productos con bajo stock
   ],
@@ -76,7 +81,12 @@ import { LowStockComponent } from './low-stock/low-stock.component';
     MatPaginatorModule,
     MatTooltipModule,
     MatSpinner,
-    MatExpansionModule
+    MatExpansionModule,
+    MatListItem,
+    MatListModule,
+    MatDatepickerModule,
+    MatNativeDateModule
+
   ]
 })
 export class ProductosModule { }

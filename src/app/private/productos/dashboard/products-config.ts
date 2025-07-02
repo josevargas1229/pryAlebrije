@@ -72,4 +72,10 @@ export const PRODUCTS_CONFIG_OPTIONS: ProductConfigOption[] = [
         description: 'Gestiona los colores disponibles en el catálogo.',
         route: '/admin/productos/colores'
     },
+    {
+        icon: 'local_offer',
+        title: 'Promociones',
+        description: 'Crea y gestiona promociones para los productos.',
+        route: '/admin/productos/promociones'
+    }
 ];

@@ -1,0 +1,226 @@
+<div class="promociones-container">
+  <!-- Header con título principal -->
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>local_offer</mat-icon>
+        Gestión de Promociones
+      </mat-card-title>
+      <mat-card-subtitle>Crea y administra las promociones de tu tienda</mat-card-subtitle>
+    </mat-card-header>
+  </mat-card>
+
+  <!-- Formulario de creación -->
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>add_circle</mat-icon>
+        Crear Nueva Promoción
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="formPromocion" (ngSubmit)="crearPromocion()" class="promo-form">
+
+        <!-- Información básica -->
+        <div class="form-section">
+          <h3 class="section-title">Información Básica</h3>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nombre de la promoción</mat-label>
+              <input matInput formControlName="nombre" required placeholder="Ej: Descuento de Verano">
+              <mat-icon matSuffix>title</mat-icon>
+              <mat-error *ngIf="formPromocion.get('nombre')?.hasError('required')">
+                El nombre es obligatorio
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Fecha de inicio</mat-label>
+              <input matInput [matDatepicker]="startPicker" formControlName="fecha_inicio" required>
+              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+              <mat-error *ngIf="formPromocion.get('fecha_inicio')?.hasError('required')">
+                La fecha de inicio es obligatoria
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Fecha de fin</mat-label>
+              <input matInput [matDatepicker]="endPicker" formControlName="fecha_fin" required>
+              <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+              <mat-datepicker #endPicker></mat-datepicker>
+              <mat-error *ngIf="formPromocion.get('fecha_fin')?.hasError('required')">
+                La fecha de fin es obligatoria
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Configuración de la promoción -->
+        <div class="form-section">
+          <h3 class="section-title">Configuración</h3>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Tipo de promoción</mat-label>
+              <mat-select formControlName="tipo" required>
+                <mat-option value="temporada">
+                  <mat-icon>schedule</mat-icon>
+                  Promoción de Temporada
+                </mat-option>
+                <mat-option value="producto_especifico">
+                  <mat-icon>inventory</mat-icon>
+                  Producto Específico
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="formPromocion.get('tipo')?.hasError('required')">
+                Selecciona un tipo de promoción
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Descuento</mat-label>
+              <input matInput type="number" formControlName="descuento" required min="0" max="100" placeholder="0">
+              <span matSuffix>%</span>
+              <mat-icon matSuffix>percent</mat-icon>
+              <mat-hint>Ingresa un valor entre 0 y 100</mat-hint>
+              <mat-error *ngIf="formPromocion.get('descuento')?.hasError('required')">
+                El descuento es obligatorio
+              </mat-error>
+              <mat-error *ngIf="formPromocion.get('descuento')?.hasError('min')">
+                El descuento debe ser mayor a 0
+              </mat-error>
+              <mat-error *ngIf="formPromocion.get('descuento')?.hasError('max')">
+                El descuento no puede ser mayor a 100
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Productos asociados</mat-label>
+              <mat-select formControlName="productos" multiple>
+                <mat-select-trigger>
+                  <span *ngIf="formPromocion.get('productos')?.value?.length">
+                    {{formPromocion.get('productos')?.value?.length}} producto(s) seleccionado(s)
+                  </span>
+                  <span *ngIf="!formPromocion.get('productos')?.value?.length">
+                    Selecciona productos
+                  </span>
+                </mat-select-trigger>
+                <mat-option *ngFor="let prod of productos" [value]="prod.id">
+                  {{ prod.nombre }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>shopping_cart</mat-icon>
+              <mat-hint>Puedes seleccionar múltiples productos</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="form-actions">
+          <button mat-button type="button" class="cancel-btn">
+            <mat-icon>cancel</mat-icon>
+            Cancelar
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="formPromocion.invalid" class="submit-btn">
+            <mat-icon>save</mat-icon>
+            Guardar Promoción
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Lista de promociones -->
+  <mat-card class="list-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>list</mat-icon>
+        Promociones Activas
+      </mat-card-title>
+      <mat-card-subtitle>{{promociones.length}} promoción(es) registrada(s)</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Estado vacío -->
+      <div *ngIf="promociones.length === 0" class="empty-state">
+        <mat-icon class="empty-icon">local_offer</mat-icon>
+        <h3>No hay promociones registradas</h3>
+        <p>Crea tu primera promoción usando el formulario de arriba</p>
+      </div>
+
+      <!-- Lista de promociones -->
+      <div class="promociones-grid" *ngIf="promociones.length > 0">
+        <mat-card *ngFor="let promo of promociones" class="promo-item-card" [class.expired]="isExpired(promo)">
+          <mat-card-header>
+            <div mat-card-avatar class="promo-avatar">
+              <mat-icon>local_offer</mat-icon>
+            </div>
+            <mat-card-title>{{ promo.nombre }}</mat-card-title>
+            <mat-card-subtitle>
+              <mat-chip-set>
+                <mat-chip [color]="getChipColor(promo.tipo)" selected>
+                  <mat-icon matChipAvatar>{{getTypeIcon(promo.tipo)}}</mat-icon>
+                  {{ getTypeLabel(promo.tipo) }}
+                </mat-chip>
+              </mat-chip-set>
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="promo-details">
+              <div class="detail-item">
+                <mat-icon>percent</mat-icon>
+                <span class="discount-value">{{ promo.descuento }}% de descuento</span>
+              </div>
+
+              <div class="detail-item">
+                <mat-icon>date_range</mat-icon>
+                <span>{{ promo.fecha_inicio | date:'dd/MM/yyyy' }} - {{ promo.fecha_fin | date:'dd/MM/yyyy' }}</span>
+              </div>
+
+              <div class="detail-item" *ngIf="promo.productos?.length">
+                <mat-icon>inventory</mat-icon>
+                <span>{{ promo.productos.length }} producto(s) asociado(s)</span>
+              </div>
+            </div>
+
+            <!-- Lista de productos -->
+            <mat-expansion-panel *ngIf="promo.productos?.length" class="products-panel">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <mat-icon>shopping_cart</mat-icon>
+                  Productos asociados
+                </mat-panel-title>
+              </mat-expansion-panel-header>
+
+              <mat-list>
+                <mat-list-item *ngFor="let p of promo.productos">
+                  <mat-icon matListIcon>inventory_2</mat-icon>
+                  <div matLine>{{ p.tipoProducto?.nombre || 'Sin tipo' }}</div>
+                </mat-list-item>
+              </mat-list>
+            </mat-expansion-panel>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            <button mat-button color="primary">
+              <mat-icon>edit</mat-icon>
+              Editar
+            </button>
+            <button mat-button color="warn" (click)="eliminar(promo.id)">
+              <mat-icon>delete</mat-icon>
+              Eliminar
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

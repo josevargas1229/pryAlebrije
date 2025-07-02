@@ -32,3 +32,33 @@
     </div>
   </div>
 </section>
+
+<section class="section">
+  <h2>Promociones activas</h2>
+
+  <div class="products-grid fade-in">
+    <ng-container *ngIf="promociones.length > 0; else sinPromo">
+      <ng-container *ngFor="let promo of promociones">
+        <ng-container *ngFor="let producto of promo.productos">
+  <div class="product-card">
+   <img [src]="producto.imagenes?.[0]?.url || 'assets/images/logoAle.png'" alt="Imagen de producto">
+<small>{{ producto.id }}</small>
+
+
+    <p class="promo-nombre">{{ producto.nombre }}</p>
+
+            <p class="promo-etiqueta">{{ promo.nombre }} – {{ promo.descuento }}%</p>
+            <p class="promo-fechas">Válido hasta {{ promo.fecha_fin | date:'shortDate' }}</p>
+          </div>
+        </ng-container>
+      </ng-container>
+    </ng-container>
+
+    <ng-template #sinPromo>
+      <p>No hay promociones activas.</p>
+    </ng-template>
+  </div>
+</section>
+
+
+

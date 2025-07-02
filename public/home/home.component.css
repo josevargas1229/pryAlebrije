@@ -148,3 +148,25 @@ p {
   opacity: 1;
   transform: scale(1);
 }
+.promo-nombre {
+  font-weight: bold;
+  margin: 0.3rem 0;
+}
+
+.promo-etiqueta {
+  font-size: 0.9rem;
+  color: #d32f2f;
+}
+
+.promo-fechas {
+  font-size: 0.8rem;
+  color: #555;
+}
+.product-card img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  background-color: #f2f2f2;
+}
+
+

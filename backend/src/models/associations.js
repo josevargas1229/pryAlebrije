@@ -28,6 +28,7 @@ const Venta = require('./Ventas');
 const DetalleVenta = require('./DetalleVenta');
 const HistorialActividades = require('./HistorialActividades');
 const VerificationCode =require('./VerificationCode')
+const Transaccion = require('./Transaccion');
 // Definir la asociación entre User y Rol
 Rol.hasMany(User, { foreignKey: 'rol_id' });
 User.belongsTo(Rol, { foreignKey: 'rol_id' });
@@ -50,8 +51,8 @@ ColorProducto.hasMany(ProductoTallaColor, { foreignKey: 'color_id' });
 ProductoTallaColor.belongsTo(ColorProducto, { foreignKey: 'color_id' });
 
 // Asociaciones de Promociones
-Promocion.belongsToMany(Product, { through: PromocionProducto, foreignKey: 'promocion_id' });
-Product.belongsToMany(Promocion, { through: PromocionProducto, foreignKey: 'producto_id' });
+Promocion.belongsToMany(Product, { through: PromocionProducto, foreignKey: 'promocion_id', as: 'productos' });
+Product.belongsToMany(Promocion, { through: PromocionProducto, foreignKey: 'producto_id', as: 'promociones' });
 
 // Asociaciones de Categoría
 Categoria.hasMany(Product, { foreignKey: 'categoria_id' });

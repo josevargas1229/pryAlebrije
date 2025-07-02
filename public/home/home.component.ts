@@ -4,7 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-
+import { PromocionService, Promocion } from '../../src/app/services/promociones/promociones.service';
 interface Product {
   title: string;
   price: number;
@@ -18,8 +18,9 @@ interface Product {
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit, AfterViewInit {
+  promociones: Promocion[] = [];
 
-  constructor(private readonly renderer: Renderer2) {}
+  constructor(private readonly renderer: Renderer2, private PromocionService: PromocionService) {}
 
   @ViewChild('homeContainer', { static: false }) homeContainer!: ElementRef;
   @ViewChild('liquiContainer', { static: false }) liquiContainer!: ElementRef;
@@ -45,8 +46,24 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngOnInit(): void {
-  }
+ ngOnInit(): void {
+  this.PromocionService.getPromocionesActivas().subscribe({
+    next: (res: any[]) => {
+      // ❶ Forzamos productos ⇒ array
+      this.promociones = res.map(p => ({
+        ...p,
+        productos: Array.isArray(p.productos)
+          ? p.productos
+          : Object.values(p.productos || {})          // ← aquí el fix
+      }));
+      console.log('Promos normalizadas', this.promociones);
+    },
+    error: err => console.error('Error promos', err)
+  });
+}
+
+
+
 
   imageUrl = 'assets/images/ropa.jpg';
 

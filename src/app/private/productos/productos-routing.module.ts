@@ -10,6 +10,7 @@ import { ProductoDetalleComponent } from '../../catalogo/producto-detalle/produc
 import { CatalogComponent } from './components/catalog/catalog.component';
 import { AuditLogsComponent } from '../components/audit-logs/audit-logs.component';
 import { LowStockComponent } from './low-stock/low-stock.component';
+import { PromocionesComponent } from './promociones/promociones.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'inicio', pathMatch: 'full' },
@@ -26,7 +27,8 @@ const routes: Routes = [
   { path: 'temporadas', component: CatalogComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Temporadas", catalogType: "temporada" } },
   { path: 'colores', component: CatalogComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Colores", catalogType: "color" } },
   { path: 'history', component: AuditLogsComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Historial de movimientos", modulo:"productos" } },
-  { path: 'low-stock', component: LowStockComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Productos con bajo stock" } }
+  { path: 'low-stock', component: LowStockComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Productos con bajo stock" } },
+  { path: 'promociones', component: PromocionesComponent, canActivate: [AuthGuard], data: { Breadcrumb: "Promociones" } }
 ];
 
 
