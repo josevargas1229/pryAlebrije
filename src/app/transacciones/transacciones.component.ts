@@ -1,3 +1,4 @@
+import { NgChartsModule } from 'ng2-charts';
 import { VentaService } from './../services/ventas/venta.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -11,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
 import { TransaccionesService } from '../services/transacciones/transacciones.service';
 import { ChartType, ChartConfiguration } from 'chart.js';
-import { NgChartsModule } from 'ng2-charts';
+
 
 @Component({
   selector: 'app-transacciones',
@@ -27,6 +28,7 @@ import { NgChartsModule } from 'ng2-charts';
     MatIconModule,
     MatSelectModule,
     NgChartsModule
+
   ],
   templateUrl: './transacciones.component.html',
   styleUrls: ['./transacciones.component.scss']

@@ -22,6 +22,7 @@ import { errorInterceptor } from './interceptors/error.interceptor';
 import { ErrorHandlerService } from './services/error/error-handler.service';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { csrfInterceptor } from './interceptors/csrf.interceptor';
+import { NgChartsModule } from 'ng2-charts';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,7 @@ import { csrfInterceptor } from './interceptors/csrf.interceptor';
     RegisterComponent,
     AppRoutingModule,
     LoginComponent,
+    NgChartsModule,
     ProductosComponent,
     MatCommonModule,
     SidebarComponent,
