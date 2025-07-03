@@ -1,46 +1,104 @@
-<h1 class="checkout-title">Finalizar Compra</h1>
-
-<mat-card class="checkout-container">
-  <form #checkoutForm="ngForm" (ngSubmit)="procesarPedido()" class="checkout-form">
-
-    <!-- 🛒 Resumen del carrito -->
-    <div class="cart-preview" *ngIf="cartItems.length > 0">
-      <h2>Resumen de Productos</h2>
-      <div class="cart-items">
-        <mat-card class="cart-item" *ngFor="let item of cartItems">
-          <div class="product-details-container">
-            <img [src]="item.imagen" alt="{{ item.nombre }}" class="product-image">
-            <div class="product-info">
-              <p><strong>Nombre:</strong> {{ item.tipoProducto }} {{ item.nombre }}</p>
-              <p><strong>Talla:</strong> {{ item.talla }}</p>
-              <p><strong>Color:</strong> {{ item.color }}</p>
-              <p><strong>Precio:</strong> {{ item.precio | currency }}</p>
-              <p><strong>Cantidad:</strong> {{ item.cantidad }}</p>
-              <input type="hidden" [value]="item.talla_id">
-              <input type="hidden" [value]="item.color_id">
-            </div>
-          </div>
-        </mat-card>
-      </div>
-    </div>
-
-    <!-- ✅ Botón de confirmación manual (si no se usa pasarela)
-    <button mat-button color="primary" class="finalizar-compra" type="submit" [disabled]="checkoutForm.invalid">
-      Confirmar Pedido
-    </button> -->
-     <!-- 💳 Botón de Mercado Pago -->
-<div *ngIf="cartItems.length > 0" class="mp-container">
-  <div id="mercado-pago-button"></div>
-</div>
-
-
-  </form>
-
-  <!-- 💳 Botón de PayPal -->
-  <div [ngClass]="{ 'paypal-visible': cartItems.length > 0 }">
-    <div id="paypal-button-container"></div>
+<!-- checkout.component.html -->
+<div class="checkout-container">
+  <!-- Header -->
+  <div class="checkout-header">
+    <h1 class="checkout-title">
+      <mat-icon>shopping_cart</mat-icon>
+      Finalizar Compra
+    </h1>
   </div>
 
+  <div class="checkout-content">
+    <!-- Formulario -->
+    <form #checkoutForm="ngForm" (ngSubmit)="procesarPedido()">
 
+      <!-- Resumen del carrito -->
+      <div class="cart-preview" *ngIf="cartItems.length > 0">
+        <h2 class="section-title">
+          <mat-icon>inventory_2</mat-icon>
+          Resumen de Productos
+        </h2>
 
-</mat-card>
+        <div class="cart-items">
+          <mat-card class="cart-item" *ngFor="let item of cartItems">
+            <div class="product-details-container">
+              <img [src]="item.imagen"
+                   alt="{{ item.nombre }}"
+                   class="product-image">
+
+              <div class="product-info">
+                <div class="product-name">
+                  {{ item.tipoProducto }} {{ item.nombre }}
+                </div>
+
+                <div class="product-details">
+                  <div class="detail-item">
+                    <mat-icon>straighten</mat-icon>
+                    <span class="detail-value">{{ item.talla }}</span>
+                  </div>
+
+                  <div class="detail-item">
+                    <mat-icon>palette</mat-icon>
+                    <span class="detail-value">{{ item.color }}</span>
+                  </div>
+
+                  <div class="detail-item">
+                    <mat-icon>shopping_basket</mat-icon>
+                    <span class="detail-value">{{ item.cantidad }}</span>
+                  </div>
+
+                  <div class="detail-item">
+                    <mat-icon>attach_money</mat-icon>
+                    <span class="detail-value price-highlight">{{ item.precio | currency }}</span>
+                  </div>
+                </div>
+
+                <input type="hidden" [value]="item.talla_id">
+                <input type="hidden" [value]="item.color_id">
+              </div>
+            </div>
+          </mat-card>
+        </div>
+      </div> <!-- ✅ CIERRE AGREGADO AQUÍ -->
+
+      <!-- Métodos de pago -->
+      <div class="payment-methods" *ngIf="cartItems.length > 0">
+
+        <!-- PayPal -->
+        <mat-card class="payment-card">
+          <div class="payment-header">
+            <div class="payment-icon">
+              <mat-icon>payment</mat-icon>
+            </div>
+            <div class="payment-title">PayPal</div>
+          </div>
+          <div id="paypal-button-container" class="payment-button"></div>
+        </mat-card>
+
+        <!-- Mercado Pago -->
+        <mat-card class="payment-card">
+          <div class="payment-header">
+            <div class="payment-icon">
+              <mat-icon>credit_card</mat-icon>
+            </div>
+            <div class="payment-title">Mercado Pago</div>
+          </div>
+          <div id="mercado-pago-button" class="payment-button"></div>
+        </mat-card>
+
+      </div>
+    </form>
+<div class="back-to-cart">
+  <button
+    mat-stroked-button
+    color="accent"
+    type="button"
+    routerLink="/cart"
+    class="back-button stroked-variant"
+    [attr.aria-label]="'Regresar al carrito de compras'">
+    <mat-icon class="button-icon">arrow_back</mat-icon>
+    <span class="button-text">Regresar al carrito</span>
+  </button>
+</div>
+
+</div>

@@ -1,62 +1,176 @@
-<h1 class="cart-title">CARRITO</h1>
+<!-- cart.component.html -->
+<div class="cart-page">
+  <h1 class="cart-title">
+    <mat-icon>shopping_cart</mat-icon>
+    CARRITO
+  </h1>
 
-<!-- Si hay productos en el carrito, muestra la lista -->
-<div class="cart-container" *ngIf="cartItems.length > 0">
-  <!-- Sección izquierda: Lista de productos en el carrito -->
-  <div class="cart-left">
-    <mat-card class="cart-item" *ngFor="let item of cartItems">
-      <div class="cart-item-container">
-        <!-- Imagen del producto -->
-        <div class="product-image-container">
-          <img [src]="item.imagen" alt="{{ item.nombre }}" class="product-image">
+  <!-- Si hay productos en el carrito -->
+  <div class="cart-container" *ngIf="cartItems.length > 0">
+    <!-- Lista de productos -->
+    <div class="cart-left">
+      <mat-card class="cart-item" *ngFor="let item of cartItems; trackBy: trackByFn" [@fadeIn]>
+        <mat-card-content class="cart-item-content">
+          <!-- Imagen del producto -->
+          <div class="product-image-container">
+            <img [src]="item.imagen" [alt]="item.nombre" class="product-image">
+          </div>
+
+          <!-- Detalles del producto -->
+          <div class="product-details">
+            <h3 class="product-name">{{ item.tipoProducto }} {{ item.nombre }}</h3>
+
+            <div class="product-attributes">
+              <mat-chip-set>
+                <mat-chip>
+                  <mat-icon>palette</mat-icon>
+                  {{ item.color }}
+                </mat-chip>
+                <mat-chip>
+                  <mat-icon>straighten</mat-icon>
+                  {{ item.talla }}
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+
+            <p class="product-price">{{ item.precio | currency:'USD':'symbol':'1.2-2' }}</p>
+
+            <div class="stock-info" *ngIf="item.stock <= 5">
+              <mat-icon color="warn">warning</mat-icon>
+              <span>Solo {{ item.stock }} disponibles</span>
+            </div>
+          </div>
+
+          <!-- Controles de cantidad y acciones -->
+          <div class="product-actions">
+            <div class="quantity-section">
+              <span class="quantity-label">Cantidad</span>
+              <div class="quantity-controls">
+                <button
+                  mat-icon-button
+                  color="primary"
+                  [disabled]="item.cantidad <= 1"
+                  (click)="updateQuantity(item.id, item.talla, item.cantidad - 1, item.stock)"
+                  class="quantity-btn">
+                  <mat-icon>remove</mat-icon>
+                </button>
+
+                <mat-form-field appearance="outline" class="quantity-field">
+                  <input
+                    matInput
+                    type="number"
+                    [value]="item.cantidad"
+                    min="1"
+                    [max]="item.stock"
+                    (change)="onQuantityChange($event, item.id, item.talla, item.stock)"
+                    class="quantity-input">
+                </mat-form-field>
+
+                <button
+                  mat-icon-button
+                  color="primary"
+                  [disabled]="item.cantidad >= item.stock"
+                  (click)="updateQuantity(item.id, item.talla, item.cantidad + 1, item.stock)"
+                  class="quantity-btn">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <button
+              mat-stroked-button
+              color="warn"
+              (click)="confirmRemoveItem(item)"
+              class="remove-btn">
+              <mat-icon>delete_outline</mat-icon>
+              Eliminar
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Resumen del pedido -->
+    <div class="cart-right">
+      <mat-card class="summary-card">
+        <mat-card-header class="summary-header">
+          <mat-card-title>
+            <mat-icon>receipt_long</mat-icon>
+            Resumen del Pedido
+          </mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content class="summary-content">
+          <div class="summary-section">
+            <div class="summary-row">
+              <span>Subtotal ({{ getTotalItems() }} artículos)</span>
+              <span class="amount">{{ getTotal() | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+
+            <div class="summary-row">
+              <span>Envío</span>
+              <span class="amount shipping-free">
+                <mat-icon>local_shipping</mat-icon>
+                Gratis
+              </span>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="summary-row total-row">
+              <strong>Total</strong>
+              <strong class="total-amount">{{ getTotalWithShipping() | currency:'USD':'symbol':'1.2-2' }}</strong>
+            </div>
+          </div>
+          <div class="checkout-section">
+            <button
+              mat-raised-button
+              color="primary"
+              class="checkout-btn"
+              [routerLink]="'/checkout'"
+              [disabled]="cartItems.length === 0">
+              <mat-icon>shopping_cart_checkout</mat-icon>
+              Proceder al Pago
+            </button>
+
+            <button
+              mat-stroked-button
+              color="accent"
+              class="continue-shopping-btn"
+              routerLink="/menu-catalogo/productos">
+              <mat-icon>arrow_back</mat-icon>
+              Seguir Comprando
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Carrito vacío -->
+  <div class="empty-cart" *ngIf="cartItems.length === 0" [@fadeIn]>
+    <mat-card class="empty-cart-card">
+      <mat-card-content class="empty-cart-content">
+        <div class="empty-cart-icon">
+          <mat-icon>shopping_cart</mat-icon>
         </div>
 
-        <!-- Contenedor de la información del producto -->
-        <div class="product-details">
-          <p><strong>Nombre:</strong> {{ item.tipoProducto }} {{ item.nombre }}</p>
-  <p><strong>Color:</strong> {{ item.color }}</p>
-  <p><strong>Talla:</strong> {{ item.talla }}</p>
-  <p class="price">{{ item.precio | currency }}</p>
-        </div>
+        <h2 class="empty-cart-title">¡Tu carrito está vacío!</h2>
+        <p class="empty-cart-subtitle">
+          Descubre nuestros productos y encuentra exactamente lo que estás buscando.
+        </p>
 
-        <!-- Contenedor de cantidad -->
-        <div class="quantity-controls">
-          <button mat-icon-button color="primary" (click)="updateQuantity(item.id, item.talla, item.cantidad + 1, item.stock)">
-            <mat-icon>add</mat-icon>
+        <div class="empty-cart-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            routerLink="/menu-catalogo/productos"
+            class="explore-btn">
+            <mat-icon>storefront</mat-icon>
+            Explorar Productos
           </button>
-          <input matInput type="number" [value]="item.cantidad" min="1" [max]="item.stock"
-                 (change)="onQuantityChange($event, item.id, item.talla, item.stock)">
-          <button mat-icon-button color="primary" (click)="updateQuantity(item.id, item.talla, item.cantidad - 1, item.stock)">
-            <mat-icon>remove</mat-icon>
-          </button>
         </div>
-
-        <!-- Acciones -->
-        <div class="actions">
-          <button mat-button color="warn" class="remove" (click)="removeFromCart(item.id, item.talla)">
-            <mat-icon>delete_forever</mat-icon> Eliminar artículo
-          </button>
-        </div>
-      </div>
+      </mat-card-content>
     </mat-card>
   </div>
-
-  <!-- Sección derecha: Resumen del pedido -->
-  <div class="cart-right">
-    <h2>RESUMEN</h2>
-    <p><span>Total parcial</span> <span>{{ getTotal() | currency }}</span></p>
-    <p class="total"><strong>Total del Pedido</strong> <strong>{{ getTotalWithShipping() | currency }}</strong></p>
-    <button mat-button color="primary" class="buy-button" [routerLink]="'/checkout'">
-      Comprar Ahora <mat-icon>chevron_right</mat-icon>
-    </button>
-  </div>
-</div>
-
-<!-- Si el carrito está vacío, muestra el mensaje llamativo -->
-<div class="empty-cart fade-in" *ngIf="cartItems.length === 0">
-  <h2>¡Tu carrito está vacío! 🛒</h2>
-  <p>Explora nuestra tienda y encuentra lo que necesitas.</p>
-  <button mat-raised-button color="primary" routerLink="/menu-catalogo/productos" class="explore-button">
-    <mat-icon>storefront</mat-icon> Explorar Productos
-  </button>
 </div>

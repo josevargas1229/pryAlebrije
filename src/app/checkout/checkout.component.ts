@@ -11,13 +11,15 @@ import { VentaService } from '../services/ventas/venta.service';
 import { AuthService } from '../services/auth/auth.service';
 import { ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { environment } from '../../environments/environment.development';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterModule } from '@angular/router';
 declare var paypal: any;
 
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [MatCardModule, MatFormFieldModule, CommonModule, MatCheckboxModule, FormsModule, MatInputModule],
+  imports: [MatCardModule, MatFormFieldModule, CommonModule, MatCheckboxModule, FormsModule, MatInputModule, MatIconModule, RouterModule],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss'
 })
@@ -34,14 +36,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
   mercadoPagoRendered: boolean = false;
 
 
-  ngAfterViewInit(): void {
-  setTimeout(() => {
-    // Solo renderizar si hay usuario, productos y aún no está renderizado
-    if (this.usuario && this.cartItems.length > 0 && !this.paypalRendered) {
-      this.renderPayPalButton();
-    }
-  }, 0); // Espera un ciclo de render de Angular
-}
+  ngAfterViewInit(): void {}
 
   constructor(
     private router: Router,
@@ -120,63 +115,71 @@ loadMercadoPagoScript(): Promise<void> {
 
 renderPayPalButton(): void {
   if (this.paypalRendered || !this.usuario || typeof paypal === 'undefined') {
-    console.warn('🚫 SDK de PayPal no está disponible todavía.');
+    console.warn('🚫 SDK de PayPal no disponible o ya renderizado.');
     return;
   }
 
-  const total = this.cartItems.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+  const tryRender = () => {
+    const container = document.getElementById('paypal-button-container');
+    if (!container) {
+      console.warn('⌛ Esperando a que #paypal-button-container esté en el DOM...');
+      setTimeout(tryRender, 100); // Reintenta cada 100ms hasta que exista
+      return;
+    }
 
-  paypal.Buttons({
-    createOrder: () => {
-      return this.ventaService.crearOrdenPaypal(total.toFixed(2)).toPromise().then(res => {
-        if (!res || !res.id) throw new Error('No se pudo obtener el ID de la orden PayPal');
-        return res.id;
-      });
-    },
-    onApprove: (data: any, actions: any) => {
-  const total = this.cartItems.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+    const total = this.cartItems.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
 
-  const ventaData = {
-    usuario_id: this.usuario.userId,
-    direccion_id: this.usuario.direccion_id || null,
-    recogerEnTienda: this.recogerEnTienda,
-    productos: this.cartItems.map(item => ({
-      producto_id: item.id,
-      talla_id: item.talla_id,
-      color_id: item.color_id,
-      cantidad: item.cantidad,
-      precio_unitario: item.precio
-    })),
-    total: total.toFixed(2)
+    paypal.Buttons({
+      createOrder: () => {
+        return this.ventaService.crearOrdenPaypal(total.toFixed(2)).toPromise().then(res => {
+          if (!res || !res.id) throw new Error('No se pudo obtener el ID de la orden PayPal');
+          return res.id;
+        });
+      },
+      onApprove: (data: any, actions: any) => {
+        const ventaData = {
+          usuario_id: this.usuario.userId,
+          direccion_id: this.usuario.direccion_id || null,
+          recogerEnTienda: this.recogerEnTienda,
+          productos: this.cartItems.map(item => ({
+            producto_id: item.id,
+            talla_id: item.talla_id,
+            color_id: item.color_id,
+            cantidad: item.cantidad,
+            precio_unitario: item.precio
+          })),
+          total: total.toFixed(2)
+        };
+
+        return this.ventaService.createVenta(ventaData).toPromise().then(venta => {
+          if (!venta?.id) throw new Error('❌ No se obtuvo el ID de la venta');
+          return this.ventaService.capturarOrdenPaypal(data.orderID, venta.id, this.usuario.userId).toPromise().then(() => {
+            alert('✅ ¡Pago y pedido confirmados con éxito!');
+            this.cartService.clearCart();
+            this.router.navigate(['/perfil']);
+          });
+        }).catch(err => {
+          if (err?.error?.details?.[0]?.issue === 'INSTRUMENT_DECLINED') {
+            console.warn('🔁 Instrumento rechazado, reintentando...');
+            return actions.restart();
+          } else {
+            console.error('❌ Error al procesar la compra:', err);
+            alert('Error al completar la compra. Intenta nuevamente.');
+          }
+        });
+      },
+      onError: (err: any) => {
+        console.error('❌ Error general en PayPal:', err);
+        alert('Error al procesar el pago con PayPal.');
+      }
+    }).render('#paypal-button-container');
+
+    this.paypalRendered = true;
   };
 
-  return this.ventaService.createVenta(ventaData).toPromise().then(venta => {
-    if (!venta?.id) throw new Error('❌ No se obtuvo el ID de la venta');
-
-    return this.ventaService.capturarOrdenPaypal(data.orderID, venta.id, this.usuario.userId).toPromise().then(() => {
-      alert('✅ ¡Pago y pedido confirmados con éxito!');
-      this.cartService.clearCart();
-      this.router.navigate(['/perfil']);
-    });
-  }).catch(err => {
-    if (err?.error?.details?.[0]?.issue === 'INSTRUMENT_DECLINED') {
-      console.warn('🔁 Instrumento rechazado, reintentando...');
-      return actions.restart();
-    } else {
-      console.error('❌ Error al procesar la compra:', err);
-      alert('Error al completar la compra. Intenta nuevamente.');
-    }
-  });
-},
-
-    onError: (err: any) => {
-      console.error('❌ Error general en PayPal:', err);
-      alert('Error al procesar el pago con PayPal.');
-    }
-  }).render('#paypal-button-container');
-
-  this.paypalRendered = true;
+  tryRender(); // Inicia el intento de renderizado
 }
+
 
 
 renderMercadoPagoButton(): void {

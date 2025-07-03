@@ -5,7 +5,8 @@
   .contenido {
     display: flex;
     width: 100%;
-    flex-direction: row; /* Mantiene el filtro y productos en fila por defecto */
+    flex-direction: row;
+    /* Mantiene el filtro y productos en fila por defecto */
   }
 
   .filtro-busqueda {
@@ -27,35 +28,44 @@
   .filtro-container {
     width: 250px;
     background-color: #fff;
-    padding: 15px;
+    padding: 15px 15px 0 15px;
     margin-right: 20px;
     border-radius: 10px;
     flex-shrink: 0;
     position: sticky;
     top: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-height: 90vh;
+    overflow-y: auto; // agrega scroll si se llena
+
+    .filtro-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
 
     .filtro-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-weight: bold;
-      font-size: 1.2rem;
+      font-size: 1rem;
+      margin-bottom: 8px;
     }
 
     .filtro-item {
       border-bottom: 1px solid #ddd;
-      padding: 10px 0;
+      padding: 6px 0;
 
       .filtro-titulo {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: bold;
         cursor: pointer;
         transition: 0.3s;
-        padding: 5px 0;
+        padding: 4px 0;
 
         &:hover {
           color: #1976d2;
@@ -63,23 +73,23 @@
       }
 
       .filtro-opciones {
-        margin-top: 5px;
+        margin-top: 4px;
         display: flex;
         flex-direction: column;
-        gap: 5px;
-        padding-left: 10px;
+        gap: 4px;
+        padding-left: 8px;
         transition: max-height 0.3s ease-in-out;
       }
     }
 
     .color-palette {
       display: flex;
-      gap: 10px;
-      margin-top: 5px;
+      gap: 8px;
+      margin-top: 4px;
 
       .color-box {
-        width: 30px;
-        height: 30px;
+        width: 24px;
+        height: 24px;
         border: 2px solid transparent;
         cursor: pointer;
         border-radius: 50%;
@@ -110,10 +120,13 @@
 
     .grid-productos {
       display: grid;
-      grid-template-columns: repeat(3, 1fr); /* 3 productos por línea por defecto */
+      grid-template-columns: repeat(3, 1fr);
+      /* 3 productos por línea por defecto */
       gap: 20px;
-      width: 100%; /* Usa todo el ancho disponible */
-      padding: 0 10px; /* Espacio interno */
+      width: 100%;
+      /* Usa todo el ancho disponible */
+      padding: 0 10px;
+      /* Espacio interno */
     }
 
     .producto {
@@ -224,22 +237,26 @@
     }
   }
 }
+
 /* Estilo para las estrellas */
 .calificacion {
   display: flex;
   align-items: center;
-  justify-content: center;  /* Centramos horizontalmente */
+  justify-content: center;
+  /* Centramos horizontalmente */
   gap: 5px;
   margin-top: 5px;
 }
 
 .estrella-activa {
-  color: #ffb400; /* Color amarillo para estrellas activas */
+  color: #ffb400;
+  /* Color amarillo para estrellas activas */
   cursor: pointer;
 }
 
 .estrella-inactiva {
-  color: #ccc; /* Color gris para estrellas inactivas */
+  color: #ccc;
+  /* Color gris para estrellas inactivas */
   cursor: pointer;
 }
 
