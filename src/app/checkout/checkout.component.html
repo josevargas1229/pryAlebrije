@@ -22,9 +22,7 @@
         <div class="cart-items">
           <mat-card class="cart-item" *ngFor="let item of cartItems">
             <div class="product-details-container">
-              <img [src]="item.imagen"
-                   alt="{{ item.nombre }}"
-                   class="product-image">
+              <img [src]="item.imagen" alt="{{ item.nombre }}" class="product-image">
 
               <div class="product-info">
                 <div class="product-name">
@@ -49,8 +47,20 @@
 
                   <div class="detail-item">
                     <mat-icon>attach_money</mat-icon>
-                    <span class="detail-value price-highlight">{{ item.precio | currency }}</span>
+                    <ng-container
+                      *ngIf="item.precioConDescuento !== undefined && item.precioConDescuento < item.precio; else sinDescuento">
+                      <span class="detail-value" style="text-decoration: line-through; color: gray;">
+                        {{ item.precio | currency }}
+                      </span>
+                      <span class="detail-value price-highlight" style="margin-left: 8px;">
+                        {{ item.precioConDescuento | currency }}
+                      </span>
+                    </ng-container>
+                    <ng-template #sinDescuento>
+                      <span class="detail-value price-highlight">{{ item.precio | currency }}</span>
+                    </ng-template>
                   </div>
+
                 </div>
 
                 <input type="hidden" [value]="item.talla_id">
@@ -62,10 +72,11 @@
       </div> <!-- ✅ CIERRE AGREGADO AQUÍ -->
 
       <!-- Métodos de pago -->
+      <!-- Métodos de pago: colocar FUERA del <form> -->
       <div class="payment-methods" *ngIf="cartItems.length > 0">
 
         <!-- PayPal -->
-        <mat-card class="payment-card">
+        <mat-card class="payment-card" [attr.aria-label]="'Botón de pago con PayPal'">
           <div class="payment-header">
             <div class="payment-icon">
               <mat-icon>payment</mat-icon>
@@ -76,7 +87,7 @@
         </mat-card>
 
         <!-- Mercado Pago -->
-        <mat-card class="payment-card">
+        <mat-card class="payment-card" [attr.aria-label]="'Botón de pago con Mercado Pago'">
           <div class="payment-header">
             <div class="payment-icon">
               <mat-icon>credit_card</mat-icon>
@@ -88,17 +99,12 @@
 
       </div>
     </form>
-<div class="back-to-cart">
-  <button
-    mat-stroked-button
-    color="accent"
-    type="button"
-    routerLink="/cart"
-    class="back-button stroked-variant"
-    [attr.aria-label]="'Regresar al carrito de compras'">
-    <mat-icon class="button-icon">arrow_back</mat-icon>
-    <span class="button-text">Regresar al carrito</span>
-  </button>
-</div>
+    <div class="back-to-cart">
+      <button mat-stroked-button color="accent" type="button" routerLink="/cart" class="back-button stroked-variant"
+        [attr.aria-label]="'Regresar al carrito de compras'">
+        <mat-icon class="button-icon">arrow_back</mat-icon>
+        <span class="button-text">Regresar al carrito</span>
+      </button>
+    </div>
 
-</div>
+  </div>

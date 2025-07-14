@@ -10,6 +10,8 @@ router.post('/paypal/create-order', ventaController.createOrder);
 router.post('/paypal/capture-order/:orderID', ventaController.captureOrder);
 router.post('/mercadopago/create-preference', ventaController.createPreference);
 router.get('/estadisticas/ventas', ventaController.getEstadisticasVentas);
+router.post('/mercadopago/registrar-transaccion', ventaController.registrarTransaccionMercadoPago);
+
 
 
 module.exports = router;

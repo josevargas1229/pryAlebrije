@@ -27,6 +27,7 @@ interface CartItem {
   nombre: string;
   tipoProducto: string;
   precio: number;
+  precioConDescuento?: number;
   cantidad: number;
   talla: string;
   color: string;
@@ -186,9 +187,11 @@ export class CartComponent
   }
 
   /* ==== TOTALES ==== */
-  getTotal = () =>
-    this.cartItems.reduce((tot, it) => tot + it.precio * it.cantidad, 0);
-
+ getTotal = () =>
+  this.cartItems.reduce((tot, it) => {
+    const precioFinal = it.precioConDescuento ?? it.precio;
+    return tot + precioFinal * it.cantidad;
+  }, 0);
   getShippingCost = () => (this.getTotal() >= 500 ? 0 : 50);
 
   getTotalWithShipping = () => this.getTotal() + this.getShippingCost();

@@ -3,6 +3,7 @@ const { Venta, DetalleVenta, User, Product, Talla, ColorProducto, TipoProducto, 
 const { Op } = require('sequelize');
 const axios = require('axios');
 const Transaccion = require('../models/Transaccion');
+const { crearNotificacion } = require('./notificacionController'); // asegúrate que la ruta sea correcta
 require('dotenv').config();
 const mercadopago = require('mercadopago');
 
@@ -38,43 +39,67 @@ exports.createVenta = async (req, res) => {
       }, { transaction });
 
       for (const item of productos) {
-          const { producto_id, talla_id, color_id, cantidad, precio_unitario } = item;
+  const { producto_id, talla_id, color_id, cantidad } = item;
 
-          if (talla_id === null || talla_id === undefined || color_id === null || color_id === undefined) {
-            await transaction.rollback();
-            return res.status(400).json({ message: "Los productos deben tener talla y color." });
-        }
+  if (talla_id === null || talla_id === undefined || color_id === null || color_id === undefined) {
+    await transaction.rollback();
+    return res.status(400).json({ message: "Los productos deben tener talla y color." });
+  }
 
-          const productoTallaColor = await ProductoTallaColor.findOne({
-              where: { producto_id, talla_id, color_id }
-          });
+  const productoTallaColor = await ProductoTallaColor.findOne({
+    where: { producto_id, talla_id, color_id }
+  });
 
-          if (!productoTallaColor) {
-              await transaction.rollback();
-              return res.status(404).json({ message: 'Combinación de producto, talla y color no encontrada.' });
-          }
+  if (!productoTallaColor) {
+    await transaction.rollback();
+    return res.status(404).json({ message: 'Combinación de producto, talla y color no encontrada.' });
+  }
 
-          if (productoTallaColor.stock < cantidad) {
-              await transaction.rollback();
-              return res.status(400).json({ message: 'No hay suficiente stock disponible.' });
-          }
+  if (productoTallaColor.stock < cantidad) {
+    await transaction.rollback();
+    return res.status(400).json({ message: 'No hay suficiente stock disponible.' });
+  }
 
-          // Resta el stock
-          productoTallaColor.stock -= cantidad;
-          await productoTallaColor.save({ transaction });
-
-          await DetalleVenta.create({
-              venta_id: nuevaVenta.id,
-              producto_id,
-              talla_id,
-              color_id,
-              cantidad,
-              precio_unitario,
-              subtotal: precio_unitario * cantidad
-          }, { transaction });
-
+  const producto = await Product.findByPk(producto_id, {
+    include: [
+      {
+        association: 'promociones',
+        where: {
+          fecha_inicio: { [Op.lte]: new Date() },
+          fecha_fin: { [Op.gte]: new Date() }
+        },
+        required: false
       }
+    ]
+  });
+
+  let precio_unitario = parseFloat(producto.precio);
+  if (producto.promociones && producto.promociones.length > 0) {
+    const promo = producto.promociones[0];
+    const descuento = parseFloat(promo.descuento);
+    precio_unitario = +(precio_unitario * (1 - descuento / 100)).toFixed(2);
+  }
+
+  productoTallaColor.stock -= cantidad;
+  await productoTallaColor.save({ transaction });
+
+  await DetalleVenta.create({
+    venta_id: nuevaVenta.id,
+    producto_id,
+    talla_id,
+    color_id,
+    cantidad,
+    precio_unitario,
+    subtotal: +(precio_unitario * cantidad).toFixed(2)
+  }, { transaction });
+}
+
       await transaction.commit();
+      await crearNotificacion({
+      mensaje: `Compra realizada correctamente. Total: $${nuevaVenta.total}`,
+      tipo: 'usuario',
+      usuario_id
+      });
       return res.status(201).json({ message: "Venta creada con éxito.", venta: nuevaVenta });
 
   } catch (error) {
@@ -392,6 +417,32 @@ exports.getEstadisticasVentas = async (req, res) => {
     return res.status(500).json({ error: 'No se pudieron obtener las estadísticas de ventas.' });
   }
 };
+
+exports.registrarTransaccionMercadoPago = async (req, res) => {
+  try {
+    const { venta_id, usuario_id, paymentData } = req.body;
+
+    if (!venta_id || !usuario_id || !paymentData) {
+      return res.status(400).json({ message: 'Faltan datos para registrar transacción.' });
+    }
+
+    await Transaccion.create({
+      venta_id,
+      usuario_id,
+      metodo_pago: 'mercado_pago',
+      estado: 'exitoso',
+      respuesta_raw: paymentData,
+      created_at: new Date()
+    });
+
+    return res.status(200).json({ message: 'Transacción registrada exitosamente.' });
+
+  } catch (error) {
+    console.error('❌ Error al registrar transacción MP:', error);
+    return res.status(500).json({ message: 'Error al registrar la transacción.' });
+  }
+};
+
 
 
 

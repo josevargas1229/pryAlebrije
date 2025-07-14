@@ -4,6 +4,7 @@ const Product = require('../models/Product');
 const ImagenProducto = require('../models/ImagenProducto');
 const PromocionProducto = require('../models/PromocionProducto');
 const TipoProducto = require('../models/TipoProducto');
+const { crearNotificacion } = require('./notificacionController');
 // Obtener promociones activas para la página principal
 
 exports.getPromocionesActivas = async (req, res) => {
@@ -61,7 +62,10 @@ exports.crearPromocion = async (req, res) => {
       }));
       await PromocionProducto.bulkCreate(relaciones);
     }
-
+    await crearNotificacion({
+    mensaje: `Nueva promoción creada: ${nombre}`,
+    tipo: 'admin'
+    });
     res.status(201).json(nuevaPromocion);
   } catch (err) {
     console.error('Error creando promoción:', err);

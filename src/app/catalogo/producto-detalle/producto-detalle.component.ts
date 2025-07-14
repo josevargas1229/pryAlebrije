@@ -131,14 +131,25 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   }
 
   obtenerProductoDetalle(id: number): void {
-    this.productoService.getProductoById(id).subscribe(response => {
-      this.producto = response.producto;
-      console.log('Producto obtenido:', this.producto);
-      this.inicializarDatos();
-    }, error => {
-      console.error('Error al obtener detalles del producto:', error);
-    });
-  }
+  this.productoService.getProductoById(id).subscribe(response => {
+    this.producto = response.producto;
+
+    const tienePromocion = this.producto.promocion !== null && this.producto.promocion?.descuento > 0;
+    const precioFinal = tienePromocion
+      ? this.producto.precio * (1 - this.producto.promocion.descuento / 100)
+      : this.producto.precio;
+
+    this.producto.tienePromocion = tienePromocion;
+    this.producto.precioFinal = precioFinal;
+
+    console.log('Producto obtenido:', this.producto);
+    this.inicializarDatos();
+  }, error => {
+    console.error('Error al obtener detalles del producto:', error);
+  });
+}
+
+
 
   inicializarDatos(): void {
     const coloresMap = new Map<number, any>();
@@ -215,6 +226,7 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
       talla: this.tallasUnicas.find(t => t.id === talla_id)?.talla || 'Sin talla',
       color: this.colorSeleccionado.color || 'Color desconocido',
       precio: this.producto.precio,
+      precioConDescuento: this.producto.tienePromocion ? this.producto.precioFinal : undefined,
       imagen: this.imagenPrincipal,
       stock: this.stockDisponible,
       talla_id: talla_id,
@@ -258,6 +270,7 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
         talla: this.tallasUnicas.find(t => t.id === talla_id)?.talla || 'Sin talla',
         color: this.colorSeleccionado.color || 'Color desconocido',
         precio: this.producto.precio,
+        precioConDescuento: this.producto.tienePromocion ? this.producto.precioFinal : undefined,
         imagen: this.imagenPrincipal,
         stock: this.stockDisponible,
         talla_id: talla_id,

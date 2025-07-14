@@ -23,6 +23,41 @@
       font-weight: bold;
     }
   }
+  .precio-original {
+  text-decoration: line-through;
+  color: #999;
+  margin-right: 5px;
+}
+
+.precio-descuento {
+  color: #e53935;
+  font-weight: bold;
+}
+
+.etiqueta-descuento {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background-color: #e53935;
+  color: white;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.icono-descuento {
+  font-size: 16px;
+}
+
+.producto {
+  position: relative;
+}
 
 
   .filtro-container {

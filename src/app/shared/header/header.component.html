@@ -21,13 +21,40 @@
       </button>
       <app-theme-switcher></app-theme-switcher>
       <!-- Botón de notificaciones -->
-      <button
-        mat-icon-button
-        aria-label="Notificaciones"
-        matTooltip="Ver notificaciones"
-        matTooltipPosition="below">
-        <mat-icon>notifications</mat-icon>
-      </button>
+      <!-- Botón de notificaciones con menú -->
+<div class="noti-container">
+  <button
+    mat-icon-button
+    [matMenuTriggerFor]="menuNotificaciones"
+    aria-label="Notificaciones"
+    matTooltip="Ver notificaciones"
+    matTooltipPosition="below">
+    <mat-icon>notifications</mat-icon>
+    <span class="noti-badge" *ngIf="notificacionesNoLeidas > 0">{{ notificacionesNoLeidas }}</span>
+  </button>
+</div>
+
+
+<mat-menu #menuNotificaciones="matMenu" class="notificaciones-menu">
+  <ng-container *ngIf="notificaciones.length > 0; else sinNotificaciones">
+    <button mat-menu-item *ngFor="let noti of notificaciones.slice(0, 5)">
+      <mat-icon color="{{ noti.leida ? '' : 'accent' }}">info</mat-icon>
+      <div style="display: flex; flex-direction: column; margin-left: 8px;">
+        <span class="mensaje">{{ noti.mensaje }}</span>
+        <span class="fecha">{{ noti.fecha | date:'short' }}</span>
+      </div>
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item routerLink="/notificaciones">
+      <mat-icon>open_in_new</mat-icon>
+      Ver todas las notificaciones
+    </button>
+  </ng-container>
+  <ng-template #sinNotificaciones>
+    <div class="noti-vacia">No tienes notificaciones.</div>
+  </ng-template>
+</mat-menu>
+
 
       <!-- Botón de carrito -->
       <div class="cart-container">

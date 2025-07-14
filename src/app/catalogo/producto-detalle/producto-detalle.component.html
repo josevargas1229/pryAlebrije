@@ -45,9 +45,21 @@
         </div>
       </div>
 
-      <div class="precio">
-        <span class="descuento">{{ producto.precio | currency }}</span>
-      </div>
+      <div class="precio-promocion" *ngIf="producto?.tienePromocion; else precioNormal">
+  <p class="precio-original">
+    <mat-icon color="warn">local_offer</mat-icon>
+    <span class="tachado">{{ producto.precio | currency }}</span>
+  </p>
+  <p class="precio-descuento">
+    <strong>{{ producto.precioFinal | currency }}</strong>
+    <span class="descuento">-{{ producto.promocion.descuento }}%</span>
+  </p>
+</div>
+
+<ng-template #precioNormal>
+  <p class="precio-normal">{{ producto?.precio | currency }}</p>
+</ng-template>
+
 
       <mat-divider></mat-divider>
 

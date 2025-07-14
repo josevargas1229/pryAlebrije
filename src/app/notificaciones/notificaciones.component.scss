@@ -1,0 +1,64 @@
+.notificaciones-container {
+  max-width: 700px;
+  margin: auto;
+  padding: 20px;
+
+  .notificaciones-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  .noti-card {
+    margin-top: 15px;
+    border-left: 5px solid #ccc;
+    transition: background 0.3s;
+
+    &.no-leida {
+      background: #e3f2fd;
+      border-left-color: #2196f3;
+    }
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .fecha {
+      margin-left: 15px;
+      font-style: italic;
+      color: gray;
+    }
+  }
+
+  .no-notificaciones {
+    text-align: center;
+    margin-top: 50px;
+    color: #666;
+
+    mat-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+  }
+
+  .cargando {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 80px;
+    color: #555;
+
+    mat-spinner {
+      margin-bottom: 15px;
+    }
+  }
+}

@@ -127,7 +127,7 @@ renderPayPalButton(): void {
       return;
     }
 
-    const total = this.cartItems.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+    const total = this.cartItems.reduce((acc, item) => acc + (item.precioConDescuento ?? item.precio) * item.cantidad, 0);
 
     paypal.Buttons({
       createOrder: () => {
@@ -146,7 +146,7 @@ renderPayPalButton(): void {
             talla_id: item.talla_id,
             color_id: item.color_id,
             cantidad: item.cantidad,
-            precio_unitario: item.precio
+            precio_unitario: item.precioConDescuento ?? item.precio
           })),
           total: total.toFixed(2)
         };
@@ -188,10 +188,10 @@ renderMercadoPagoButton(): void {
     return;
   }
 
-  const total = this.cartItems.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+  const total = this.cartItems.reduce((acc, item) => acc + (item.precioConDescuento ?? item.precio) * item.cantidad, 0);
   const productosFormateados = this.cartItems.map(item => ({
     nombre: item.nombre,
-    precio_unitario: item.precio,
+    precio_unitario: item.precioConDescuento ?? item.precio,
     cantidad: item.cantidad
   }));
 
@@ -202,6 +202,10 @@ renderMercadoPagoButton(): void {
         alert('Error al generar la preferencia de pago.');
         return;
       }
+
+      // ✅ Guarda en localStorage para recuperarlo después del pago
+      localStorage.setItem('carrito', JSON.stringify(this.cartItems));
+      localStorage.setItem('recogerEnTienda', JSON.stringify(this.recogerEnTienda));
 
       const mp = new (window as any).MercadoPago(environment.MERCADOPAGO_PUBLIC_KEY, {
         locale: 'es-MX'
@@ -225,10 +229,6 @@ renderMercadoPagoButton(): void {
     }
   );
 }
-
-
-
-
   procesarPedido(): void {
     if (!this.usuario || !this.usuario.userId) {
       alert('Debes iniciar sesión para completar la compra.');
@@ -244,7 +244,7 @@ renderMercadoPagoButton(): void {
       const nuevaVenta = {
         usuario_id: this.usuario.userId,
         direccion_id: this.usuario.direccion_id || null,
-        total: this.cartItems.reduce((acc, item) => acc + item.precio * item.cantidad, 0),
+        total: this.cartItems.reduce((acc, item) => acc + (item.precioConDescuento ?? item.precio) * item.cantidad, 0),
         recogerEnTienda: this.recogerEnTienda,
         productos: this.cartItems.map(item => {
             if (item.talla_id === null || item.talla_id === undefined || item.color_id === null || item.color_id === undefined) {
@@ -256,7 +256,7 @@ renderMercadoPagoButton(): void {
                 talla_id: item.talla_id, // Permitir 0 como valor válido
                 color_id: item.color_id, // Permitir 0 como valor válido
                 cantidad: item.cantidad,
-                precio_unitario: item.precio
+                precio_unitario: item.precioConDescuento ?? item.precio
             };
         })
     };

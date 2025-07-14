@@ -26,6 +26,7 @@ import { SuccessPageComponent } from './success/success-page/success-page.compon
 import { FailurePageComponent } from './success/failure-page/failure-page.component';
 import { PendingPageComponent } from './success/pending-page/pending-page.component';
 import { TransaccionesComponent } from './transacciones/transacciones.component';
+import { NotificacionesComponent } from './notificaciones/notificaciones.component';
 
 export const routes: Routes = [
   //rutas públicas
@@ -48,6 +49,7 @@ export const routes: Routes = [
   { path: 'failure', component: FailurePageComponent, data: { Breadcrumb: "Fallo" } },
   { path: 'pending', component: PendingPageComponent, data: { Breadcrumb: "Pendiente" } },
   { path: 'transacciones', component: TransaccionesComponent, data: { Breadcrumb: "Transacciones" } },
+  { path: 'notificaciones', component: NotificacionesComponent, data: { Breadcrumb: "Notificaciones" } },
 
 
   //rutas para usuarios autenticados

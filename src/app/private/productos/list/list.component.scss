@@ -79,6 +79,23 @@
   mat-paginator {
     margin-top: 20px;
   }
+
+  .promo-nombre {
+  font-weight: bold;
+  color: #2e7d32;
+}
+.promo-descuento {
+  color: #c62828;
+}
+.promo-fecha {
+  font-size: 0.8rem;
+  color: #555;
+}
+.sin-promocion {
+  font-style: italic;
+  color: #999;
+}
+
   
   // Animaciones CSS personalizadas
   @keyframes spin {
