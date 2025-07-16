@@ -97,3 +97,4 @@
 {"level":"info","message":"::1 - - [17/May/2025:21:30:26 +0000] \"GET /calificacion/producto/20 HTTP/1.1\" 304 - \"http://localhost:4200/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36\"","timestamp":"2025-05-17 15:30:26"}
 {"level":"info","message":"::1 - - [17/May/2025:21:30:26 +0000] \"GET /calificacion/producto/21 HTTP/1.1\" 304 - \"http://localhost:4200/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36\"","timestamp":"2025-05-17 15:30:26"}
 {"level":"info","message":"::1 - - [17/May/2025:21:30:26 +0000] \"GET /calificacion/producto/22 HTTP/1.1\" 304 - \"http://localhost:4200/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36\"","timestamp":"2025-05-17 15:30:26"}
+

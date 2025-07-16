@@ -32,6 +32,8 @@
   }
 }
 
+
+
 /* Imagen principal en el centro */
 .imagen-container {
   display: flex;
@@ -133,27 +135,44 @@ button[mat-icon-button]:disabled {
 }
 
 
-.precio {
+.precio-promocion {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: start;
+  margin-top: 10px;
+
+  .precio-original {
+    color: #999;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+
+    .tachado {
+      text-decoration: line-through;
+      margin-left: 4px;
+    }
+  }
+
+  .precio-descuento {
+    font-size: 1.5rem;
+    color: #da8627;
+    display: flex;
+    align-items: center;
+
+    .descuento {
+      margin-left: 8px;
+      font-size: 1rem;
+      color: #d32f2f;
+    }
+  }
 }
 
-.descuento {
-  font-size: 22px;
+.precio-normal {
+  font-size: 1.5rem;
+  color: #333;
   font-weight: bold;
-  color: #e91e63;
 }
 
-.precio-original {
-  text-decoration: line-through;
-  color: gray;
-}
-
-.porcentaje-descuento {
-  color: green;
-  font-weight: bold;
-}
 
 .entrega {
   color: green;

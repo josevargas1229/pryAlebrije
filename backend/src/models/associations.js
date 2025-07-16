@@ -29,6 +29,7 @@ const DetalleVenta = require('./DetalleVenta');
 const HistorialActividades = require('./HistorialActividades');
 const VerificationCode =require('./VerificationCode')
 const Transaccion = require('./Transaccion');
+const Notificacion = require('./Notificacion');
 const AuthorizationCode = require('./authorizationCode');
 // Definir la asociación entre User y Rol
 Rol.hasMany(User, { foreignKey: 'rol_id' });
@@ -39,6 +40,11 @@ Empleado.belongsTo(User, { foreignKey: 'usuario_id' });
 // Asociación entre User y HistorialActividades
 User.hasMany(HistorialActividades, { foreignKey: 'usuario_id' });
 HistorialActividades.belongsTo(User, { foreignKey: 'usuario_id' });
+
+// Asociación entre Usuario y Notificación
+User.hasMany(Notificacion, { foreignKey: 'usuario_id', as: 'notificaciones' });
+Notificacion.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
+
 // Asociación entre Producto y ProductoTallaColor
 Product.hasMany(ProductoTallaColor, { foreignKey: 'producto_id' });
 ProductoTallaColor.belongsTo(Product, { foreignKey: 'producto_id' });
@@ -201,5 +207,6 @@ module.exports = {
     HistorialActividades,
     VerificationCode,
     Transaccion,
+    Notificacion,
     AuthorizationCode
 };

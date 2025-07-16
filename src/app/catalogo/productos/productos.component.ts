@@ -98,12 +98,12 @@ export class ProductosComponent implements OnInit, AfterViewInit {
     observer.observe(this.productosContainer.nativeElement);
   }
 
-@HostListener('window:scroll', ['$event'])
-onWindowScroll(): void {
-  if (!this.isLoading && this.hasMore && this.isNearBottom()) {
-    this.loadMoreProducts();
+  @HostListener('window:scroll', ['$event'])
+  onWindowScroll(): void {
+    if (!this.isLoading && this.hasMore && this.isNearBottom()) {
+      this.loadMoreProducts();
+    }
   }
-}
 
   // Verificar si estamos cerca del final de la página
   isNearBottom(): boolean {
@@ -173,7 +173,7 @@ onWindowScroll(): void {
   }
 
 
-    loadMoreProducts(): void {
+  loadMoreProducts(): void {
     if (this.isLoading || !this.hasMore) return;
 
     this.isLoading = true;
@@ -189,10 +189,20 @@ onWindowScroll(): void {
     this.productoService.getAllProductos(params).subscribe({
       next: (response) => {
 
-        const nuevosProductos = response.productos.map(producto => ({
-          ...producto,
-          imagenPrincipal: this.getImagenPrincipal(producto)  // Obtén la imagen principal por producto
-        }));
+        const nuevosProductos = response.productos.map(producto => {
+          const tienePromocion = producto.promocion !== null && producto.promocion?.descuento > 0;
+          const precioFinal = tienePromocion
+            ? producto.precio * (1 - producto.promocion.descuento / 100)
+            : producto.precio;
+
+          return {
+            ...producto,
+            imagenPrincipal: this.getImagenPrincipal(producto),
+            tienePromocion,
+            precioFinal
+          };
+        });
+
 
         this.productos = [...this.productos, ...nuevosProductos];
         this.productos.forEach(producto => {

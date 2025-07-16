@@ -3,6 +3,9 @@ const { Product, Empleado, Temporada, Categoria, TipoProducto, Marca, Talla, Col
 const { Op } = require('sequelize');
 const { uploadImageToCloudinary } = require('../config/cloudinaryConfig');
 const logAudit = require('../utils/audit');
+const { crearNotificacion } = require('./notificacionController');
+const {Promocion} = require ('../models/associations')
+
 
 const fetchModelData = async (model, orderField) => {
     return model.findAll({ order: [[orderField, 'ASC']] });
@@ -128,6 +131,16 @@ const mapProductoCatalogo = (producto) => ({
         talla: ptc.Talla?.talla,
         color: ptc.ColorProducto?.color,
     })),
+        promocion: producto.promociones?.[0]
+        ? {
+            id: producto.promociones[0].id,
+            nombre: producto.promociones[0].nombre,
+            descuento: producto.promociones[0].descuento,
+            fecha_inicio: producto.promociones[0].fecha_inicio,
+            fecha_fin: producto.promociones[0].fecha_fin
+        }
+        : null,
+
 });
 const mapProductoTransformado = (producto) => ({
     id: producto.id,
@@ -227,6 +240,10 @@ exports.createProducto = async (req, res) => {
         });
 
         await transaction.commit();
+        await crearNotificacion({
+        mensaje: `Nuevo producto agregado con ID: ${nuevoProducto.id}`,
+        tipo: 'admin'
+        });
         res.status(201).json({ message: 'Producto creado con éxito', producto: nuevoProducto });
     } catch (error) {
         await transaction.rollback();
@@ -301,7 +318,19 @@ exports.getAllProductos = async (req, res) => {
                       },
                   ],
               },
+              {
+    model: Promocion,
+    as: 'promociones',
+    attributes: ['id', 'nombre', 'descuento', 'fecha_inicio', 'fecha_fin'],
+    where: {
+        fecha_inicio: { [Op.lte]: new Date() },
+        fecha_fin: { [Op.gte]: new Date() }
+    },
+    required: false
+}
+
           ],
+
           distinct: true,
       });
 
@@ -406,11 +435,28 @@ exports.getProductoById = async (req, res) => {
                         {
                             model: ColorProducto,
                             attributes: ['id', 'color', 'colorHex'],
-                            include: [{ model: ImagenProducto, attributes: ['id', 'imagen_url'], where: { producto_id: id }, required: false }],
-                        },
-                    ],
+                            include: [
+                                {
+                                    model: ImagenProducto,
+                                    attributes: ['id', 'imagen_url'],
+                                    where: { producto_id: id },
+                                    required: false
+                                }
+                            ]
+                        }
+                    ]
                 },
-            ],
+                {
+                    model: Promocion,
+                    as: 'promociones',
+                    attributes: ['id', 'nombre', 'descuento', 'fecha_inicio', 'fecha_fin'],
+                    where: {
+                        fecha_inicio: { [Op.lte]: new Date() },
+                        fecha_fin: { [Op.gte]: new Date() }
+                    },
+                    required: false
+                }
+            ]
         });
 
         if (!producto) {
@@ -418,12 +464,25 @@ exports.getProductoById = async (req, res) => {
         }
 
         const productoTransformado = mapProductoTransformado(producto);
+
+        // Agregar la promoción (si existe) al objeto de respuesta
+        productoTransformado.promocion = producto.promociones?.[0]
+            ? {
+                id: producto.promociones[0].id,
+                nombre: producto.promociones[0].nombre,
+                descuento: producto.promociones[0].descuento,
+                fecha_inicio: producto.promociones[0].fecha_inicio,
+                fecha_fin: producto.promociones[0].fecha_fin
+            }
+            : null;
+
         res.status(200).json({ producto: productoTransformado });
     } catch (error) {
         console.error('Error al obtener el producto:', error);
         res.status(500).json({ message: 'Error al obtener el producto', error: error.message });
     }
 };
+
 exports.deleteProducto = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {

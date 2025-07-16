@@ -1,0 +1,33 @@
+<div class="notificaciones-container" *ngIf="!cargando; else cargandoTpl">
+  <div class="notificaciones-header">
+    <h2><mat-icon>notifications</mat-icon> Notificaciones</h2>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div *ngIf="notificaciones.length === 0" class="no-notificaciones">
+    <mat-icon color="primary">check_circle</mat-icon>
+    <p>No tienes notificaciones pendientes.</p>
+  </div>
+
+  <mat-card *ngFor="let noti of notificaciones" class="noti-card" [class.no-leida]="!noti.leida">
+    <mat-card-title>
+      <mat-icon>notification_important</mat-icon>
+      {{ noti.mensaje }}
+    </mat-card-title>
+
+    <mat-card-subtitle>
+      <mat-chip [color]="noti.tipo === 'admin' ? 'warn' : 'primary'" selected>
+        {{ noti.tipo | uppercase }}
+      </mat-chip>
+      <span class="fecha">{{ noti.fecha | date: 'short' }}</span>
+    </mat-card-subtitle>
+  </mat-card>
+</div>
+
+<ng-template #cargandoTpl>
+  <div class="cargando">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Cargando notificaciones...</p>
+  </div>
+</ng-template>

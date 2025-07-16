@@ -126,13 +126,25 @@
 
         <div class="grid-productos">
           <div class="producto" *ngFor="let producto of filteredProductos">
-            <a [routerLink]="['/menu-catalogo/productos/producto-detalle', producto.id]">
-              <a [routerLink]="['/menu-catalogo/productos/producto-detalle', producto.id]">
-                <img [src]="producto.imagenPrincipal" [alt]="producto.nombre || 'Producto'">
-              </a>
-            </a>
-            <p><b>{{ producto.nombre || 'Sin nombre' }}</b></p>
-            <p>{{ producto.precio | currency }}</p>
+            <div class="etiqueta-descuento" *ngIf="producto.tienePromocion">
+  <mat-icon class="icono-descuento">local_offer</mat-icon>
+  {{ producto.descuento }}% OFF
+</div>
+
+<a [routerLink]="['/menu-catalogo/productos/producto-detalle', producto.id]">
+  <img [src]="producto.imagenPrincipal" [alt]="producto.nombre || 'Producto'">
+</a>
+<p><b>{{ producto.nombre || 'Sin nombre' }}</b></p>
+
+<!-- Precio con descuento si aplica -->
+<p *ngIf="producto.tienePromocion">
+  <span class="precio-original">{{ producto.precio | currency }}</span>
+  <span class="precio-descuento">{{ producto.precioFinal | currency }}</span>
+</p>
+<p *ngIf="!producto.tienePromocion">
+  {{ producto.precio | currency }}
+</p>
+
             <!-- Mostrar las estrellas -->
 <div class="calificacion">
   <span *ngFor="let estrella of generarEstrellasArray(producto.calificacionPromedio); let i = index">

@@ -15,6 +15,7 @@ export class CartService {
     color?: string,
     talla: string,
     precio: number,
+    precioConDescuento?: number,
     imagen: string,
     stock: number,
     talla_id: number,
@@ -33,6 +34,7 @@ export class CartService {
     color_id: number,
     talla: string,
     precio: number,
+    precioConDescuento?: number,
     imagen: string,
     stock: number,
     cantidad: number
@@ -75,6 +77,7 @@ export class CartService {
         color: producto.color || 'Color desconocido',
         talla: producto.talla,
         precio: producto.precio,
+        precioConDescuento: producto.precioConDescuento,
         imagen: producto.imagen,
         stock: producto.stock,
         talla_id: producto.talla_id,

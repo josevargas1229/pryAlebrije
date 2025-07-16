@@ -72,7 +72,7 @@ import { trigger, state, style, animate, transition, keyframes } from '@angular/
   ]
 })
 export class ListComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['temporada', 'nombre', 'precio', 'estado', 'acciones'];
+  displayedColumns: string[] = ['temporada', 'nombre', 'precio','promocion', 'estado', 'acciones'];
   productos: any[] = [];
   filteredProducts = new MatTableDataSource<any>([]);
   currentPage: number = 1;

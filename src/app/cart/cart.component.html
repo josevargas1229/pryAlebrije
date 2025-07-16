@@ -33,7 +33,16 @@
               </mat-chip-set>
             </div>
 
-            <p class="product-price">{{ item.precio | currency:'USD':'symbol':'1.2-2' }}</p>
+            <div class="product-price">
+  <ng-container *ngIf="item.precioConDescuento; else sinDescuento">
+    <span class="precio-original">{{ item.precio | currency:'USD':'symbol':'1.2-2' }}</span>
+    <span class="precio-descuento">{{ item.precioConDescuento | currency:'USD':'symbol':'1.2-2' }}</span>
+  </ng-container>
+  <ng-template #sinDescuento>
+    <span class="precio-normal">{{ item.precio | currency:'USD':'symbol':'1.2-2' }}</span>
+  </ng-template>
+</div>
+
 
             <div class="stock-info" *ngIf="item.stock <= 5">
               <mat-icon color="warn">warning</mat-icon>

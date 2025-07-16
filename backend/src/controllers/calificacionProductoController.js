@@ -1,5 +1,6 @@
 const CalificacionProducto = require('../models/CalificacionProducto');
 const { Op } = require('sequelize');
+const { crearNotificacion } = require('./notificacionController');
 
 // Obtener calificación promedio y total de calificaciones de un producto
 exports.obtenerCalificacionProducto = async (req, res) => {
@@ -68,7 +69,11 @@ exports.agregarCalificacionProducto = async (req, res) => {
               calificacion
           });
       }
-
+      await crearNotificacion({
+      mensaje: `Calificaste un producto con ${calificacion} estrella${calificacion > 1 ? 's' : ''}.`,
+      tipo: 'usuario',
+      usuario_id
+      });
       res.status(201).json({ message: 'Calificación registrada o actualizada', calificacion: nuevaCalificacion });
 
   } catch (error) {

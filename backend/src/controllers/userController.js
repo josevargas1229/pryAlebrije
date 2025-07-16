@@ -2,6 +2,7 @@
 application. Here's a breakdown of what each function does: */
 const sequelize = require('../config/database');
 const { User, Account, PassHistory } = require('../models/associations');
+const { crearNotificacion } = require('./notificacionController');
 const bcrypt = require('bcryptjs');
 // Obtener información del usuario por ID
 exports.getUserInfo = async (req, res) => {
@@ -176,7 +177,11 @@ exports.changePassword = async (req, res) => {
             account_id: account.id,
             contraseña_hash: hashedNewPassword
         });
-
+        await crearNotificacion({
+        mensaje: 'Contraseña actualizada correctamente.',
+        tipo: 'usuario',
+        usuario_id: req.user.userId
+      });
         res.status(200).json({ message: 'Contraseña actualizada con éxito' });
     } catch (error) {
         res.status(500).json({ message: 'Error al cambiar la contraseña', error: error.message });

@@ -160,6 +160,18 @@ getEstadisticasVentas(rango: 'semana' | 'mes' | 'año' = 'mes') {
   );
 }
 
+// 🧾 Registrar transacción de Mercado Pago
+registrarTransaccionMercadoPago(venta_id: number, usuario_id: number, paymentData: any): Observable<any> {
+  return this.http.post(
+    `${this.apiUrl}/mercadopago/registrar-transaccion`,
+    { venta_id, usuario_id, paymentData },
+    { withCredentials: true }
+  ).pipe(
+    catchError(this.handleError)
+  );
+}
+
+
 
 }
 

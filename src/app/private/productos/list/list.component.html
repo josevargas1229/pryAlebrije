@@ -102,6 +102,20 @@
                 <th mat-header-cell *matHeaderCellDef>Precio</th>
                 <td mat-cell *matCellDef="let producto" @rowEnter>${{producto.precio}}</td>
             </ng-container>
+            <ng-container matColumnDef="promocion">
+  <th mat-header-cell *matHeaderCellDef>Promoción</th>
+  <td mat-cell *matCellDef="let producto" @rowEnter>
+    <ng-container *ngIf="producto.promocion; else sinPromo">
+      <span class="promo-nombre">{{ producto.promocion.nombre }}</span><br>
+      <span class="promo-descuento">{{ producto.promocion.descuento }}%</span><br>
+      <span class="promo-fecha">Hasta el {{ producto.promocion.fecha_fin | date: 'shortDate' }}</span>
+    </ng-container>
+    <ng-template #sinPromo>
+      <span class="sin-promocion">Sin promoción</span>
+    </ng-template>
+  </td>
+</ng-container>
+
 
             <ng-container matColumnDef="estado">
                 <th mat-header-cell *matHeaderCellDef>Estado</th>

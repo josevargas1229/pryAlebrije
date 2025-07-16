@@ -11,12 +11,17 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { CompanyService } from '../../private/services/company.service.ts.service';
 import { SearchService } from '../../services/search.service';
 import { FormsModule } from '@angular/forms';
+import { MatMenuModule } from '@angular/material/menu';
+import { AsyncPipe, NgIf, NgFor } from '@angular/common';
+import { NotificacionService, Notificacion } from '../../services/notificacion/notificacion.service';
+import { MatDividerModule } from '@angular/material/divider';
+
 
 @Component({
   selector: 'app-header',
   standalone: true,
   imports: [RouterLink, RouterLinkActive, CommonModule, MatButtonModule, MatIconModule, ThemeSwitcherComponent,
-    MatToolbarModule, MatTooltipModule, FormsModule],
+    MatToolbarModule, MatTooltipModule, FormsModule, MatMenuModule, AsyncPipe, NgIf, NgFor, MatDividerModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss']
 })
@@ -27,13 +32,16 @@ export class HeaderComponent implements OnInit {
   logoUrl: string | undefined;
   isSearchModalOpen: boolean = false; // Controla si el modal de búsqueda está abierto
   searchText: string = ''; // Almacena el texto de búsqueda
+  notificaciones: Notificacion[] = [];
+  notificacionesNoLeidas: number = 0;
 
   constructor(
     private authService: AuthService,
     private companyService: CompanyService,
     private router: Router,
     private searchService: SearchService,
-    private cartService: CartService
+    private cartService: CartService,
+    private notificacionService: NotificacionService
   ) {}
 
   ngOnInit(): void {
@@ -46,6 +54,14 @@ export class HeaderComponent implements OnInit {
         this.authService.getUserRole().subscribe((role: number | null) => {
           if(role !== null){
             this.userRole = role;
+            this.notificacionService.getNotificaciones().subscribe(nots => {
+            console.log('🔔 Notificaciones recibidas:', nots);
+            this.notificaciones = nots;
+            this.notificacionesNoLeidas = nots.filter(n => !n.leida).length;
+            setTimeout(() => {
+            this.notificacionesNoLeidas = 0;
+            }, 180000); // 180000 ms = 3 minutos
+          });
           }
         });
       }
@@ -60,6 +76,7 @@ export class HeaderComponent implements OnInit {
       this.cartCount = cart.reduce((acc, item) => acc + item.cantidad, 0);
     });
 
+
   }
 
   // Muestra el modal de búsqueda
@@ -71,6 +88,9 @@ export class HeaderComponent implements OnInit {
   closeSearchModal() {
     this.isSearchModalOpen = false;
   }
+
+
+
 
   // Aplica el filtro de búsqueda
   applySearch() {

@@ -1,59 +1,194 @@
+<!-- pedidos.component.html -->
+<!-- Header con título y estadísticas -->
+<div class="pedidos-header">
+  <div class="header-content">
+    <h1 class="page-title">
+      <mat-icon class="title-icon">shopping_bag</mat-icon>
+      Mis Pedidos
+    </h1>
+    <div class="stats-chips" *ngIf="pedidos.length > 0">
+      <mat-chip-set>
+        <mat-chip class="stat-chip">
+          <mat-icon matChipAvatar>receipt</mat-icon>
+          {{ pedidos.length }} {{ pedidos.length === 1 ? 'Pedido' : 'Pedidos' }}
+        </mat-chip>
+        <mat-chip class="stat-chip">
+          <mat-icon matChipAvatar>attach_money</mat-icon>
+          {{ getTotalGastado() | currency }}
+        </mat-chip>
+      </mat-chip-set>
+    </div>
+  </div>
+</div>
+
+<!-- Loading spinner -->
+<div class="loading-container" *ngIf="isLoading">
+  <mat-spinner diameter="50"></mat-spinner>
+  <p class="loading-text">Cargando tus pedidos...</p>
+</div>
+
+<!-- Estado vacío -->
+<div class="empty-state" *ngIf="!isLoading && pedidos.length === 0">
+  <mat-icon class="empty-icon">shopping_cart</mat-icon>
+  <h2>No tienes pedidos aún</h2>
+  <p>Cuando realices tu primera compra, aparecerá aquí</p>
+  <button mat-raised-button color="primary" (click)="irACatalogo()">
+    <mat-icon>storefront</mat-icon>
+    Explorar Catálogo
+  </button>
+</div>
+
 <!-- Lista de pedidos -->
-<div class="pedidos-container">
-  <h1>Mis Pedidos</h1>
-  <mat-accordion multi>
-    <mat-expansion-panel *ngFor="let pedido of pedidos">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          Pedido #{{ pedido.id }}
+<div class="pedidos-container" *ngIf="!isLoading && pedidos.length > 0">
+  <mat-accordion multi class="pedidos-accordion">
+    <mat-expansion-panel *ngFor="let pedido of pedidos; trackBy: trackByPedidoId"
+                         class="pedido-panel"
+                         [class.panel-completado]="pedido.estado === 'completado'">
+
+      <!-- Header del panel -->
+      <mat-expansion-panel-header class="panel-header">
+        <mat-panel-title class="panel-title">
+          <div class="title-content">
+            <mat-icon class="pedido-icon">receipt_long</mat-icon>
+            <span class="pedido-numero">Pedido #{{ pedido.id }}</span>
+            <mat-chip class="estado-chip" [class]="getEstadoClass(pedido.estado)">
+              <mat-icon class="estado-icon">{{ getEstadoIcon(pedido.estado) }}</mat-icon>
+              {{ getEstadoTexto(pedido.estado) }}
+            </mat-chip>
+          </div>
         </mat-panel-title>
-        <mat-panel-description>
-          Fecha: {{ pedido.fecha_venta | date:'medium' }} - Total: {{ pedido.total | currency }}
+        <mat-panel-description class="panel-description">
+          <div class="description-content">
+            <div class="fecha-info">
+              <mat-icon class="info-icon">schedule</mat-icon>
+              <span>{{ pedido.fecha_venta | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="total-info">
+              <mat-icon class="info-icon">attach_money</mat-icon>
+              <span class="total-amount">{{ pedido.total | currency }}</span>
+            </div>
+          </div>
         </mat-panel-description>
       </mat-expansion-panel-header>
 
-      <mat-card class="pedido-card">
-        <mat-card-header>
-          <mat-card-title>Detalles del Pedido</mat-card-title>
-          <mat-card-subtitle>Recoger en tienda: {{ pedido.recoger_en_tienda ? 'Sí' : 'No' }}</mat-card-subtitle>
-        </mat-card-header>
-
-        <mat-card-content>
-          <p><strong>Estado:</strong> {{ pedido.estado }}</p>
-        </mat-card-content>
-
-        <mat-divider></mat-divider>
-
-        <h3>Productos Comprados</h3>
-        <div *ngIf="pedido.detalles; else noProductos">
-          <div *ngFor="let detalle of pedido.detalles" class="producto-item" (click)="verProductoDetalle(detalle.producto.id)" style="cursor: pointer;">
-            <mat-card class="producto-card">
-              <img
-                [src]="detalle.producto.imagenes.length ? detalle.producto.imagenes[0].imagen_url : 'assets/images/ropa.jpg'"
-                alt="{{ detalle.producto.tipoProducto.nombre || 'Producto sin nombre' }}"
-                width="150" height="150"
-                style="object-fit: cover; border-radius: 8px;">
-
-              <div class="producto-info">
-                <p><strong>Producto:</strong> {{ detalle.producto.tipoProducto.nombre }}</p>
-                <p><strong>Talla:</strong> {{ detalle.talla.talla }}</p>
-                <p><strong>Color:</strong>
-                  <span [style.background]="detalle.color.colorHex || 'transparent'" class="color-box"></span>
-                  {{ detalle.color.color || 'Sin color' }}
-                </p>
-                <p><strong>Cantidad:</strong> {{ detalle.cantidad }}</p>
-                <p><strong>Subtotal:</strong> {{ detalle.subtotal | currency }}</p>
+      <!-- Contenido del panel -->
+      <div class="panel-content">
+        <!-- Información del pedido -->
+        <mat-card class="pedido-info-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>info</mat-icon>
+              Información del Pedido
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="info-grid">
+              <div class="info-item">
+                <mat-icon class="info-icon">store</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Modalidad de entrega</span>
+                  <span class="info-value">{{ pedido.recoger_en_tienda ? 'Recoger en tienda' : 'Envío a domicilio' }}</span>
+                </div>
               </div>
+              <div class="info-item">
+                <mat-icon class="info-icon">flag</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Estado actual</span>
+                  <span class="info-value">{{ getEstadoTexto(pedido.estado) }}</span>
+                </div>
+              </div>
+              <div class="info-item">
+                <mat-icon class="info-icon">inventory</mat-icon>
+                <div class="info-content">
+                  <span class="info-label">Productos</span>
+                  <span class="info-value">{{ getTotalProductos(pedido) }} {{ getTotalProductos(pedido) === 1 ? 'artículo' : 'artículos' }}</span>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Productos del pedido -->
+        <div class="productos-section">
+          <h3 class="section-title">
+            <mat-icon>shopping_basket</mat-icon>
+            Productos Comprados
+          </h3>
+
+          <div *ngIf="pedido.detalles && pedido.detalles.length > 0; else noProductos"
+               class="productos-grid">
+            <mat-card *ngFor="let detalle of pedido.detalles; trackBy: trackByDetalleId"
+                      class="producto-card"
+                      (click)="verProductoDetalle(detalle.producto.id)">
+
+              <!-- Imagen del producto -->
+              <div class="producto-image-container">
+                <img [src]="detalle.producto.imagenes?.length ? detalle.producto.imagenes[0].imagen_url : 'assets/images/ropa.jpg'"
+                     [alt]="detalle.producto.tipoProducto?.nombre || 'Producto'"
+                     class="producto-image"
+                     loading="lazy">
+                <div class="cantidad-badge">
+                  <span>{{ detalle.cantidad }}</span>
+                </div>
+              </div>
+
+              <!-- Información del producto -->
+              <mat-card-content class="producto-info">
+                <h4 class="producto-nombre">{{ detalle.producto.tipoProducto?.nombre || 'Producto sin nombre' }}</h4>
+
+                <div class="producto-detalles">
+                  <div class="detalle-item">
+                    <mat-icon class="detalle-icon">straighten</mat-icon>
+                    <span class="detalle-label">Talla:</span>
+                    <span class="detalle-value">{{ detalle.talla?.talla || 'Sin talla' }}</span>
+                  </div>
+
+                  <div class="detalle-item">
+                    <mat-icon class="detalle-icon">palette</mat-icon>
+                    <span class="detalle-label">Color:</span>
+                    <div class="color-info">
+                      <span class="color-box" [style.background-color]="detalle.color?.colorHex || '#f0f0f0'"></span>
+                      <span class="detalle-value">{{ detalle.color?.color || 'Sin color' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="precio-info">
+                  <div class="precio-unitario">
+                    <span class="precio-label">Precio unitario:</span>
+                    <span class="precio-value">{{ (detalle.subtotal / detalle.cantidad) | currency }}</span>
+                  </div>
+                  <div class="subtotal">
+                    <span class="subtotal-label">Subtotal:</span>
+                    <span class="subtotal-value">{{ detalle.subtotal | currency }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+
+              <!-- Botón de acción -->
+              <mat-card-actions class="producto-actions">
+                <button mat-button color="primary" (click)="verProductoDetalle(detalle.producto.id); $event.stopPropagation()">
+                  <mat-icon>visibility</mat-icon>
+                  Ver Producto
+                </button>
+              </mat-card-actions>
             </mat-card>
           </div>
-        </div>
 
-        <ng-template #noProductos>
-          <p class="no-pedido">
-            <mat-icon>cancel</mat-icon> No hay productos en este pedido.
-          </p>
-        </ng-template>
-      </mat-card>
+          <!-- Mensaje cuando no hay productos -->
+          <ng-template #noProductos>
+            <div class="no-productos">
+              <mat-icon class="no-productos-icon">error_outline</mat-icon>
+              <p>No hay productos en este pedido</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
     </mat-expansion-panel>
   </mat-accordion>
 </div>
+
+<!-- Botón flotante para ir al catálogo -->
+<button mat-fab color="primary" class="fab-catalogo" (click)="irACatalogo()" *ngIf="!isLoading">
+  <mat-icon>add_shopping_cart</mat-icon>
+</button>

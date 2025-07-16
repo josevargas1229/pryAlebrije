@@ -32,6 +32,57 @@ header {
 
   }
 
+  /* 🔔 Contenedor de notificaciones */
+.noti-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  button {
+    position: relative;
+
+    .noti-badge {
+      background: red;
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      top: -5px;
+      right: -8px;
+      z-index: 10;
+    }
+  }
+}
+
+/* 🔄 Responsividad para badge de notificaciones */
+@media (max-width: 768px) {
+  .noti-container .noti-badge {
+    width: 16px;
+    height: 16px;
+    font-size: 10px;
+    top: -4px;
+    right: -6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .noti-container .noti-badge {
+    width: 14px;
+    height: 14px;
+    font-size: 9px;
+    top: -3px;
+    right: -5px;
+  }
+}
+
+
+
   .right-section {
     flex: 0 0 auto;
     display: flex;
