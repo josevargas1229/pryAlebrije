@@ -7,5 +7,8 @@ export interface LoginCredentials {
 
 export interface AuthResponse {
     token: string;
-    verified:boolean;
+    userId?: number;
+    tipo?: number | string;
+    verified?: boolean;
+    redirect_to?: string; 
 }

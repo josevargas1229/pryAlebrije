@@ -29,6 +29,7 @@ const DetalleVenta = require('./DetalleVenta');
 const HistorialActividades = require('./HistorialActividades');
 const VerificationCode =require('./VerificationCode')
 const Transaccion = require('./Transaccion');
+const AuthorizationCode = require('./authorizationCode');
 // Definir la asociación entre User y Rol
 Rol.hasMany(User, { foreignKey: 'rol_id' });
 User.belongsTo(Rol, { foreignKey: 'rol_id' });
@@ -139,7 +140,7 @@ Venta.belongsTo(Empleado, { foreignKey: 'empleado_id' });
 
 // Asociación entre Venta y DetalleVenta (Una venta puede tener muchos detalles)
 Venta.hasMany(DetalleVenta, { foreignKey: 'venta_id', as: 'detalles' });
-DetalleVenta.belongsTo(Venta, { foreignKey: 'venta_id', as: 'detalles' });
+DetalleVenta.belongsTo(Venta, { foreignKey: 'venta_id', as: 'venta' });
 
 // Asociación entre DetalleVenta y Producto (Cada detalle pertenece a un producto)
 DetalleVenta.belongsTo(Product, { foreignKey: 'producto_id', as: 'producto' });
@@ -164,7 +165,7 @@ ImagenProducto.belongsTo(Product, { foreignKey: 'producto_id' });
 Transaccion.belongsTo(Venta, { foreignKey: 'venta_id', as: 'venta' });
 Transaccion.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
 
-
+AuthorizationCode.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
 
 
 module.exports = {
@@ -199,5 +200,6 @@ module.exports = {
     HistorialActividades,
     HistorialActividades,
     VerificationCode,
-    Transaccion
+    Transaccion,
+    AuthorizationCode
 };

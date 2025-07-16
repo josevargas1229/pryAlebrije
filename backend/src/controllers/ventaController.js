@@ -393,5 +393,179 @@ exports.getEstadisticasVentas = async (req, res) => {
   }
 };
 
+exports.getEstadisticasVentasAlexa = async (req, res) => {
+  try {
+    const { rango = 'mes', fechaInicio, fechaFin } = req.query;
 
+    // Validar fechas si se proporcionan
+    if (fechaInicio && fechaFin) {
+      if (!isValidDate(fechaInicio) || !isValidDate(fechaFin)) {
+        return res.status(400).json({ error: 'Fechas inválidas.' });
+      }
+    }
+
+
+
+    // Definir el rango de fechas según el parámetro 'rango' o fechas personalizadas
+    let whereClause = {};
+    let agrupamiento;
+    let campo;
+
+    switch (rango.toLowerCase()) {
+      case 'hoy':
+        whereClause.fecha_venta = {
+          [Op.gte]: sequelize.literal('CURDATE()')
+        };
+        agrupamiento = sequelize.fn('DATE', sequelize.col('fecha_venta'));
+        campo = [agrupamiento, 'dia'];
+        break;
+      case 'ayer':
+        whereClause.fecha_venta = {
+          [Op.between]: [
+            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 DAY)'),
+            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 DAY)')
+          ]
+        };
+        agrupamiento = sequelize.fn('DATE', sequelize.col('fecha_venta'));
+        campo = [agrupamiento, 'dia'];
+        break;
+      case 'semana':
+        whereClause.fecha_venta = {
+          [Op.gte]: sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 7 DAY)')
+        };
+        agrupamiento = sequelize.literal('WEEK(fecha_venta, 1)');
+        campo = [agrupamiento, 'semana'];
+        break;
+      case 'semana_pasada':
+        whereClause.fecha_venta = {
+          [Op.between]: [
+            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 14 DAY)'),
+            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 7 DAY)')
+          ]
+        };
+        agrupamiento = sequelize.literal('WEEK(fecha_venta, 1)');
+        campo = [agrupamiento, 'semana'];
+        break;
+      case 'mes':
+        whereClause.fecha_venta = {
+          [Op.gte]: sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 MONTH)')
+        };
+        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m');
+        campo = [agrupamiento, 'mes'];
+        break;
+      case 'mes_pasado':
+        whereClause.fecha_venta = {
+          [Op.between]: [
+            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 2 MONTH)'),
+            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 MONTH)')
+          ]
+        };
+        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m');
+        campo = [agrupamiento, 'mes'];
+        break;
+      case 'trimestre':
+        whereClause.fecha_venta = {
+          [Op.gte]: sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 3 MONTH)')
+        };
+        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m');
+        campo = [agrupamiento, 'mes'];
+        break;
+      case 'año':
+        whereClause.fecha_venta = {
+          [Op.gte]: sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 YEAR)')
+        };
+        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m');
+        campo = [agrupamiento, 'mes'];
+        break;
+      case 'custom':
+        if (!fechaInicio || !fechaFin) {
+          return res.status(400).json({ error: 'Se requieren fechaInicio y fechaFin para rango personalizado.' });
+        }
+        whereClause.fecha_venta = {
+          [Op.between]: [new Date(fechaInicio), new Date(fechaFin)]
+        };
+        agrupamiento = sequelize.fn('DATE', sequelize.col('fecha_venta'));
+        campo = [agrupamiento, 'dia'];
+        break;
+      default:
+        return res.status(400).json({ error: 'Rango no válido.' });
+    }
+
+    // Productos más vendidos (top 3 para respuestas breves en voz)
+    const productosMasVendidos = await DetalleVenta.findAll({
+  where: {
+    '$venta.fecha_venta$': whereClause.fecha_venta
+  },
+  attributes: [
+    'producto_id',
+    [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas'],
+    [sequelize.fn('SUM', sequelize.col('subtotal')), 'totalIngresos']
+  ],
+  group: ['producto_id'],
+  order: [[sequelize.literal('totalVendidas'), 'DESC']],
+  limit: 3,
+  include: [
+    {
+      model: Venta,
+      as: 'venta',
+      attributes: [], // no necesitas campos de venta, solo su fecha para el filtro
+    },
+    {
+      model: Product,
+      as: 'producto',
+      attributes: ['id'],
+      include: [
+        {
+          model: TipoProducto,
+          as: 'tipoProducto',
+          attributes: ['nombre']
+        }
+      ]
+    }
+  ]
+});
+    // Obtener estadísticas de ventas
+    const ventasAgrupadas = await Venta.findAll({
+      where: whereClause,
+      attributes: [
+        campo,
+        [sequelize.fn('COUNT', sequelize.col('id')), 'totalVentas'],
+        [sequelize.fn('SUM', sequelize.col('total')), 'totalIngresos']
+      ],
+      group: [agrupamiento],
+      order: [[agrupamiento, 'ASC']]
+    });
+
+    // Formatear respuesta optimizada para Alexa
+    const resumen = {
+    totalVentas: 0,
+    totalIngresos: 0,
+    productosMasVendidos: productosMasVendidos.map(p => ({
+      nombre: p?.producto?.tipoProducto?.nombre || 'Producto desconocido',
+      totalVendidas: parseInt(p.dataValues.totalVendidas || 0),
+      totalIngresos: parseFloat(p.dataValues.totalIngresos || 0)
+    })),
+    periodos: ventasAgrupadas.map(v => ({
+      periodo: v.dataValues[campo[1]] || 'desconocido',
+      totalVentas: parseInt(v.dataValues.totalVentas || 0),
+      totalIngresos: parseFloat(v.dataValues.totalIngresos || 0)
+    }))
+  };
+
+  resumen.totalVentas = resumen.periodos.reduce((acc, v) => acc + v.totalVentas, 0);
+  resumen.totalIngresos = resumen.periodos.reduce((acc, v) => acc + v.totalIngresos, 0);
+
+console.log('Resumen de estadísticas de ventas:', resumen);
+    return res.status(200).json(resumen);
+  } catch (error) {
+    console.error('Error en getEstadisticasVentas:', error);
+    return res.status(500).json({ error: 'No se pudieron obtener las estadísticas de ventas.' });
+  }
+};
+
+// Función auxiliar para validar fechas
+function isValidDate(dateString) {
+  const date = new Date(dateString);
+  return date instanceof Date && !isNaN(date);
+}
 

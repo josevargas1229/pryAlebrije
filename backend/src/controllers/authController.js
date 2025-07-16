@@ -1,11 +1,12 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User, Account, PassHistory, IntentoFallido, ConfiguracionSistema, HistorialBloqueos } = require('../models/associations');
+const { User, Account, PassHistory, IntentoFallido, ConfiguracionSistema, HistorialBloqueos,AuthorizationCode } = require('../models/associations');
 const { Op } = require('sequelize');
 require('dotenv').config();
 const { RecaptchaEnterpriseServiceClient } = require('@google-cloud/recaptcha-enterprise');
 const EmailTemplate = require('../models/EmailTemplate');
 const transporter = require('../config/emailConfig');
+const { v4: uuidv4 } = require('uuid');
 /**
  * The `createAssessment` function uses the Google reCAPTCHA Enterprise API to assess the validity of 
  * a CAPTCHA token provided by the client during a user action (e.g., login). It returns the score 
@@ -69,83 +70,114 @@ async function handleFailedLogin(accountId, ip) {
 }
 
 exports.login = async (req, res, next) => {
-    try {
-        const { email, contraseña } = req.body.credenciales;
-        const { captchaToken } = req.body;
-        let ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
-        if (ip === "::1") ip = "127.0.0.1"; // Manejo de localhost en IPv6
+  try {
+    const { email, contraseña } = req.body.credenciales;
+    const { captchaToken, client_id, redirect_uri, state } = req.body;
+    let ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+    if (ip === "::1") ip = "127.0.0.1";
 
-        const [configuracion, user] = await Promise.all([
-            ConfiguracionSistema.findOne(),
-            User.findOne({
-                where: { email },
-                include: [{ model: Account, attributes: ["id", "contraseña_hash", "bloqueada", "bloqueada_desde", "verified"] }]
-            })
-        ]);
+    const [configuracion, user] = await Promise.all([
+      ConfiguracionSistema.findOne(),
+      User.findOne({
+        where: { email },
+        include: [{ model: Account, attributes: ["id", "contraseña_hash", "bloqueada", "bloqueada_desde", "verified"] }]
+      })
+    ]);
 
-        if (!configuracion) {
-            return res.status(500).json({ message: "Error en la configuración del sistema." });
-        }
-
-        if (!user) {
-            return res.status(401).json({ message: "Credenciales inválidas" });
-        }
-
-        const { max_intentos_login, tiempo_bloqueo_minutos } = configuracion;
-
-        const { locked, tiempoDesbloqueo } = await checkAccountLock(user.Account, tiempo_bloqueo_minutos);
-        if (locked) {
-            return res.status(403).json({ message: `Cuenta bloqueada hasta ${tiempoDesbloqueo.toLocaleTimeString()}` });
-        }
-
-        const [intentosFallidos, score] = await Promise.all([
-            IntentoFallido.count({ where: { account_id: user.Account.id } }),
-            createAssessment({
-                projectID: process.env.PROJECT_ID,
-                recaptchaKey: process.env.RECAPTCHA_KEY,
-                token: captchaToken,
-                recaptchaAction: "LOGIN"
-            })
-        ]);
-
-        if (score === null || score < 0.5) {
-            return res.status(400).json({ message: "Fallo en reCAPTCHA. Intente nuevamente." });
-        }
-
-        if (intentosFallidos >= max_intentos_login) {
-            await user.Account.update({ bloqueada: true, bloqueada_desde: new Date() });
-            await HistorialBloqueos.create({ account_id: user.Account.id, intentos: intentosFallidos, fechaBloqueo: new Date() });
-            return res.status(403).json({ message: "Cuenta bloqueada por intentos fallidos." });
-        }
-
-        const isMatch = await bcrypt.compare(contraseña, user.Account.contraseña_hash);
-        if (!isMatch) {
-            await handleFailedLogin(user.Account.id, ip);
-            return res.status(401).json({ message: "Credenciales inválidas" });
-        }
-
-        await Promise.all([
-            IntentoFallido.destroy({ where: { account_id: user.Account.id } }),
-            user.Account.update({ ultimo_acceso: new Date() })
-        ]);
-
-        const token = jwt.sign(
-            { userId: user.id, tipo: user.rol_id },
-            process.env.JWT_SECRET,
-            { expiresIn: "1h" }
-        );
-
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: process.env.NODE_ENV === "production" ? "None" : "Strict",
-            maxAge: 3600000
-        });
-
-        res.json({ userId: user.id, tipo: user.rol_id, verified: user.Account.verified });
-    } catch (error) {
-        next(error);
+    if (!configuracion) {
+      return res.status(500).json({ message: "Error en la configuración del sistema." });
     }
+
+    if (!user) {
+      return res.status(401).json({ message: "Credenciales inválidas" });
+    }
+
+    const { max_intentos_login, tiempo_bloqueo_minutos } = configuracion;
+
+    const { locked, tiempoDesbloqueo } = await checkAccountLock(user.Account, tiempo_bloqueo_minutos);
+    if (locked) {
+      return res.status(403).json({ message: `Cuenta bloqueada hasta ${tiempoDesbloqueo.toLocaleTimeString()}` });
+    }
+
+    const [intentosFallidos, score] = await Promise.all([
+      IntentoFallido.count({ where: { account_id: user.Account.id } }),
+      createAssessment({
+        projectID: process.env.PROJECT_ID,
+        recaptchaKey: process.env.RECAPTCHA_KEY,
+        token: captchaToken,
+        recaptchaAction: "LOGIN"
+      })
+    ]);
+
+    if (score === null || score < 0.5) {
+      return res.status(400).json({ message: "Fallo en reCAPTCHA. Intente nuevamente." });
+    }
+
+    if (intentosFallidos >= max_intentos_login) {
+      await user.Account.update({ bloqueada: true, bloqueada_desde: new Date() });
+      await HistorialBloqueos.create({ account_id: user.Account.id, intentos: intentosFallidos, fechaBloqueo: new Date() });
+      return res.status(403).json({ message: "Cuenta bloqueada por intentos fallidos." });
+    }
+
+    const isMatch = await bcrypt.compare(contraseña, user.Account.contraseña_hash);
+    if (!isMatch) {
+      await handleFailedLogin(user.Account.id, ip);
+      return res.status(401).json({ message: "Credenciales inválidas" });
+    }
+
+    // Verificar que el usuario es administrador
+    if (user.rol_id !== 1) {
+      return res.status(403).json({ message: "Solo los administradores pueden acceder" });
+    }
+
+    await Promise.all([
+      IntentoFallido.destroy({ where: { account_id: user.Account.id } }),
+      user.Account.update({ ultimo_acceso: new Date() })
+    ]);
+
+    // Si es una solicitud de Alexa (Account Linking)
+    if (client_id && redirect_uri && state) {
+      // Validar Client ID
+      if (client_id !== process.env.ALEXA_CLIENT_ID) {
+        return res.status(401).json({ message: "Client ID inválido" });
+      }
+
+      // Generar código de autorización
+      const authCode = uuidv4();
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // Expira en 10 minutos
+      await AuthorizationCode.create({
+        code: authCode,
+        user_id: user.id,
+        client_id,
+        expires_at: expiresAt
+      });
+
+      // Redirigir al redirect_uri de Alexa
+      const redirectUrl = `${redirect_uri}?code=${authCode}&state=${state}`;
+    console.log('Redirigiendo a:', redirectUrl);
+
+    // En vez de redirigir, RESPONDE con la URL
+    return res.status(200).json({ redirect_to: redirectUrl });
+    }
+
+    // Login normal
+    const token = jwt.sign(
+      { userId: user.id, tipo: user.rol_id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Strict",
+      maxAge: 3600000
+    });
+
+    res.json({ userId: user.id, tipo: user.rol_id, verified: user.Account.verified });
+  } catch (error) {
+    next(error);
+  }
 };
 /**
  * The `changePassword` function allows an authenticated user to change their account password.
@@ -397,3 +429,26 @@ exports.completeEmailVerification = async (req, res, next) => {
         return res.status(500).json({ error: 'Error interno al verificar el correo' });
     }
 };
+exports.generateAccessToken = async (req, res) => {
+  console.log('Solicitud de token recibida desde Alexa:', req.body);
+  const { code, client_id, grant_type } = req.body;
+
+  if (client_id !== process.env.ALEXA_CLIENT_ID) {
+    return res.status(401).json({ error: 'Credenciales de cliente inválidas' });
+  }
+
+  if (grant_type !== 'authorization_code') {
+    return res.status(400).json({ error: 'Grant type no soportado' });
+  }
+
+  const authCode = await AuthorizationCode.findOne({ where: { code, client_id } });
+  if (!authCode || authCode.expires_at < new Date()) {
+    return res.status(400).json({ error: 'Código de autorización inválido o expirado' });
+  }
+
+  const user = await User.findByPk(authCode.user_id);
+  const accessToken = jwt.sign({ userId: user.id, tipo: user.rol_id, scope: 'sales:read' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  await authCode.destroy(); // Evitar reutilización
+  return res.status(200).json({ access_token: accessToken, token_type: 'Bearer', expires_in: 3600 });
+
+};  

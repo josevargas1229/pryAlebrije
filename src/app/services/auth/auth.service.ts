@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError, fromEvent, Subscription } from 'rxjs';
-import { catchError, tap, map, first } from 'rxjs/operators';
+import { catchError, tap, map, first, switchMap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment.development';
 import { AuthResponse, LoginCredentials } from './auth.models';
@@ -25,25 +25,64 @@ export class AuthService implements OnDestroy {
   }
 
   // Login
-  login(credenciales: LoginCredentials, captchaToken: string, rememberMe: boolean): Observable<any> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, { credenciales, captchaToken }, { withCredentials: true }).pipe(
-      tap(response => {
-        if (response.verified) {
-          this.currentUserSubject.next(response);
-          this.authStatusChecked = true;
-          this.startInactivityListener(); // Iniciar el contador tras login exitoso
-          if (rememberMe) {
-            this.setRememberMe(credenciales);
-          } else {
-            this.clearRememberMe();
-          }
-        } else {
-          this.router.navigate(['/verificacion'], { queryParams: { email: credenciales.email } });
-        }
-      }),
-      catchError(this.handleLoginError)
-    );
+  login(
+  credenciales: LoginCredentials,
+  captchaToken: string,
+  rememberMe: boolean,
+  clientId?: string | null,
+  redirectUri?: string | null,
+  state?: string | null
+): Observable<any> {
+  const body: any = {
+    credenciales,
+    captchaToken
+  };
+
+  if (clientId && redirectUri && state) {
+    body.client_id = clientId;
+    body.redirect_uri = redirectUri;
+    body.state = state;
   }
+
+  return this.http.post<AuthResponse>(`${this.apiUrl}/login`, body, {
+    withCredentials: true
+  }).pipe(
+    tap(response => {
+      // 🔁 Redirección hacia Alexa (Account Linking)
+      if (clientId && redirectUri && state && response.redirect_to) {
+        window.location.href = response.redirect_to;
+        return;
+      }
+
+      // ✅ Usuario verificado: login normal
+      if (response?.verified) {
+        this.currentUserSubject.next(response);
+        this.authStatusChecked = true;
+        this.startInactivityListener();
+
+        if (rememberMe) {
+          this.setRememberMe(credenciales);
+        } else {
+          this.clearRememberMe();
+        }
+
+        const redirectUrl = localStorage.getItem('redirectUrl') || '/';
+        this.router.navigate([redirectUrl]).then(() => {
+          localStorage.removeItem('redirectUrl');
+        });
+      }
+
+      // ❌ Usuario no verificado: redirigir a verificación
+      else if (!clientId) {
+        this.router.navigate(['/verificacion'], {
+          queryParams: { email: credenciales.email }
+        });
+      }
+    }),
+    catchError(this.handleLoginError)
+  );
+}
+
   getCurrentUser(): Observable<Usuario | null> {
     return this.currentUserSubject.asObservable();
   }
