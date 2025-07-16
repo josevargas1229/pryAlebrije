@@ -75,7 +75,7 @@ exports.login = async (req, res, next) => {
     const { captchaToken, client_id, redirect_uri, state } = req.body;
     let ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
     if (ip === "::1") ip = "127.0.0.1";
-
+    console.log(captchaToken, client_id, redirect_uri, state, ip);
     const [configuracion, user] = await Promise.all([
       ConfiguracionSistema.findOne(),
       User.findOne({
