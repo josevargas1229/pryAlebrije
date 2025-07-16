@@ -455,8 +455,6 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
       }
     }
 
-
-
     // Definir el rango de fechas según el parámetro 'rango' o fechas personalizadas
     let whereClause = {};
     let agrupamiento;
@@ -544,37 +542,43 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
 
     // Productos más vendidos (top 3 para respuestas breves en voz)
     const productosMasVendidos = await DetalleVenta.findAll({
-  where: {
-    '$venta.fecha_venta$': whereClause.fecha_venta
-  },
-  attributes: [
-    'producto_id',
-    [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas'],
-    [sequelize.fn('SUM', sequelize.col('subtotal')), 'totalIngresos']
-  ],
-  group: ['producto_id'],
-  order: [[sequelize.literal('totalVendidas'), 'DESC']],
-  limit: 3,
-  include: [
-    {
-      model: Venta,
-      as: 'venta',
-      attributes: [], // no necesitas campos de venta, solo su fecha para el filtro
-    },
-    {
-      model: Product,
-      as: 'producto',
-      attributes: ['id'],
+      where: {
+        '$venta.fecha_venta$': whereClause.fecha_venta
+      },
+      attributes: [
+        'producto_id',
+        [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas'],
+        [sequelize.fn('SUM', sequelize.col('subtotal')), 'totalIngresos']
+      ],
+      group: ['producto_id'],
+      order: [[sequelize.literal('totalVendidas'), 'DESC']],
+      limit: 3,
       include: [
         {
-          model: TipoProducto,
-          as: 'tipoProducto',
-          attributes: ['nombre']
+          model: Venta,
+          as: 'venta',
+          attributes: [],
+        },
+        {
+          model: Product,
+          as: 'producto',
+          attributes: ['id'],
+          include: [
+            {
+              model: TipoProducto,
+              as: 'tipoProducto',
+              attributes: ['nombre']
+            },
+            {
+              model: ImagenProducto,
+              as: 'imagenes',
+              attributes: ['url_imagen']
+            }
+          ]
         }
       ]
-    }
-  ]
-});
+    });
+
     // Obtener estadísticas de ventas
     const ventasAgrupadas = await Venta.findAll({
       where: whereClause,
@@ -589,24 +593,25 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
 
     // Formatear respuesta optimizada para Alexa
     const resumen = {
-    totalVentas: 0,
-    totalIngresos: 0,
-    productosMasVendidos: productosMasVendidos.map(p => ({
-      nombre: p?.producto?.tipoProducto?.nombre || 'Producto desconocido',
-      totalVendidas: parseInt(p.dataValues.totalVendidas || 0),
-      totalIngresos: parseFloat(p.dataValues.totalIngresos || 0)
-    })),
-    periodos: ventasAgrupadas.map(v => ({
-      periodo: v.dataValues[campo[1]] || 'desconocido',
-      totalVentas: parseInt(v.dataValues.totalVentas || 0),
-      totalIngresos: parseFloat(v.dataValues.totalIngresos || 0)
-    }))
-  };
+      totalVentas: 0,
+      totalIngresos: 0,
+      productosMasVendidos: productosMasVendidos.map(p => ({
+        nombre: p?.producto?.tipoProducto?.nombre || 'Producto desconocido',
+        totalVendidas: parseInt(p.dataValues.totalVendidas || 0),
+        totalIngresos: parseFloat(p.dataValues.totalIngresos || 0),
+        imagenes: p?.producto?.imagenes?.map(img => img.url_imagen) || [] // Incluir las URLs de las imágenes
+      })),
+      periodos: ventasAgrupadas.map(v => ({
+        periodo: v.dataValues[campo[1]] || 'desconocido',
+        totalVentas: parseInt(v.dataValues.totalVentas || 0),
+        totalIngresos: parseFloat(v.dataValues.totalIngresos || 0)
+      }))
+    };
 
-  resumen.totalVentas = resumen.periodos.reduce((acc, v) => acc + v.totalVentas, 0);
-  resumen.totalIngresos = resumen.periodos.reduce((acc, v) => acc + v.totalIngresos, 0);
+    resumen.totalVentas = resumen.periodos.reduce((acc, v) => acc + v.totalVentas, 0);
+    resumen.totalIngresos = resumen.periodos.reduce((acc, v) => acc + v.totalIngresos, 0);
 
-console.log('Resumen de estadísticas de ventas:', resumen);
+    console.log('Resumen de estadísticas de ventas:', resumen);
     return res.status(200).json(resumen);
   } catch (error) {
     console.error('Error en getEstadisticasVentas:', error);
@@ -619,4 +624,3 @@ function isValidDate(dateString) {
   const date = new Date(dateString);
   return date instanceof Date && !isNaN(date);
 }
-
