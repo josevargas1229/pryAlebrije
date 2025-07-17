@@ -465,8 +465,6 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
       }
     }
 
-
-
     // Definir el rango de fechas según el parámetro 'rango' o fechas personalizadas
     let whereClause = {};
     let agrupamiento;
@@ -554,22 +552,17 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
 
     // Productos más vendidos (top 3 para respuestas breves en voz)
     const productosMasVendidos = await DetalleVenta.findAll({
-      where: {
-        '$venta.fecha_venta$': whereClause.fecha_venta
-      },
       attributes: [
         'producto_id',
         [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas'],
         [sequelize.fn('SUM', sequelize.col('subtotal')), 'totalIngresos']
       ],
-      group: ['producto_id'],
-      order: [[sequelize.literal('totalVendidas'), 'DESC']],
-      limit: 3,
       include: [
         {
           model: Venta,
           as: 'venta',
-          attributes: [], // no necesitas campos de venta, solo su fecha para el filtro
+          attributes: [],
+          where: whereClause
         },
         {
           model: Product,
@@ -589,8 +582,12 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
             }
           ]
         }
-      ]
+      ],
+      group: ['producto_id', 'producto.id', 'producto->tipoProducto.id', 'producto->tipoProducto.nombre'],
+      order: [[sequelize.literal('totalVendidas'), 'DESC']],
+      limit: 3
     });
+
     // Obtener estadísticas de ventas
     const ventasAgrupadas = await Venta.findAll({
       where: whereClause,
@@ -626,7 +623,7 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
     console.log('Resumen de estadísticas de ventas:', resumen);
     return res.status(200).json(resumen);
   } catch (error) {
-    console.error('Error en getEstadisticasVentas:', error);
+    console.error('Error en getEstadisticasVentasAlexa:', error);
     return res.status(500).json({ error: 'No se pudieron obtener las estadísticas de ventas.' });
   }
 };
