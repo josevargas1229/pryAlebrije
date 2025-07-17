@@ -316,22 +316,28 @@ exports.createPreference = async (req, res) => {
   try {
     const { productos, total } = req.body;
 
+    console.log('📦 Productos recibidos para preferencia MP:', productos);
+
+
     if (!productos || productos.length === 0) {
       return res.status(400).json({ message: "No se pueden procesar preferencias sin productos." });
     }
 
     const items = productos.map((p, i) => {
-      if (!p.precio_unitario || !p.cantidad) {
-        throw new Error(`Producto [${i}] inválido: falta precio o cantidad`);
-      }
+  if (!p || p.precio_unitario == null || p.cantidad == null) {
+    console.warn(`❌ Producto [${i}] inválido:`, p);
+    throw new Error(`Producto [${i}] inválido: falta precio o cantidad`);
+  }
 
-      return {
-        title: p.nombre || 'Producto sin nombre',
-        unit_price: Number(p.precio_unitario),
-        quantity: Number(p.cantidad),
-        currency_id: 'MXN'
-      };
-    });
+  return {
+    title: p.nombre || `Producto ${i + 1}`,
+    unit_price: +p.precio_unitario,
+    quantity: +p.cantidad,
+    currency_id: 'MXN'
+  };
+});
+
+
 
     const preference = {
   items,
@@ -339,14 +345,19 @@ exports.createPreference = async (req, res) => {
     success: 'http://localhost:4200/success',
     failure: 'http://localhost:4200/failure',
     pending: 'http://localhost:4200/pending'
-  }
-  // auto_return: 'approved' <== quítalo temporalmente
+  },
+  //auto_return: 'approved'
 };
 
 
-    const response = await preferenceClient.create({ body: preference });
-    return res.status(200).json({ id: response.id });
+   const response = await preferenceClient.create({ body: preference });
 
+const sandboxInitPoint = response.sandbox_init_point || response.init_point;
+
+return res.status(200).json({
+  id: response.id,
+  sandbox_init_point: sandboxInitPoint
+});
   } catch (error) {
     console.error('❌ Error al crear preferencia:', error);
     return res.status(500).json({ error: 'Error al crear preferencia con Mercado Pago.' });

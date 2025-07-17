@@ -87,15 +87,27 @@
         </mat-card>
 
         <!-- Mercado Pago -->
-        <mat-card class="payment-card" [attr.aria-label]="'Botón de pago con Mercado Pago'">
-          <div class="payment-header">
-            <div class="payment-icon">
-              <mat-icon>credit_card</mat-icon>
-            </div>
-            <div class="payment-title">Mercado Pago</div>
-          </div>
-          <div id="mercado-pago-button" class="payment-button"></div>
-        </mat-card>
+        <!-- Mercado Pago -->
+<mat-card class="payment-card" [attr.aria-label]="'Botón de pago con Mercado Pago'">
+  <div class="payment-header">
+    <div class="payment-icon">
+      <mat-icon>credit_card</mat-icon>
+    </div>
+    <div class="payment-title">Mercado Pago</div>
+  </div>
+  <div id="mercado-pago-button" class="payment-button">
+    <button
+  mat-raised-button
+  color="primary"
+  class="mercadopago-button"
+  *ngIf="mercadoPagoUrl"
+  (click)="abrirMercadoPago()">
+  Ir a pagar con Mercado Pago
+</button>
+
+  </div>
+</mat-card>
+
 
       </div>
     </form>

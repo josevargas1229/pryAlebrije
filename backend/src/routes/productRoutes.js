@@ -50,4 +50,10 @@ router.delete(
     productoController.deleteProducto
 );
 
+// Calificaciones
+router.get('/:producto_id/calificaciones', productoController.obtenerCalificacionProducto);
+router.post('/:producto_id/calificaciones', authenticateToken, productoController.agregarCalificacionProducto);
+router.get('/:producto_id/calificaciones/:usuario_id', authenticateToken, productoController.verificarCalificacionUsuario);
+
+
 module.exports = router;

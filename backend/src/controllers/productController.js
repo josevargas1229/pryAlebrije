@@ -1,5 +1,6 @@
 const sequelize = require('../config/database');
 const { Product, Empleado, Temporada, Categoria, TipoProducto, Marca, Talla, ColorProducto, ProductoTallaColor, ImagenProducto } = require('../models/associations');
+const CalificacionProducto = require('../models/CalificacionProducto');
 const { Op } = require('sequelize');
 const { uploadImageToCloudinary } = require('../config/cloudinaryConfig');
 const logAudit = require('../utils/audit');
@@ -281,85 +282,114 @@ exports.getAllFilters = async (req, res) => {
 };
 exports.getAllProductos = async (req, res) => {
   try {
-      const { page = 1, pageSize = 10 } = req.query;
-      const offset = (page - 1) * pageSize;
+    const { page = 1, pageSize = 10 } = req.query;
+    const offset = (page - 1) * pageSize;
 
-      const whereCondition = buildWhereCondition(req.query);
-      const productoTallaColorWhere = buildProductoTallaColorWhere(req.query);
+    const whereCondition = buildWhereCondition(req.query);
+    const productoTallaColorWhere = buildProductoTallaColorWhere(req.query);
 
-      const { count, rows } = await Product.findAndCountAll({
-          where: whereCondition,
-          limit: parseInt(pageSize),
-          offset,
-          attributes: ['id', 'precio', 'estado'],
+    const { count, rows } = await Product.findAndCountAll({
+      where: whereCondition,
+      limit: parseInt(pageSize),
+      offset,
+      attributes: ['id', 'precio', 'estado'],
+      include: [
+        { model: Temporada, attributes: ['temporada'] },
+        { model: Categoria, attributes: ['nombre'] },
+        { model: TipoProducto, attributes: ['nombre'] },
+        { model: Marca, attributes: ['nombre'] },
+        {
+          model: ProductoTallaColor,
+          required: false,
+          where: productoTallaColorWhere,
+          attributes: ['stock'],
           include: [
-              { model: Temporada, attributes: ['temporada'] },
-              { model: Categoria, attributes: ['nombre'] },
-              { model: TipoProducto, attributes: ['nombre'] },
-              { model: Marca, attributes: ['nombre'] },
-              {
-                  model: ProductoTallaColor,
-                  required: false,
-                  where: productoTallaColorWhere,
-                  attributes: ['stock'],
-                  include: [
-                      { model: Talla, attributes: ['id', 'talla'] },
-                      {
-                          model: ColorProducto,
-                          attributes: ['id', 'color', 'colorHex'],
-                          include: [
-                              {
-                                  model: ImagenProducto,
-                                  attributes: ['id', 'imagen_url', 'producto_id'],
-                                  where: { producto_id: sequelize.col('Producto.id') },
-                                  required: false,
-                              }
-                          ]
-                      },
-                  ],
-              },
-              {
-    model: Promocion,
-    as: 'promociones',
-    attributes: ['id', 'nombre', 'descuento', 'fecha_inicio', 'fecha_fin'],
-    where: {
-        fecha_inicio: { [Op.lte]: new Date() },
-        fecha_fin: { [Op.gte]: new Date() }
-    },
-    required: false
-}
+            { model: Talla, attributes: ['id', 'talla'] },
+            {
+              model: ColorProducto,
+              attributes: ['id', 'color', 'colorHex'],
+              include: [
+                {
+                  model: ImagenProducto,
+                  attributes: ['id', 'imagen_url', 'producto_id'],
+                  where: { producto_id: sequelize.col('Producto.id') },
+                  required: false
+                }
+              ]
+            }
+          ]
+        },
+        {
+          model: Promocion,
+          as: 'promociones',
+          attributes: ['id', 'nombre', 'descuento', 'fecha_inicio', 'fecha_fin'],
+          where: {
+            fecha_inicio: { [Op.lte]: new Date() },
+            fecha_fin: { [Op.gte]: new Date() }
+          },
+          required: false
+        }
+      ],
+      distinct: true
+    });
 
-          ],
+    // Obtener todas las calificaciones en una sola consulta
+    const productoIds = rows.map(p => p.id);
+    const calificaciones = await CalificacionProducto.findAll({
+      where: { producto_id: { [Op.in]: productoIds } },
+      attributes: ['producto_id', 'calificacion']
+    });
 
-          distinct: true,
-      });
+    // Agrupar por producto
+    const resumenCalificaciones = productoIds.reduce((acc, id) => {
+      const cal = calificaciones.filter(c => c.producto_id === id);
+      if (cal.length === 0) {
+        acc[id] = { promedio: 0, total: 0 };
+      } else {
+        const suma = cal.reduce((sum, c) => sum + c.calificacion, 0);
+        acc[id] = {
+          promedio: parseFloat((suma / cal.length).toFixed(1)),
+          total: cal.length
+        };
+      }
+      return acc;
+    }, {});
 
-      const productosCatalogo = rows.map(producto => ({
-          ...mapProductoCatalogo(producto),
-          imagenes: producto.ProductoTallaColors.flatMap(ptc =>
-              (ptc.ColorProducto?.ImagenProductos || []).filter(img => img.producto_id === producto.id).map(img => ({
-                  url: img.imagen_url,
-                  color_id: ptc.color_id
-              }))
-          ),
-          variantes: producto.ProductoTallaColors.map(ptc => ({
-              talla: ptc.Talla?.talla,
-              color: ptc.ColorProducto?.color,
-              stock: ptc.stock
-          }))
-      }));
+    const productosCatalogo = rows.map(producto => {
+      const resumen = resumenCalificaciones[producto.id] || { promedio: 0, total: 0 };
 
-      res.json({
-          productos: productosCatalogo,
-          currentPage: parseInt(page),
-          pageSize: parseInt(pageSize),
-          totalItems: count,
-      });
+      return {
+        ...mapProductoCatalogo(producto),
+        calificacionPromedio: resumen.promedio,
+        totalCalificaciones: resumen.total,
+        imagenes: producto.ProductoTallaColors.flatMap(ptc =>
+          (ptc.ColorProducto?.ImagenProductos || [])
+            .filter(img => img.producto_id === producto.id)
+            .map(img => ({
+              url: img.imagen_url,
+              color_id: ptc.color_id
+            }))
+        ),
+        variantes: producto.ProductoTallaColors.map(ptc => ({
+          talla: ptc.Talla?.talla,
+          color: ptc.ColorProducto?.color,
+          stock: ptc.stock
+        }))
+      };
+    });
+
+    res.json({
+      productos: productosCatalogo,
+      currentPage: parseInt(page),
+      pageSize: parseInt(pageSize),
+      totalItems: count
+    });
   } catch (error) {
-      console.error('Error al obtener productos:', error);
-      res.status(500).json({ message: 'Error al obtener el catálogo de productos' });
+    console.error('Error al obtener productos:', error);
+    res.status(500).json({ message: 'Error al obtener el catálogo de productos' });
   }
 };
+
 
 exports.updateProducto = async (req, res) => {
     const transaction = await sequelize.transaction();
@@ -464,6 +494,17 @@ exports.getProductoById = async (req, res) => {
         }
 
         const productoTransformado = mapProductoTransformado(producto);
+        // Incluir promedio y total de calificaciones
+const calificaciones = await CalificacionProducto.findAll({ where: { producto_id: id } });
+if (calificaciones.length > 0) {
+    const suma = calificaciones.reduce((acc, c) => acc + c.calificacion, 0);
+    productoTransformado.calificacionPromedio = parseFloat((suma / calificaciones.length).toFixed(1));
+    productoTransformado.totalCalificaciones = calificaciones.length;
+} else {
+    productoTransformado.calificacionPromedio = 0;
+    productoTransformado.totalCalificaciones = 0;
+}
+
 
         // Agregar la promoción (si existe) al objeto de respuesta
         productoTransformado.promocion = producto.promociones?.[0]
@@ -482,6 +523,90 @@ exports.getProductoById = async (req, res) => {
         res.status(500).json({ message: 'Error al obtener el producto', error: error.message });
     }
 };
+
+exports.obtenerCalificacionProducto = async (req, res) => {
+  try {
+      const { producto_id } = req.params;
+
+      const calificaciones = await CalificacionProducto.findAll({
+          where: { producto_id }
+      });
+
+      if (calificaciones.length === 0) {
+          return res.status(200).json({ promedio: 0, total: 0, detalle: [] });
+      }
+
+      const suma = calificaciones.reduce((acc, c) => acc + c.calificacion, 0);
+      const promedio = suma / calificaciones.length;
+
+      const detalle = [5, 4, 3, 2, 1].map(estrella => ({
+          estrella,
+          cantidad: calificaciones.filter(c => c.calificacion === estrella).length
+      }));
+
+      res.status(200).json({
+          promedio: parseFloat(promedio.toFixed(1)),
+          total: calificaciones.length,
+          detalle
+      });
+  } catch (error) {
+      res.status(500).json({ message: 'Error al obtener calificación del producto', error });
+  }
+};
+
+exports.agregarCalificacionProducto = async (req, res) => {
+  try {
+      const { producto_id, usuario_id, calificacion } = req.body;
+
+      if (!producto_id || !usuario_id || !calificacion) {
+          return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+      }
+
+      if (calificacion < 1 || calificacion > 5) {
+          return res.status(400).json({ message: 'La calificación debe estar entre 1 y 5' });
+      }
+
+      const existente = await CalificacionProducto.findOne({ where: { producto_id, usuario_id } });
+      let nueva;
+
+      if (existente) {
+          existente.calificacion = calificacion;
+          await existente.save();
+          nueva = existente;
+      } else {
+          nueva = await CalificacionProducto.create({ producto_id, usuario_id, calificacion });
+      }
+
+      await crearNotificacion({
+          mensaje: `Calificaste un producto con ${calificacion} estrella${calificacion > 1 ? 's' : ''}.`,
+          tipo: 'usuario',
+          usuario_id
+      });
+
+      res.status(201).json({ message: 'Calificación registrada o actualizada', calificacion: nueva });
+
+  } catch (error) {
+      console.error("Error al registrar calificación:", error);
+      res.status(500).json({ message: 'Error al registrar calificación', error });
+  }
+};
+
+exports.verificarCalificacionUsuario = async (req, res) => {
+  try {
+      const { producto_id, usuario_id } = req.params;
+
+      const existente = await CalificacionProducto.findOne({ where: { producto_id, usuario_id } });
+
+      if (!existente) {
+          return res.status(404).json({ message: 'No se encontró la calificación.' });
+      }
+
+      res.status(200).json({ yaCalifico: true, calificacion: existente.calificacion });
+  } catch (error) {
+      res.status(500).json({ message: 'Error al verificar la calificación', error });
+  }
+};
+
 
 exports.deleteProducto = async (req, res) => {
     const transaction = await sequelize.transaction();

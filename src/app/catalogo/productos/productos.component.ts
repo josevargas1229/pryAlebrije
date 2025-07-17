@@ -161,13 +161,6 @@ export class ProductosComponent implements OnInit, AfterViewInit {
 
     }, 1000);
   }
-
-  obtenerCalificacionProducto(producto: any): void {
-    this.calificacionService.getCalificacionProducto(producto.id).subscribe(response => {
-      producto.calificacionPromedio = response.promedio;
-    });
-  }
-
   generarEstrellasArray(calificacionPromedio: number): number[] {
     return Array(5).fill(0).map((_, index) => index < calificacionPromedio ? 1 : 0);
   }
@@ -205,9 +198,6 @@ export class ProductosComponent implements OnInit, AfterViewInit {
 
 
         this.productos = [...this.productos, ...nuevosProductos];
-        this.productos.forEach(producto => {
-          this.obtenerCalificacionProducto(producto);
-        });
         this.filteredProductos = [...this.productos];
         this.totalItems = response.totalItems || this.productos.length;
         this.currentPage++;

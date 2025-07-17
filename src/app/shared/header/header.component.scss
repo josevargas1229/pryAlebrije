@@ -270,5 +270,15 @@ header {
       gap: 8px;
     }
   }
+
+
 }
+  ::ng-deep mat-toolbar {
+  background-color: #0b1a33 !important;
+  color: white !important;
+}
+::ng-deep mat-toolbar .mat-icon {
+  color: white !important;
+}
+
 }

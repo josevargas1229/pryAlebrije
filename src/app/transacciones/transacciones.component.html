@@ -1,78 +1,225 @@
-<mat-card>
-  <h2>Historial de Transacciones</h2>
-  <table mat-table [dataSource]="transacciones" class="mat-elevation-z2">
+<div class="transacciones-container">
+  <!-- Header con filtros -->
+  <div class="header-section">
+    <h1 class="page-title">
+      <mat-icon>receipt_long</mat-icon>
+      Historial de Transacciones
+    </h1>
 
-    <!-- ID -->
-    <ng-container matColumnDef="id">
-      <th mat-header-cell *matHeaderCellDef> ID </th>
-      <td mat-cell *matCellDef="let t"> {{ t.id }} </td>
-    </ng-container>
+    <div class="filters-container">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Buscar transacción</mat-label>
+        <input matInput placeholder="ID, usuario, método..."
+               (keyup)="applyFilter($event)" #input>
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
 
-    <!-- Usuario -->
-    <ng-container matColumnDef="usuario">
-      <th mat-header-cell *matHeaderCellDef> Usuario </th>
-      <td mat-cell *matCellDef="let t"> {{ t.usuario_id }} </td>
-    </ng-container>
-
-    <!-- Venta -->
-    <ng-container matColumnDef="venta_id">
-      <th mat-header-cell *matHeaderCellDef> Venta </th>
-      <td mat-cell *matCellDef="let t"> {{ t.venta_id }} </td>
-    </ng-container>
-
-    <!-- Estado -->
-    <ng-container matColumnDef="estado">
-      <th mat-header-cell *matHeaderCellDef> Estado </th>
-      <td mat-cell *matCellDef="let t">
-        <span [style.color]="getEstadoColor(t.estado)">
-          {{ t.estado | titlecase }}
-        </span>
-      </td>
-    </ng-container>
-
-    <!-- Método -->
-    <ng-container matColumnDef="metodo">
-      <th mat-header-cell *matHeaderCellDef> Método </th>
-      <td mat-cell *matCellDef="let t"> {{ t.metodo_pago }} </td>
-    </ng-container>
-
-    <!-- Fecha -->
-   <ng-container matColumnDef="created_at">
-  <th mat-header-cell *matHeaderCellDef> Fecha </th>
-  <td mat-cell *matCellDef="let element">{{ element.created_at | date: 'medium' }}</td>
-</ng-container>
-
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-</mat-card>
-
-<mat-card class="estadisticas-card">
-  <div class="header">
-    <h2>📊 Estadísticas de Ventas</h2>
-    <mat-form-field appearance="outline" class="selector">
-      <mat-label>Rango</mat-label>
-      <mat-select [(value)]="rangoSeleccionado" (selectionChange)="cargarEstadisticas()">
-        <mat-option value="semana">Semana</mat-option>
-        <mat-option value="mes">Mes</mat-option>
-        <mat-option value="año">Año</mat-option>
-      </mat-select>
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Estado</mat-label>
+        <mat-select [(value)]="filtroEstado" (selectionChange)="filtrarPorEstado()">
+          <mat-option value="">Todos</mat-option>
+          <mat-option value="aprobado">Aprobado</mat-option>
+          <mat-option value="pendiente">Pendiente</mat-option>
+          <mat-option value="fallido">Fallido</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
   </div>
 
-  <div class="botones">
-    <button mat-stroked-button color="primary" (click)="setChart('vendidos')">📦 Más vendidos</button>
-    <button mat-stroked-button color="accent" (click)="setChart('dia')">📈 Ventas por {{ rangoSeleccionado }}</button>
+  <!-- Resumen de transacciones -->
+  <div class="summary-cards">
+    <mat-card class="summary-card success">
+      <div class="card-content">
+        <div class="card-icon">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="card-info">
+          <h3>{{ resumen.aprobadas }}</h3>
+          <p>Aprobadas</p>
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="summary-card warning">
+      <div class="card-content">
+        <div class="card-icon">
+          <mat-icon>schedule</mat-icon>
+        </div>
+        <div class="card-info">
+          <h3>{{ resumen.pendientes }}</h3>
+          <p>Pendientes</p>
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="summary-card error">
+      <div class="card-content">
+        <div class="card-icon">
+          <mat-icon>error</mat-icon>
+        </div>
+        <div class="card-info">
+          <h3>{{ resumen.fallidas }}</h3>
+          <p>Fallidas</p>
+        </div>
+      </div>
+    </mat-card>
+
+    <mat-card class="summary-card info">
+      <div class="card-content">
+        <div class="card-icon">
+          <mat-icon>receipt</mat-icon>
+        </div>
+        <div class="card-info">
+          <h3>{{ resumen.total }}</h3>
+          <p>Total</p>
+        </div>
+      </div>
+    </mat-card>
   </div>
 
-  <div class="chart-container">
-    <canvas baseChart
-            [datasets]="currentChartData"
-            [labels]="currentLabels"
-            [options]="barChartOptions"
-            [type]="currentChartType">
-    </canvas>
-  </div>
-</mat-card>
+  <!-- Tabla de transacciones -->
+  <mat-card class="table-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>list</mat-icon>
+        Transacciones Recientes
+      </mat-card-title>
+      <div class="header-actions">
+        <button mat-icon-button matTooltip="Actualizar" (click)="recargarTransacciones()">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
 
+    <mat-card-content>
+      <div class="table-container">
+        <table mat-table [dataSource]="dataSource" matSort class="transactions-table">
+          <!-- ID -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+            <td mat-cell *matCellDef="let t">
+              <span class="transaction-id">#{{ t.id }}</span>
+            </td>
+          </ng-container>
+
+          <!-- Usuario -->
+          <ng-container matColumnDef="usuario">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Usuario </th>
+            <td mat-cell *matCellDef="let t">
+              <div class="user-info">
+                <mat-icon class="user-icon">person</mat-icon>
+                <span>{{ t.usuario_nombre || 'Usuario #' + t.usuario_id }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Venta -->
+          <ng-container matColumnDef="venta_id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Venta </th>
+            <td mat-cell *matCellDef="let t">
+              <span class="venta-id">Venta #{{ t.venta_id }}</span>
+            </td>
+          </ng-container>
+          <!-- Estado -->
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Estado </th>
+            <td mat-cell *matCellDef="let t">
+              <mat-chip-set>
+                <mat-chip [class]="'chip-' + t.estado.toLowerCase()">
+                  <mat-icon matChipAvatar>{{ getEstadoIcon(t.estado) }}</mat-icon>
+                  {{ t.estado | titlecase }}
+                </mat-chip>
+              </mat-chip-set>
+            </td>
+          </ng-container>
+
+          <!-- Método -->
+          <ng-container matColumnDef="metodo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Método </th>
+            <td mat-cell *matCellDef="let t">
+              <div class="payment-method">
+                <mat-icon class="method-icon">{{ getMetodoIcon(t.metodo_pago) }}</mat-icon>
+                <span>{{ t.metodo_pago | titlecase }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Fecha -->
+          <ng-container matColumnDef="created_at">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha </th>
+            <td mat-cell *matCellDef="let t">
+              <div class="date-info">
+                <span class="date">{{ t.created_at | date: 'dd/MM/yyyy' }}</span>
+                <span class="time">{{ t.created_at | date: 'HH:mm' }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+              [class.selected-row]="selectedTransaction?.id === row.id"
+              (click)="selectTransaction(row)"></tr>
+        </table>
+
+        <!-- Estado vacío -->
+        <div class="empty-state" *ngIf="dataSource.data.length === 0">
+          <mat-icon>receipt_long</mat-icon>
+          <h3>No se encontraron transacciones</h3>
+          <p>Intenta ajustar los filtros o verifica que existan transacciones.</p>
+        </div>
+      </div>
+
+      <!-- Paginador -->
+      <mat-paginator
+        [pageSizeOptions]="[5, 10, 20, 50]"
+        showFirstLastButtons
+        aria-label="Seleccionar página">
+      </mat-paginator>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Estadísticas -->
+  <mat-card class="estadisticas-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>analytics</mat-icon>
+        Estadísticas de Ventas
+      </mat-card-title>
+      <div class="chart-controls">
+        <mat-form-field appearance="outline">
+          <mat-label>Rango</mat-label>
+          <mat-select [(value)]="rangoSeleccionado" (selectionChange)="cargarEstadisticas()">
+            <mat-option value="semana">Semana</mat-option>
+            <mat-option value="mes">Mes</mat-option>
+            <mat-option value="año">Año</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="chart-buttons">
+        <mat-button-toggle-group [(value)]="chartType" (change)="cambiarTipoGrafico($event)">
+          <mat-button-toggle value="vendidos">
+            <mat-icon>inventory</mat-icon>
+            Productos más vendidos
+          </mat-button-toggle>
+          <mat-button-toggle value="dia">
+            <mat-icon>show_chart</mat-icon>
+            Ventas por {{ rangoSeleccionado }}
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+      </div>
+
+      <div class="chart-container">
+        <canvas baseChart
+                [datasets]="currentChartData"
+                [labels]="currentLabels"
+                [options]="barChartOptions"
+                [type]="currentChartType">
+        </canvas>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
