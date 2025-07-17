@@ -585,10 +585,7 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
             }
           ]
         }
-      ],
-      group: ['producto_id', 'producto.id', 'producto->tipoProducto.id', 'producto->tipoProducto.nombre', 'producto->imagenes.id', 'producto->imagenes.url_imagen'],
-      order: [[sequelize.literal('totalVendidas'), 'DESC']],
-      limit: 3
+      ]
     });
 
     // Obtener estadísticas de ventas
