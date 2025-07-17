@@ -454,7 +454,6 @@ exports.registrarTransaccionMercadoPago = async (req, res) => {
   }
 };
 
-
 exports.getEstadisticasVentasAlexa = async (req, res) => {
   try {
     const { rango = 'mes', fechaInicio, fechaFin } = req.query;
@@ -558,9 +557,6 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
         [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas'],
         [sequelize.fn('SUM', sequelize.col('subtotal')), 'totalIngresos']
       ],
-      group: ['producto_id'],
-      order: [[sequelize.literal('totalVendidas'), 'DESC']],
-      limit: 3,
       include: [
         {
           model: Venta,
@@ -581,11 +577,15 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
             {
               model: ImagenProducto,
               as: 'imagenes',
-              attributes: ['url_imagen']
+              attributes: ['url_imagen'],
+              required: false // LEFT JOIN para incluir productos sin imágenes
             }
           ]
         }
-      ]
+      ],
+      group: ['producto_id', 'producto.id', 'producto->tipoProducto.id', 'producto->tipoProducto.nombre'],
+      order: [[sequelize.literal('totalVendidas'), 'DESC']],
+      limit: 3
     });
 
     // Obtener estadísticas de ventas
