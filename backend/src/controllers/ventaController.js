@@ -553,9 +553,6 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
 
     // Productos más vendidos (top 3 para respuestas breves en voz)
     const productosMasVendidos = await DetalleVenta.findAll({
-      where: {
-        '$venta.fecha_venta$': whereClause.fecha_venta
-      },
       attributes: [
         'producto_id',
         [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas'],
@@ -569,6 +566,7 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
           model: Venta,
           as: 'venta',
           attributes: [],
+          where: whereClause
         },
         {
           model: Product,
@@ -587,7 +585,10 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
             }
           ]
         }
-      ]
+      ],
+      group: ['producto_id', 'producto.id', 'producto->tipoProducto.id', 'producto->tipoProducto.nombre', 'producto->imagenes.id', 'producto->imagenes.url_imagen'],
+      order: [[sequelize.literal('totalVendidas'), 'DESC']],
+      limit: 3
     });
 
     // Obtener estadísticas de ventas
@@ -610,7 +611,7 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
         nombre: p?.producto?.tipoProducto?.nombre || 'Producto desconocido',
         totalVendidas: parseInt(p.dataValues.totalVendidas || 0),
         totalIngresos: parseFloat(p.dataValues.totalIngresos || 0),
-        imagenes: p?.producto?.imagenes?.map(img => img.url_imagen) || [] // Incluir las URLs de las imágenes
+        imagenes: p?.producto?.imagenes?.map(img => img.url_imagen) || []
       })),
       periodos: ventasAgrupadas.map(v => ({
         periodo: v.dataValues[campo[1]] || 'desconocido',
@@ -625,7 +626,7 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
     console.log('Resumen de estadísticas de ventas:', resumen);
     return res.status(200).json(resumen);
   } catch (error) {
-    console.error('Error en getEstadisticasVentas:', error);
+    console.error('Error en getEstadisticasVentasAlexa:', error);
     return res.status(500).json({ error: 'No se pudieron obtener las estadísticas de ventas.' });
   }
 };
