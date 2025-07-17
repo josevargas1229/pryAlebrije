@@ -9,14 +9,18 @@ header {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
+
+    // .hamburger-btn {
+    //   margin-right: 8px;
+    //   display: none; /* Oculto por defecto en pantallas grandes */
+    // }
+
     .logo {
       height: 50px;
-      /* Reducir el tamaño del logo */
     }
+
     button {
       margin-right: 12px;
-
-      /* Reducir el margen */
       mat-icon {
         font-size: 22px;
       }
@@ -271,4 +275,16 @@ header {
     }
   }
 }
+@media (max-width: 768px) {
+    .left-section .hamburger-btn {
+      display: block; /* Mostrar botón en pantallas medianas */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .left-section .hamburger-btn {
+      display: block;
+    }
+  }
 }
+
