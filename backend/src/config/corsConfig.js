@@ -4,7 +4,9 @@ const cors = require('cors');
 require('dotenv').config();
 const corsOptions = {
     origin: function (origin, callback) {
-        const whitelist = process.env.CORS_WHITELIST ? process.env.CORS_WHITELIST.split(',') : [];
+        const whitelist = process.env.CORS_WHITELIST ? process.env.CORS_WHITELIST.split(',') : ['*'];
+        console.log('Origin recibido:', origin); // Depuración
+    console.log('Whitelist:', whitelist);
         if (whitelist.indexOf(origin) !== -1 || !origin) {
             callback(null, true);
         } else {
@@ -12,7 +14,7 @@ const corsOptions = {
         }
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization','Access-Control-Allow-Origin','x-csrf-token'],
+    allowedHeaders: ['Content-Type', 'Authorization','x-csrf-token'],
     credentials: true,
     optionsSuccessStatus: 200
 };

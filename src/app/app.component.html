@@ -1,10 +1,10 @@
-<div class="page-container">
-  <app-header></app-header>
-  <lib-toastify-toast-container></lib-toastify-toast-container>
-  <div class="layout">
-    <aside class="sidebar-wrapper">
-      <app-sidebar></app-sidebar>
-    </aside>
+<mat-sidenav-container class="page-container">
+  <mat-sidenav #sidenav mode="side" [opened]="!isSidebarCollapsed" [ngClass]="{'collapsed': isSidebarCollapsed}">
+    <app-sidebar (toggleSidebar)="toggleSidebar()"></app-sidebar>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <app-header (sidebarToggle)="toggleSidebar()"></app-header>
+    <lib-toastify-toast-container></lib-toastify-toast-container>
     <main class="main-content">
       <p-breadcrumb class="breadcrumb-container" [model]="BreadcrumbItems">
         <ng-template #item let-item>
@@ -23,7 +23,7 @@
       </p-breadcrumb>
       <router-outlet></router-outlet>
     </main>
-  </div>
-  <app-scroll-to-top></app-scroll-to-top>
-  <app-footer></app-footer>
-</div>
+    <app-footer></app-footer>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+<app-scroll-to-top></app-scroll-to-top>

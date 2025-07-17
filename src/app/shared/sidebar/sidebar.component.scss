@@ -12,33 +12,56 @@
   background-color: #0b1a33;
   display: flex;
   flex-direction: column;
-  padding: 20px 0;
-  flex: none; /* Evita que el sidenav crezca más de lo necesario */
-  overflow-y: auto;
-}
-
-/* Sticky behavior añadido */
-.mat-sidenav {
-  flex: 1;
-  height: 100vh; /* Ocupa toda la pantalla */
+  padding: 0; /* Eliminado padding para control total desde mat-nav-list */
+  flex: none;
+  overflow: hidden; /* Evita desbordamiento */
+  transition: width 0.3s ease; /* Animación para el cambio de ancho */
+  height: 100vh;
   min-height: 100vh;
-  background-color: #0b1a33;
-  overflow-y: auto; /* Desplazamiento interno */
   z-index: 10;
 }
 
+.logo {
+  width: 70px;
+  height: 70px;
+  margin-bottom: 20px;
+  align-self: center;
+  position: sticky; /* CAMBIO: Logo también sticky */
+  top: 0;
+  z-index: 12;
+  background-color: #0b1a33; /* CAMBIO: Fondo para que no se vea transparente */
+}
+/* Estado colapsado del sidebar */
+.mat-sidenav.collapsed {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Lista de navegación sticky */
+.mat-nav-list {
+  position: sticky;
+  top: 10px; /* CAMBIO: Ajustado para que esté debajo del logo */
+  z-index: 11;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px; /* CAMBIO: Solo padding horizontal */
+  background-color: #0b1a33; /* CAMBIO: Fondo para que no se vea transparente */
+  overflow-y: auto; /* CAMBIO: Scroll si hay muchos elementos */
+}
 
 /* Estilo de los enlaces en la lista de navegación */
 .mat-nav-list a {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column; /* Mantiene ícono sobre texto */
+  align-items: center; /* Centra horizontalmente */
+  justify-content: center; /* Centra verticalmente */
   text-decoration: none;
   color: white;
   width: 100%;
   padding: 10px 0;
   transition: background 0.3s;
+  margin-bottom: 15px;
 }
 
 /* Efecto hover */
@@ -58,29 +81,36 @@
   padding: 10px;
   border-radius: 10px;
   cursor: pointer;
-  margin-bottom: 10px;
+  margin: 10px auto; /* Centrado horizontalmente */
   width: 80px;
   text-align: center;
   color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Íconos de Material */
 .mat-icon {
   font-size: 24px;
-  margin-bottom: 4px;
+  margin-right: 8px; /* Espacio entre ícono y texto */
+  margin-bottom: -6px;
   color: white;
+  line-height: 1; /* Evita desalineación vertical */
 }
 
 /* Texto de los enlaces */
 .mat-nav-list span {
   font-size: 12px;
   color: white;
+  line-height: 1; /* Evita desalineación vertical */
 }
 
 /* Contenido principal */
 .mat-sidenav-content {
   padding: 16px;
-  flex: 1; /* Hace que el contenido principal ocupe el espacio disponible */
+  flex: 1; /* Ocupa el espacio disponible */
 }
 
 /* Barra superior fija */
@@ -89,36 +119,46 @@
   top: 0;
   z-index: 2;
 }
-.sidenav a {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  color: white;
-  width: 100%;
-  padding: 10px 0;
-  transition: background 0.3s;
-}
 
-.sidenav a:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.sidenav a.active {
-  background-color: rgba(255, 255, 255, 0.2);
-}
 /* Estilos responsivos */
 @media (max-width: 768px) {
   .mat-sidenav {
-    width: 60px;
+    width: 80px; /* Ancho reducido en pantallas medianas */
   }
 
   .mat-nav-list span {
-    display: none;
+    font-size: 10px; /* Texto más pequeño */
   }
 
   .mat-nav-list a {
-    padding: 15px 0;
+    padding: 8px 0;
+  }
+
+  .logout-btn {
+    width: 60px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mat-sidenav {
+    width: 60px; /* Ancho mínimo en pantallas pequeñas */
+    position: fixed;
+    left: 0;
+    top: 0;
+  }
+
+  .mat-nav-list span {
+    display: none; /* Oculta el texto en pantallas pequeñas */
+  }
+
+  .mat-nav-list a {
+    padding: 12px 0; /* Más espacio para íconos solos */
+  }
+
+  .logout-btn {
+    width: 40px;
+    padding: 6px;
+    font-size: 10px;
   }
 }

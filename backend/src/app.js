@@ -46,6 +46,7 @@ app.use(corsConfig);
 
 // Middleware para parsear JSON
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use(rateLimit);
@@ -57,7 +58,19 @@ app.get('/csrf-token', (req, res) => {
 });
 
 // Middleware de protección CSRF
-app.use(doubleCsrfProtection);
+app.use((req, res, next) => {
+  // Excluir rutas específicas del CSRF (por ejemplo, las usadas por Alexa)
+  const csrfExcludedRoutes = [
+    '/auth/token' // token exchange de Alexa
+  ];
+
+  if (csrfExcludedRoutes.includes(req.path)) {
+    return next();
+  }
+
+  return doubleCsrfProtection(req, res, next);
+});
+
 
 // Integrar Morgan con Winston para el registro de solicitudes HTTP
 app.use(morgan('combined', {
