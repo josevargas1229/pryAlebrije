@@ -581,26 +581,16 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
               required: false // LEFT JOIN para incluir productos sin imágenes
             }
           ]
-        },
-        {
-          model: ProductoTallaColor,
-          as: 'productoTallaColor',
-          attributes: ['talla_id', 'color_id'],
-          include: [
-            {
-              model: Talla,
-              as: 'talla',
-              attributes: ['nombre']
-            },
-            {
-              model: ColorProducto,
-              as: 'color',
-              attributes: ['nombre']
-            }
-          ],
-          required: false // LEFT JOIN para incluir detalles sin tallas/colores específicos
         }
       ],
+      where: sequelize.literal(`
+        EXISTS (
+          SELECT 1 FROM productos_tallas_colores ptc
+          WHERE ptc.producto_id = DetalleVenta.producto_id
+          AND ptc.talla_id = DetalleVenta.talla_id
+          AND ptc.color_id = DetalleVenta.color_id
+        )
+      `),
       group: ['DetalleVenta.producto_id'], // Agrupar por producto_id
       order: [[sequelize.literal('totalVendidas'), 'DESC']],
       limit: 3
@@ -626,9 +616,7 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
         nombre: p?.producto?.tipoProducto?.nombre || 'Producto desconocido',
         totalVendidas: parseInt(p.dataValues.totalVendidas || 0),
         totalIngresos: parseFloat(p.dataValues.totalIngresos || 0),
-        imagenes: p?.producto?.imagenes?.map(img => img.imagen_url) || [],
-        talla: p?.productoTallaColor?.talla?.nombre || 'Sin talla',
-        color: p?.productoTallaColor?.color?.nombre || 'Sin color'
+        imagenes: p?.producto?.imagenes?.map(img => img.imagen_url) || []
       })),
       periodos: ventasAgrupadas.map(v => ({
         periodo: v.dataValues[campo[1]] || 'desconocido',
