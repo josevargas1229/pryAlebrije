@@ -12,10 +12,6 @@
           <mat-icon matChipAvatar>receipt</mat-icon>
           {{ pedidos.length }} {{ pedidos.length === 1 ? 'Pedido' : 'Pedidos' }}
         </mat-chip>
-        <mat-chip class="stat-chip">
-          <mat-icon matChipAvatar>attach_money</mat-icon>
-          {{ getTotalGastado() | currency }}
-        </mat-chip>
       </mat-chip-set>
     </div>
   </div>
@@ -187,8 +183,3 @@
     </mat-expansion-panel>
   </mat-accordion>
 </div>
-
-<!-- Botón flotante para ir al catálogo -->
-<button mat-fab color="primary" class="fab-catalogo" (click)="irACatalogo()" *ngIf="!isLoading">
-  <mat-icon>add_shopping_cart</mat-icon>
-</button>

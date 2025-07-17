@@ -6,7 +6,7 @@ const userController = require('../controllers/userController');
 const { doubleCsrfProtection } = require('../config/csrfConfig');
 
 router.post('/login', doubleCsrfProtection, authController.login);
-router.post('/change-password', authenticateToken, authController.changePassword);
+router.post('/change-password', authenticateToken, authController.changePassword); 
 router.post('/register', doubleCsrfProtection, userController.createUser);
 router.get('/check-auth', authenticateToken, authController.checkAuth);
 router.post('/send-link', authController.sendVerificationLink);

@@ -133,23 +133,27 @@ capturarOrdenPaypal(orderID: string, venta_id: number, usuario_id: number): Obse
   );
 }
 
- crearPreferenciaMercadoPago(productos: ProductoParaPago[], total: number): Observable<{ id: string }> {
+crearPreferenciaMercadoPago(productos: ProductoParaPago[], total: number): Observable<{ id: string; sandbox_init_point: string }> {
   const productosFormateados = productos.map(p => ({
     nombre: p.nombre,
     precio_unitario: Number(p.precio_unitario),
     cantidad: Number(p.cantidad)
   }));
 
-  console.log("📦 Enviando preferencia a backend:", { productos: productosFormateados, total });
-
-  return this.http.post<{ id: string }>(
+  return this.http.post<{ id: string; sandbox_init_point?: string; init_point?: string }>(
     `${this.apiUrl}/mercadopago/create-preference`,
     { productos: productosFormateados, total },
     { withCredentials: true }
   ).pipe(
+    map(res => ({
+      id: res.id,
+      // 🔽 Normaliza el campo esperado para evitar undefined
+      sandbox_init_point: res.sandbox_init_point ?? res.init_point ?? ''
+    })),
     catchError(this.handleError)
   );
 }
+
 
 getEstadisticasVentas(rango: 'semana' | 'mes' | 'año' = 'mes') {
   return this.http.get<any>(

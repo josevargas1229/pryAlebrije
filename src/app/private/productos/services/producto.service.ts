@@ -185,4 +185,14 @@ export class ProductoService {
   updateTemporada(id: number, temporada: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/temporada/${id}`, { temporada });
   }
+
+
+// Agregar o actualizar calificación
+agregarCalificacionProducto(producto_id: number, calificacion: number, usuario_id: number): Observable<any> {
+  return this.http.post(`${this.apiUrl}/producto/${producto_id}/calificaciones`, {
+    producto_id,
+    calificacion,
+    usuario_id
+  });
+}
 }

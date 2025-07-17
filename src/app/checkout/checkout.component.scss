@@ -131,6 +131,32 @@
   line-height: 1.5;
 }
 
+#mercado-pago-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+
+  .mercadopago-button {
+    width: 100% !important;
+    max-width: 300px;
+    font-size: 16px;
+    padding: 12px 20px;
+    border-radius: 10px !important;
+    background-color: #009ee3 !important;
+    color: white !important;
+    font-weight: 600;
+    text-transform: none;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #007cb9 !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+
 /* Responsive design */
 @media (max-width: 768px) {
   .back-button {

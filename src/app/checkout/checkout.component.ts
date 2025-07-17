@@ -29,6 +29,8 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
   isProcessing: boolean = false;
   usuario: any = null;
   userRole: number | null = null;
+  mercadoPagoUrl: string | null = null;
+
 
   @ViewChild('paypalButton', { static: false }) paypalButton!: ElementRef;
   paypalRendered: boolean = false;
@@ -70,6 +72,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit {
             this.loadMercadoPagoScript()
               .then(() => this.renderMercadoPagoButton())
               .catch(err => console.error('❌ Error al cargar Mercado Pago:', err));
+
           }
         }
       });
@@ -207,21 +210,9 @@ renderMercadoPagoButton(): void {
       localStorage.setItem('carrito', JSON.stringify(this.cartItems));
       localStorage.setItem('recogerEnTienda', JSON.stringify(this.recogerEnTienda));
 
-      const mp = new (window as any).MercadoPago(environment.MERCADOPAGO_PUBLIC_KEY, {
-        locale: 'es-MX'
-      });
+      this.mercadoPagoUrl = response.sandbox_init_point || (response as any).init_point;
 
-      mp.checkout({
-        preference: {
-          id: response.id
-        },
-        render: {
-          container: '#mercado-pago-button',
-          label: 'Pagar con Mercado Pago'
-        }
-      });
 
-      this.mercadoPagoRendered = true;
     },
     error => {
       console.error('❌ Error creando preferencia:', error);
@@ -229,6 +220,13 @@ renderMercadoPagoButton(): void {
     }
   );
 }
+
+abrirMercadoPago(): void {
+  if (this.mercadoPagoUrl) {
+    window.open(this.mercadoPagoUrl, '_blank');
+  }
+}
+
   procesarPedido(): void {
     if (!this.usuario || !this.usuario.userId) {
       alert('Debes iniciar sesión para completar la compra.');
