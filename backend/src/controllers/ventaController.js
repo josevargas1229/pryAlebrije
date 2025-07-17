@@ -583,7 +583,7 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
           ]
         }
       ],
-      group: ['producto_id', 'producto.id', 'producto->tipoProducto.id', 'producto->tipoProducto.nombre'],
+      group: ['producto_id'],
       order: [[sequelize.literal('totalVendidas'), 'DESC']],
       limit: 3
     });
