@@ -577,13 +577,31 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
             {
               model: ImagenProducto,
               as: 'imagenes',
-              attributes: ['url_imagen'],
+              attributes: ['imagen_url'],
               required: false // LEFT JOIN para incluir productos sin imágenes
             }
           ]
+        },
+        {
+          model: ProductoTallaColor,
+          as: 'productoTallaColor',
+          attributes: ['talla_id', 'color_id'],
+          include: [
+            {
+              model: Talla,
+              as: 'talla',
+              attributes: ['nombre']
+            },
+            {
+              model: ColorProducto,
+              as: 'color',
+              attributes: ['nombre']
+            }
+          ],
+          required: false // LEFT JOIN para incluir detalles sin tallas/colores específicos
         }
       ],
-      group: ['producto_id'],
+      group: ['DetalleVenta.producto_id'], // Agrupar por producto_id
       order: [[sequelize.literal('totalVendidas'), 'DESC']],
       limit: 3
     });
@@ -608,7 +626,9 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
         nombre: p?.producto?.tipoProducto?.nombre || 'Producto desconocido',
         totalVendidas: parseInt(p.dataValues.totalVendidas || 0),
         totalIngresos: parseFloat(p.dataValues.totalIngresos || 0),
-        imagenes: p?.producto?.imagenes?.map(img => img.url_imagen) || []
+        imagenes: p?.producto?.imagenes?.map(img => img.imagen_url) || [],
+        talla: p?.productoTallaColor?.talla?.nombre || 'Sin talla',
+        color: p?.productoTallaColor?.color?.nombre || 'Sin color'
       })),
       periodos: ventasAgrupadas.map(v => ({
         periodo: v.dataValues[campo[1]] || 'desconocido',
