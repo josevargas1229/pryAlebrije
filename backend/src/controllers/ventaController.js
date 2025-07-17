@@ -552,17 +552,22 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
 
     // Productos más vendidos (top 3 para respuestas breves en voz)
     const productosMasVendidos = await DetalleVenta.findAll({
+      where: {
+        '$venta.fecha_venta$': whereClause.fecha_venta
+      },
       attributes: [
         'producto_id',
         [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas'],
         [sequelize.fn('SUM', sequelize.col('subtotal')), 'totalIngresos']
       ],
+      group: ['producto_id', 'producto.id', 'producto->tipoProducto.id', 'producto->tipoProducto.nombre'],
+      order: [[sequelize.literal('totalVendidas'), 'DESC']],
+      limit: 3,
       include: [
         {
           model: Venta,
           as: 'venta',
           attributes: [],
-          where: whereClause
         },
         {
           model: Product,
@@ -582,10 +587,7 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
             }
           ]
         }
-      ],
-      group: ['producto_id', 'producto.id', 'producto->tipoProducto.id', 'producto->tipoProducto.nombre'],
-      order: [[sequelize.literal('totalVendidas'), 'DESC']],
-      limit: 3
+      ]
     });
 
     // Obtener estadísticas de ventas
