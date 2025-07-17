@@ -44,7 +44,6 @@ export const routes: Routes = [
   { path: 'editperfilem', component: EditperfilemComponent },
   { path: 'verificacion', component: EmailVerificacionComponent },
   { path: 'cart', component: CartComponent, data: { Breadcrumb: "Carrito" } },
-  { path: 'contacto', component: ContactoComponent, data: { Breadcrumb: "Contacto" } },
   { path: 'success', component: SuccessPageComponent, data: { Breadcrumb: "Exito" } },
   { path: 'failure', component: FailurePageComponent, data: { Breadcrumb: "Fallo" } },
   { path: 'pending', component: PendingPageComponent, data: { Breadcrumb: "Pendiente" } },
