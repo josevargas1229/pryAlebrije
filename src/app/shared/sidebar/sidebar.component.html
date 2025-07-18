@@ -1,13 +1,16 @@
 <mat-nav-list class="sidenav mat-nav-list">
   <img src="assets/images/logoaleb.png" alt="logo circular" class="logo">
-  <a mat-list-item routerLink="/home" routerLinkActive="active" matTooltip="Home">
+
+  <a mat-list-item routerLink="/" routerLinkActive="active" matTooltip="Home" [routerLinkActiveOptions]="{ exact: true }">
     <mat-icon class="icon">home</mat-icon>
     <span class="title">Home</span>
   </a>
-  <a mat-list-item routerLink="/menu-catalogo/productos" routerLinkActive="active" matTooltip="Catálogo">
+
+  <a mat-list-item routerLink="/menu-catalogo/productos" routerLinkActive="active" matTooltip="Catálogo" [routerLinkActiveOptions]="{ exact: true }">
     <mat-icon class="icon">category</mat-icon>
     <span class="title">Catálogo</span>
   </a>
+
   <ng-container *ngIf="!isLoggedIn">
     <a mat-list-item routerLink="/login" routerLinkActive="active" matTooltip="Login">
       <mat-icon class="icon">login</mat-icon>
@@ -18,33 +21,43 @@
       <span class="title">Registro</span>
     </a>
   </ng-container>
+
   <ng-container *ngIf="isLoggedIn">
+
     <ng-container *ngIf="userRole === 1">
       <a mat-list-item routerLink="/admin/productos" routerLinkActive="active" matTooltip="Productos">
         <mat-icon class="icon">inventory</mat-icon>
         <span class="title">Productos</span>
       </a>
-      <a mat-list-item routerLink="/admin" routerLinkActive="active" matTooltip="Admin">
+
+      <a mat-list-item routerLink="/admin" routerLinkActive="active" matTooltip="Panel de administrador" [routerLinkActiveOptions]="{ exact: true }">
         <mat-icon class="icon">admin_panel_settings</mat-icon>
         <span class="title">Admin</span>
       </a>
-    </ng-container>
-    <ng-container *ngIf="userRole === 1">
-      <a mat-list-item routerLink="/transacciones" routerLinkActive="active" matTooltip="Ventas">
+
+      <a mat-list-item routerLink="/transacciones" routerLinkActive="active" matTooltip="Ir a ventas">
         <mat-icon class="icon">monetization_on</mat-icon>
         <span class="title">Ventas</span>
       </a>
-    </ng-container>
-    <ng-container *ngIf="userRole === 1">
+
       <a mat-list-item routerLink="/perfil/pedidos" routerLinkActive="active" matTooltip="Mis Compras">
         <mat-icon class="icon">shopping_basket</mat-icon>
         <span class="title">Mis Compras</span>
       </a>
     </ng-container>
-    <a mat-list-item routerLink="/perfil" routerLinkActive="active" matTooltip="Mi perfil">
+
+    <ng-container *ngIf="userRole === 1">
+      <a mat-list-item routerLink="/ventas" routerLinkActive="active" matTooltip="Ventas">
+        <mat-icon class="icon">monetization_on</mat-icon>
+        <span class="title">Ventas</span>
+      </a>
+    </ng-container>
+
+    <a mat-list-item routerLink="/perfil" routerLinkActive="active" matTooltip="Mi perfil" [routerLinkActiveOptions]="{ exact: true }">
       <mat-icon class="icon">person</mat-icon>
       <span class="title">Mi perfil</span>
     </a>
+
     <button mat-flat-button class="logout-btn" (click)="logout()" matTooltip="Logout">
       <mat-icon class="icon">logout</mat-icon>
       <span class="title">Logout</span>

@@ -23,89 +23,89 @@ const preferenceClient = new mercadopago.Preference(mp);
 exports.createVenta = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
-      const { usuario_id, total, productos, recogerEnTienda, direccion_id } = req.body;
+    const { usuario_id, total, productos, recogerEnTienda, direccion_id } = req.body;
 
-      if (!productos || productos.length === 0) {
-          return res.status(400).json({ message: "No se pueden procesar ventas sin productos." });
+    if (!productos || productos.length === 0) {
+      return res.status(400).json({ message: "No se pueden procesar ventas sin productos." });
+    }
+
+    const nuevaVenta = await Venta.create({
+      usuario_id,
+      total,
+      recoger_en_tienda: recogerEnTienda,
+      estado: 'Pendiente',
+      direccion_id: direccion_id || null,
+      created_at: new Date()
+    }, { transaction });
+
+    for (const item of productos) {
+      const { producto_id, talla_id, color_id, cantidad } = item;
+
+      if (talla_id === null || talla_id === undefined || color_id === null || color_id === undefined) {
+        await transaction.rollback();
+        return res.status(400).json({ message: "Los productos deben tener talla y color." });
       }
 
-      const nuevaVenta = await Venta.create({
-          usuario_id,
-          total,
-          recoger_en_tienda: recogerEnTienda,
-          estado: 'Pendiente',
-          direccion_id: direccion_id || null,
-          created_at: new Date()
+      const productoTallaColor = await ProductoTallaColor.findOne({
+        where: { producto_id, talla_id, color_id }
+      });
+
+      if (!productoTallaColor) {
+        await transaction.rollback();
+        return res.status(404).json({ message: 'Combinación de producto, talla y color no encontrada.' });
+      }
+
+      if (productoTallaColor.stock < cantidad) {
+        await transaction.rollback();
+        return res.status(400).json({ message: 'No hay suficiente stock disponible.' });
+      }
+
+      const producto = await Product.findByPk(producto_id, {
+        include: [
+          {
+            association: 'promociones',
+            where: {
+              fecha_inicio: { [Op.lte]: new Date() },
+              fecha_fin: { [Op.gte]: new Date() }
+            },
+            required: false
+          }
+        ]
+      });
+
+      let precio_unitario = parseFloat(producto.precio);
+      if (producto.promociones && producto.promociones.length > 0) {
+        const promo = producto.promociones[0];
+        const descuento = parseFloat(promo.descuento);
+        precio_unitario = +(precio_unitario * (1 - descuento / 100)).toFixed(2);
+      }
+
+      productoTallaColor.stock -= cantidad;
+      await productoTallaColor.save({ transaction });
+
+      await DetalleVenta.create({
+        venta_id: nuevaVenta.id,
+        producto_id,
+        talla_id,
+        color_id,
+        cantidad,
+        precio_unitario,
+        subtotal: +(precio_unitario * cantidad).toFixed(2)
       }, { transaction });
+    }
 
-      for (const item of productos) {
-  const { producto_id, talla_id, color_id, cantidad } = item;
-
-  if (talla_id === null || talla_id === undefined || color_id === null || color_id === undefined) {
-    await transaction.rollback();
-    return res.status(400).json({ message: "Los productos deben tener talla y color." });
-  }
-
-  const productoTallaColor = await ProductoTallaColor.findOne({
-    where: { producto_id, talla_id, color_id }
-  });
-
-  if (!productoTallaColor) {
-    await transaction.rollback();
-    return res.status(404).json({ message: 'Combinación de producto, talla y color no encontrada.' });
-  }
-
-  if (productoTallaColor.stock < cantidad) {
-    await transaction.rollback();
-    return res.status(400).json({ message: 'No hay suficiente stock disponible.' });
-  }
-
-  const producto = await Product.findByPk(producto_id, {
-    include: [
-      {
-        association: 'promociones',
-        where: {
-          fecha_inicio: { [Op.lte]: new Date() },
-          fecha_fin: { [Op.gte]: new Date() }
-        },
-        required: false
-      }
-    ]
-  });
-
-  let precio_unitario = parseFloat(producto.precio);
-  if (producto.promociones && producto.promociones.length > 0) {
-    const promo = producto.promociones[0];
-    const descuento = parseFloat(promo.descuento);
-    precio_unitario = +(precio_unitario * (1 - descuento / 100)).toFixed(2);
-  }
-
-  productoTallaColor.stock -= cantidad;
-  await productoTallaColor.save({ transaction });
-
-  await DetalleVenta.create({
-    venta_id: nuevaVenta.id,
-    producto_id,
-    talla_id,
-    color_id,
-    cantidad,
-    precio_unitario,
-    subtotal: +(precio_unitario * cantidad).toFixed(2)
-  }, { transaction });
-}
-
-      await transaction.commit();
-      await crearNotificacion({
+    await transaction.commit();
+    await crearNotificacion({
       mensaje: `Compra realizada correctamente. Total: $${nuevaVenta.total}`,
       tipo: 'usuario',
       usuario_id
-      });
-      return res.status(201).json({ message: "Venta creada con éxito.", venta: nuevaVenta });
+    });
+    return res.status(201).json({ message: "Venta creada con éxito.", venta: nuevaVenta });
 
   } catch (error) {
-      await transaction.rollback();
-      console.error('Error en `createVenta`:', error);
-      return res.status(500).json({ message: "Error al procesar la venta.", error: error.message });
+    await transaction.rollback();
+    console.error('Error en `createVenta`:', error);
+    return res.status(500).json({ message: "Error al procesar la venta.", error: error.message });
   }
 };
 
@@ -114,54 +114,54 @@ exports.createVenta = async (req, res) => {
  */
 exports.getVentasByUsuario = async (req, res) => {
   try {
-      const { usuario_id } = req.params;
+    const { usuario_id } = req.params;
 
-      const ventas = await Venta.findAll({
-        where: { usuario_id: usuario_id },
-        include: [
+    const ventas = await Venta.findAll({
+      where: { usuario_id: usuario_id },
+      include: [
+        {
+          model: DetalleVenta,
+          as: 'detalles',
+          include: [
             {
-                model: DetalleVenta,
-                as: 'detalles',
-                include: [
-                    {
-                        model: Product,
-                        as: 'producto',
-                        attributes: ['id', 'precio'],
-                        include: [
-                            {
-                                model: TipoProducto,
-                                as: 'tipoProducto',
-                                attributes: ['nombre']
-                            },
-                            {
-                                model: ImagenProducto,
-                                as: 'imagenes', // Alias correcto para ImagenProducto
-                                attributes: ['imagen_url']
-                            }
-                        ]
-                    },
-                    {
-                        model: Talla,
-                        as: 'talla',  // Cambié de 'Talla' a 'talla' para que coincida con tus asociaciones.
-                        attributes: ['talla']
-                    },
-                    {
-                        model: ColorProducto,
-                        as: 'color', // Cambié de 'ColorProducto' a 'color' para que coincida con tus asociaciones.
-                        attributes: ['color', 'colorHex']
-                    }
-                ]
+              model: Product,
+              as: 'producto',
+              attributes: ['id', 'precio'],
+              include: [
+                {
+                  model: TipoProducto,
+                  as: 'tipoProducto',
+                  attributes: ['nombre']
+                },
+                {
+                  model: ImagenProducto,
+                  as: 'imagenes', // Alias correcto para ImagenProducto
+                  attributes: ['imagen_url']
+                }
+              ]
+            },
+            {
+              model: Talla,
+              as: 'talla',  // Cambié de 'Talla' a 'talla' para que coincida con tus asociaciones.
+              attributes: ['talla']
+            },
+            {
+              model: ColorProducto,
+              as: 'color', // Cambié de 'ColorProducto' a 'color' para que coincida con tus asociaciones.
+              attributes: ['color', 'colorHex']
             }
-        ],
-        order: [['fecha_venta', 'DESC']],
+          ]
+        }
+      ],
+      order: [['fecha_venta', 'DESC']],
     });
 
 
-      return res.status(200).json({ ventas });
+    return res.status(200).json({ ventas });
 
   } catch (error) {
-      console.error('Error al obtener ventas del usuario:', error);
-      return res.status(500).json({ message: "Error al obtener las ventas.", error: error.message });
+    console.error('Error al obtener ventas del usuario:', error);
+    return res.status(500).json({ message: "Error al obtener las ventas.", error: error.message });
   }
 };
 
@@ -173,56 +173,56 @@ exports.getVentasByUsuario = async (req, res) => {
 
 exports.getVentaById = async (req, res) => {
   try {
-      const { venta_id } = req.params;
+    const { venta_id } = req.params;
 
-      const venta = await Venta.findByPk(venta_id, {
+    const venta = await Venta.findByPk(venta_id, {
+      include: [
+        { model: User, attributes: ['nombre', 'email'] },
+        {
+          model: DetalleVenta,
+          as: 'detalles', // Asegúrate de usar el alias 'detalles' aquí
           include: [
-              { model: User, attributes: ['nombre', 'email'] },
-              {
-                  model: DetalleVenta,
-                  as: 'detalles', // Asegúrate de usar el alias 'detalles' aquí
-                  include: [
-                      {
-                          model: Product,
-                          as: 'producto',
-                          attributes: ['id', 'precio'],
-                          include: [
-                              {
-                                  model: TipoProducto,
-                                  as: 'tipoProducto',
-                                  attributes: ['nombre']
-                              },
-                              {
-                                  model: ImagenProducto,
-                                  as: 'imagenes',
-                                  attributes: ['imagen_url']
-                              }
-                          ]
-                      },
-                      {
-                          model: Talla,
-                          as: 'talla',
-                          attributes: ['talla']
-                      },
-                      {
-                          model: ColorProducto,
-                          as: 'color',
-                          attributes: ['color', 'colorHex']
-                      }
-                  ]
-              }
+            {
+              model: Product,
+              as: 'producto',
+              attributes: ['id', 'precio'],
+              include: [
+                {
+                  model: TipoProducto,
+                  as: 'tipoProducto',
+                  attributes: ['nombre']
+                },
+                {
+                  model: ImagenProducto,
+                  as: 'imagenes',
+                  attributes: ['imagen_url']
+                }
+              ]
+            },
+            {
+              model: Talla,
+              as: 'talla',
+              attributes: ['talla']
+            },
+            {
+              model: ColorProducto,
+              as: 'color',
+              attributes: ['color', 'colorHex']
+            }
           ]
-      });
+        }
+      ]
+    });
 
-      if (!venta) {
-          return res.status(404).json({ message: "Venta no encontrada." });
-      }
+    if (!venta) {
+      return res.status(404).json({ message: "Venta no encontrada." });
+    }
 
-      return res.status(200).json({ venta });
+    return res.status(200).json({ venta });
 
   } catch (error) {
-      console.error('Error al obtener la venta:', error);
-      return res.status(500).json({ message: "Error al obtener la venta.", error: error.message });
+    console.error('Error al obtener la venta:', error);
+    return res.status(500).json({ message: "Error al obtener la venta.", error: error.message });
   }
 };
 
@@ -324,40 +324,40 @@ exports.createPreference = async (req, res) => {
     }
 
     const items = productos.map((p, i) => {
-  if (!p || p.precio_unitario == null || p.cantidad == null) {
-    console.warn(`❌ Producto [${i}] inválido:`, p);
-    throw new Error(`Producto [${i}] inválido: falta precio o cantidad`);
-  }
+      if (!p || p.precio_unitario == null || p.cantidad == null) {
+        console.warn(`❌ Producto [${i}] inválido:`, p);
+        throw new Error(`Producto [${i}] inválido: falta precio o cantidad`);
+      }
 
-  return {
-    title: p.nombre || `Producto ${i + 1}`,
-    unit_price: +p.precio_unitario,
-    quantity: +p.cantidad,
-    currency_id: 'MXN'
-  };
-});
+      return {
+        title: p.nombre || `Producto ${i + 1}`,
+        unit_price: +p.precio_unitario,
+        quantity: +p.cantidad,
+        currency_id: 'MXN'
+      };
+    });
 
 
 
     const preference = {
-  items,
-  back_urls: {
-    success: 'http://localhost:4200/success',
-    failure: 'http://localhost:4200/failure',
-    pending: 'http://localhost:4200/pending'
-  },
-  //auto_return: 'approved'
-};
+      items,
+      back_urls: {
+        success: 'http://localhost:4200/success',
+        failure: 'http://localhost:4200/failure',
+        pending: 'http://localhost:4200/pending'
+      },
+      //auto_return: 'approved'
+    };
 
 
-   const response = await preferenceClient.create({ body: preference });
+    const response = await preferenceClient.create({ body: preference });
 
-const sandboxInitPoint = response.sandbox_init_point || response.init_point;
+    const sandboxInitPoint = response.sandbox_init_point || response.init_point;
 
-return res.status(200).json({
-  id: response.id,
-  sandbox_init_point: sandboxInitPoint
-});
+    return res.status(200).json({
+      id: response.id,
+      sandbox_init_point: sandboxInitPoint
+    });
   } catch (error) {
     console.error('❌ Error al crear preferencia:', error);
     return res.status(500).json({ error: 'Error al crear preferencia con Mercado Pago.' });
@@ -454,87 +454,72 @@ exports.registrarTransaccionMercadoPago = async (req, res) => {
   }
 };
 
-
 exports.getEstadisticasVentasAlexa = async (req, res) => {
   try {
     const { rango = 'mes', fechaInicio, fechaFin } = req.query;
 
-    // Validar fechas si se proporcionan
-    if (fechaInicio && fechaFin) {
-      if (!isValidDate(fechaInicio) || !isValidDate(fechaFin)) {
-        return res.status(400).json({ error: 'Fechas inválidas.' });
-      }
+    if ((fechaInicio && !isValidDate(fechaInicio)) || (fechaFin && !isValidDate(fechaFin))) {
+      return res.status(400).json({ error: 'Fechas inválidas.' });
     }
 
-    // Definir el rango de fechas según el parámetro 'rango' o fechas personalizadas
     let whereClause = {};
     let agrupamiento;
     let campo;
 
     switch (rango.toLowerCase()) {
       case 'hoy':
-        whereClause.fecha_venta = {
-          [Op.gte]: sequelize.literal('CURDATE()')
-        };
-        agrupamiento = sequelize.fn('DATE', sequelize.col('fecha_venta'));
+        whereClause.fecha_venta = { [Op.gte]: literal('CURDATE()') };
+        agrupamiento = fn('DATE', col('fecha_venta'));
         campo = [agrupamiento, 'dia'];
         break;
       case 'ayer':
         whereClause.fecha_venta = {
           [Op.between]: [
-            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 DAY)'),
-            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 DAY)')
+            literal('DATE_SUB(CURDATE(), INTERVAL 1 DAY)'),
+            literal('DATE_SUB(CURDATE(), INTERVAL 1 DAY)')
           ]
         };
-        agrupamiento = sequelize.fn('DATE', sequelize.col('fecha_venta'));
+        agrupamiento = fn('DATE', col('fecha_venta'));
         campo = [agrupamiento, 'dia'];
         break;
       case 'semana':
-        whereClause.fecha_venta = {
-          [Op.gte]: sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 7 DAY)')
-        };
-        agrupamiento = sequelize.literal('WEEK(fecha_venta, 1)');
+        whereClause.fecha_venta = { [Op.gte]: literal('DATE_SUB(CURDATE(), INTERVAL 7 DAY)') };
+        agrupamiento = literal('WEEK(fecha_venta, 1)');
         campo = [agrupamiento, 'semana'];
         break;
       case 'semana_pasada':
         whereClause.fecha_venta = {
           [Op.between]: [
-            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 14 DAY)'),
-            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 7 DAY)')
+            literal('DATE_SUB(CURDATE(), INTERVAL 14 DAY)'),
+            literal('DATE_SUB(CURDATE(), INTERVAL 7 DAY)')
           ]
         };
-        agrupamiento = sequelize.literal('WEEK(fecha_venta, 1)');
+        agrupamiento = literal('WEEK(fecha_venta, 1)');
         campo = [agrupamiento, 'semana'];
         break;
       case 'mes':
-        whereClause.fecha_venta = {
-          [Op.gte]: sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 MONTH)')
-        };
-        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m');
+        whereClause.fecha_venta = { [Op.gte]: literal('DATE_SUB(CURDATE(), INTERVAL 1 MONTH)') };
+        agrupamiento = fn('DATE_FORMAT', col('fecha_venta'), '%Y-%m');
         campo = [agrupamiento, 'mes'];
         break;
       case 'mes_pasado':
         whereClause.fecha_venta = {
           [Op.between]: [
-            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 2 MONTH)'),
-            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 MONTH)')
+            literal('DATE_SUB(CURDATE(), INTERVAL 2 MONTH)'),
+            literal('DATE_SUB(CURDATE(), INTERVAL 1 MONTH)')
           ]
         };
-        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m');
+        agrupamiento = fn('DATE_FORMAT', col('fecha_venta'), '%Y-%m');
         campo = [agrupamiento, 'mes'];
         break;
       case 'trimestre':
-        whereClause.fecha_venta = {
-          [Op.gte]: sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 3 MONTH)')
-        };
-        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m');
+        whereClause.fecha_venta = { [Op.gte]: literal('DATE_SUB(CURDATE(), INTERVAL 3 MONTH)') };
+        agrupamiento = fn('DATE_FORMAT', col('fecha_venta'), '%Y-%m');
         campo = [agrupamiento, 'mes'];
         break;
       case 'año':
-        whereClause.fecha_venta = {
-          [Op.gte]: sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 YEAR)')
-        };
-        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m');
+        whereClause.fecha_venta = { [Op.gte]: literal('DATE_SUB(CURDATE(), INTERVAL 1 YEAR)') };
+        agrupamiento = fn('DATE_FORMAT', col('fecha_venta'), '%Y-%m');
         campo = [agrupamiento, 'mes'];
         break;
       case 'custom':
@@ -544,31 +529,28 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
         whereClause.fecha_venta = {
           [Op.between]: [new Date(fechaInicio), new Date(fechaFin)]
         };
-        agrupamiento = sequelize.fn('DATE', sequelize.col('fecha_venta'));
+        agrupamiento = fn('DATE', col('fecha_venta'));
         campo = [agrupamiento, 'dia'];
         break;
       default:
         return res.status(400).json({ error: 'Rango no válido.' });
     }
 
-    // Productos más vendidos (top 3 para respuestas breves en voz)
     const productosMasVendidos = await DetalleVenta.findAll({
       where: {
         '$venta.fecha_venta$': whereClause.fecha_venta
       },
       attributes: [
         'producto_id',
-        [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas'],
-        [sequelize.fn('SUM', sequelize.col('subtotal')), 'totalIngresos']
+        [fn('SUM', col('cantidad')), 'totalVendidas'],
+        [fn('SUM', col('subtotal')), 'totalIngresos']
       ],
-      group: ['producto_id'],
-      order: [[sequelize.literal('totalVendidas'), 'DESC']],
-      limit: 3,
       include: [
         {
           model: Venta,
           as: 'venta',
           attributes: [],
+          where: whereClause
         },
         {
           model: Product,
@@ -583,26 +565,28 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
             {
               model: ImagenProducto,
               as: 'imagenes',
-              attributes: ['url_imagen']
+              attributes: ['url_imagen'], // o 'imagen_url' según cómo esté en tu modelo
+              required: false
             }
           ]
         }
-      ]
+      ],
+      group: ['producto_id'],
+      order: [[literal('totalVendidas'), 'DESC']],
+      limit: 3
     });
 
-    // Obtener estadísticas de ventas
     const ventasAgrupadas = await Venta.findAll({
       where: whereClause,
       attributes: [
         campo,
-        [sequelize.fn('COUNT', sequelize.col('id')), 'totalVentas'],
-        [sequelize.fn('SUM', sequelize.col('total')), 'totalIngresos']
+        [fn('COUNT', col('id')), 'totalVentas'],
+        [fn('SUM', col('total')), 'totalIngresos']
       ],
       group: [agrupamiento],
       order: [[agrupamiento, 'ASC']]
     });
 
-    // Formatear respuesta optimizada para Alexa
     const resumen = {
       totalVentas: 0,
       totalIngresos: 0,
@@ -610,7 +594,7 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
         nombre: p?.producto?.tipoProducto?.nombre || 'Producto desconocido',
         totalVendidas: parseInt(p.dataValues.totalVendidas || 0),
         totalIngresos: parseFloat(p.dataValues.totalIngresos || 0),
-        imagenes: p?.producto?.imagenes?.map(img => img.url_imagen) || [] // Incluir las URLs de las imágenes
+        imagenes: p?.producto?.imagenes?.map(img => img.url_imagen || img.imagen_url) || []
       })),
       periodos: ventasAgrupadas.map(v => ({
         periodo: v.dataValues[campo[1]] || 'desconocido',
@@ -625,12 +609,12 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
     console.log('Resumen de estadísticas de ventas:', resumen);
     return res.status(200).json(resumen);
   } catch (error) {
-    console.error('Error en getEstadisticasVentas:', error);
+    console.error('Error en getEstadisticasVentasAlexa:', error);
     return res.status(500).json({ error: 'No se pudieron obtener las estadísticas de ventas.' });
   }
 };
 
-// Función auxiliar para validar fechas
+// Validador de fecha
 function isValidDate(dateString) {
   const date = new Date(dateString);
   return date instanceof Date && !isNaN(date);

@@ -7,6 +7,7 @@ router.post('/crear', ventaController.createVenta);
 router.get('/usuario/:usuario_id', authenticateToken, ventaController.getVentasByUsuario);
 router.get('/estadisticas/alexa', authorize(ROLES.ADMINISTRADOR), ventaController.getEstadisticasVentasAlexa);
 router.get('/estadisticas', authorize(ROLES.ADMINISTRADOR), ventaController.getEstadisticasVentas);
+router.get('/estadisticas/ventas', authorize(ROLES.ADMINISTRADOR), ventaController.getEstadisticasVentas);
 router.get('/:venta_id', authenticateToken, ventaController.getVentaById);
 router.post('/paypal/create-order', ventaController.createOrder);
 router.post('/paypal/capture-order/:orderID', ventaController.captureOrder);
