@@ -1,5 +1,5 @@
 import { CartService } from './../../services/cart/cart.service';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth/auth.service';
 import { CommonModule } from '@angular/common';
@@ -26,6 +26,7 @@ import { MatDividerModule } from '@angular/material/divider';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
+  @Output() sidebarToggle = new EventEmitter<void>();
   cartCount: number = 0;
   isLoggedIn: boolean = false;
   userRole: number | null = null;
@@ -78,7 +79,9 @@ export class HeaderComponent implements OnInit {
 
 
   }
-
+  toggleSidebar(): void {
+    this.sidebarToggle.emit(); // Emite el evento para toggle del sidebar
+  }
   // Muestra el modal de búsqueda
   onSearchClick() {
     this.isSearchModalOpen = true;

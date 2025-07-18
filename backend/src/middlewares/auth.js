@@ -27,19 +27,31 @@ require('dotenv').config();
  * - 403 Forbidden: If the token is invalid or cannot be verified.
  */
 exports.authenticateToken = (req, res, next) => {
-    const token = req.cookies['token']; // Asume que la cookie se llama 'token'
-    if (token == null) {
-        return res.sendStatus(401); // No se proporcionó el token
+  // Primero intenta leer el token desde la cookie
+  let token = req.cookies?.token;
+
+  // Si no hay cookie, intenta desde el header Authorization
+  if (!token && req.headers.authorization) {
+    const parts = req.headers.authorization.split(' ');
+    if (parts.length === 2 && parts[0] === 'Bearer') {
+      token = parts[1];
+    }
+  }
+
+  if (!token) {
+    return res.status(401).json({ message: 'Token no proporcionado' });
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: 'Token inválido' });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) {
-            return res.sendStatus(403); // Token inválido o error de verificación
-        }
-        req.user = user; // Guarda el usuario decodificado en el objeto de la solicitud
-        next(); // Continúa con el siguiente middleware
-    });
+    req.user = decoded;
+    next();
+  });
 };
+
 
 
 /* The `exports.authorize` function is a higher-order function that takes in an array of allowed roles

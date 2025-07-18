@@ -11,6 +11,7 @@ import { Title } from '@angular/platform-browser';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { filter, map } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
+import { MatSidenavModule } from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-root',
@@ -25,6 +26,7 @@ import { CommonModule } from '@angular/common';
     BreadcrumbModule,
     RouterModule, // Agregado para soportar routerLink
     CommonModule,
+    MatSidenavModule
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
@@ -33,7 +35,7 @@ import { CommonModule } from '@angular/common';
 export class AppComponent {
   title = 'pryAlebrije';
   BreadcrumbItems: any[] = [];
-
+  isSidebarCollapsed: boolean = false;
   constructor(
     private readonly authService: AuthService,
     private readonly toastService: ToastService,
@@ -65,7 +67,7 @@ export class AppComponent {
       })
       .catch(error => {
         if (error.message !== 'No autenticado') {
-          this.toastService.error('Error de autenticación: ' + error.message);
+          console.error('Error de autenticación: ' + error.message);
         }
       });
 
@@ -75,6 +77,9 @@ export class AppComponent {
     ).subscribe(items => {
       this.BreadcrumbItems = [{ label: 'Home', route: '/home', icon: 'pi pi-home' }, ...items];
     });
+  }
+  toggleSidebar(): void {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
 
   private buildBreadcrumb(route: ActivatedRoute, url: string = '', Breadcrumbs: any[] = []): any[] {

@@ -12,5 +12,5 @@ router.get('/check-auth', authenticateToken, authController.checkAuth);
 router.post('/send-link', authController.sendVerificationLink);
 router.get('/verify',verifyEmailToken, authController.completeEmailVerification);
 router.post('/logout', authController.logout);
-
+router.post('/token', authController.generateAccessToken);
 module.exports = router;

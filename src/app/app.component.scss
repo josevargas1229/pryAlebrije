@@ -1,72 +1,72 @@
-/* Estilos para el componente principal de la aplicación */
 :host {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   height: 100vh;
 }
+
 .page-container {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* Cambiado a row para sidebar y contenido */
   position: relative;
 }
+.mat-sidenav {
+  width: 170px !important;
+  background-color: #0b1a33 !important;
+  display: flex;
+  flex-direction: column;
+  padding: 0; /* CAMBIO: Eliminado padding para que sticky funcione */
+  flex: none;
+  overflow-y: auto; /* CAMBIO: Permitir scroll en el sidebar */
+  transition: width 0.3s ease;
+}
 
-.layout {
+.mat-sidenav.collapsed {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.mat-sidenav-content {
   flex: 1;
   display: flex;
-  position: relative;
+  flex-direction: column;
   min-height: 100vh;
 }
-.sidebar-wrapper {
-  width: 120px;
-  position: relative;
-  height: 100vh;
-}
 
-/* Estilo para el contenedor de migas de pan */
 .breadcrumb-container {
-  background-color: #f8f9fa; /* Fondo suave para las migas de pan */
-  border-bottom: 1px solid #ddd; /* Línea separadora */
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
   display: flex;
   justify-content: flex-start;
   align-items: center;
 }
 
 .p-breadcrumb-item-link {
-  color: #007bff; /* Color azul para los links */
-  text-decoration: none; /* Quitar subrayado por defecto */
+  color: #007bff;
+  text-decoration: none;
   font-weight: bold;
   margin-right: 8px;
 }
 
 .p-breadcrumb-item-link:hover {
-  color: #0056b3; /* Color al pasar el ratón */
+  color: #0056b3;
 }
 
 .text-color {
-  color: #6c757d; /* Color gris para las etiquetas */
+  color: #6c757d;
 }
 
-/* Mejora el espaciado y alineación de los elementos dentro de las migas de pan */
 .p-breadcrumb .p-breadcrumb-item {
   display: flex;
   align-items: center;
 }
 
 .p-breadcrumb .p-breadcrumb-item + .p-breadcrumb-item::before {
-  content: ">  "; /* Usamos un ícono de flecha para separar las migas */
+  content: ">  ";
   margin: 0 8px;
   color: #6c757d;
-}
-
-/* Estilos adicionales para el contenido principal */
-.sidebar {
-  min-height: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
 }
 
 .main-content {
@@ -78,12 +78,26 @@
   height: 100%;
   min-height: 100%;
 }
-app-sidebar{
-  display: flex;
-}
-/* Estilos responsivos */
+
 @media (max-width: 768px) {
-  app-sidebar {
-    width: 60px; // Reduce el ancho en pantallas pequeñas
+  .mat-sidenav {
+    width: 80px;
+  }
+
+  .mat-sidenav.collapsed {
+    width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .mat-sidenav {
+    width: 60px;
+    position: fixed;
+    left: 0;
+    top: 0;
+  }
+
+  .mat-sidenav.collapsed {
+    width: 0;
   }
 }

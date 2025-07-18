@@ -2,12 +2,13 @@
   <mat-toolbar color="warn">
     <!-- Botón de perfil en la esquina izquierda -->
     <div class="left-section">
-      <img *ngIf="logoUrl" [src]="logoUrl" class="logo" alt="Logo" />
-
+      <button mat-icon-button (click)="toggleSidebar()" class="hamburger-btn">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <img [src]="logoUrl" alt="Logo" class="logo">
     </div>
-
-    <!-- Logo y título centrados -->
-    <div class="center-section"></div>
+    <div class="center-section">
+    </div>
 
     <!-- Botones de navegación alineados a la derecha -->
     <div class="right-section">
