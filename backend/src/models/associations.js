@@ -47,7 +47,7 @@ Notificacion.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
 
 // Asociación entre Producto y ProductoTallaColor
 Product.hasMany(ProductoTallaColor, { foreignKey: 'producto_id' });
-ProductoTallaColor.belongsTo(Product, { foreignKey: 'producto_id' });
+ProductoTallaColor.belongsTo(Product, { foreignKey: 'producto_id', as: 'producto' });
 
 // Asociación entre Talla y ProductoTallaColor
 Talla.hasMany(ProductoTallaColor, { foreignKey: 'talla_id' });
