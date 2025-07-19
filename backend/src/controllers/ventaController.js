@@ -1,6 +1,6 @@
 const sequelize = require('../config/database');
 const { Venta, DetalleVenta, User, Product, Talla, ColorProducto, TipoProducto, ProductoTallaColor, ImagenProducto } = require('../models/associations');
-const { Op } = require('sequelize');
+const { Op, literal } = require('sequelize');
 const axios = require('axios');
 const Transaccion = require('../models/Transaccion');
 const { crearNotificacion } = require('./notificacionController'); // asegúrate que la ruta sea correcta
@@ -13,9 +13,6 @@ const mp = new mercadopago.MercadoPagoConfig({
 });
 
 const preferenceClient = new mercadopago.Preference(mp);
-
-
-
 
 /**
  * Crear una nueva venta con detalles
@@ -46,8 +43,11 @@ exports.createVenta = async (req, res) => {
         return res.status(400).json({ message: "Los productos deben tener talla y color." });
       }
 
-      const productoTallaColor = await ProductoTallaColor.findOne({
-        where: { producto_id, talla_id, color_id }
+      const producto_talla_color_id = await resolveProductoTallaColorId(producto_id, talla_id, color_id, transaction);
+
+      const productoTallaColor = await ProductoTallaColor.findByPk(producto_talla_color_id, {
+        include: [{ model: Product, as: 'producto', include: [{ model: TipoProducto, as: 'tipoProducto' }] }],
+        transaction
       });
 
       if (!productoTallaColor) {
@@ -70,7 +70,8 @@ exports.createVenta = async (req, res) => {
             },
             required: false
           }
-        ]
+        ],
+        transaction
       });
 
       let precio_unitario = parseFloat(producto.precio);
@@ -85,9 +86,7 @@ exports.createVenta = async (req, res) => {
 
       await DetalleVenta.create({
         venta_id: nuevaVenta.id,
-        producto_id,
-        talla_id,
-        color_id,
+        producto_talla_color_id,
         cantidad,
         precio_unitario,
         subtotal: +(precio_unitario * cantidad).toFixed(2)
@@ -124,48 +123,65 @@ exports.getVentasByUsuario = async (req, res) => {
           as: 'detalles',
           include: [
             {
-              model: Product,
-              as: 'producto',
-              attributes: ['id', 'precio'],
+              model: ProductoTallaColor,
+              as: 'productoTallaColor',
               include: [
                 {
-                  model: TipoProducto,
-                  as: 'tipoProducto',
-                  attributes: ['nombre']
+                  model: Product,
+                  as: 'producto',
+                  attributes: ['id', 'precio'],
+                  include: [
+                    {
+                      model: TipoProducto,
+                      as: 'tipoProducto',
+                      attributes: ['nombre']
+                    },
+                    {
+                      model: ImagenProducto,
+                      as: 'imagenes',
+                      attributes: ['imagen_url']
+                    }
+                  ]
                 },
                 {
-                  model: ImagenProducto,
-                  as: 'imagenes', // Alias correcto para ImagenProducto
-                  attributes: ['imagen_url']
+                  model: Talla,
+                  as: 'talla',
+                  attributes: ['talla']
+                },
+                {
+                  model: ColorProducto,
+                  as: 'color',
+                  attributes: ['color', 'colorHex']
                 }
               ]
-            },
-            {
-              model: Talla,
-              as: 'talla',  // Cambié de 'Talla' a 'talla' para que coincida con tus asociaciones.
-              attributes: ['talla']
-            },
-            {
-              model: ColorProducto,
-              as: 'color', // Cambié de 'ColorProducto' a 'color' para que coincida con tus asociaciones.
-              attributes: ['color', 'colorHex']
             }
           ]
         }
       ],
-      order: [['fecha_venta', 'DESC']],
+      order: [['fecha_venta', 'DESC']]
     });
 
+    // Map response to match frontend's expected structure
+    const formattedVentas = ventas.map(venta => ({
+      ...venta.toJSON(),
+      detalles: venta.detalles.map(detalle => ({
+        ...detalle.toJSON(),
+        producto_id: detalle.productoTallaColor?.producto?.id || 0,
+        talla_id: detalle.productoTallaColor?.talla_id || 0,
+        color_id: detalle.productoTallaColor?.color_id || 0,
+        producto: detalle.productoTallaColor?.producto || { id: 0, precio: 0, tipoProducto: { nombre: 'Desconocido' }, imagenes: [] },
+        talla: detalle.productoTallaColor?.talla || { talla: 'Desconocida' },
+        color: detalle.productoTallaColor?.color || { color: 'Desconocido', colorHex: '#000000' }
+      }))
+    }));
 
-    return res.status(200).json({ ventas });
+    return res.status(200).json({ ventas: formattedVentas });
 
   } catch (error) {
     console.error('Error al obtener ventas del usuario:', error);
     return res.status(500).json({ message: "Error al obtener las ventas.", error: error.message });
   }
 };
-
-
 
 /**
  * Obtener detalles de una venta específica
@@ -180,34 +196,40 @@ exports.getVentaById = async (req, res) => {
         { model: User, attributes: ['nombre', 'email'] },
         {
           model: DetalleVenta,
-          as: 'detalles', // Asegúrate de usar el alias 'detalles' aquí
+          as: 'detalles',
           include: [
             {
-              model: Product,
-              as: 'producto',
-              attributes: ['id', 'precio'],
+              model: ProductoTallaColor,
+              as: 'productoTallaColor',
               include: [
                 {
-                  model: TipoProducto,
-                  as: 'tipoProducto',
-                  attributes: ['nombre']
+                  model: Product,
+                  as: 'producto',
+                  attributes: ['id', 'precio'],
+                  include: [
+                    {
+                      model: TipoProducto,
+                      as: 'tipoProducto',
+                      attributes: ['nombre']
+                    },
+                    {
+                      model: ImagenProducto,
+                      as: 'imagenes',
+                      attributes: ['imagen_url']
+                    }
+                  ]
                 },
                 {
-                  model: ImagenProducto,
-                  as: 'imagenes',
-                  attributes: ['imagen_url']
+                  model: Talla,
+                  as: 'talla',
+                  attributes: ['talla']
+                },
+                {
+                  model: ColorProducto,
+                  as: 'color',
+                  attributes: ['color', 'colorHex']
                 }
               ]
-            },
-            {
-              model: Talla,
-              as: 'talla',
-              attributes: ['talla']
-            },
-            {
-              model: ColorProducto,
-              as: 'color',
-              attributes: ['color', 'colorHex']
             }
           ]
         }
@@ -218,7 +240,21 @@ exports.getVentaById = async (req, res) => {
       return res.status(404).json({ message: "Venta no encontrada." });
     }
 
-    return res.status(200).json({ venta });
+    // Map response to match frontend's expected structure
+    const formattedVenta = {
+      ...venta.toJSON(),
+      detalles: venta.detalles.map(detalle => ({
+        ...detalle.toJSON(),
+        producto_id: detalle.productoTallaColor?.producto?.id || 0,
+        talla_id: detalle.productoTallaColor?.talla_id || 0,
+        color_id: detalle.productoTallaColor?.color_id || 0,
+        producto: detalle.productoTallaColor?.producto || { id: 0, precio: 0, tipoProducto: { nombre: 'Desconocido' }, imagenes: [] },
+        talla: detalle.productoTallaColor?.talla || { talla: 'Desconocida' },
+        color: detalle.productoTallaColor?.color || { color: 'Desconocido', colorHex: '#000000' }
+      }))
+    };
+
+    return res.status(200).json({ venta: formattedVenta });
 
   } catch (error) {
     console.error('Error al obtener la venta:', error);
@@ -342,9 +378,9 @@ exports.createPreference = async (req, res) => {
     const preference = {
       items,
       back_urls: {
-        success: 'http://localhost:4200/success',
-        failure: 'http://localhost:4200/failure',
-        pending: 'http://localhost:4200/pending'
+        success: 'https://alebrije.onrender.com/success',
+        failure: 'https://alebrije.onrender.com/failure',
+        pending: 'https://alebrije.onrender.com/pending'
       },
       //auto_return: 'approved'
     };
@@ -370,22 +406,32 @@ exports.getEstadisticasVentas = async (req, res) => {
     // Productos más vendidos (top 5)
     const productosMasVendidos = await DetalleVenta.findAll({
       attributes: [
-        'producto_id',
         [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas']
       ],
-      group: ['producto_id'],
+      include: [
+        {
+          model: ProductoTallaColor,
+          as: 'productoTallaColor',
+          attributes: ['producto_id'],
+          include: [
+            {
+              model: Product,
+              as: 'producto',
+              attributes: ['id'],
+              include: [
+                {
+                  model: TipoProducto,
+                  as: 'tipoProducto',
+                  attributes: ['nombre']
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      group: ['productoTallaColor.producto_id'],
       order: [[sequelize.literal('totalVendidas'), 'DESC']],
-      limit: 5,
-      include: [{
-        model: Product,
-        as: 'producto',
-        attributes: ['id'],
-        include: [{
-          model: TipoProducto,
-          as: 'tipoProducto',
-          attributes: ['nombre']
-        }]
-      }]
+      limit: 5
     });
 
     let agrupamiento;
@@ -428,7 +474,6 @@ exports.getEstadisticasVentas = async (req, res) => {
     return res.status(500).json({ error: 'No se pudieron obtener las estadísticas de ventas.' });
   }
 };
-
 exports.registrarTransaccionMercadoPago = async (req, res) => {
   try {
     const { venta_id, usuario_id, paymentData } = req.body;
@@ -458,68 +503,82 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
   try {
     const { rango = 'mes', fechaInicio, fechaFin } = req.query;
 
-    if ((fechaInicio && !isValidDate(fechaInicio)) || (fechaFin && !isValidDate(fechaFin))) {
-      return res.status(400).json({ error: 'Fechas inválidas.' });
+    // Validar fechas si se proporcionan
+    if (fechaInicio && fechaFin) {
+      if (!isValidDate(fechaInicio) || !isValidDate(fechaFin)) {
+        return res.status(400).json({ error: 'Fechas inválidas.' });
+      }
     }
 
+    // Definir el rango de fechas según el parámetro 'rango' o fechas personalizadas
     let whereClause = {};
     let agrupamiento;
     let campo;
 
     switch (rango.toLowerCase()) {
       case 'hoy':
-        whereClause.fecha_venta = { [Op.gte]: literal('CURDATE()') };
-        agrupamiento = fn('DATE', col('fecha_venta'));
+        whereClause.fecha_venta = {
+          [Op.gte]: sequelize.literal('CURDATE()')
+        };
+        agrupamiento = sequelize.fn('DATE', sequelize.col('fecha_venta'));
         campo = [agrupamiento, 'dia'];
         break;
       case 'ayer':
         whereClause.fecha_venta = {
           [Op.between]: [
-            literal('DATE_SUB(CURDATE(), INTERVAL 1 DAY)'),
-            literal('DATE_SUB(CURDATE(), INTERVAL 1 DAY)')
+            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 DAY)'),
+            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 DAY)')
           ]
         };
-        agrupamiento = fn('DATE', col('fecha_venta'));
+        agrupamiento = sequelize.fn('DATE', sequelize.col('fecha_venta'));
         campo = [agrupamiento, 'dia'];
         break;
       case 'semana':
-        whereClause.fecha_venta = { [Op.gte]: literal('DATE_SUB(CURDATE(), INTERVAL 7 DAY)') };
-        agrupamiento = literal('WEEK(fecha_venta, 1)');
+        whereClause.fecha_venta = {
+          [Op.gte]: sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 7 DAY)')
+        };
+        agrupamiento = sequelize.literal('WEEK(fecha_venta, 1)');
         campo = [agrupamiento, 'semana'];
         break;
       case 'semana_pasada':
         whereClause.fecha_venta = {
           [Op.between]: [
-            literal('DATE_SUB(CURDATE(), INTERVAL 14 DAY)'),
-            literal('DATE_SUB(CURDATE(), INTERVAL 7 DAY)')
+            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 14 DAY)'),
+            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 7 DAY)')
           ]
         };
-        agrupamiento = literal('WEEK(fecha_venta, 1)');
+        agrupamiento = sequelize.literal('WEEK(fecha_venta, 1)');
         campo = [agrupamiento, 'semana'];
         break;
       case 'mes':
-        whereClause.fecha_venta = { [Op.gte]: literal('DATE_SUB(CURDATE(), INTERVAL 1 MONTH)') };
-        agrupamiento = fn('DATE_FORMAT', col('fecha_venta'), '%Y-%m');
+        whereClause.fecha_venta = {
+          [Op.gte]: sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 MONTH)')
+        };
+        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m');
         campo = [agrupamiento, 'mes'];
         break;
       case 'mes_pasado':
         whereClause.fecha_venta = {
           [Op.between]: [
-            literal('DATE_SUB(CURDATE(), INTERVAL 2 MONTH)'),
-            literal('DATE_SUB(CURDATE(), INTERVAL 1 MONTH)')
+            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 2 MONTH)'),
+            sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 MONTH)')
           ]
         };
-        agrupamiento = fn('DATE_FORMAT', col('fecha_venta'), '%Y-%m');
+        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m');
         campo = [agrupamiento, 'mes'];
         break;
       case 'trimestre':
-        whereClause.fecha_venta = { [Op.gte]: literal('DATE_SUB(CURDATE(), INTERVAL 3 MONTH)') };
-        agrupamiento = fn('DATE_FORMAT', col('fecha_venta'), '%Y-%m');
+        whereClause.fecha_venta = {
+          [Op.gte]: sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 3 MONTH)')
+        };
+        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m');
         campo = [agrupamiento, 'mes'];
         break;
       case 'año':
-        whereClause.fecha_venta = { [Op.gte]: literal('DATE_SUB(CURDATE(), INTERVAL 1 YEAR)') };
-        agrupamiento = fn('DATE_FORMAT', col('fecha_venta'), '%Y-%m');
+        whereClause.fecha_venta = {
+          [Op.gte]: sequelize.literal('DATE_SUB(CURDATE(), INTERVAL 1 YEAR)')
+        };
+        agrupamiento = sequelize.fn('DATE_FORMAT', sequelize.col('fecha_venta'), '%Y-%m');
         campo = [agrupamiento, 'mes'];
         break;
       case 'custom':
@@ -529,21 +588,22 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
         whereClause.fecha_venta = {
           [Op.between]: [new Date(fechaInicio), new Date(fechaFin)]
         };
-        agrupamiento = fn('DATE', col('fecha_venta'));
+        agrupamiento = sequelize.fn('DATE', sequelize.col('fecha_venta'));
         campo = [agrupamiento, 'dia'];
         break;
       default:
         return res.status(400).json({ error: 'Rango no válido.' });
     }
 
+    // Productos más vendidos (top 3 para respuestas breves en voz)
     const productosMasVendidos = await DetalleVenta.findAll({
       where: {
         '$venta.fecha_venta$': whereClause.fecha_venta
       },
       attributes: [
-        'producto_id',
-        [fn('SUM', col('cantidad')), 'totalVendidas'],
-        [fn('SUM', col('subtotal')), 'totalIngresos']
+        [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas'],
+        [sequelize.fn('SUM', sequelize.col('subtotal')), 'totalIngresos'],
+        'producto_talla_color_id'
       ],
       include: [
         {
@@ -553,48 +613,57 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
           where: whereClause
         },
         {
-          model: Product,
-          as: 'producto',
-          attributes: ['id'],
+          model: ProductoTallaColor,
+          as: 'productoTallaColor',
+          attributes: ['producto_id'],
           include: [
             {
-              model: TipoProducto,
-              as: 'tipoProducto',
-              attributes: ['nombre']
-            },
-            {
-              model: ImagenProducto,
-              as: 'imagenes',
-              attributes: ['url_imagen'], // o 'imagen_url' según cómo esté en tu modelo
-              required: false
+              model: Product,
+              as: 'producto',
+              attributes: ['id'],
+              include: [
+                {
+                  model: TipoProducto,
+                  as: 'tipoProducto',
+                  attributes: ['nombre']
+                },
+                {
+                  model: ImagenProducto,
+                  as: 'imagenes',
+                  attributes: ['imagen_url'],
+                  required: false
+                }
+              ]
             }
           ]
         }
       ],
-      group: ['producto_id'],
-      order: [[literal('totalVendidas'), 'DESC']],
+      group: ['DetalleVenta.producto_talla_color_id'], // Group by producto_talla_color_id and producto_id
+      order: [[sequelize.literal('totalVendidas'), 'DESC']],
       limit: 3
     });
 
+    // Obtener estadísticas de ventas
     const ventasAgrupadas = await Venta.findAll({
       where: whereClause,
       attributes: [
         campo,
-        [fn('COUNT', col('id')), 'totalVentas'],
-        [fn('SUM', col('total')), 'totalIngresos']
+        [sequelize.fn('COUNT', sequelize.col('id')), 'totalVentas'],
+        [sequelize.fn('SUM', sequelize.col('total')), 'totalIngresos']
       ],
       group: [agrupamiento],
       order: [[agrupamiento, 'ASC']]
     });
 
+    // Formatear respuesta optimizada para Alexa
     const resumen = {
       totalVentas: 0,
       totalIngresos: 0,
       productosMasVendidos: productosMasVendidos.map(p => ({
-        nombre: p?.producto?.tipoProducto?.nombre || 'Producto desconocido',
+        nombre: p?.productoTallaColor?.producto?.tipoProducto?.nombre || 'Producto desconocido',
         totalVendidas: parseInt(p.dataValues.totalVendidas || 0),
         totalIngresos: parseFloat(p.dataValues.totalIngresos || 0),
-        imagenes: p?.producto?.imagenes?.map(img => img.url_imagen || img.imagen_url) || []
+        imagenes: p?.productoTallaColor?.producto?.imagenes?.map(img => img.imagen_url) || []
       })),
       periodos: ventasAgrupadas.map(v => ({
         periodo: v.dataValues[campo[1]] || 'desconocido',
@@ -618,4 +687,22 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
 function isValidDate(dateString) {
   const date = new Date(dateString);
   return date instanceof Date && !isNaN(date);
+}
+// Helper function to resolve producto_talla_color_id
+async function resolveProductoTallaColorId(producto_id, talla_id, color_id, transaction) {
+  if (!producto_id || !talla_id || !color_id) {
+    throw new Error('Se requieren producto_id, talla_id y color_id.');
+  }
+
+  const productoTallaColor = await ProductoTallaColor.findOne({
+    where: { producto_id, talla_id, color_id },
+    attributes: ['id'],
+    transaction
+  });
+
+  if (!productoTallaColor) {
+    throw new Error('Combinación de producto, talla y color no encontrada.');
+  }
+
+  return productoTallaColor.id;
 }

@@ -130,7 +130,7 @@ const mapProductoCatalogo = (producto) => ({
     temporada: producto.Temporada?.temporada || null,
     variantes: producto.ProductoTallaColors.map(ptc => ({
         talla: ptc.Talla?.talla,
-        color: ptc.ColorProducto?.color,
+        color: ptc.color?.color,
     })),
         promocion: producto.promociones?.[0]
         ? {
@@ -159,11 +159,11 @@ const mapProductoTransformado = (producto) => ({
         producto_id: ptc.producto_id,
         stock: ptc.stock,
         talla: ptc.Talla ? { id: ptc.Talla.id, talla: ptc.Talla.talla } : null,
-        coloresStock: ptc.ColorProducto ? {
-            id: ptc.ColorProducto.id,
-            color: ptc.ColorProducto.color,
-            colorHex: ptc.ColorProducto.colorHex,
-            imagenes: ptc.ColorProducto.ImagenProductos.map(img => ({
+        coloresStock: ptc.color ? {
+            id: ptc.color.id,
+            color: ptc.color.color,
+            colorHex: ptc.color.colorHex,
+            imagenes: ptc.color.ImagenProductos.map(img => ({
                 id: img.id,
                 url: img.imagen_url,
             })),
@@ -189,7 +189,7 @@ const mapDeletedProductos = (producto) => ({
         producto_id: ptc.producto_id,
         stock: ptc.stock,
         talla: ptc.Talla ? { id: ptc.Talla.id, talla: ptc.Talla.talla } : null,
-        coloresStock: ptc.ColorProducto ? { id: ptc.ColorProducto.id, color: ptc.ColorProducto.color, colorHex: ptc.ColorProducto.colorHex } : null,
+        coloresStock: ptc.color ? { id: ptc.color.id, color: ptc.color.color, colorHex: ptc.color.colorHex } : null,
     })),
 });
 const formatLowStockProducts = (item) => ({
@@ -199,8 +199,8 @@ const formatLowStockProducts = (item) => ({
     categoria: item.Producto.Categorium.nombre || 'Sin categoría',
     talla: item.Talla?.talla || 'Sin talla',
     color: {
-        nombre: item.ColorProducto?.color || 'Sin color',
-        hex: item.ColorProducto?.colorHex || '#000000',
+        nombre: item.color?.color || 'Sin color',
+        hex: item.color?.colorHex || '#000000',
     },
 });
 exports.createProducto = async (req, res) => {
@@ -304,9 +304,10 @@ exports.getAllProductos = async (req, res) => {
           where: productoTallaColorWhere,
           attributes: ['stock'],
           include: [
-            { model: Talla, attributes: ['id', 'talla'] },
+            { model: Talla, as: 'talla' ,attributes: ['id', 'talla'] },
             {
               model: ColorProducto,
+              as: 'color',
               attributes: ['id', 'color', 'colorHex'],
               include: [
                 {
@@ -354,16 +355,15 @@ exports.getAllProductos = async (req, res) => {
       }
       return acc;
     }, {});
-
     const productosCatalogo = rows.map(producto => {
       const resumen = resumenCalificaciones[producto.id] || { promedio: 0, total: 0 };
-
+console.log(producto.ProductoTallaColors.color);
       return {
         ...mapProductoCatalogo(producto),
         calificacionPromedio: resumen.promedio,
         totalCalificaciones: resumen.total,
         imagenes: producto.ProductoTallaColors.flatMap(ptc =>
-          (ptc.ColorProducto?.ImagenProductos || [])
+          (ptc.color?.ImagenProductos || [])
             .filter(img => img.producto_id === producto.id)
             .map(img => ({
               url: img.imagen_url,
@@ -372,7 +372,7 @@ exports.getAllProductos = async (req, res) => {
         ),
         variantes: producto.ProductoTallaColors.map(ptc => ({
           talla: ptc.Talla?.talla,
-          color: ptc.ColorProducto?.color,
+          color: ptc.color?.color,
           stock: ptc.stock
         }))
       };
@@ -461,9 +461,10 @@ exports.getProductoById = async (req, res) => {
                     model: ProductoTallaColor,
                     attributes: ['id', 'producto_id', 'talla_id', 'color_id', 'stock'],
                     include: [
-                        { model: Talla, attributes: ['id', 'talla'] },
+                        { model: Talla,as:'talla' ,attributes: ['id', 'talla'] },
                         {
                             model: ColorProducto,
+                            as: 'color',
                             attributes: ['id', 'color', 'colorHex'],
                             include: [
                                 {
@@ -660,8 +661,8 @@ exports.getDeletedProductos = async (req, res) => {
                     model: ProductoTallaColor,
                     attributes: ['id', 'producto_id', 'talla_id', 'color_id', 'stock'],
                     include: [
-                        { model: Talla, attributes: ['id', 'talla'] },
-                        { model: ColorProducto, attributes: ['id', 'color', 'colorHex'] },
+                        { model: Talla, as:'talla', attributes: ['id', 'talla'] },
+                        { model: ColorProducto, as:'color', attributes: ['id', 'color', 'colorHex'] },
                     ],
                 },
             ],
@@ -742,8 +743,8 @@ exports.getLowStockProducts = async (req, res) => {
                         { model: Categoria, attributes: ['nombre'], as: 'Categorium' },
                     ],
                 },
-                { model: Talla, attributes: ['talla'] },
-                { model: ColorProducto, attributes: ['color', 'colorHex'] },
+                { model: Talla, as:'talla', attributes: ['talla'] },
+                { model: ColorProducto, as:'color', attributes: ['color', 'colorHex'] },
             ],
             order: [['stock', 'ASC'], [Product, 'Categorium', 'nombre', 'ASC']],
             raw: true,

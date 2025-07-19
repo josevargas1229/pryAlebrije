@@ -12,29 +12,24 @@ const DetalleVenta = sequelize.define('DetalleVenta', {
     allowNull: false,
     references: { model: 'ventas', key: 'id' }
   },
-  producto_id: {
+  producto_talla_color_id: {
     type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  talla_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  },
-  color_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: true,
+    references: { model: 'productos_tallas_colores', key: 'id' }
   },
   cantidad: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    defaultValue: 1
   },
   precio_unitario: {
-    type: DataTypes.DECIMAL(10,2),
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false
   },
   subtotal: {
-    type: DataTypes.DECIMAL(10,2),
-    allowNull: false
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: false,
+    defaultValue: 0.00
   }
 }, {
   tableName: 'detalle_venta',
