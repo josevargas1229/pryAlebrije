@@ -129,7 +129,7 @@ const mapProductoCatalogo = (producto) => ({
     estado: producto.estado,
     temporada: producto.Temporada?.temporada || null,
     variantes: producto.ProductoTallaColors.map(ptc => ({
-        talla: ptc.Talla?.talla,
+        talla: ptc.talla?.talla,
         color: ptc.color?.color,
     })),
         promocion: producto.promociones?.[0]
@@ -158,7 +158,7 @@ const mapProductoTransformado = (producto) => ({
         id: ptc.id,
         producto_id: ptc.producto_id,
         stock: ptc.stock,
-        talla: ptc.Talla ? { id: ptc.Talla.id, talla: ptc.Talla.talla } : null,
+        talla: ptc.talla ? { id: ptc.talla.id, talla: ptc.talla.talla } : null,
         coloresStock: ptc.color ? {
             id: ptc.color.id,
             color: ptc.color.color,
@@ -188,7 +188,7 @@ const mapDeletedProductos = (producto) => ({
         id: ptc.id,
         producto_id: ptc.producto_id,
         stock: ptc.stock,
-        talla: ptc.Talla ? { id: ptc.Talla.id, talla: ptc.Talla.talla } : null,
+        talla: ptc.talla ? { id: ptc.talla.id, talla: ptc.talla.talla } : null,
         coloresStock: ptc.color ? { id: ptc.color.id, color: ptc.color.color, colorHex: ptc.color.colorHex } : null,
     })),
 });
@@ -197,7 +197,7 @@ const formatLowStockProducts = (item) => ({
     nombre: `${item.Producto.TipoProducto.nombre || ''} ${item.Producto.Marca.nombre || ''} ${item.Producto.Categorium.nombre || ''}`.trim(),
     stock: item.stock,
     categoria: item.Producto.Categorium.nombre || 'Sin categoría',
-    talla: item.Talla?.talla || 'Sin talla',
+    talla: item.talla?.talla || 'Sin talla',
     color: {
         nombre: item.color?.color || 'Sin color',
         hex: item.color?.colorHex || '#000000',
@@ -371,7 +371,7 @@ console.log(producto.ProductoTallaColors.color);
             }))
         ),
         variantes: producto.ProductoTallaColors.map(ptc => ({
-          talla: ptc.Talla?.talla,
+          talla: ptc.talla?.talla,
           color: ptc.color?.color,
           stock: ptc.stock
         }))
