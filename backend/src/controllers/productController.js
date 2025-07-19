@@ -304,9 +304,10 @@ exports.getAllProductos = async (req, res) => {
           where: productoTallaColorWhere,
           attributes: ['stock'],
           include: [
-            { model: Talla, attributes: ['id', 'talla'] },
+            { model: Talla, as: 'talla' ,attributes: ['id', 'talla'] },
             {
               model: ColorProducto,
+              as: 'color',
               attributes: ['id', 'color', 'colorHex'],
               include: [
                 {
@@ -461,9 +462,10 @@ exports.getProductoById = async (req, res) => {
                     model: ProductoTallaColor,
                     attributes: ['id', 'producto_id', 'talla_id', 'color_id', 'stock'],
                     include: [
-                        { model: Talla, attributes: ['id', 'talla'] },
+                        { model: Talla,as:'talla' ,attributes: ['id', 'talla'] },
                         {
                             model: ColorProducto,
+                            as: 'color',
                             attributes: ['id', 'color', 'colorHex'],
                             include: [
                                 {
@@ -660,8 +662,8 @@ exports.getDeletedProductos = async (req, res) => {
                     model: ProductoTallaColor,
                     attributes: ['id', 'producto_id', 'talla_id', 'color_id', 'stock'],
                     include: [
-                        { model: Talla, attributes: ['id', 'talla'] },
-                        { model: ColorProducto, attributes: ['id', 'color', 'colorHex'] },
+                        { model: Talla, as:'talla', attributes: ['id', 'talla'] },
+                        { model: ColorProducto, as:'color', attributes: ['id', 'color', 'colorHex'] },
                     ],
                 },
             ],
@@ -742,8 +744,8 @@ exports.getLowStockProducts = async (req, res) => {
                         { model: Categoria, attributes: ['nombre'], as: 'Categorium' },
                     ],
                 },
-                { model: Talla, attributes: ['talla'] },
-                { model: ColorProducto, attributes: ['color', 'colorHex'] },
+                { model: Talla, as:'talla', attributes: ['talla'] },
+                { model: ColorProducto, as:'color', attributes: ['color', 'colorHex'] },
             ],
             order: [['stock', 'ASC'], [Product, 'Categorium', 'nombre', 'ASC']],
             raw: true,
