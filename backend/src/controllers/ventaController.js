@@ -1,6 +1,6 @@
 const sequelize = require('../config/database');
 const { Venta, DetalleVenta, User, Product, Talla, ColorProducto, TipoProducto, ProductoTallaColor, ImagenProducto } = require('../models/associations');
-const { Op } = require('sequelize');
+const { Op, literal } = require('sequelize');
 const axios = require('axios');
 const Transaccion = require('../models/Transaccion');
 const { crearNotificacion } = require('./notificacionController'); // asegúrate que la ruta sea correcta
