@@ -638,7 +638,7 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
           ]
         }
       ],
-      group: ['DetalleVenta.producto_talla_color_id', 'productoTallaColor.producto_id'], // Group by producto_talla_color_id and producto_id
+      group: ['DetalleVenta.producto_talla_color_id'], // Group by producto_talla_color_id and producto_id
       order: [[sequelize.literal('totalVendidas'), 'DESC']],
       limit: 3
     });
