@@ -378,9 +378,9 @@ exports.createPreference = async (req, res) => {
     const preference = {
       items,
       back_urls: {
-        success: 'http://localhost:4200/success',
-        failure: 'http://localhost:4200/failure',
-        pending: 'http://localhost:4200/pending'
+        success: 'https://alebrije.onrender.com/success',
+        failure: 'https://alebrije.onrender.com/failure',
+        pending: 'https://alebrije.onrender.com/pending'
       },
       //auto_return: 'approved'
     };

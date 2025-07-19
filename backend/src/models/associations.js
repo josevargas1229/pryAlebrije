@@ -51,11 +51,11 @@ ProductoTallaColor.belongsTo(Product, { foreignKey: 'producto_id', as: 'producto
 
 // Asociación entre Talla y ProductoTallaColor
 Talla.hasMany(ProductoTallaColor, { foreignKey: 'talla_id' });
-ProductoTallaColor.belongsTo(Talla, { foreignKey: 'talla_id' });
+ProductoTallaColor.belongsTo(Talla, { foreignKey: 'talla_id', as: 'talla' });
 
 // Asociación entre ColorProducto y ProductoTallaColor
 ColorProducto.hasMany(ProductoTallaColor, { foreignKey: 'color_id' });
-ProductoTallaColor.belongsTo(ColorProducto, { foreignKey: 'color_id' });
+ProductoTallaColor.belongsTo(ColorProducto, { foreignKey: 'color_id', as: 'color' });
 
 // Asociaciones de Promociones
 Promocion.belongsToMany(Product, { through: PromocionProducto, foreignKey: 'promocion_id', as: 'productos' });
