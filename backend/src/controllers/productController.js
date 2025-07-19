@@ -130,7 +130,7 @@ const mapProductoCatalogo = (producto) => ({
     temporada: producto.Temporada?.temporada || null,
     variantes: producto.ProductoTallaColors.map(ptc => ({
         talla: ptc.Talla?.talla,
-        color: ptc.ColorProducto?.color,
+        color: ptc.Color?.color,
     })),
         promocion: producto.promociones?.[0]
         ? {
@@ -159,11 +159,11 @@ const mapProductoTransformado = (producto) => ({
         producto_id: ptc.producto_id,
         stock: ptc.stock,
         talla: ptc.Talla ? { id: ptc.Talla.id, talla: ptc.Talla.talla } : null,
-        coloresStock: ptc.ColorProducto ? {
-            id: ptc.ColorProducto.id,
-            color: ptc.ColorProducto.color,
-            colorHex: ptc.ColorProducto.colorHex,
-            imagenes: ptc.ColorProducto.ImagenProductos.map(img => ({
+        coloresStock: ptc.Color ? {
+            id: ptc.Color.id,
+            color: ptc.Color.color,
+            colorHex: ptc.Color.colorHex,
+            imagenes: ptc.Color.ImagenProductos.map(img => ({
                 id: img.id,
                 url: img.imagen_url,
             })),
@@ -189,7 +189,7 @@ const mapDeletedProductos = (producto) => ({
         producto_id: ptc.producto_id,
         stock: ptc.stock,
         talla: ptc.Talla ? { id: ptc.Talla.id, talla: ptc.Talla.talla } : null,
-        coloresStock: ptc.ColorProducto ? { id: ptc.ColorProducto.id, color: ptc.ColorProducto.color, colorHex: ptc.ColorProducto.colorHex } : null,
+        coloresStock: ptc.Color ? { id: ptc.Color.id, color: ptc.Color.color, colorHex: ptc.Color.colorHex } : null,
     })),
 });
 const formatLowStockProducts = (item) => ({
@@ -199,8 +199,8 @@ const formatLowStockProducts = (item) => ({
     categoria: item.Producto.Categorium.nombre || 'Sin categoría',
     talla: item.Talla?.talla || 'Sin talla',
     color: {
-        nombre: item.ColorProducto?.color || 'Sin color',
-        hex: item.ColorProducto?.colorHex || '#000000',
+        nombre: item.Color?.color || 'Sin color',
+        hex: item.Color?.colorHex || '#000000',
     },
 });
 exports.createProducto = async (req, res) => {
@@ -364,7 +364,7 @@ exports.getAllProductos = async (req, res) => {
         calificacionPromedio: resumen.promedio,
         totalCalificaciones: resumen.total,
         imagenes: producto.ProductoTallaColors.flatMap(ptc =>
-          (ptc.ColorProducto?.ImagenProductos || [])
+          (ptc.Color?.ImagenProductos || [])
             .filter(img => img.producto_id === producto.id)
             .map(img => ({
               url: img.imagen_url,
@@ -373,7 +373,7 @@ exports.getAllProductos = async (req, res) => {
         ),
         variantes: producto.ProductoTallaColors.map(ptc => ({
           talla: ptc.Talla?.talla,
-          color: ptc.ColorProducto?.color,
+          color: ptc.Color?.color,
           stock: ptc.stock
         }))
       };
