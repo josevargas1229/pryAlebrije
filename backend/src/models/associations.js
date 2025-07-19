@@ -148,16 +148,9 @@ Venta.belongsTo(Empleado, { foreignKey: 'empleado_id' });
 Venta.hasMany(DetalleVenta, { foreignKey: 'venta_id', as: 'detalles' });
 DetalleVenta.belongsTo(Venta, { foreignKey: 'venta_id', as: 'venta' });
 
-// Asociación entre DetalleVenta y Producto (Cada detalle pertenece a un producto)
-DetalleVenta.belongsTo(Product, { foreignKey: 'producto_id', as: 'producto' });
-
-// Asociación entre DetalleVenta y Talla (Cada detalle tiene una talla)
-Talla.hasMany(DetalleVenta, { foreignKey: 'talla_id' });
-DetalleVenta.belongsTo(Talla, { foreignKey: 'talla_id', as: 'talla' });  // Agregué alias aquí
-
-// Asociación entre DetalleVenta y ColorProducto (Cada detalle tiene un color)
-ColorProducto.hasMany(DetalleVenta, { foreignKey: 'color_id' });
-DetalleVenta.belongsTo(ColorProducto, { foreignKey: 'color_id', as: 'color' });  // Agregué alias aquí
+// Asociación entre DetalleVenta y ProductoTallaColor
+ProductoTallaColor.hasMany(DetalleVenta, { foreignKey: 'producto_talla_color_id', as: 'detalles' });
+DetalleVenta.belongsTo(ProductoTallaColor, { foreignKey: 'producto_talla_color_id', as: 'productoTallaColor' });
 
 // Relación entre Producto y TipoProducto (cada producto tiene un tipo)
 TipoProducto.hasMany(Product, { foreignKey: 'tipo_id' });

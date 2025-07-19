@@ -14,9 +14,6 @@ const mp = new mercadopago.MercadoPagoConfig({
 
 const preferenceClient = new mercadopago.Preference(mp);
 
-
-
-
 /**
  * Crear una nueva venta con detalles
  */
@@ -46,8 +43,11 @@ exports.createVenta = async (req, res) => {
         return res.status(400).json({ message: "Los productos deben tener talla y color." });
       }
 
-      const productoTallaColor = await ProductoTallaColor.findOne({
-        where: { producto_id, talla_id, color_id }
+      const producto_talla_color_id = await resolveProductoTallaColorId(producto_id, talla_id, color_id, transaction);
+
+      const productoTallaColor = await ProductoTallaColor.findByPk(producto_talla_color_id, {
+        include: [{ model: Product, as: 'producto', include: [{ model: TipoProducto, as: 'tipoProducto' }] }],
+        transaction
       });
 
       if (!productoTallaColor) {
@@ -70,7 +70,8 @@ exports.createVenta = async (req, res) => {
             },
             required: false
           }
-        ]
+        ],
+        transaction
       });
 
       let precio_unitario = parseFloat(producto.precio);
@@ -85,9 +86,7 @@ exports.createVenta = async (req, res) => {
 
       await DetalleVenta.create({
         venta_id: nuevaVenta.id,
-        producto_id,
-        talla_id,
-        color_id,
+        producto_talla_color_id,
         cantidad,
         precio_unitario,
         subtotal: +(precio_unitario * cantidad).toFixed(2)
@@ -124,48 +123,65 @@ exports.getVentasByUsuario = async (req, res) => {
           as: 'detalles',
           include: [
             {
-              model: Product,
-              as: 'producto',
-              attributes: ['id', 'precio'],
+              model: ProductoTallaColor,
+              as: 'productoTallaColor',
               include: [
                 {
-                  model: TipoProducto,
-                  as: 'tipoProducto',
-                  attributes: ['nombre']
+                  model: Product,
+                  as: 'producto',
+                  attributes: ['id', 'precio'],
+                  include: [
+                    {
+                      model: TipoProducto,
+                      as: 'tipoProducto',
+                      attributes: ['nombre']
+                    },
+                    {
+                      model: ImagenProducto,
+                      as: 'imagenes',
+                      attributes: ['imagen_url']
+                    }
+                  ]
                 },
                 {
-                  model: ImagenProducto,
-                  as: 'imagenes', // Alias correcto para ImagenProducto
-                  attributes: ['imagen_url']
+                  model: Talla,
+                  as: 'talla',
+                  attributes: ['talla']
+                },
+                {
+                  model: ColorProducto,
+                  as: 'color',
+                  attributes: ['color', 'colorHex']
                 }
               ]
-            },
-            {
-              model: Talla,
-              as: 'talla',  // Cambié de 'Talla' a 'talla' para que coincida con tus asociaciones.
-              attributes: ['talla']
-            },
-            {
-              model: ColorProducto,
-              as: 'color', // Cambié de 'ColorProducto' a 'color' para que coincida con tus asociaciones.
-              attributes: ['color', 'colorHex']
             }
           ]
         }
       ],
-      order: [['fecha_venta', 'DESC']],
+      order: [['fecha_venta', 'DESC']]
     });
 
+    // Map response to match frontend's expected structure
+    const formattedVentas = ventas.map(venta => ({
+      ...venta.toJSON(),
+      detalles: venta.detalles.map(detalle => ({
+        ...detalle.toJSON(),
+        producto_id: detalle.productoTallaColor?.producto?.id || 0,
+        talla_id: detalle.productoTallaColor?.talla_id || 0,
+        color_id: detalle.productoTallaColor?.color_id || 0,
+        producto: detalle.productoTallaColor?.producto || { id: 0, precio: 0, tipoProducto: { nombre: 'Desconocido' }, imagenes: [] },
+        talla: detalle.productoTallaColor?.talla || { talla: 'Desconocida' },
+        color: detalle.productoTallaColor?.color || { color: 'Desconocido', colorHex: '#000000' }
+      }))
+    }));
 
-    return res.status(200).json({ ventas });
+    return res.status(200).json({ ventas: formattedVentas });
 
   } catch (error) {
     console.error('Error al obtener ventas del usuario:', error);
     return res.status(500).json({ message: "Error al obtener las ventas.", error: error.message });
   }
 };
-
-
 
 /**
  * Obtener detalles de una venta específica
@@ -180,34 +196,40 @@ exports.getVentaById = async (req, res) => {
         { model: User, attributes: ['nombre', 'email'] },
         {
           model: DetalleVenta,
-          as: 'detalles', // Asegúrate de usar el alias 'detalles' aquí
+          as: 'detalles',
           include: [
             {
-              model: Product,
-              as: 'producto',
-              attributes: ['id', 'precio'],
+              model: ProductoTallaColor,
+              as: 'productoTallaColor',
               include: [
                 {
-                  model: TipoProducto,
-                  as: 'tipoProducto',
-                  attributes: ['nombre']
+                  model: Product,
+                  as: 'producto',
+                  attributes: ['id', 'precio'],
+                  include: [
+                    {
+                      model: TipoProducto,
+                      as: 'tipoProducto',
+                      attributes: ['nombre']
+                    },
+                    {
+                      model: ImagenProducto,
+                      as: 'imagenes',
+                      attributes: ['imagen_url']
+                    }
+                  ]
                 },
                 {
-                  model: ImagenProducto,
-                  as: 'imagenes',
-                  attributes: ['imagen_url']
+                  model: Talla,
+                  as: 'talla',
+                  attributes: ['talla']
+                },
+                {
+                  model: ColorProducto,
+                  as: 'color',
+                  attributes: ['color', 'colorHex']
                 }
               ]
-            },
-            {
-              model: Talla,
-              as: 'talla',
-              attributes: ['talla']
-            },
-            {
-              model: ColorProducto,
-              as: 'color',
-              attributes: ['color', 'colorHex']
             }
           ]
         }
@@ -218,7 +240,21 @@ exports.getVentaById = async (req, res) => {
       return res.status(404).json({ message: "Venta no encontrada." });
     }
 
-    return res.status(200).json({ venta });
+    // Map response to match frontend's expected structure
+    const formattedVenta = {
+      ...venta.toJSON(),
+      detalles: venta.detalles.map(detalle => ({
+        ...detalle.toJSON(),
+        producto_id: detalle.productoTallaColor?.producto?.id || 0,
+        talla_id: detalle.productoTallaColor?.talla_id || 0,
+        color_id: detalle.productoTallaColor?.color_id || 0,
+        producto: detalle.productoTallaColor?.producto || { id: 0, precio: 0, tipoProducto: { nombre: 'Desconocido' }, imagenes: [] },
+        talla: detalle.productoTallaColor?.talla || { talla: 'Desconocida' },
+        color: detalle.productoTallaColor?.color || { color: 'Desconocido', colorHex: '#000000' }
+      }))
+    };
+
+    return res.status(200).json({ venta: formattedVenta });
 
   } catch (error) {
     console.error('Error al obtener la venta:', error);
@@ -370,22 +406,32 @@ exports.getEstadisticasVentas = async (req, res) => {
     // Productos más vendidos (top 5)
     const productosMasVendidos = await DetalleVenta.findAll({
       attributes: [
-        'producto_id',
         [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas']
       ],
-      group: ['producto_id'],
+      include: [
+        {
+          model: ProductoTallaColor,
+          as: 'productoTallaColor',
+          attributes: ['producto_id'],
+          include: [
+            {
+              model: Product,
+              as: 'producto',
+              attributes: ['id'],
+              include: [
+                {
+                  model: TipoProducto,
+                  as: 'tipoProducto',
+                  attributes: ['nombre']
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      group: ['productoTallaColor.producto_id'],
       order: [[sequelize.literal('totalVendidas'), 'DESC']],
-      limit: 5,
-      include: [{
-        model: Product,
-        as: 'producto',
-        attributes: ['id'],
-        include: [{
-          model: TipoProducto,
-          as: 'tipoProducto',
-          attributes: ['nombre']
-        }]
-      }]
+      limit: 5
     });
 
     let agrupamiento;
@@ -428,7 +474,6 @@ exports.getEstadisticasVentas = async (req, res) => {
     return res.status(500).json({ error: 'No se pudieron obtener las estadísticas de ventas.' });
   }
 };
-
 exports.registrarTransaccionMercadoPago = async (req, res) => {
   try {
     const { venta_id, usuario_id, paymentData } = req.body;
@@ -553,7 +598,6 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
     // Productos más vendidos (top 3 para respuestas breves en voz)
     const productosMasVendidos = await DetalleVenta.findAll({
       attributes: [
-        'producto_id',
         [sequelize.fn('SUM', sequelize.col('cantidad')), 'totalVendidas'],
         [sequelize.fn('SUM', sequelize.col('subtotal')), 'totalIngresos']
       ],
@@ -565,33 +609,32 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
           where: whereClause
         },
         {
-          model: Product,
-          as: 'producto',
-          attributes: ['id'],
+          model: ProductoTallaColor,
+          as: 'productoTallaColor',
+          attributes: ['producto_id'],
           include: [
             {
-              model: TipoProducto,
-              as: 'tipoProducto',
-              attributes: ['nombre']
-            },
-            {
-              model: ImagenProducto,
-              as: 'imagenes',
-              attributes: ['imagen_url'],
-              required: false // LEFT JOIN para incluir productos sin imágenes
+              model: Product,
+              as: 'producto',
+              attributes: ['id'],
+              include: [
+                {
+                  model: TipoProducto,
+                  as: 'tipoProducto',
+                  attributes: ['nombre']
+                },
+                {
+                  model: ImagenProducto,
+                  as: 'imagenes',
+                  attributes: ['imagen_url'],
+                  required: false
+                }
+              ]
             }
           ]
         }
       ],
-      where: sequelize.literal(`
-        EXISTS (
-          SELECT 1 FROM productos_tallas_colores ptc
-          WHERE ptc.producto_id = DetalleVenta.producto_id
-          AND ptc.talla_id = DetalleVenta.talla_id
-          AND ptc.color_id = DetalleVenta.color_id
-        )
-      `),
-      group: ['DetalleVenta.producto_id'], // Agrupar por producto_id
+      group: ['productoTallaColor.producto_id'],
       order: [[sequelize.literal('totalVendidas'), 'DESC']],
       limit: 3
     });
@@ -613,10 +656,10 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
       totalVentas: 0,
       totalIngresos: 0,
       productosMasVendidos: productosMasVendidos.map(p => ({
-        nombre: p?.producto?.tipoProducto?.nombre || 'Producto desconocido',
+        nombre: p?.productoTallaColor?.producto?.tipoProducto?.nombre || 'Producto desconocido',
         totalVendidas: parseInt(p.dataValues.totalVendidas || 0),
         totalIngresos: parseFloat(p.dataValues.totalIngresos || 0),
-        imagenes: p?.producto?.imagenes?.map(img => img.imagen_url) || []
+        imagenes: p?.productoTallaColor?.producto?.imagenes?.map(img => img.imagen_url) || []
       })),
       periodos: ventasAgrupadas.map(v => ({
         periodo: v.dataValues[campo[1]] || 'desconocido',
@@ -640,4 +683,22 @@ exports.getEstadisticasVentasAlexa = async (req, res) => {
 function isValidDate(dateString) {
   const date = new Date(dateString);
   return date instanceof Date && !isNaN(date);
+}
+// Helper function to resolve producto_talla_color_id
+async function resolveProductoTallaColorId(producto_id, talla_id, color_id, transaction) {
+  if (!producto_id || !talla_id || !color_id) {
+    throw new Error('Se requieren producto_id, talla_id y color_id.');
+  }
+
+  const productoTallaColor = await ProductoTallaColor.findOne({
+    where: { producto_id, talla_id, color_id },
+    attributes: ['id'],
+    transaction
+  });
+
+  if (!productoTallaColor) {
+    throw new Error('Combinación de producto, talla y color no encontrada.');
+  }
+
+  return productoTallaColor.id;
 }
