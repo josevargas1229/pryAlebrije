@@ -125,11 +125,6 @@ exports.login = async (req, res, next) => {
       return res.status(401).json({ message: "Credenciales inválidas" });
     }
 
-    // Verificar que el usuario es administrador
-    if (user.rol_id !== 1) {
-      return res.status(403).json({ message: "Solo los administradores pueden acceder" });
-    }
-
     await Promise.all([
       IntentoFallido.destroy({ where: { account_id: user.Account.id } }),
       user.Account.update({ ultimo_acceso: new Date() })
