@@ -6,7 +6,10 @@ const { uploadImageToCloudinary } = require('../config/cloudinaryConfig');
 const logAudit = require('../utils/audit');
 const { crearNotificacion } = require('./notificacionController');
 const {Promocion} = require ('../models/associations')
+const axios = require('axios');
 
+// URL base del servicio Flask (ajusta según tu configuración)
+const FLASK_API_URL = 'http://localhost:5000';
 
 const fetchModelData = async (model, orderField) => {
     return model.findAll({ order: [[orderField, 'ASC']] });
@@ -357,7 +360,6 @@ exports.getAllProductos = async (req, res) => {
     }, {});
     const productosCatalogo = rows.map(producto => {
       const resumen = resumenCalificaciones[producto.id] || { promedio: 0, total: 0 };
-console.log(producto.ProductoTallaColors.color);
       return {
         ...mapProductoCatalogo(producto),
         calificacionPromedio: resumen.promedio,
@@ -461,7 +463,7 @@ exports.getProductoById = async (req, res) => {
                     model: ProductoTallaColor,
                     attributes: ['id', 'producto_id', 'talla_id', 'color_id', 'stock'],
                     include: [
-                        { model: Talla,as:'talla' ,attributes: ['id', 'talla'] },
+                        { model: Talla, as: 'talla', attributes: ['id', 'talla'] },
                         {
                             model: ColorProducto,
                             as: 'color',
@@ -494,31 +496,76 @@ exports.getProductoById = async (req, res) => {
             return res.status(404).json({ message: 'Producto no encontrado.' });
         }
 
-        const productoTransformado = mapProductoTransformado(producto);
-        // Incluir promedio y total de calificaciones
-const calificaciones = await CalificacionProducto.findAll({ where: { producto_id: id } });
-if (calificaciones.length > 0) {
-    const suma = calificaciones.reduce((acc, c) => acc + c.calificacion, 0);
-    productoTransformado.calificacionPromedio = parseFloat((suma / calificaciones.length).toFixed(1));
-    productoTransformado.totalCalificaciones = calificaciones.length;
-} else {
-    productoTransformado.calificacionPromedio = 0;
-    productoTransformado.totalCalificaciones = 0;
-}
+        const productoTransformado = mapProductoCatalogo(producto);
 
+        // Obtener calificaciones
+        const calificaciones = await CalificacionProducto.findAll({ where: { producto_id: id } });
+        productoTransformado.calificacionPromedio = calificaciones.length > 0
+            ? parseFloat((calificaciones.reduce((acc, c) => acc + c.calificacion, 0) / calificaciones.length).toFixed(1))
+            : 0;
+        productoTransformado.totalCalificaciones = calificaciones.length;
 
-        // Agregar la promoción (si existe) al objeto de respuesta
-        productoTransformado.promocion = producto.promociones?.[0]
-            ? {
-                id: producto.promociones[0].id,
-                nombre: producto.promociones[0].nombre,
-                descuento: producto.promociones[0].descuento,
-                fecha_inicio: producto.promociones[0].fecha_inicio,
-                fecha_fin: producto.promociones[0].fecha_fin
-            }
-            : null;
+        // Obtener productos relacionados
+        let productosRelacionados = [];
+        try {
+            const response = await axios.get(`${FLASK_API_URL}/related_products`, {
+                params: { product_id: id, top_n: 5 },
+            });
+            const recomendaciones = response.data.recommendations || [];
+            productosRelacionados = await Promise.all(
+                recomendaciones.map(async (rec) => {
+                    const productoRec = await Product.findByPk(rec.producto_id, {
+                        attributes: ['id', 'precio', 'estado'],
+                        include: [
+                            { model: Temporada, attributes: ['temporada'] },
+                            { model: Categoria, attributes: ['nombre'] },
+                            { model: TipoProducto, attributes: ['nombre'] },
+                            { model: Marca, attributes: ['nombre'] },
+                            {
+                                model: ProductoTallaColor,
+                                attributes: ['stock', 'talla_id', 'color_id'],
+                                include: [
+                                    { model: Talla, as: 'talla', attributes: ['talla'] },
+                                    { model: ColorProducto, as: 'color', attributes: ['color'] },
+                                ],
+                            },
+                            {
+                                model: Promocion,
+                                as: 'promociones',
+                                attributes: ['id', 'nombre', 'descuento', 'fecha_inicio', 'fecha_fin'],
+                                where: {
+                                    fecha_inicio: { [Op.lte]: new Date() },
+                                    fecha_fin: { [Op.gte]: new Date() },
+                                },
+                                required: false,
+                            },
+                            {
+                                model: ImagenProducto,
+                                attributes: ['imagen_url'],
+                                where: { producto_id: sequelize.col('Producto.id') },
+                                required: false,
+                            },
+                        ],
+                    });
+                    if (!productoRec) return null;
+                    const mappedProducto = mapProductoCatalogo(productoRec);
+                    const calificacionesRec = await CalificacionProducto.findAll({ where: { producto_id: productoRec.id } });
+                    mappedProducto.calificacionPromedio = calificacionesRec.length > 0
+                        ? parseFloat((calificacionesRec.reduce((acc, c) => acc + c.calificacion, 0) / calificacionesRec.length).toFixed(1))
+                        : 0;
+                    mappedProducto.totalCalificaciones = calificacionesRec.length;
+                    return mappedProducto;
+                })
+            );
+            productosRelacionados = productosRelacionados.filter(p => p !== null);
+        } catch (error) {
+            console.error('Error al obtener productos relacionados desde Flask:', error.message);
+        }
 
-        res.status(200).json({ producto: productoTransformado });
+        res.status(200).json({
+            producto: productoTransformado,
+            productosRelacionados: productosRelacionados
+        });
     } catch (error) {
         console.error('Error al obtener el producto:', error);
         res.status(500).json({ message: 'Error al obtener el producto', error: error.message });
@@ -763,5 +810,91 @@ exports.getLowStockProducts = async (req, res) => {
     } catch (error) {
         console.error('Error al obtener productos con bajo stock:', error);
         res.status(500).json({ message: 'Error al obtener productos con bajo stock', error: error.message });
+    }
+};
+// Nueva ruta para obtener recomendaciones personalizadas por usuario
+exports.getRecomendacionesPorUsuario = async (req, res) => {
+    try {
+        const { userId: userIdFromToken } = req.user || {};
+        const { top_n = 10, min_confidence = 0.1 } = req.query;
+
+        if (!userIdFromToken) {
+            return res.status(401).json({ message: 'Se requiere autenticación para obtener recomendaciones personalizadas.' });
+        }
+
+        // Validar parámetros
+        if (top_n < 1 || top_n > 10) {
+            return res.status(400).json({ message: 'top_n debe estar entre 1 y 10' });
+        }
+        if (min_confidence < 0 || min_confidence > 1) {
+            return res.status(400).json({ message: 'min_confidence debe estar entre 0 y 1' });
+        }
+
+        // Llamar al servicio Flask para obtener recomendaciones
+        let recomendacionesPersonalizadas = [];
+        try {
+            const response = await axios.get(`${FLASK_API_URL}/recommend`, {
+                params: { user_id: userIdFromToken, top_n, min_confidence },
+            });
+            const recomendaciones = response.data.recommendations || [];
+            recomendacionesPersonalizadas = await Promise.all(
+                recomendaciones.map(async (rec) => {
+                    const productoRec = await Product.findByPk(rec.producto_id, {
+                        attributes: ['id', 'precio', 'estado'],
+                        include: [
+                            { model: Temporada, attributes: ['temporada'] },
+                            { model: Categoria, attributes: ['nombre'] },
+                            { model: TipoProducto, attributes: ['nombre'] },
+                            { model: Marca, attributes: ['nombre'] },
+                            {
+                                model: ProductoTallaColor,
+                                attributes: ['stock', 'talla_id', 'color_id'],
+                                include: [
+                                    { model: Talla, as: 'talla', attributes: ['talla'] },
+                                    { model: ColorProducto, as: 'color', attributes: ['color'] },
+                                ],
+                            },
+                            {
+                                model: Promocion,
+                                as: 'promociones',
+                                attributes: ['id', 'nombre', 'descuento', 'fecha_inicio', 'fecha_fin'],
+                                where: {
+                                    fecha_inicio: { [Op.lte]: new Date() },
+                                    fecha_fin: { [Op.gte]: new Date() },
+                                },
+                                required: false,
+                            },
+                            {
+                                model: ImagenProducto,
+                                attributes: ['imagen_url'],
+                                where: { producto_id: sequelize.col('Producto.id') },
+                                required: false,
+                            },
+                        ],
+                    });
+                    if (!productoRec) return null;
+                    const mappedProducto = mapProductoCatalogo(productoRec);
+                    const calificacionesRec = await CalificacionProducto.findAll({ where: { producto_id: productoRec.id } });
+                    mappedProducto.calificacionPromedio = calificacionesRec.length > 0
+                        ? parseFloat((calificacionesRec.reduce((acc, c) => acc + c.calificacion, 0) / calificacionesRec.length).toFixed(1))
+                        : 0;
+                    mappedProducto.totalCalificaciones = calificacionesRec.length;
+                    return mappedProducto;
+                })
+            );
+            recomendacionesPersonalizadas = recomendacionesPersonalizadas.filter(p => p !== null);
+        } catch (error) {
+            console.error('Error al obtener recomendaciones personalizadas desde Flask:', error.message);
+            // Continuar con respuesta vacía en caso de error en Flask
+            recomendacionesPersonalizadas = [];
+        }
+
+        res.status(200).json({
+            user_id: userIdFromToken,
+            recomendacionesPersonalizadas,
+        });
+    } catch (error) {
+        console.error('Error al obtener recomendaciones por usuario:', error);
+        res.status(500).json({ message: 'Error al obtener recomendaciones personalizadas', error: error.message });
     }
 };

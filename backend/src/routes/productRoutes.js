@@ -19,6 +19,7 @@ router.post(
 
 router.get('/', productoController.getAllProductos);
 router.get('/filters', productoController.getAllFilters);
+router.get('recomended', authenticateToken, productoController.getRecomendacionesPorUsuario);
 router.get('/low-stock', authenticateToken, productoController.getLowStockProducts);
 router.get(
     '/eliminados',
