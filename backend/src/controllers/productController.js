@@ -452,6 +452,7 @@ exports.getProductoById = async (req, res) => {
     try {
         const { id } = req.params;
 
+        // Fetch the main product
         const producto = await Product.findByPk(id, {
             attributes: { exclude: ['created_by', 'updated_by', 'deleted_by', 'deleted_at', 'is_deleted'] },
             include: [
@@ -496,16 +497,28 @@ exports.getProductoById = async (req, res) => {
             return res.status(404).json({ message: 'Producto no encontrado.' });
         }
 
-        const productoTransformado = mapProductoCatalogo(producto);
+        // Transform the main product
+        const productoTransformado = mapProductoTransformado(producto);
 
-        // Obtener calificaciones
+        // Add ratings
         const calificaciones = await CalificacionProducto.findAll({ where: { producto_id: id } });
         productoTransformado.calificacionPromedio = calificaciones.length > 0
             ? parseFloat((calificaciones.reduce((acc, c) => acc + c.calificacion, 0) / calificaciones.length).toFixed(1))
             : 0;
         productoTransformado.totalCalificaciones = calificaciones.length;
 
-        // Obtener productos relacionados
+        // Add promotion (if exists) as in the original code
+        productoTransformado.promocion = producto.promociones?.[0]
+            ? {
+                id: producto.promociones[0].id,
+                nombre: producto.promociones[0].nombre,
+                descuento: producto.promociones[0].descuento,
+                fecha_inicio: producto.promociones[0].fecha_inicio,
+                fecha_fin: producto.promociones[0].fecha_fin
+            }
+            : null;
+
+        // Fetch related products
         let productosRelacionados = [];
         try {
             const response = await axios.get(`${FLASK_API_URL}/related_products`, {
@@ -549,6 +562,17 @@ exports.getProductoById = async (req, res) => {
                     });
                     if (!productoRec) return null;
                     const mappedProducto = mapProductoCatalogo(productoRec);
+                    // Add promotion for related product
+                    mappedProducto.promocion = productoRec.promociones?.[0]
+                        ? {
+                            id: productoRec.promociones[0].id,
+                            nombre: productoRec.promociones[0].nombre,
+                            descuento: productoRec.promociones[0].descuento,
+                            fecha_inicio: productoRec.promociones[0].fecha_inicio,
+                            fecha_fin: productoRec.promociones[0].fecha_fin
+                        }
+                        : null;
+                    // Add ratings for related product
                     const calificacionesRec = await CalificacionProducto.findAll({ where: { producto_id: productoRec.id } });
                     mappedProducto.calificacionPromedio = calificacionesRec.length > 0
                         ? parseFloat((calificacionesRec.reduce((acc, c) => acc + c.calificacion, 0) / calificacionesRec.length).toFixed(1))
@@ -560,6 +584,7 @@ exports.getProductoById = async (req, res) => {
             productosRelacionados = productosRelacionados.filter(p => p !== null);
         } catch (error) {
             console.error('Error al obtener productos relacionados desde Flask:', error.message);
+            // Continue without related products if the API call fails
         }
 
         res.status(200).json({
