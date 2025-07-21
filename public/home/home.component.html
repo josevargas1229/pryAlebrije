@@ -1,64 +1,209 @@
-<div class="hero">
-  <div class="hero-content">
-    <h1>Bienvenido a Alebrije Boutique</h1>
-    <p>Explora nuestra colección de ropa para niños, priorizando comodidad, calidad y estilo.</p>
-    <div class="search-bar">
-      <input type="text" placeholder="Busca ropa y más" />
-      <button mat-button routerLink="/productos" routerLinkActive="active">
-        <mat-icon>search</mat-icon>
-      </button>
-    </div>
+<!-- Hero Section Premium (Simplificado a un solo contenedor) -->
+<div class="hero-section" [ngStyle]="{ 'background-image': 'url(' + carruselUrl + ')' }">
+  <span class="hero-badge">Colección Premium</span>
+  <h1 class="hero-title">Alebrije Boutique</h1>
+  <p class="hero-subtitle">
+    Ropa infantil mexicana de calidad excepcional.<br>
+    Comodidad, estilo y tradición en cada prenda.
+  </p>
+
+  <div class="hero-search">
+    <button mat-raised-button color="primary" class="cta-button" routerLink="menu-catalogo/productos">
+      <mat-icon>explore</mat-icon>
+      Explorar Catálogo
+    </button>
   </div>
 </div>
 
-<section class="section">
-  <h2>Más vendida</h2>
 
-  <div class="products-grid fade-in" #homeContainer>
-    <div class="product-card" *ngFor="let product of bestSellers">
-      <img [src]="imageUrl" alt="{{ product.title }}">
-      <p>{{ product.title }}</p>
-      <span>${{ product.price }}</span>
+
+<!-- About Section -->
+<section class="about-section" #aboutSection>
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-content">
+        <span class="section-badge">Nuestra Historia</span>
+        <h2 class="section-title">¿Quiénes Somos?</h2>
+        <p class="section-description">
+          En <strong>Alebrije Boutique</strong> nos especializamos en crear experiencias únicas a través de
+          nuestra colección de ropa infantil mexicana. Cada prenda refleja la riqueza de nuestra cultura,
+          combinando tradición artesanal con diseños contemporáneos.
+        </p>
+        <ul class="feature-list">
+          <li>
+            <mat-icon>check_circle</mat-icon>
+            <span>Diseños únicos inspirados en la cultura mexicana</span>
+          </li>
+          <li>
+            <mat-icon>check_circle</mat-icon>
+            <span>Materiales de primera calidad y durables</span>
+          </li>
+          <li>
+            <mat-icon>check_circle</mat-icon>
+            <span>Comodidad garantizada para el día a día</span>
+          </li>
+        </ul>
+      </div>
+      <div class="about-visual">
+        <div class="visual-card">
+          <mat-icon class="visual-icon">palette</mat-icon>
+          <h4>Diseño Auténtico</h4>
+          <p>Cada pieza cuenta una historia</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="section">
-  <h2>Ofertas de liquidación</h2>
-  <div class="products-grid fade-in" #liquiContainer>
-    <div class="product-card" *ngFor="let product of clearanceOffers">
-      <img [src]="imageUrl" alt="{{ product.title }}">
-      <p>{{ product.title }}</p>
+<!-- Products Section -->
+<section class="products-section" #productsSection>
+  <div class="container">
+    <div class="section-header">
+      <span class="section-badge">Selección Especial</span>
+      <h2 class="section-title">Productos Recomendados</h2>
+      <p class="section-subtitle">Descubre nuestra selección personalizada basada en tendencias y preferencias</p>
     </div>
-  </div>
-</section>
 
-<section class="section">
-  <h2>Promociones activas</h2>
+    <!-- Carousel Container -->
+    <div class="carousel-container" #recomendadosContainer>
+      <button mat-fab color="primary"
+              class="carousel-control prev"
+              (click)="scrollCarousel('prev')"
+              [disabled]="!canScrollPrev"
+              aria-label="Productos anteriores">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
 
-  <div class="products-grid fade-in">
-    <ng-container *ngIf="promociones.length > 0; else sinPromo">
-      <ng-container *ngFor="let promo of promociones">
-        <ng-container *ngFor="let producto of promo.productos">
-  <div class="product-card">
-   <img [src]="producto.imagenes?.[0]?.url || 'assets/images/logoAle.png'" alt="Imagen de producto">
-<small>{{ producto.id }}</small>
+      <div class="carousel-viewport" #carouselWrapper>
+        <div class="carousel-content" #carouselTrack>
+          <div class="product-card-wrapper" *ngFor="let product of productosRecomendados">
+            <mat-card class="product-card"
+                      [routerLink]="['/producto-detalle', product.producto_id]"
+                      matRipple>
 
+              <div class="product-image-wrapper">
+                <img [src]="product.imagen_url || 'assets/images/logoAle.png'"
+                     [alt]="product.descripcion_producto"
+                     class="product-image"
+                     loading="lazy">
 
-    <p class="promo-nombre">{{ producto.nombre }}</p>
+                <div class="product-overlay">
+                  <button mat-mini-fab color="accent" class="quick-view-btn">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                </div>
 
-            <p class="promo-etiqueta">{{ promo.nombre }} – {{ promo.descuento }}%</p>
-            <p class="promo-fechas">Válido hasta {{ promo.fecha_fin | date:'shortDate' }}</p>
+                <div class="confidence-indicator" *ngIf="product.confidence > 0.0">
+                  <mat-icon>psychology</mat-icon>
+                  <span>{{ (product.confidence * 100) | number:'1.0-0' }}% Match</span>
+                </div>
+              </div>
+
+              <mat-card-content class="product-info">
+                <h3 class="product-name">{{ product.descripcion_producto }}</h3>
+
+                <div class="price-section">
+                  <span class="current-price">${{ product.precio | number:'1.2-2' }}</span>
+                  <span class="price-label">MXN</span>
+                </div>
+
+                <div class="product-meta" *ngIf="product.confidence > 0.0">
+
+                </div>
+              </mat-card-content>
+
+              <mat-card-actions class="product-actions">
+                <button mat-stroked-button color="primary" class="view-details-btn">
+                  <mat-icon>info</mat-icon>
+                  Ver Detalles
+                </button>
+                <button mat-icon-button color="accent" aria-label="Agregar a favoritos">
+                  <mat-icon>favorite_border</mat-icon>
+                </button>
+              </mat-card-actions>
+            </mat-card>
           </div>
-        </ng-container>
-      </ng-container>
-    </ng-container>
+        </div>
+      </div>
 
-    <ng-template #sinPromo>
-      <p>No hay promociones activas.</p>
-    </ng-template>
+      <button mat-fab color="primary"
+              class="carousel-control next"
+              (click)="scrollCarousel('next')"
+              [disabled]="!canScrollNext"
+              aria-label="Siguientes productos">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+
+    <!-- Carousel Indicators -->
+    <div class="carousel-pagination">
+      <button mat-icon-button
+              *ngFor="let indicator of indicators; let i = index"
+              [class.active]="i === currentSlide"
+              (click)="goToSlide(i)"
+              [attr.aria-label]="'Ir a página ' + (i + 1)">
+        <mat-icon>{{i === currentSlide ? 'radio_button_checked' : 'radio_button_unchecked'}}</mat-icon>
+      </button>
+    </div>
   </div>
 </section>
 
 
 
+<!-- Location Section -->
+<section class="location-section" #locationSection>
+  <div class="container">
+    <div class="location-grid">
+      <div class="location-info">
+        <span class="section-badge">Visítanos</span>
+        <h2 class="section-title">Nuestra Ubicación</h2>
+        <p class="section-description">
+          Te esperamos en nuestra boutique donde podrás ver y tocar la calidad de nuestros productos.
+          Nuestro equipo está listo para asesorarte personalmente.
+        </p>
+
+        <div class="contact-details">
+          <div class="contact-item">
+            <mat-icon class="contact-icon">place</mat-icon>
+            <div class="contact-content">
+              <strong>Dirección</strong>
+              <p>Tu dirección completa aquí</p>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <mat-icon class="contact-icon">schedule</mat-icon>
+            <div class="contact-content">
+              <strong>Horarios</strong>
+              <p>Lun - Sáb: 9:00 AM - 8:00 PM<br>Dom: 10:00 AM - 6:00 PM</p>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <mat-icon class="contact-icon">phone</mat-icon>
+            <div class="contact-content">
+              <strong>Teléfono</strong>
+              <p>+52 123 456 7890</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="location-map">
+        <mat-card class="map-card">
+          <div class="map-container">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=TU_MAPA"
+              width="100%"
+              height="400"
+              style="border:0;"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const LegalDocument = sequelize.define('LegalDocument', {
+const LegalDocument = sequelize.define('legalDocument', {
   nombre: {
     type: DataTypes.STRING,
     allowNull: false,

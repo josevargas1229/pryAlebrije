@@ -131,59 +131,28 @@
     <mat-icon>chevron_left</mat-icon>
   </button>
 
-  <div class="productos-grid" #scrollContainer>
-    <div class="producto-container">
-      <p class="titulo">Vestido Azul Bordado</p>
-      <mat-card class="producto">
-        <img src="assets/images/ropa.jpg" class="producto-img" alt="Vestido Rosa Elegante">
-        <mat-card-content>
-          <p class="precio-original">$749.54</p>
-          <p class="precio">$411.40 <span class="descuento">60% OFF</span></p>
-          <p class="financiamiento">en 24 meses de $24.86</p>
-          <p class="envio-gratis">Envío gratis por ser tu primera compra</p>
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-    <div class="producto-container">
-      <p class="titulo">Vestido Blanco Bordado</p>
-      <mat-card class="producto">
-        <img src="assets/images/ropa.jpg" class="producto-img" alt="Vestido Blanco Bordado">
-        <mat-card-content>
-          <p class="precio-original">$749.54</p>
-          <p class="precio">$460.56 <span class="descuento">35% OFF</span></p>
-          <p class="financiamiento">en 3 meses sin intereses de $153.52</p>
-          <p class="envio-gratis">Envío gratis por ser tu primera compra</p>
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-    <div class="producto-container">
-      <p class="titulo">Vestido Dorado de Fiesta</p>
-      <mat-card class="producto">
-        <img src="assets/images/ropa.jpg" class="producto-img" alt="Vestido Dorado de Fiesta">
-        <mat-card-content>
-          <p class="precio-original">$1,000</p>
-          <p class="precio">$950 <span class="descuento">5% OFF</span></p>
-          <p class="financiamiento">en 3 meses sin intereses de $316.67</p>
-          <p class="envio-gratis">Envío gratis por ser tu primera compra</p>
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-    <div class="producto-container">
-      <p class="titulo">Vestido Princesa Brillante</p>
-      <mat-card class="producto">
-        <img src="assets/images/ropa.jpg" class="producto-img" alt="Vestido Princesa Brillante">
-        <mat-card-content>
-          <p class="precio-original">$740.11</p>
-          <p class="precio">$554.98 <span class="descuento">25% OFF</span></p>
-          <p class="financiamiento">en 3 meses sin intereses de $184.99</p>
-          <p class="envio-gratis">Envío gratis por ser tu primera compra</p>
-        </mat-card-content>
-      </mat-card>
-    </div>
+ <div class="productos-grid" #scrollContainer>
+  <div class="producto-container" *ngFor="let prod of productosRelacionados" [routerLink]="['/producto', prod.producto_id]">
+    <p class="titulo">{{ prod.descripcion_producto }}</p>
+    <mat-card class="producto">
+      <img [src]="prod.imagen_url || 'assets/images/ropa.jpg'" class="producto-img" [alt]="prod.descripcion_producto">
+      <mat-card-content>
+        <p class="precio-original" *ngIf="prod.confidence > 0.2">
+          ${{ (prod.precio * 1.2) | number:'1.2-2' }}
+        </p>
+        <p class="precio">
+          ${{ prod.precio | number:'1.2-2' }}
+          <span class="descuento" *ngIf="prod.confidence > 0.2">
+            {{ (prod.confidence * 100) | number:'1.0-0' }}% confianza
+          </span>
+        </p>
+        <p class="envio-gratis">Basado en compras similares</p>
+      </mat-card-content>
+    </mat-card>
   </div>
+</div>
+
+
   <button mat-icon-button class="flecha derecha" (click)="scrollDerecha()">
     <mat-icon>chevron_right</mat-icon>
   </button>

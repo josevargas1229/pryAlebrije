@@ -2,7 +2,7 @@ const { LegalDocument } = require('../models/associations');
 
 const mammoth = require('mammoth');
 const fs = require('fs');
-const sanitizeHtml = require('sanitize-html'); 
+const sanitizeHtml = require('sanitize-html');
 const he = require('he');
 
 function isSuspiciousContent(content) {
@@ -58,12 +58,12 @@ exports.uploadDocument = async (req, res) => {
       if(contentsContentSuspicious){
         break;
       }
-      
+
       originalContent = sanitizeHtml(originalContent, {
         allowedTags: [],
         allowedAttributes: {},
       });
-      originalContent = he.decode(originalContent); 
+      originalContent = he.decode(originalContent);
     } while ( iteration < 10);
     if(contentsContentSuspicious){
       return res.status(400).json({ error: 'El contenido del archivo es sospechoso.' });
@@ -103,15 +103,19 @@ exports.uploadDocument = async (req, res) => {
 
 // Obtener todos los documentos de un tipo específico
 exports.getDocumentsByType = async (req, res) => {
-  const tipo = req.params.tipo;
+  const tipo = req.params.tipo.trim().toLowerCase();
+  console.log('>>> Buscando documentos de tipo:', tipo); // log clave
 
   try {
     const documents = await LegalDocument.findAll({
       where: {
         tipo,
         vigente: true,
+        eliminado: false,
       },
     });
+
+    console.log('>>> Documentos encontrados:', documents.length); // log clave
 
     if (documents.length === 0) {
       return res.status(404).json({ error: 'No se encontraron documentos para el tipo especificado' });
@@ -128,6 +132,7 @@ exports.getDocumentsByType = async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
+
 
 exports.getAllDocumentsByType = async (req, res) => {
   const tipo = req.params.tipo;

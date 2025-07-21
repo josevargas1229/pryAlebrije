@@ -13,7 +13,9 @@ import { CartService } from '../../services/cart/cart.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CalificacionService } from '../../services/califica/calificacion.service';
 import { AuthService } from '../../services/auth/auth.service';
+import { RecomendacionService, Recomendacion } from '../../services/recomendacion/recomendacion.service';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-producto-detalle',
   standalone: true,
@@ -27,7 +29,8 @@ import { FormsModule } from '@angular/forms';
     CommonModule,
     MatIconModule,
     LoadingButtonComponent,
-    FormsModule
+    FormsModule,
+    RouterLink
   ],
   templateUrl: './producto-detalle.component.html',
   styleUrl: './producto-detalle.component.scss'
@@ -50,6 +53,8 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   cantidadSeleccionada: number = 1;
   esPrevisualizacion: boolean = false; // Determina si es previsualización
   yaCalifico: boolean = false;
+  productosRelacionados: Recomendacion[] = [];
+
 
   @ViewChild('scrollContainer', { static: false }) scrollContainer!: ElementRef;
   @ViewChild('detalleContainer', { static: false }) detalleContainer!: ElementRef;
@@ -64,6 +69,7 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
     private snackBar: MatSnackBar,
     private calificacionService: CalificacionService,
     private readonly router: Router,
+    private recomendacionService: RecomendacionService,
     private authService: AuthService
   ) { }
 
@@ -75,6 +81,7 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
         // Determinar si estamos en la ruta de previsualización
         this.esPrevisualizacion = this.router.url.includes('/preview');
         this.obtenerProductoDetalle(this.productoId);
+        this.obtenerProductosRelacionados(this.productoId);
         this.obtenerCalificacionProducto();
       }
     });
@@ -149,6 +156,16 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   });
 }
 
+obtenerProductosRelacionados(productId: number): void {
+  this.recomendacionService.obtenerRelacionados(productId, 8).subscribe({
+    next: (recomendaciones) => {
+      this.productosRelacionados = recomendaciones;
+    },
+    error: (error) => {
+      console.error('Error al cargar productos relacionados:', error.message);
+    }
+  });
+}
 
 
   inicializarDatos(): void {
