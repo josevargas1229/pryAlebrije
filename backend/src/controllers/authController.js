@@ -442,7 +442,7 @@ exports.generateAccessToken = async (req, res) => {
   }
 
   const user = await User.findByPk(authCode.user_id);
-  const accessToken = jwt.sign({ userId: user.id, tipo: user.rol_id, scope: 'sales:read' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  const accessToken = jwt.sign({ userId: user.id, tipo: user.rol_id, scope: 'sales:read' }, process.env.JWT_SECRET, { expiresIn: '30d' });
   await authCode.destroy(); // Evitar reutilización
   return res.status(200).json({ access_token: accessToken, token_type: 'Bearer', expires_in: 3600 });
 
