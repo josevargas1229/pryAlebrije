@@ -3,37 +3,13 @@ footer {
   height: auto;
 
 }
-:host ::ng-deep .footer-toolbar {
-  background-color: #0b1a33 !important;
-  color: white;
-}
 
 mat-toolbar {
   width: 100%;
   height: 100%;
 }
 
-:host ::ng-deep .footer-toolbar {
-  background-color: #0b1a33 !important;
-  color: white !important;
 
-  .footer-title,
-  .footer-text,
-  span,
-  .footer-links button,
-  .footer-contact,
-  .footer-section,
-  .footer-bottom,
-  a,
-  mat-icon {
-    color: white !important;
-    fill: white !important;
-  }
-
-  svg {
-    fill: white !important;
-  }
-}
 
 
 .footer-content {
