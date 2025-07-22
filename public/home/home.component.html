@@ -102,7 +102,7 @@
               </div>
 
               <mat-card-content class="product-info">
-                <h3 class="product-name">{{ product.descripcion_producto }}</h3>
+                <h3 class="product-name">{{ product.nombre }}</h3>
 <div class="price-section">
   <ng-container *ngIf="product.tienePromocion; else sinPromo">
     <span class="original-price">${{ product.precio | number:'1.2-2' }}</span>
