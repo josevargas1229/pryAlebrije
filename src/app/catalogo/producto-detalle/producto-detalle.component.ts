@@ -159,12 +159,35 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
 obtenerProductosRelacionados(productId: number): void {
   this.recomendacionService.obtenerRelacionados(productId, 8).subscribe({
     next: (recomendaciones) => {
-      this.productosRelacionados = recomendaciones;
+      const promesas = recomendaciones.map(reco =>
+        this.productoService.getProductoById(reco.producto_id).toPromise()
+          .then(resp => {
+            const imagen = this.getImagenPrincipal(resp.producto);
+            return { ...reco, imagen_url: imagen };
+          })
+          .catch(() => ({ ...reco, imagen_url: 'assets/images/ropa.jpg' }))
+      );
+
+      Promise.all(promesas).then(res => {
+        this.productosRelacionados = res;
+      });
     },
     error: (error) => {
       console.error('Error al cargar productos relacionados:', error.message);
     }
   });
+}
+
+private getImagenPrincipal(producto: any): string {
+  const stock = producto.tallasColoresStock?.[0];
+  const imagen = stock?.coloresStock?.imagenes?.[0]?.url;
+  return imagen && imagen.length > 0 ? imagen : 'assets/images/ropa.jpg';
+}
+
+
+irADetalleProducto(productoId: number): void {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  this.router.navigate(['/menu-catalogo/productos/producto-detalle', productoId]);
 }
 
 

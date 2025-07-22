@@ -78,14 +78,16 @@
         <div class="carousel-content" #carouselTrack>
           <div class="product-card-wrapper" *ngFor="let product of productosRecomendados">
             <mat-card class="product-card"
-                      [routerLink]="['/producto-detalle', product.producto_id]"
-                      matRipple>
+          (click)="irADetalleProducto(product.producto_id)"
+          matRipple>
+
 
               <div class="product-image-wrapper">
-                <img [src]="product.imagen_url || 'assets/images/logoAle.png'"
-                     [alt]="product.descripcion_producto"
-                     class="product-image"
-                     loading="lazy">
+                <img [src]="product.imagen_url && product.imagen_url.length > 0 ? product.imagen_url : 'assets/images/ropa.jpg'"
+     [alt]="product.descripcion_producto"
+     class="product-image"
+     loading="lazy">
+
 
                 <div class="product-overlay">
                   <button mat-mini-fab color="accent" class="quick-view-btn">

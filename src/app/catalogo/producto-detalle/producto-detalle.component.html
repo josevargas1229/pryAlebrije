@@ -132,10 +132,13 @@
   </button>
 
  <div class="productos-grid" #scrollContainer>
-  <div class="producto-container" *ngFor="let prod of productosRelacionados" [routerLink]="['/producto', prod.producto_id]">
+  <div class="producto-container" *ngFor="let prod of productosRelacionados"
+       (click)="irADetalleProducto(prod.producto_id)">
     <p class="titulo">{{ prod.descripcion_producto }}</p>
     <mat-card class="producto">
-      <img [src]="prod.imagen_url || 'assets/images/ropa.jpg'" class="producto-img" [alt]="prod.descripcion_producto">
+      <img [src]="prod.imagen_url && prod.imagen_url.length > 0 ? prod.imagen_url : 'assets/images/ropa.jpg'"
+           class="producto-img"
+           [alt]="prod.descripcion_producto">
       <mat-card-content>
         <p class="precio-original" *ngIf="prod.confidence > 0.2">
           ${{ (prod.precio * 1.2) | number:'1.2-2' }}
@@ -151,6 +154,7 @@
     </mat-card>
   </div>
 </div>
+
 
 
   <button mat-icon-button class="flecha derecha" (click)="scrollDerecha()">

@@ -7,8 +7,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatRippleModule } from '@angular/material/core';
 import { MatChipsModule } from '@angular/material/chips';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { RecomendacionService } from '../../src/app/services/recomendacion/recomendacion.service';
+import { ProductoService } from '../../src/app/private/productos/services/producto.service';
 
 @Component({
   selector: 'app-home',
@@ -16,7 +17,6 @@ import { RecomendacionService } from '../../src/app/services/recomendacion/recom
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
   imports: [
-    RouterLink,
     CommonModule,
     MatCardModule,
     MatButtonModule,
@@ -49,21 +49,40 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   constructor(
     private readonly renderer: Renderer2,
-    private readonly recomendacionService: RecomendacionService
+    private readonly recomendacionService: RecomendacionService,
+    private readonly router: Router,
+    private readonly productoService: ProductoService
   ) {}
 
   ngOnInit(): void {
-    this.recomendacionService.obtenerRelacionados(70).subscribe({
-      next: (res: any) => {
+  this.recomendacionService.obtenerRelacionados(70).subscribe({
+    next: (recomendaciones) => {
+      const promesas = recomendaciones.map(reco =>
+        this.productoService.getProductoById(reco.producto_id).toPromise()
+          .then(prod => {
+            const imagen = this.getImagenPrincipal(prod.producto);
+            return { ...reco, imagen_url: imagen };
+          })
+          .catch(() => ({ ...reco, imagen_url: 'assets/images/ropa.jpg' }))
+      );
+
+      Promise.all(promesas).then(res => {
         this.productosRecomendados = res;
         this.setupCarousel();
-      },
-      error: err => console.error('Error recomendaciones', err)
-    });
+      });
+    },
+    error: err => console.error('Error recomendaciones', err)
+  });
 
-    // Listener para redimensionamiento de ventana
-    window.addEventListener('resize', () => this.updateItemsPerView());
-  }
+  window.addEventListener('resize', () => this.updateItemsPerView());
+}
+private getImagenPrincipal(producto: any): string {
+  const stock = producto.tallasColoresStock?.[0];
+  const imagen = stock?.coloresStock?.imagenes?.[0]?.url;
+  return imagen && imagen.length > 0 ? imagen : 'assets/images/ropa.jpg';
+}
+
+
 
   ngAfterViewInit(): void {
     // Observer para animaciones
@@ -176,4 +195,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     }, 5000);
   }
+
+  irADetalleProducto(productoId: number): void {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  this.router.navigate(['/menu-catalogo/productos/producto-detalle', productoId]);
+}
 }
