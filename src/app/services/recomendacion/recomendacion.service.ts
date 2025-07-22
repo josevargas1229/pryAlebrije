@@ -35,7 +35,7 @@ export class RecomendacionService {
     min_confidence: minConfidence
   };
 
-  return this.http.post<any>(`${environment.API_URL}/producto/recomended`, body, {
+  return this.http.post<any>(`${environment.API_URL}/producto/recommended`, body, {
     withCredentials: true
   }).pipe(
     map(res => res.recomendacionesPersonalizadas as Recomendacion[]),
