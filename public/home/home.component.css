@@ -763,3 +763,29 @@ input:focus-visible,
   box-shadow: var(--shadow-2);
 }
 
+/* Precio anterior (tachado) */
+.original-price {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
+}
+
+/* Precio actual (resaltado) */
+.current-price {
+  color: #d32f2f; /* rojo fuerte */
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* Etiqueta de descuento */
+.descuento {
+  background-color: #ffccbc; /* naranja claro */
+  color: #d84315; /* naranja fuerte */
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+}
+

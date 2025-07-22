@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { RecomendacionService } from '../../src/app/services/recomendacion/recomendacion.service';
 import { ProductoService } from '../../src/app/private/productos/services/producto.service';
+import { CompanyService } from '../../src/app/private/services/company.service.ts.service';
 
 @Component({
   selector: 'app-home',
@@ -36,7 +37,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 @ViewChild('locationSection', { static: false }) locationSection!: ElementRef;
 
 
-
+  companyInfo: any = {};
   productosRecomendados: any[] = [];
   carruselUrl: string = 'assets/images/logoAle.png';
 
@@ -51,7 +52,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private readonly renderer: Renderer2,
     private readonly recomendacionService: RecomendacionService,
     private readonly router: Router,
-    private readonly productoService: ProductoService
+    private readonly productoService: ProductoService,
+    private readonly companyService: CompanyService
   ) {}
 
   ngOnInit(): void {
@@ -59,11 +61,31 @@ export class HomeComponent implements OnInit, AfterViewInit {
     next: (recomendaciones) => {
       const promesas = recomendaciones.map(reco =>
         this.productoService.getProductoById(reco.producto_id).toPromise()
-          .then(prod => {
-            const imagen = this.getImagenPrincipal(prod.producto);
-            return { ...reco, imagen_url: imagen };
+          .then(resp => {
+            const prod = resp.producto;
+            const imagen = this.getImagenPrincipal(prod);
+            const tienePromocion = prod.promocion !== null && prod.promocion?.descuento > 0;
+            const precioFinal = tienePromocion
+              ? prod.precio * (1 - prod.promocion.descuento / 100)
+              : prod.precio;
+
+            return {
+              ...reco,
+              imagen_url: imagen,
+              precio: prod.precio,
+              tienePromocion,
+              precioFinal,
+              descuento: prod.promocion?.descuento || 0
+            };
           })
-          .catch(() => ({ ...reco, imagen_url: 'assets/images/ropa.jpg' }))
+          .catch(() => ({
+            ...reco,
+            imagen_url: 'assets/images/ropa.jpg',
+            precio: 0,
+            tienePromocion: false,
+            precioFinal: 0,
+            descuento: 0
+          }))
       );
 
       Promise.all(promesas).then(res => {
@@ -73,9 +95,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
     },
     error: err => console.error('Error recomendaciones', err)
   });
-
+  this.companyService.companyProfile$.subscribe((data: any) => {
+      this.companyInfo = data;
+    });
   window.addEventListener('resize', () => this.updateItemsPerView());
 }
+
 private getImagenPrincipal(producto: any): string {
   const stock = producto.tallasColoresStock?.[0];
   const imagen = stock?.coloresStock?.imagenes?.[0]?.url;

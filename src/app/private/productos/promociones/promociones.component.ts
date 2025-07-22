@@ -32,7 +32,7 @@ export class PromocionesComponent implements OnInit {
 
  this.productoService.getAllProductos({
   page: 1,
-  pageSize: 20 // suficiente para 9 productos
+  pageSize: 100 // suficiente para 9 productos
 }).subscribe({
   next: (res) => this.productos = res.productos,
   error: (err) => console.error('Error al cargar productos', err)
