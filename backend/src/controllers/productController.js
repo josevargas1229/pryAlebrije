@@ -869,45 +869,38 @@ exports.getRecomendacionesPorUsuario = async (req, res) => {
             const recomendaciones = response.data.recommendations || [];
             recomendacionesPersonalizadas = await Promise.all(
                 recomendaciones.map(async (rec) => {
-                  console.log('Consultando producto con ID:', rec.producto_id);
                     const productoRec = await Product.findByPk(rec.producto_id, {
                         attributes: ['id', 'precio', 'estado'],
                         include: [
-  { model: Temporada, attributes: ['temporada'] },
-  { model: Categoria, attributes: ['nombre'] },
-  { model: TipoProducto, attributes: ['nombre'] },
-  { model: Marca, attributes: ['nombre'] },
-  {
-    model: ProductoTallaColor,
-    required: false,
-    attributes: ['stock', 'talla_id', 'color_id'],
-    include: [
-      { model: Talla, as: 'talla', attributes: ['id', 'talla'] },
-      {
-        model: ColorProducto,
-        as: 'color',
-        attributes: ['id', 'color', 'colorHex'],
-        include: [
-          {
-            model: ImagenProducto,
-            attributes: ['id', 'imagen_url', 'producto_id'],
-            required: false
-          }
-        ]
-      }
-    ]
-  },
-  {
-    model: Promocion,
-    as: 'promociones',
-    attributes: ['id', 'nombre', 'descuento', 'fecha_inicio', 'fecha_fin'],
-    where: {
-      fecha_inicio: { [Op.lte]: new Date() },
-      fecha_fin: { [Op.gte]: new Date() }
-    },
-    required: false
-  }
-],
+                            { model: Temporada, attributes: ['temporada'] },
+                            { model: Categoria, attributes: ['nombre'] },
+                            { model: TipoProducto, attributes: ['nombre'] },
+                            { model: Marca, attributes: ['nombre'] },
+                            {
+                                model: ProductoTallaColor,
+                                attributes: ['stock', 'talla_id', 'color_id'],
+                                include: [
+                                    { model: Talla, as: 'talla', attributes: ['talla'] },
+                                    { model: ColorProducto, as: 'color', attributes: ['color'] },
+                                ],
+                            },
+                            {
+                                model: Promocion,
+                                as: 'promociones',
+                                attributes: ['id', 'nombre', 'descuento', 'fecha_inicio', 'fecha_fin'],
+                                where: {
+                                    fecha_inicio: { [Op.lte]: new Date() },
+                                    fecha_fin: { [Op.gte]: new Date() },
+                                },
+                                required: false,
+                            },
+                            {
+                                model: ImagenProducto,
+                                attributes: ['imagen_url'],
+                                where: { producto_id: sequelize.col('Producto.id') },
+                                required: false,
+                            },
+                        ],
                     });
                     if (!productoRec) return null;
                     console.log(productoRec)
