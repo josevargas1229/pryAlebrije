@@ -309,7 +309,8 @@ body {
 .product-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(255, 255, 255, 0.8); /* Cambiado a blanco transparente */
+  backdrop-filter: blur(2px); /* Agregado efecto blur sutil */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -788,4 +789,3 @@ input:focus-visible,
   border-radius: 4px;
   margin-left: 8px;
 }
-
