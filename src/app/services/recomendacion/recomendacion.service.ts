@@ -14,8 +14,11 @@ export interface Recomendacion {
   priority: number;
   tipo_id: number;
   categoria_id: number;
-  precio: number;             
+  precio: number;
   imagen_url: string;
+  tienePromocion?: boolean;
+  precioFinal?: number;
+  descuento?: number | null;
 }
 
 @Injectable({

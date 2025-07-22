@@ -162,10 +162,30 @@ obtenerProductosRelacionados(productId: number): void {
       const promesas = recomendaciones.map(reco =>
         this.productoService.getProductoById(reco.producto_id).toPromise()
           .then(resp => {
-            const imagen = this.getImagenPrincipal(resp.producto);
-            return { ...reco, imagen_url: imagen };
+            const prod = resp.producto;
+            const imagen = this.getImagenPrincipal(prod);
+            const tienePromocion = prod.promocion !== null && prod.promocion?.descuento > 0;
+            const precioFinal = tienePromocion
+              ? prod.precio * (1 - prod.promocion.descuento / 100)
+              : prod.precio;
+
+            return {
+              ...reco,
+              imagen_url: imagen,
+              precio: prod.precio,
+              tienePromocion,
+              precioFinal,
+              descuento: tienePromocion ? prod.promocion.descuento : null
+            };
           })
-          .catch(() => ({ ...reco, imagen_url: 'assets/images/ropa.jpg' }))
+          .catch(() => ({
+            ...reco,
+            imagen_url: 'assets/images/ropa.jpg',
+            precio: 0,
+            tienePromocion: false,
+            precioFinal: 0,
+            descuento: null
+          }))
       );
 
       Promise.all(promesas).then(res => {
@@ -177,6 +197,7 @@ obtenerProductosRelacionados(productId: number): void {
     }
   });
 }
+
 
 private getImagenPrincipal(producto: any): string {
   const stock = producto.tallasColoresStock?.[0];

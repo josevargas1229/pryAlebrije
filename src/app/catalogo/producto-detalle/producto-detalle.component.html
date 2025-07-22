@@ -140,17 +140,30 @@
            class="producto-img"
            [alt]="prod.descripcion_producto">
       <mat-card-content>
-        <p class="precio-original" *ngIf="prod.confidence > 0.2">
-          ${{ (prod.precio * 1.2) | number:'1.2-2' }}
-        </p>
-        <p class="precio">
-          ${{ prod.precio | number:'1.2-2' }}
-          <span class="descuento" *ngIf="prod.confidence > 0.2">
-            {{ (prod.confidence * 100) | number:'1.0-0' }}% confianza
-          </span>
-        </p>
-        <p class="envio-gratis">Basado en compras similares</p>
-      </mat-card-content>
+  <ng-container *ngIf="prod.tienePromocion; else sinPromo">
+    <p class="precio-original">
+      <span class="tachado">${{ prod.precio | number:'1.2-2' }}</span>
+    </p>
+    <p class="precio">
+      <strong>${{ prod.precioFinal | number:'1.2-2' }}</strong>
+      <span class="descuento">-{{ prod.descuento }}%</span>
+    </p>
+  </ng-container>
+  <ng-template #sinPromo>
+    <p class="precio-original" *ngIf="prod.confidence > 0.2">
+      ${{ (prod.precio * 1.2) | number:'1.2-2' }}
+    </p>
+    <p class="precio">
+      ${{ prod.precio | number:'1.2-2' }}
+      <span class="descuento" *ngIf="prod.confidence > 0.2">
+        {{ (prod.confidence * 100) | number:'1.0-0' }}% confianza
+      </span>
+    </p>
+  </ng-template>
+
+  <p class="envio-gratis">Basado en compras similares</p>
+</mat-card-content>
+
     </mat-card>
   </div>
 </div>
