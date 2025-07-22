@@ -870,7 +870,7 @@ exports.getRecomendacionesPorUsuario = async (req, res) => {
             recomendacionesPersonalizadas = await Promise.all(
                 recomendaciones.map(async (rec) => {
                     const productoRec = await Product.findByPk(rec.producto_id, {
-                        attributes: ['id', 'precio', 'estado'],
+                        attributes: ['id', 'nombre', 'precio', 'estado'],
                         include: [
                             { model: Temporada, attributes: ['temporada'] },
                             { model: Categoria, attributes: ['nombre'] },
@@ -914,7 +914,6 @@ mappedProducto.calificacionPromedio = calificacionesRec.length > 0
 mappedProducto.totalCalificaciones = calificacionesRec.length;
 
 return mappedProducto;
-
                 })
             );
             recomendacionesPersonalizadas = recomendacionesPersonalizadas.filter(p => p !== null);
