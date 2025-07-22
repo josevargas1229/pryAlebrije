@@ -57,7 +57,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-  this.recomendacionService.obtenerRelacionados(70).subscribe({
+  this.recomendacionService.obtenerRecomendaciones().subscribe({
     next: (recomendaciones) => {
       const promesas = recomendaciones.map(reco =>
         this.productoService.getProductoById(reco.producto_id).toPromise()
@@ -95,11 +95,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
     },
     error: err => console.error('Error recomendaciones', err)
   });
+
   this.companyService.companyProfile$.subscribe((data: any) => {
-      this.companyInfo = data;
-    });
+    this.companyInfo = data;
+  });
+
   window.addEventListener('resize', () => this.updateItemsPerView());
 }
+
 
 private getImagenPrincipal(producto: any): string {
   const stock = producto.tallasColoresStock?.[0];

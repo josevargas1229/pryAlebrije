@@ -221,10 +221,10 @@ export class AuthService implements OnDestroy {
 
   private handleRegisterError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'Ocurrió un error al registrar el usuario.';
-    
+
     if (error.status === 400 && error.error.errors) {
       // Errores de validación del backend (como unicidad)
-      const validationErrors = error.error.errors.map((err: { field: string; message: string }) => 
+      const validationErrors = error.error.errors.map((err: { field: string; message: string }) =>
         `${err.field}: ${err.message}`
       ).join(', ');
       errorMessage = validationErrors || 'Error de validación en los datos proporcionados.';

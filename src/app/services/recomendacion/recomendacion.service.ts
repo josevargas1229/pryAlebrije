@@ -29,17 +29,20 @@ export class RecomendacionService {
 
   constructor(private http: HttpClient) {}
 
-  obtenerRecomendaciones(userId: number, topN: number = 10, minConfidence: number = 0.1): Observable<Recomendacion[]> {
-    const params = new HttpParams()
-      .set('user_id', userId.toString())
-      .set('top_n', topN.toString())
-      .set('min_confidence', minConfidence.toString());
+  obtenerRecomendaciones(topN: number = 10, minConfidence: number = 0.1): Observable<Recomendacion[]> {
+  const body = {
+    top_n: topN,
+    min_confidence: minConfidence
+  };
 
-    return this.http.get<any>(`${this.baseUrl}/recommend`, { params }).pipe(
-      map(res => res.recommendations as Recomendacion[]),
-      catchError(this.handleError)
-    );
-  }
+  return this.http.post<any>(`${environment.API_URL}/producto/recomended`, body, {
+    withCredentials: true
+  }).pipe(
+    map(res => res.recomendacionesPersonalizadas as Recomendacion[]),
+    catchError(this.handleError)
+  );
+}
+
 
   obtenerRelacionados(productId: number, topN: number = 10): Observable<Recomendacion[]> {
     const params = new HttpParams()
