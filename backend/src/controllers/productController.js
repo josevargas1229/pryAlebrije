@@ -905,13 +905,16 @@ exports.getRecomendacionesPorUsuario = async (req, res) => {
                     if (!productoRec) return null;
                     console.log(productoRec)
                     const mappedProducto = mapProductoCatalogo(productoRec);
-                    console.log(mappedProducto)
-                    const calificacionesRec = await CalificacionProducto.findAll({ where: { producto_id: productoRec.id } });
-                    mappedProducto.calificacionPromedio = calificacionesRec.length > 0
-                        ? parseFloat((calificacionesRec.reduce((acc, c) => acc + c.calificacion, 0) / calificacionesRec.length).toFixed(1))
-                        : 0;
-                    mappedProducto.totalCalificaciones = calificacionesRec.length;
-                    return mappedProducto;
+mappedProducto.producto_id = productoRec.id;
+
+const calificacionesRec = await CalificacionProducto.findAll({ where: { producto_id: productoRec.id } });
+mappedProducto.calificacionPromedio = calificacionesRec.length > 0
+    ? parseFloat((calificacionesRec.reduce((acc, c) => acc + c.calificacion, 0) / calificacionesRec.length).toFixed(1))
+    : 0;
+mappedProducto.totalCalificaciones = calificacionesRec.length;
+
+return mappedProducto;
+
                 })
             );
             recomendacionesPersonalizadas = recomendacionesPersonalizadas.filter(p => p !== null);
