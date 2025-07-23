@@ -71,9 +71,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
             return {
               ...reco,
-                 nombre: reco.nombre,              // preserva nombre generado
-    nombreReal: reco.nombreReal,      // preserva nombre real
-    tipoNombre: reco.tipoNombre,      // preserva tipo
               imagen_url: imagen,
               precio: prod.precio,
               tienePromocion,

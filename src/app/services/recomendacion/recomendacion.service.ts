@@ -7,9 +7,7 @@ import { environment } from '../../../environments/environment.development';
 export interface Recomendacion {
   item: string;
   producto_id: number;
- nombre: string;                // nombre generado (compuesto)
-  nombreReal?: string;          // nombre real del producto
-  tipoNombre?: string;          // nombre del tipo de producto
+  descripcion_producto: string;
   confidence: number;
   lift: number;
   product_cluster: number;
