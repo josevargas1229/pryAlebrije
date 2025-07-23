@@ -7,8 +7,8 @@ import { environment } from '../../../environments/environment.development';
 export interface Recomendacion {
   item: string;
   producto_id: number;
-    descripcion_producto: string;
- nombre: string;                // nombre generado (compuesto)
+  descripcion_producto: string;
+  nombre: string;                // nombre generado (compuesto)
   nombreReal?: string;          // nombre real del producto
   tipoNombre?: string;          // nombre del tipo de producto
   confidence: number;
@@ -30,21 +30,21 @@ export interface Recomendacion {
 export class RecomendacionService {
   private baseUrl = environment.API_RECOMMENDER; // Asegúrate de definir esto en environment
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   obtenerRecomendaciones(topN: number = 10, minConfidence: number = 0.1): Observable<Recomendacion[]> {
-  const body = {
-    top_n: topN,
-    min_confidence: minConfidence
-  };
+    const body = {
+      top_n: topN,
+      min_confidence: minConfidence
+    };
 
-  return this.http.post<any>(`${environment.API_URL}/producto/recommended`, body, {
-    withCredentials: true
-  }).pipe(
-    map(res => res.recomendacionesPersonalizadas as Recomendacion[]),
-    catchError(this.handleError)
-  );
-}
+    return this.http.post<any>(`${environment.API_URL}/producto/recommended`, body, {
+      withCredentials: true
+    }).pipe(
+      map(res => res.recomendacionesPersonalizadas as Recomendacion[]),
+      catchError(this.handleError)
+    );
+  }
 
 
   obtenerRelacionados(productId: number, topN: number = 10): Observable<Recomendacion[]> {

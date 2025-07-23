@@ -32,9 +32,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
   @ViewChild('recomendadosContainer', { static: false }) recomendadosContainer!: ElementRef;
   @ViewChild('carouselWrapper', { static: false }) carouselWrapper!: ElementRef;
   @ViewChild('carouselTrack', { static: false }) carouselTrack!: ElementRef;
-@ViewChild('aboutSection', { static: false }) aboutSection!: ElementRef;
-@ViewChild('productsSection', { static: false }) productsSection!: ElementRef;
-@ViewChild('locationSection', { static: false }) locationSection!: ElementRef;
+  @ViewChild('aboutSection', { static: false }) aboutSection!: ElementRef;
+  @ViewChild('productsSection', { static: false }) productsSection!: ElementRef;
+  @ViewChild('locationSection', { static: false }) locationSection!: ElementRef;
 
 
   companyInfo: any = {};
@@ -54,68 +54,68 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private readonly router: Router,
     private readonly productoService: ProductoService,
     private readonly companyService: CompanyService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-  this.recomendacionService.obtenerRecomendaciones().subscribe({
-    next: (recomendaciones) => {
-      const promesas = recomendaciones.map(reco =>
-        this.productoService.getProductoById(reco.producto_id).toPromise()
-          .then(resp => {
-            const prod = resp.producto;
-            const imagen = this.getImagenPrincipal(prod);
-            const tienePromocion = prod.promocion !== null && prod.promocion?.descuento > 0;
-            const precioFinal = tienePromocion
-              ? prod.precio * (1 - prod.promocion.descuento / 100)
-              : prod.precio;
+    this.recomendacionService.obtenerRecomendaciones().subscribe({
+      next: (recomendaciones) => {
+        const promesas = recomendaciones.map(reco =>
+          this.productoService.getProductoById(reco.producto_id).toPromise()
+            .then(resp => {
+              const prod = resp.producto;
+              const imagen = this.getImagenPrincipal(prod);
+              const tienePromocion = prod.promocion !== null && prod.promocion?.descuento > 0;
+              const precioFinal = tienePromocion
+                ? prod.precio * (1 - prod.promocion.descuento / 100)
+                : prod.precio;
 
-            return {
+              return {
+                ...reco,
+                nombre: reco.nombre,              // preserva nombre generado
+                nombreReal: reco.nombreReal,      // preserva nombre real
+                tipoNombre: reco.tipoNombre,      // preserva tipo
+                imagen_url: imagen,
+                precio: prod.precio,
+                tienePromocion,
+                precioFinal,
+                descuento: prod.promocion?.descuento || 0
+              };
+            })
+            .catch(() => ({
               ...reco,
-                 nombre: reco.nombre,              // preserva nombre generado
-    nombreReal: reco.nombreReal,      // preserva nombre real
-    tipoNombre: reco.tipoNombre,      // preserva tipo
-              imagen_url: imagen,
-              precio: prod.precio,
-              tienePromocion,
-              precioFinal,
-              descuento: prod.promocion?.descuento || 0
-            };
-          })
-          .catch(() => ({
-  ...reco,
-  nombre: reco.nombre,
-  nombreReal: reco.nombreReal,
-  tipoNombre: reco.tipoNombre,
-  imagen_url: 'assets/images/ropa.jpg',
-  precio: 0,
-  tienePromocion: false,
-  precioFinal: 0,
-  descuento: 0
-}))
+              nombre: reco.nombre,
+              nombreReal: reco.nombreReal,
+              tipoNombre: reco.tipoNombre,
+              imagen_url: 'assets/images/ropa.jpg',
+              precio: 0,
+              tienePromocion: false,
+              precioFinal: 0,
+              descuento: 0
+            }))
 
-      );
+        );
 
-      Promise.all(promesas).then(res => {
-        this.productosRecomendados = res;
-        this.setupCarousel();
-      });
-    },
-    error: err => console.error('Error recomendaciones', err)
-  });
+        Promise.all(promesas).then(res => {
+          this.productosRecomendados = res;
+          this.setupCarousel();
+        });
+      },
+      error: err => console.error('Error recomendaciones', err)
+    });
 
-  this.companyService.companyProfile$.subscribe((data: any) => {
-    this.companyInfo = data;
-  });
+    this.companyService.companyProfile$.subscribe((data: any) => {
+      this.companyInfo = data;
+    });
 
-  window.addEventListener('resize', () => this.updateItemsPerView());
-}
+    window.addEventListener('resize', () => this.updateItemsPerView());
+  }
 
 
-private getImagenPrincipal(producto: any): string {
-  const stock = producto.tallasColoresStock?.[0];
-  const imagen = stock?.coloresStock?.imagenes?.[0]?.url;
-  return imagen && imagen.length > 0 ? imagen : 'assets/images/ropa.jpg';
-}
+  private getImagenPrincipal(producto: any): string {
+    const stock = producto.tallasColoresStock?.[0];
+    const imagen = stock?.coloresStock?.imagenes?.[0]?.url;
+    return imagen && imagen.length > 0 ? imagen : 'assets/images/ropa.jpg';
+  }
 
 
 
@@ -134,15 +134,15 @@ private getImagenPrincipal(producto: any): string {
     );
 
     const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        this.renderer.addClass(e.target, 'visible-section');
-        revealObserver.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.2 });
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          this.renderer.addClass(e.target, 'visible-section');
+          revealObserver.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.2 });
     [this.aboutSection, this.productsSection, this.locationSection]
-    .forEach(sec => revealObserver.observe(sec.nativeElement));
+      .forEach(sec => revealObserver.observe(sec.nativeElement));
 
     if (this.recomendadosContainer) {
       observer.observe(this.recomendadosContainer.nativeElement);
@@ -232,7 +232,7 @@ private getImagenPrincipal(producto: any): string {
   }
 
   irADetalleProducto(productoId: number): void {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  this.router.navigate(['/menu-catalogo/productos/producto-detalle', productoId]);
-}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.router.navigate(['/menu-catalogo/productos/producto-detalle', productoId]);
+  }
 }

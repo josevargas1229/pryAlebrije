@@ -5,10 +5,10 @@ const { Op } = require('sequelize');
 const { uploadImageToCloudinary } = require('../config/cloudinaryConfig');
 const logAudit = require('../utils/audit');
 const { crearNotificacion } = require('./notificacionController');
-const {Promocion} = require ('../models/associations')
+const { Promocion } = require('../models/associations')
 const axios = require('axios');
 
-
+const FLASK_API_URL ='https://proyectom3.onrender.com'
 
 const fetchModelData = async (model, orderField) => {
     return model.findAll({ order: [[orderField, 'ASC']] });
@@ -91,11 +91,11 @@ const buildWhereCondition = (query) => {
     }
 
     if (query.precio_min && query.precio_max) {
-      whereCondition.precio = { [Op.between]: [Number(query.precio_min), Number(query.precio_max)] };
+        whereCondition.precio = { [Op.between]: [Number(query.precio_min), Number(query.precio_max)] };
     } else if (query.precio_min) {
-      whereCondition.precio = { [Op.gte]: Number(query.precio_min) };
+        whereCondition.precio = { [Op.gte]: Number(query.precio_min) };
     } else if (query.precio_max) {
-      whereCondition.precio = { [Op.lte]: Number(query.precio_max) };
+        whereCondition.precio = { [Op.lte]: Number(query.precio_max) };
     }
 
 
@@ -246,8 +246,8 @@ exports.createProducto = async (req, res) => {
 
         await transaction.commit();
         await crearNotificacion({
-        mensaje: `Nuevo producto agregado con ID: ${nuevoProducto.id}`,
-        tipo: 'admin'
+            mensaje: `Nuevo producto agregado con ID: ${nuevoProducto.id}`,
+            tipo: 'admin'
         });
         res.status(201).json({ message: 'Producto creado con éxito', producto: nuevoProducto });
     } catch (error) {
@@ -266,18 +266,18 @@ exports.getAllFilters = async (req, res) => {
             fetchModelData(Talla, 'talla'),
             fetchModelData(ColorProducto, 'color'),
             Product.findAll({
-              attributes: [
-                  [sequelize.fn('MIN', sequelize.col('precio')), 'precio_min'],
-                  [sequelize.fn('MAX', sequelize.col('precio')), 'precio_max']
-              ],
-              where: { is_deleted: false }
-          })
+                attributes: [
+                    [sequelize.fn('MIN', sequelize.col('precio')), 'precio_min'],
+                    [sequelize.fn('MAX', sequelize.col('precio')), 'precio_max']
+                ],
+                where: { is_deleted: false }
+            })
         ]);
 
         const rangoPrecios = {
-          precio_min: precios[0].dataValues.precio_min,
-          precio_max: precios[0].dataValues.precio_max
-      };
+            precio_min: precios[0].dataValues.precio_min,
+            precio_max: precios[0].dataValues.precio_max
+        };
 
         res.status(200).json({ temporadas, categorias, tipos, marcas, tallas, colores, rangoPrecios });
     } catch (error) {
@@ -285,112 +285,112 @@ exports.getAllFilters = async (req, res) => {
     }
 };
 exports.getAllProductos = async (req, res) => {
-  try {
-    const { page = 1, pageSize = 10 } = req.query;
-    const offset = (page - 1) * pageSize;
+    try {
+        const { page = 1, pageSize = 10 } = req.query;
+        const offset = (page - 1) * pageSize;
 
-    const whereCondition = buildWhereCondition(req.query);
-    const productoTallaColorWhere = buildProductoTallaColorWhere(req.query);
+        const whereCondition = buildWhereCondition(req.query);
+        const productoTallaColorWhere = buildProductoTallaColorWhere(req.query);
 
-    const { count, rows } = await Product.findAndCountAll({
-      where: whereCondition,
-      limit: parseInt(pageSize),
-      offset,
-      attributes: ['id', 'precio', 'estado'],
-      include: [
-        { model: Temporada, attributes: ['temporada'] },
-        { model: Categoria, attributes: ['nombre'] },
-        { model: TipoProducto, attributes: ['nombre'] },
-        { model: Marca, attributes: ['nombre'] },
-        {
-          model: ProductoTallaColor,
-          required: false,
-          where: productoTallaColorWhere,
-          attributes: ['stock'],
-          include: [
-            { model: Talla, as: 'talla' ,attributes: ['id', 'talla'] },
-            {
-              model: ColorProducto,
-              as: 'color',
-              attributes: ['id', 'color', 'colorHex'],
-              include: [
+        const { count, rows } = await Product.findAndCountAll({
+            where: whereCondition,
+            limit: parseInt(pageSize),
+            offset,
+            attributes: ['id', 'precio', 'estado'],
+            include: [
+                { model: Temporada, attributes: ['temporada'] },
+                { model: Categoria, attributes: ['nombre'] },
+                { model: TipoProducto, attributes: ['nombre'] },
+                { model: Marca, attributes: ['nombre'] },
                 {
-                  model: ImagenProducto,
-                  attributes: ['id', 'imagen_url', 'producto_id'],
-                  where: { producto_id: sequelize.col('Producto.id') },
-                  required: false
+                    model: ProductoTallaColor,
+                    required: false,
+                    where: productoTallaColorWhere,
+                    attributes: ['stock'],
+                    include: [
+                        { model: Talla, as: 'talla', attributes: ['id', 'talla'] },
+                        {
+                            model: ColorProducto,
+                            as: 'color',
+                            attributes: ['id', 'color', 'colorHex'],
+                            include: [
+                                {
+                                    model: ImagenProducto,
+                                    attributes: ['id', 'imagen_url', 'producto_id'],
+                                    where: { producto_id: sequelize.col('Producto.id') },
+                                    required: false
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    model: Promocion,
+                    as: 'promociones',
+                    attributes: ['id', 'nombre', 'descuento', 'fecha_inicio', 'fecha_fin'],
+                    where: {
+                        fecha_inicio: { [Op.lte]: new Date() },
+                        fecha_fin: { [Op.gte]: new Date() }
+                    },
+                    required: false
                 }
-              ]
+            ],
+            distinct: true
+        });
+
+        // Obtener todas las calificaciones en una sola consulta
+        const productoIds = rows.map(p => p.id);
+        const calificaciones = await CalificacionProducto.findAll({
+            where: { producto_id: { [Op.in]: productoIds } },
+            attributes: ['producto_id', 'calificacion']
+        });
+
+        // Agrupar por producto
+        const resumenCalificaciones = productoIds.reduce((acc, id) => {
+            const cal = calificaciones.filter(c => c.producto_id === id);
+            if (cal.length === 0) {
+                acc[id] = { promedio: 0, total: 0 };
+            } else {
+                const suma = cal.reduce((sum, c) => sum + c.calificacion, 0);
+                acc[id] = {
+                    promedio: parseFloat((suma / cal.length).toFixed(1)),
+                    total: cal.length
+                };
             }
-          ]
-        },
-        {
-          model: Promocion,
-          as: 'promociones',
-          attributes: ['id', 'nombre', 'descuento', 'fecha_inicio', 'fecha_fin'],
-          where: {
-            fecha_inicio: { [Op.lte]: new Date() },
-            fecha_fin: { [Op.gte]: new Date() }
-          },
-          required: false
-        }
-      ],
-      distinct: true
-    });
+            return acc;
+        }, {});
+        const productosCatalogo = rows.map(producto => {
+            const resumen = resumenCalificaciones[producto.id] || { promedio: 0, total: 0 };
+            return {
+                ...mapProductoCatalogo(producto),
+                calificacionPromedio: resumen.promedio,
+                totalCalificaciones: resumen.total,
+                imagenes: producto.ProductoTallaColors.flatMap(ptc =>
+                    (ptc.color?.ImagenProductos || [])
+                        .filter(img => img.producto_id === producto.id)
+                        .map(img => ({
+                            url: img.imagen_url,
+                            color_id: ptc.color_id
+                        }))
+                ),
+                variantes: producto.ProductoTallaColors.map(ptc => ({
+                    talla: ptc.talla?.talla,
+                    color: ptc.color?.color,
+                    stock: ptc.stock
+                }))
+            };
+        });
 
-    // Obtener todas las calificaciones en una sola consulta
-    const productoIds = rows.map(p => p.id);
-    const calificaciones = await CalificacionProducto.findAll({
-      where: { producto_id: { [Op.in]: productoIds } },
-      attributes: ['producto_id', 'calificacion']
-    });
-
-    // Agrupar por producto
-    const resumenCalificaciones = productoIds.reduce((acc, id) => {
-      const cal = calificaciones.filter(c => c.producto_id === id);
-      if (cal.length === 0) {
-        acc[id] = { promedio: 0, total: 0 };
-      } else {
-        const suma = cal.reduce((sum, c) => sum + c.calificacion, 0);
-        acc[id] = {
-          promedio: parseFloat((suma / cal.length).toFixed(1)),
-          total: cal.length
-        };
-      }
-      return acc;
-    }, {});
-    const productosCatalogo = rows.map(producto => {
-      const resumen = resumenCalificaciones[producto.id] || { promedio: 0, total: 0 };
-      return {
-        ...mapProductoCatalogo(producto),
-        calificacionPromedio: resumen.promedio,
-        totalCalificaciones: resumen.total,
-        imagenes: producto.ProductoTallaColors.flatMap(ptc =>
-          (ptc.color?.ImagenProductos || [])
-            .filter(img => img.producto_id === producto.id)
-            .map(img => ({
-              url: img.imagen_url,
-              color_id: ptc.color_id
-            }))
-        ),
-        variantes: producto.ProductoTallaColors.map(ptc => ({
-          talla: ptc.talla?.talla,
-          color: ptc.color?.color,
-          stock: ptc.stock
-        }))
-      };
-    });
-
-    res.json({
-      productos: productosCatalogo,
-      currentPage: parseInt(page),
-      pageSize: parseInt(pageSize),
-      totalItems: count
-    });
-  } catch (error) {
-    console.error('Error al obtener productos:', error);
-    res.status(500).json({ message: 'Error al obtener el catálogo de productos' });
-  }
+        res.json({
+            productos: productosCatalogo,
+            currentPage: parseInt(page),
+            pageSize: parseInt(pageSize),
+            totalItems: count
+        });
+    } catch (error) {
+        console.error('Error al obtener productos:', error);
+        res.status(500).json({ message: 'Error al obtener el catálogo de productos' });
+    }
 };
 
 
@@ -599,86 +599,86 @@ exports.getProductoById = async (req, res) => {
 };
 
 exports.obtenerCalificacionProducto = async (req, res) => {
-  try {
-      const { producto_id } = req.params;
+    try {
+        const { producto_id } = req.params;
 
-      const calificaciones = await CalificacionProducto.findAll({
-          where: { producto_id }
-      });
+        const calificaciones = await CalificacionProducto.findAll({
+            where: { producto_id }
+        });
 
-      if (calificaciones.length === 0) {
-          return res.status(200).json({ promedio: 0, total: 0, detalle: [] });
-      }
+        if (calificaciones.length === 0) {
+            return res.status(200).json({ promedio: 0, total: 0, detalle: [] });
+        }
 
-      const suma = calificaciones.reduce((acc, c) => acc + c.calificacion, 0);
-      const promedio = suma / calificaciones.length;
+        const suma = calificaciones.reduce((acc, c) => acc + c.calificacion, 0);
+        const promedio = suma / calificaciones.length;
 
-      const detalle = [5, 4, 3, 2, 1].map(estrella => ({
-          estrella,
-          cantidad: calificaciones.filter(c => c.calificacion === estrella).length
-      }));
+        const detalle = [5, 4, 3, 2, 1].map(estrella => ({
+            estrella,
+            cantidad: calificaciones.filter(c => c.calificacion === estrella).length
+        }));
 
-      res.status(200).json({
-          promedio: parseFloat(promedio.toFixed(1)),
-          total: calificaciones.length,
-          detalle
-      });
-  } catch (error) {
-      res.status(500).json({ message: 'Error al obtener calificación del producto', error });
-  }
+        res.status(200).json({
+            promedio: parseFloat(promedio.toFixed(1)),
+            total: calificaciones.length,
+            detalle
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener calificación del producto', error });
+    }
 };
 
 exports.agregarCalificacionProducto = async (req, res) => {
-  try {
-      const { producto_id, usuario_id, calificacion } = req.body;
+    try {
+        const { producto_id, usuario_id, calificacion } = req.body;
 
-      if (!producto_id || !usuario_id || !calificacion) {
-          return res.status(400).json({ message: 'Todos los campos son obligatorios' });
-      }
+        if (!producto_id || !usuario_id || !calificacion) {
+            return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+        }
 
-      if (calificacion < 1 || calificacion > 5) {
-          return res.status(400).json({ message: 'La calificación debe estar entre 1 y 5' });
-      }
+        if (calificacion < 1 || calificacion > 5) {
+            return res.status(400).json({ message: 'La calificación debe estar entre 1 y 5' });
+        }
 
-      const existente = await CalificacionProducto.findOne({ where: { producto_id, usuario_id } });
-      let nueva;
+        const existente = await CalificacionProducto.findOne({ where: { producto_id, usuario_id } });
+        let nueva;
 
-      if (existente) {
-          existente.calificacion = calificacion;
-          await existente.save();
-          nueva = existente;
-      } else {
-          nueva = await CalificacionProducto.create({ producto_id, usuario_id, calificacion });
-      }
+        if (existente) {
+            existente.calificacion = calificacion;
+            await existente.save();
+            nueva = existente;
+        } else {
+            nueva = await CalificacionProducto.create({ producto_id, usuario_id, calificacion });
+        }
 
-      await crearNotificacion({
-          mensaje: `Calificaste un producto con ${calificacion} estrella${calificacion > 1 ? 's' : ''}.`,
-          tipo: 'usuario',
-          usuario_id
-      });
+        await crearNotificacion({
+            mensaje: `Calificaste un producto con ${calificacion} estrella${calificacion > 1 ? 's' : ''}.`,
+            tipo: 'usuario',
+            usuario_id
+        });
 
-      res.status(201).json({ message: 'Calificación registrada o actualizada', calificacion: nueva });
+        res.status(201).json({ message: 'Calificación registrada o actualizada', calificacion: nueva });
 
-  } catch (error) {
-      console.error("Error al registrar calificación:", error);
-      res.status(500).json({ message: 'Error al registrar calificación', error });
-  }
+    } catch (error) {
+        console.error("Error al registrar calificación:", error);
+        res.status(500).json({ message: 'Error al registrar calificación', error });
+    }
 };
 
 exports.verificarCalificacionUsuario = async (req, res) => {
-  try {
-      const { producto_id, usuario_id } = req.params;
+    try {
+        const { producto_id, usuario_id } = req.params;
 
-      const existente = await CalificacionProducto.findOne({ where: { producto_id, usuario_id } });
+        const existente = await CalificacionProducto.findOne({ where: { producto_id, usuario_id } });
 
-      if (!existente) {
-          return res.status(404).json({ message: 'No se encontró la calificación.' });
-      }
+        if (!existente) {
+            return res.status(404).json({ message: 'No se encontró la calificación.' });
+        }
 
-      res.status(200).json({ yaCalifico: true, calificacion: existente.calificacion });
-  } catch (error) {
-      res.status(500).json({ message: 'Error al verificar la calificación', error });
-  }
+        res.status(200).json({ yaCalifico: true, calificacion: existente.calificacion });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al verificar la calificación', error });
+    }
 };
 
 
@@ -734,8 +734,8 @@ exports.getDeletedProductos = async (req, res) => {
                     model: ProductoTallaColor,
                     attributes: ['id', 'producto_id', 'talla_id', 'color_id', 'stock'],
                     include: [
-                        { model: Talla, as:'talla', attributes: ['id', 'talla'] },
-                        { model: ColorProducto, as:'color', attributes: ['id', 'color', 'colorHex'] },
+                        { model: Talla, as: 'talla', attributes: ['id', 'talla'] },
+                        { model: ColorProducto, as: 'color', attributes: ['id', 'color', 'colorHex'] },
                     ],
                 },
             ],
@@ -816,8 +816,8 @@ exports.getLowStockProducts = async (req, res) => {
                         { model: Categoria, attributes: ['nombre'], as: 'Categorium' },
                     ],
                 },
-                { model: Talla, as:'talla', attributes: ['talla'] },
-                { model: ColorProducto, as:'color', attributes: ['color', 'colorHex'] },
+                { model: Talla, as: 'talla', attributes: ['talla'] },
+                { model: ColorProducto, as: 'color', attributes: ['color', 'colorHex'] },
             ],
             order: [['stock', 'ASC'], [Product, 'Categorium', 'nombre', 'ASC']],
             raw: true,
@@ -860,23 +860,23 @@ exports.getRecomendacionesPorUsuario = async (req, res) => {
         let recomendacionesPersonalizadas = [];
         try {
             const response = await axios.get(`${FLASK_API_URL}/recommend`, {
-    params: {
-        user_id: userIdFromToken,
-        top_n,
-        min_confidence
-    }
-});
+                params: {
+                    user_id: userIdFromToken,
+                    top_n,
+                    min_confidence
+                }
+            });
 
             const recomendaciones = response.data.recommendations || [];
             recomendacionesPersonalizadas = await Promise.all(
                 recomendaciones.map(async (rec) => {
                     const productoRec = await Product.findOne({
-  where: {
-    id: rec.producto_id,
-    is_deleted: false,
-    estado: true
-  },
-                        attributes: ['id', 'nombre', 'precio', 'estado'],
+                        where: {
+                            id: rec.producto_id,
+                            is_deleted: false,
+                            estado: true
+                        },
+                        attributes: ['id','precio', 'estado'],
                         include: [
                             { model: Temporada, attributes: ['temporada'] },
                             { model: Categoria, attributes: ['nombre'] },
@@ -911,15 +911,15 @@ exports.getRecomendacionesPorUsuario = async (req, res) => {
                     if (!productoRec) return null;
                     console.log(productoRec)
                     const mappedProducto = mapProductoCatalogo(productoRec);
-mappedProducto.producto_id = productoRec.id;
+                    mappedProducto.producto_id = productoRec.id;
 
-const calificacionesRec = await CalificacionProducto.findAll({ where: { producto_id: productoRec.id } });
-mappedProducto.calificacionPromedio = calificacionesRec.length > 0
-    ? parseFloat((calificacionesRec.reduce((acc, c) => acc + c.calificacion, 0) / calificacionesRec.length).toFixed(1))
-    : 0;
-mappedProducto.totalCalificaciones = calificacionesRec.length;
+                    const calificacionesRec = await CalificacionProducto.findAll({ where: { producto_id: productoRec.id } });
+                    mappedProducto.calificacionPromedio = calificacionesRec.length > 0
+                        ? parseFloat((calificacionesRec.reduce((acc, c) => acc + c.calificacion, 0) / calificacionesRec.length).toFixed(1))
+                        : 0;
+                    mappedProducto.totalCalificaciones = calificacionesRec.length;
 
-return mappedProducto;
+                    return mappedProducto;
                 })
             );
             recomendacionesPersonalizadas = recomendacionesPersonalizadas.filter(p => p !== null);
