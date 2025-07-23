@@ -128,6 +128,8 @@ const buildProductoTallaColorWhere = ({ talla_id, color_id }) => {
 const mapProductoCatalogo = (producto) => ({
     id: producto.id,
     nombre: `${producto.TipoProducto?.nombre || ''} ${producto.Marca?.nombre || ''} ${producto.Categorium?.nombre || ''}`.trim(),
+    nombreReal: producto.nombre,
+    tipoNombre: producto.TipoProducto?.nombre || null,
     precio: producto.precio,
     estado: producto.estado,
     temporada: producto.Temporada?.temporada || null,
@@ -135,7 +137,7 @@ const mapProductoCatalogo = (producto) => ({
         talla: ptc.talla?.talla,
         color: ptc.color?.color,
     })),
-        promocion: producto.promociones?.[0]
+    promocion: producto.promociones?.[0]
         ? {
             id: producto.promociones[0].id,
             nombre: producto.promociones[0].nombre,
@@ -144,8 +146,8 @@ const mapProductoCatalogo = (producto) => ({
             fecha_fin: producto.promociones[0].fecha_fin
         }
         : null,
-
 });
+
 const mapProductoTransformado = (producto) => ({
     id: producto.id,
     temporada: producto.Temporada ? { id: producto.Temporada.id, temporada: producto.Temporada.temporada } : null,
