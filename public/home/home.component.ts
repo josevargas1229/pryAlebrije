@@ -82,13 +82,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
             };
           })
           .catch(() => ({
-            ...reco,
-            imagen_url: 'assets/images/ropa.jpg',
-            precio: 0,
-            tienePromocion: false,
-            precioFinal: 0,
-            descuento: 0
-          }))
+  ...reco,
+  nombre: reco.nombre,
+  nombreReal: reco.nombreReal,
+  tipoNombre: reco.tipoNombre,
+  imagen_url: 'assets/images/ropa.jpg',
+  precio: 0,
+  tienePromocion: false,
+  precioFinal: 0,
+  descuento: 0
+}))
+
       );
 
       Promise.all(promesas).then(res => {

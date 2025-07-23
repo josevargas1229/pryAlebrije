@@ -65,7 +65,7 @@
     </div>
 
     <!-- Carousel Container -->
-    <div class="carousel-container" #recomendadosContainer>
+   <div class="carousel-container" *ngIf="productosRecomendados.length > 0" #recomendadosContainer>
       <button mat-fab color="primary"
               class="carousel-control prev"
               (click)="scrollCarousel('prev')"
@@ -84,7 +84,7 @@
 
               <div class="product-image-wrapper">
                 <img [src]="product.imagen_url && product.imagen_url.length > 0 ? product.imagen_url : 'assets/images/ropa.jpg'"
-     [alt]="product.descripcion_producto"
+    [alt]="product.nombreReal || product.nombre || 'Producto Alebrije'"
      class="product-image"
      loading="lazy">
 
