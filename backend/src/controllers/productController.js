@@ -886,7 +886,7 @@ if (!response.data || !Array.isArray(response.data.recommendations)) {
             include: [
                 { model: Temporada, attributes: ['temporada'] },
                 { model: Categoria, attributes: ['nombre'] },
-                { model: TipoProducto, as: 'tipoProducto', attributes: ['nombre'] }, // tipo.nombre
+                 { model: TipoProducto, as: 'tipoProducto', attributes: ['nombre'] }, // tipo.nombre
                 { model: Marca, attributes: ['nombre'] },
                 {
                     model: ProductoTallaColor,
