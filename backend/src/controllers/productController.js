@@ -8,8 +8,7 @@ const { crearNotificacion } = require('./notificacionController');
 const {Promocion} = require ('../models/associations')
 const axios = require('axios');
 
-// URL base del servicio Flask (ajusta según tu configuración)
-const FLASK_API_URL = 'https://proyectom3.onrender.com';
+
 
 const fetchModelData = async (model, orderField) => {
     return model.findAll({ order: [[orderField, 'ASC']] });
@@ -871,7 +870,12 @@ exports.getRecomendacionesPorUsuario = async (req, res) => {
             const recomendaciones = response.data.recommendations || [];
             recomendacionesPersonalizadas = await Promise.all(
                 recomendaciones.map(async (rec) => {
-                    const productoRec = await Product.findByPk(rec.producto_id, {
+                    const productoRec = await Product.findOne({
+  where: {
+    id: rec.producto_id,
+    is_deleted: false,
+    estado: true
+  },
                         attributes: ['id', 'nombre', 'precio', 'estado'],
                         include: [
                             { model: Temporada, attributes: ['temporada'] },
