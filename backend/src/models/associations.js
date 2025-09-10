@@ -31,6 +31,19 @@ const VerificationCode =require('./VerificationCode')
 const Transaccion = require('./Transaccion');
 const Notificacion = require('./Notificacion');
 const AuthorizationCode = require('./authorizationCode');
+
+// Gamificación
+const Ruleta = require('./ruleta');
+const RuletaHistorial = require('./ruleta_historial');
+const Premio = require('./premio');
+const RuletaPremio = require('./ruleta_premio');
+const IntentoRegla = require('./intento_regla');
+const IntentoUsuario = require('./intento_usuario');
+const CuponUsuario = require('./cupon_usuario');
+const Participacion = require('./participacion');
+
+
+
 // Definir la asociación entre User y Rol
 Rol.hasMany(User, { foreignKey: 'rol_id' });
 User.belongsTo(Rol, { foreignKey: 'rol_id' });
@@ -167,6 +180,50 @@ Transaccion.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
 AuthorizationCode.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
 
 
+// --- Ruletas e historial ---
+Ruleta.hasMany(RuletaHistorial, { foreignKey: 'ruleta_id', as: 'historial' });
+RuletaHistorial.belongsTo(Ruleta, { foreignKey: 'ruleta_id', as: 'ruleta' });
+
+// quién modificó una versión del arte
+RuletaHistorial.belongsTo(User, { foreignKey: 'modificado_por', as: 'editor' });
+User.hasMany(RuletaHistorial, { foreignKey: 'modificado_por', as: 'cambios_ruleta' });
+
+// --- Ruleta <-> Premio (mapeo con probabilidad) ---
+Ruleta.hasMany(RuletaPremio, { foreignKey: 'ruleta_id', as: 'segmentos' });
+RuletaPremio.belongsTo(Ruleta, { foreignKey: 'ruleta_id', as: 'ruleta' });
+
+Premio.hasMany(RuletaPremio, { foreignKey: 'premio_id', as: 'segmentos' });
+RuletaPremio.belongsTo(Premio, { foreignKey: 'premio_id', as: 'premio' });
+
+// --- Intentos (elegibilidad para girar) ---
+IntentoRegla.hasMany(IntentoUsuario, { foreignKey: 'intento_regla_id', as: 'aplicaciones' });
+IntentoUsuario.belongsTo(IntentoRegla, { foreignKey: 'intento_regla_id', as: 'regla' });
+
+User.hasMany(IntentoUsuario, { foreignKey: 'usuario_id', as: 'intentos' });
+IntentoUsuario.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
+
+// --- Cupones emitidos por premios ---
+Premio.hasMany(CuponUsuario, { foreignKey: 'premio_id', as: 'cupones_emitidos' });
+CuponUsuario.belongsTo(Premio, { foreignKey: 'premio_id', as: 'premio' });
+
+User.hasMany(CuponUsuario, { foreignKey: 'usuario_id', as: 'cupones' });
+CuponUsuario.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
+
+// --- Participaciones (giros de ruleta) ---
+User.hasMany(Participacion, { foreignKey: 'usuario_id', as: 'participaciones' });
+Participacion.belongsTo(User, { foreignKey: 'usuario_id', as: 'usuario' });
+
+Ruleta.hasMany(Participacion, { foreignKey: 'ruleta_id', as: 'participaciones' });
+Participacion.belongsTo(Ruleta, { foreignKey: 'ruleta_id', as: 'ruleta' });
+
+Premio.hasMany(Participacion, { foreignKey: 'premio_id', as: 'redenciones' });
+Participacion.belongsTo(Premio, { foreignKey: 'premio_id', as: 'premio' });
+
+CuponUsuario.hasMany(Participacion, { foreignKey: 'cupon_usuario_id', as: 'uso_en_participaciones' });
+Participacion.belongsTo(CuponUsuario, { foreignKey: 'cupon_usuario_id', as: 'cupon' });
+
+
+
 module.exports = {
     Categoria,
     Product,
@@ -201,5 +258,13 @@ module.exports = {
     VerificationCode,
     Transaccion,
     Notificacion,
-    AuthorizationCode
+    AuthorizationCode,
+    Ruleta,
+    RuletaHistorial,
+    Premio,
+    RuletaPremio,
+    IntentoRegla,
+    IntentoUsuario,
+    CuponUsuario,
+    Participacion
 };
