@@ -101,27 +101,32 @@ exports.login = async (req, res, next) => {
 
     // --- INICIO BLOQUE MODIFICADO (bypass reCAPTCHA en dev/móvil) ---
 const isProd = process.env.NODE_ENV === "production";
-const bypassFlag = process.env.BYPASS_RECAPTCHA === "true";
-// desde el cliente móvil enviaremos este header
-const isMobileClient = (req.headers["x-client-platform"] || "").toLowerCase() === "mobile";
+const bypassEnv = process.env.BYPASS_RECAPTCHA === "true";
+const clientPlatform = (req.headers["x-client-platform"] || "").toLowerCase();
+
+// Log para verificar por qué no activa
+console.log("[LOGIN] env:", process.env.NODE_ENV, "bypassEnv:", bypassEnv, "platform:", clientPlatform);
 
 const [intentosFallidos, score] = await Promise.all([
   IntentoFallido.count({ where: { account_id: user.Account.id } }),
   (async () => {
-    // BYPASS solo si: NO producción + bandera activa + petición móvil
-    if (!isProd && bypassFlag && isMobileClient) {
-      console.log("[LOGIN] reCAPTCHA BYPASSED (dev/mobile)");
-      return 0.99; // score alto para pasar validación
+    // BYPASS en desarrollo si:
+    //  - NO es producción, y
+    //  - (bandera activa O viene de móvil)
+    const bypass = !isProd && (bypassEnv || clientPlatform === "mobile");
+    if (bypass) {
+      console.log("[LOGIN] reCAPTCHA BYPASSED (dev)", { bypassEnv, clientPlatform });
+      return 0.99; // score alto
     }
 
-    // Producción o web: validar reCAPTCHA normalmente
+    // Producción o sin bypass → validar reCAPTCHA real
     if (!captchaToken) return null;
     try {
       return await createAssessment({
         projectID: process.env.PROJECT_ID,
         recaptchaKey: process.env.RECAPTCHA_KEY,
         token: captchaToken,
-        recaptchaAction: "LOGIN"
+        recaptchaAction: "LOGIN",
       });
     } catch (e) {
       console.error("Error createAssessment:", e?.message || e);
