@@ -65,28 +65,23 @@
     </div>
 
     <!-- Carousel Container -->
-   <div class="carousel-container" *ngIf="productosRecomendados.length > 0" #recomendadosContainer>
-      <button mat-fab color="primary"
-              class="carousel-control prev"
-              (click)="scrollCarousel('prev')"
-              [disabled]="!canScrollPrev"
-              aria-label="Productos anteriores">
+    <div class="carousel-container" *ngIf="productosRecomendados.length > 0" #recomendadosContainer>
+      <button mat-fab color="primary" class="carousel-control prev" (click)="scrollCarousel('prev')"
+        [disabled]="!canScrollPrev" aria-label="Productos anteriores">
         <mat-icon>chevron_left</mat-icon>
       </button>
 
       <div class="carousel-viewport" #carouselWrapper>
         <div class="carousel-content" #carouselTrack>
           <div class="product-card-wrapper" *ngFor="let product of productosRecomendados">
-            <mat-card class="product-card"
-          (click)="irADetalleProducto(product.producto_id)"
-          matRipple>
+            <mat-card class="product-card" (click)="irADetalleProducto(product.producto_id)" matRipple>
 
 
               <div class="product-image-wrapper">
-                <img [src]="product.imagen_url && product.imagen_url.length > 0 ? product.imagen_url : 'assets/images/ropa.jpg'"
-    [alt]="product.nombreReal || product.nombre || 'Producto Alebrije'"
-     class="product-image"
-     loading="lazy">
+                <img
+                  [src]="product.imagen_url && product.imagen_url.length > 0 ? product.imagen_url : 'assets/images/ropa.jpg'"
+                  [alt]="product.nombreReal || product.nombre || 'Producto Alebrije'" class="product-image"
+                  loading="lazy">
 
 
                 <div class="product-overlay">
@@ -102,19 +97,19 @@
               </div>
 
               <mat-card-content class="product-info">
-                <h3 class="product-name">{{ product.nombreReal }}</h3>
-<p class="product-subtype" *ngIf="product.tipoNombre">{{ product.tipoNombre }}</p>
-<div class="price-section">
-  <ng-container *ngIf="product.tienePromocion; else sinPromo">
-    <span class="original-price">${{ product.precio | number:'1.2-2' }}</span>
-    <span class="current-price">${{ product.precioFinal | number:'1.2-2' }}</span>
-    <span class="descuento">-{{ product.descuento }}%</span>
-  </ng-container>
-  <ng-template #sinPromo>
-    <span class="current-price">${{ product.precio | number:'1.2-2' }}</span>
-  </ng-template>
-  <span class="price-label">MXN</span>
-</div>
+                <h3 class="product-name">{{ product.nombre }}</h3>
+                <p class="product-subtype" *ngIf="product.tipoNombre">{{ product.tipoNombre }}</p>
+                <div class="price-section">
+                  <ng-container *ngIf="product.tienePromocion; else sinPromo">
+                    <span class="original-price">${{ product.precio | number:'1.2-2' }}</span>
+                    <span class="current-price">${{ product.precioFinal | number:'1.2-2' }}</span>
+                    <span class="descuento">-{{ product.descuento }}%</span>
+                  </ng-container>
+                  <ng-template #sinPromo>
+                    <span class="current-price">${{ product.precio | number:'1.2-2' }}</span>
+                  </ng-template>
+                  <span class="price-label">MXN</span>
+                </div>
 
 
                 <div class="product-meta" *ngIf="product.confidence > 0.0">
@@ -136,22 +131,16 @@
         </div>
       </div>
 
-      <button mat-fab color="primary"
-              class="carousel-control next"
-              (click)="scrollCarousel('next')"
-              [disabled]="!canScrollNext"
-              aria-label="Siguientes productos">
+      <button mat-fab color="primary" class="carousel-control next" (click)="scrollCarousel('next')"
+        [disabled]="!canScrollNext" aria-label="Siguientes productos">
         <mat-icon>chevron_right</mat-icon>
       </button>
     </div>
 
     <!-- Carousel Indicators -->
     <div class="carousel-pagination">
-      <button mat-icon-button
-              *ngFor="let indicator of indicators; let i = index"
-              [class.active]="i === currentSlide"
-              (click)="goToSlide(i)"
-              [attr.aria-label]="'Ir a página ' + (i + 1)">
+      <button mat-icon-button *ngFor="let indicator of indicators; let i = index" [class.active]="i === currentSlide"
+        (click)="goToSlide(i)" [attr.aria-label]="'Ir a página ' + (i + 1)">
         <mat-icon>{{i === currentSlide ? 'radio_button_checked' : 'radio_button_unchecked'}}</mat-icon>
       </button>
     </div>
@@ -200,20 +189,16 @@
       </div>
 
       <div class="location-map">
-  <mat-card class="map-card">
-    <div class="map-container">
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3721.2635872858523!2d-98.42104560000001!3d21.141906!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d726eb0ae854ed%3A0xa42a559aec06835e!2sAlebrije%20BOUTIQUE!5e0!3m2!1ses!2smx!4v1753202663653!5m2!1ses!2smx"
-        width="100%"
-        height="400"
-        style="border:0;"
-        allowfullscreen=""
-        loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
-      </iframe>
-    </div>
-  </mat-card>
-</div>
+        <mat-card class="map-card">
+          <div class="map-container">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3721.2635872858523!2d-98.42104560000001!3d21.141906!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d726eb0ae854ed%3A0xa42a559aec06835e!2sAlebrije%20BOUTIQUE!5e0!3m2!1ses!2smx!4v1753202663653!5m2!1ses!2smx"
+              width="100%" height="400" style="border:0;" allowfullscreen="" loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+          </div>
+        </mat-card>
+      </div>
     </div>
   </div>
 </section>
