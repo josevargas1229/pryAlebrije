@@ -8,17 +8,17 @@ const EmailTemplate = require('../models/EmailTemplate');
 const transporter = require('../config/emailConfig');
 const { v4: uuidv4 } = require('uuid');
 /**
- * The `createAssessment` function uses the Google reCAPTCHA Enterprise API to assess the validity of 
- * a CAPTCHA token provided by the client during a user action (e.g., login). It returns the score 
- * based on the likelihood that the action is legitimate. If the token is invalid or the action does 
+ * The `createAssessment` function uses the Google reCAPTCHA Enterprise API to assess the validity of
+ * a CAPTCHA token provided by the client during a user action (e.g., login). It returns the score
+ * based on the likelihood that the action is legitimate. If the token is invalid or the action does
  * not match, it returns `null`.
- * 
+ *
  * @param {Object} options - The options for the reCAPTCHA assessment.
  * @param {string} options.projectID - The Google Cloud project ID.
  * @param {string} options.recaptchaKey - The site key for the reCAPTCHA.
  * @param {string} options.token - The token from the client to validate.
  * @param {string} options.recaptchaAction - The expected action associated with the reCAPTCHA.
- * 
+ *
  * @returns {Promise<number|null>} - The reCAPTCHA score or null if invalid.
  */
 async function createAssessment({ projectID, recaptchaKey, token, recaptchaAction }) {
@@ -130,7 +130,7 @@ exports.login = async (req, res, next) => {
       user.Account.update({ ultimo_acceso: new Date() })
     ]);
 
-    // Si es una solicitud de Alexa (Account Linking)
+    // Si es una solicitud de Alexa (Account Linking
     if (client_id && redirect_uri && state) {
       // Validar Client ID
       if (client_id !== process.env.ALEXA_CLIENT_ID) {
@@ -176,16 +176,16 @@ exports.login = async (req, res, next) => {
 };
 /**
  * The `changePassword` function allows an authenticated user to change their account password.
- * 
+ *
  * 1. The function verifies the current password before allowing the change.
  * 2. If the current password is correct, it hashes the new password using bcrypt and updates the
  *    account in the database.
  * 3. It also logs the password change in a separate password history table.
- * 
+ *
  * @param {Object} req - The request object, containing the current and new password.
  * @param {Object} res - The response object.
  * @param {Function} next - The next middleware function.
- * 
+ *
  * @returns {void}
  */
 exports.changePassword = async (req, res, next) => {
@@ -218,16 +218,16 @@ exports.changePassword = async (req, res, next) => {
 
 /**
  * The `checkAuth` function checks whether a user is authenticated by verifying the JWT token stored in
- * the cookies. 
- * 
+ * the cookies.
+ *
  * 1. If the token is valid and not expired, it retrieves the user's details and returns them in the
  *    response.
  * 2. If the token is close to expiration, it issues a new token and updates the client's cookie.
- * 
+ *
  * @param {Object} req - The request object, containing the authentication cookie.
  * @param {Object} res - The response object.
  * @param {Function} next - The next middleware function.
- * 
+ *
  * @returns {void}
  */
 exports.checkAuth = async (req, res, next) => {
@@ -307,16 +307,16 @@ exports.checkAuth = async (req, res, next) => {
 };
 
 /**
- * The `logout` function handles user logout by clearing the authentication token stored as an HTTP-only 
- * cookie. 
- * 
+ * The `logout` function handles user logout by clearing the authentication token stored as an HTTP-only
+ * cookie.
+ *
  * 1. This effectively ends the user's session.
  * 2. It sends a success response indicating that the logout was successful.
- * 
+ *
  * @param {Object} req - The request object.
  * @param {Object} res - The response object.
  * @param {Function} next - The next middleware function.
- * 
+ *
  * @returns {void}
  */
 exports.logout = (req, res, next) => {
@@ -446,4 +446,4 @@ exports.generateAccessToken = async (req, res) => {
   await authCode.destroy(); // Evitar reutilización
   return res.status(200).json({ access_token: accessToken, token_type: 'Bearer', expires_in: 3600 });
 
-};  
+};
