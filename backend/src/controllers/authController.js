@@ -99,15 +99,36 @@ exports.login = async (req, res, next) => {
       return res.status(403).json({ message: `Cuenta bloqueada hasta ${tiempoDesbloqueo.toLocaleTimeString()}` });
     }
 
-    const [intentosFallidos, score] = await Promise.all([
-      IntentoFallido.count({ where: { account_id: user.Account.id } }),
-      createAssessment({
+    // --- INICIO BLOQUE MODIFICADO (bypass reCAPTCHA en dev/móvil) ---
+const isProd = process.env.NODE_ENV === "production";
+const bypassFlag = process.env.BYPASS_RECAPTCHA === "true";
+// desde el cliente móvil enviaremos este header
+const isMobileClient = (req.headers["x-client-platform"] || "").toLowerCase() === "mobile";
+
+const [intentosFallidos, score] = await Promise.all([
+  IntentoFallido.count({ where: { account_id: user.Account.id } }),
+  (async () => {
+    // BYPASS solo si: NO producción + bandera activa + petición móvil
+    if (!isProd && bypassFlag && isMobileClient) {
+      console.log("[LOGIN] reCAPTCHA BYPASSED (dev/mobile)");
+      return 0.99; // score alto para pasar validación
+    }
+
+    // Producción o web: validar reCAPTCHA normalmente
+    if (!captchaToken) return null;
+    try {
+      return await createAssessment({
         projectID: process.env.PROJECT_ID,
         recaptchaKey: process.env.RECAPTCHA_KEY,
         token: captchaToken,
         recaptchaAction: "LOGIN"
-      })
-    ]);
+      });
+    } catch (e) {
+      console.error("Error createAssessment:", e?.message || e);
+      return null;
+    }
+  })(),
+]);
 
     if (score === null || score < 0.5) {
       return res.status(400).json({ message: "Fallo en reCAPTCHA. Intente nuevamente." });
