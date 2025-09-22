@@ -102,26 +102,28 @@ exports.login = async (req, res, next) => {
     // --- INICIO BLOQUE MODIFICADO (bypass reCAPTCHA en dev/móvil) ---
 const isProd = process.env.NODE_ENV === "production";
 const bypassFlag = process.env.BYPASS_RECAPTCHA === "true";
-// desde el cliente móvil enviaremos este header
-const isMobileClient = (req.headers["x-client-platform"] || "").toLowerCase() === "mobile";
+const clientPlatform = (req.headers["x-client-platform"] || "").toLowerCase();
+
+console.log("[LOGIN] env:", process.env.NODE_ENV, "bypassFlag:", bypassFlag, "platform:", clientPlatform);
 
 const [intentosFallidos, score] = await Promise.all([
   IntentoFallido.count({ where: { account_id: user.Account.id } }),
   (async () => {
-    // BYPASS solo si: NO producción + bandera activa + petición móvil
-    if (!isProd && bypassFlag && isMobileClient) {
+    // BYPASS SOLO EN DESARROLLO y SOLO si viene de móvil y bandera activa
+    const bypass = !isProd && bypassFlag && clientPlatform === "mobile";
+    if (bypass) {
       console.log("[LOGIN] reCAPTCHA BYPASSED (dev/mobile)");
-      return 0.99; // score alto para pasar validación
+      return 0.99;
     }
 
-    // Producción o web: validar reCAPTCHA normalmente
+    // Producción (o sin bypass): validar reCAPTCHA normalmente
     if (!captchaToken) return null;
     try {
       return await createAssessment({
         projectID: process.env.PROJECT_ID,
         recaptchaKey: process.env.RECAPTCHA_KEY,
         token: captchaToken,
-        recaptchaAction: "LOGIN"
+        recaptchaAction: "LOGIN",
       });
     } catch (e) {
       console.error("Error createAssessment:", e?.message || e);
@@ -130,9 +132,9 @@ const [intentosFallidos, score] = await Promise.all([
   })(),
 ]);
 
-    if (score === null || score < 0.5) {
-      return res.status(400).json({ message: "Fallo en reCAPTCHA. Intente nuevamente." });
-    }
+if (score === null || score < 0.5) {
+  return res.status(400).json({ message: "Fallo en reCAPTCHA. Intente nuevamente." });
+}
 
     if (intentosFallidos >= max_intentos_login) {
       await user.Account.update({ bloqueada: true, bloqueada_desde: new Date() });
