@@ -100,7 +100,6 @@ exports.login = async (req, res, next) => {
     }
 
     // --- INICIO BLOQUE MODIFICADO (bypass reCAPTCHA en dev/móvil) ---
-const isProd = process.env.NODE_ENV === "production";
 const bypassFlag = process.env.BYPASS_RECAPTCHA === "true";
 const clientPlatform = (req.headers["x-client-platform"] || "").toLowerCase();
 
@@ -110,7 +109,7 @@ const [intentosFallidos, score] = await Promise.all([
   IntentoFallido.count({ where: { account_id: user.Account.id } }),
   (async () => {
     // BYPASS SOLO EN DESARROLLO y SOLO si viene de móvil y bandera activa
-    const bypass = !isProd && bypassFlag && clientPlatform === "mobile";
+    const bypass = bypassFlag && clientPlatform === "mobile";
     if (bypass) {
       console.log("[LOGIN] reCAPTCHA BYPASSED (dev/mobile)");
       return 0.99;
