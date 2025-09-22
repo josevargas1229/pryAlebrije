@@ -33,6 +33,8 @@ const contactoRoutes = require('./routes/contactoRoutes');
 const transaccionesRoutes = require('./routes/transaccionesRoutes');
 const promocionRoutes = require('./routes/promocionRoutes');
 const notificacionesRoutes = require('./routes/notificacionRoutes');
+const premiosRoutes = require('./routes/premiosRoutes');
+const ruletapremiosRoutes = require('./routes/ruletapremiosRoutes');
 const { authenticateToken, authorize, ROLES } = require('./middlewares/auth');
 const app = express();
 
@@ -107,6 +109,8 @@ app.use('/contacto', contactoRoutes);
 app.use('/transacciones', transaccionesRoutes);
 app.use('/promociones', promocionRoutes);
 app.use('/notificaciones', authenticateToken, notificacionesRoutes);
+app.use('/premios', premiosRoutes);
+app.use('/ruletapremios', ruletapremiosRoutes);
 app.use(errorHandler);
 module.exports = app;
 
