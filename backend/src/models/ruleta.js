@@ -8,6 +8,21 @@ const Ruleta = sequelize.define('Ruleta', {
   activo: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
   created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: sequelize.literal('CURRENT_TIMESTAMP') },
   updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') }
-}, { tableName: 'ruletas', timestamps: false });
+}, { 
+  tableName: 'ruletas', 
+  timestamps: false,
+  hooks: {
+    beforeCreate: async (ruleta) => {
+      if (ruleta.activo) {
+        await Ruleta.update({ activo: false }, { where: { activo: true } });
+      }
+    },
+    beforeUpdate: async (ruleta) => {
+      if (ruleta.activo && ruleta.changed('activo')) {
+        await Ruleta.update({ activo: false }, { where: { activo: true, id: { [sequelize.Op.ne]: ruleta.id } } });
+      }
+    }
+  }
+});
 
 module.exports = Ruleta;

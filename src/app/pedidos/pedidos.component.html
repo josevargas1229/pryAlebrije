@@ -119,8 +119,8 @@
 
               <!-- Imagen del producto -->
               <div class="producto-image-container">
-                <img [src]="detalle.producto.imagenes?.length ? detalle.producto.imagenes[0].imagen_url : 'assets/images/ropa.jpg'"
-                     [alt]="detalle.producto.tipoProducto?.nombre || 'Producto'"
+                <img [src]="detalle.producto.imagenes.length ? detalle.producto.imagenes[0].imagen_url : 'assets/images/ropa.jpg'"
+                     [alt]="detalle.producto.tipoProducto.nombre || 'Producto'"
                      class="producto-image"
                      loading="lazy">
                 <div class="cantidad-badge">
@@ -130,21 +130,21 @@
 
               <!-- Información del producto -->
               <mat-card-content class="producto-info">
-                <h4 class="producto-nombre">{{ detalle.producto.tipoProducto?.nombre || 'Producto sin nombre' }}</h4>
+                <h4 class="producto-nombre">{{ detalle.producto.tipoProducto.nombre || 'Producto sin nombre' }}</h4>
 
                 <div class="producto-detalles">
                   <div class="detalle-item">
                     <mat-icon class="detalle-icon">straighten</mat-icon>
                     <span class="detalle-label">Talla:</span>
-                    <span class="detalle-value">{{ detalle.talla?.talla || 'Sin talla' }}</span>
+                    <span class="detalle-value">{{ detalle.talla.talla || 'Sin talla' }}</span>
                   </div>
 
                   <div class="detalle-item">
                     <mat-icon class="detalle-icon">palette</mat-icon>
                     <span class="detalle-label">Color:</span>
                     <div class="color-info">
-                      <span class="color-box" [style.background-color]="detalle.color?.colorHex || '#f0f0f0'"></span>
-                      <span class="detalle-value">{{ detalle.color?.color || 'Sin color' }}</span>
+                      <span class="color-box" [style.background-color]="detalle.color.colorHex || '#f0f0f0'"></span>
+                      <span class="detalle-value">{{ detalle.color.color || 'Sin color' }}</span>
                     </div>
                   </div>
                 </div>
