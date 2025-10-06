@@ -1,11 +1,8 @@
-const Ruleta = require('../models/ruleta');
-const RuletaHistorial = require('../models/ruleta_historial');
-const RuletaPremio = require('../models/ruleta_premio');
 const { validationResult } = require('express-validator');
 const { errorLogger } = require('../config/logger');
 const { uploadImageToCloudinary } = require('../config/cloudinaryConfig');
 const { Op } = require('sequelize');
-
+const { Participacion, Premio, CuponUsuario, Ruleta,RuletaHistorial,RuletaPremio } = require('../models/associations');
 exports.createRuleta = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
@@ -162,5 +159,33 @@ exports.restaurarDesdeHistorial = async (req, res) => {
     } catch (error) {
         errorLogger.error(error);
         res.status(500).json({ message: 'Error al restaurar' });
+    }
+};
+exports.getHistorial = async (req, res) => {
+    try {
+        const { userId: userIdFromToken } = req.user || {};
+        const { page = 1, limit = 10 } = req.query;
+        const offset = (page - 1) * limit;
+
+        const historial = await Participacion.findAndCountAll({
+            where: { usuario_id: userIdFromToken },
+            include: [
+                { model: Ruleta, as: 'ruleta', attributes: ['id', 'imagen_ruleta'] },
+                { model: Premio, as: 'premio', attributes: ['id', 'nombre', 'descripcion', 'cantidad_a_descontar'] },
+                { model: CuponUsuario, as: 'cupon', attributes: ['id', 'codigo', 'vence_el', 'estado', 'usado_en'] }
+            ],
+            order: [['created_at', 'DESC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+
+        res.json({
+            total: historial.count,
+            pages: Math.ceil(historial.count / limit),
+            historial: historial.rows
+        });
+    } catch (error) {
+        errorLogger.error(error);
+        res.status(500).json({ message: 'Error al obtener historial', error: error.message });
     }
 };
