@@ -22,101 +22,140 @@ const calcExpiry = (premio) => {
 exports.spin = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
-    const { ruletaId } = req.params;
     const { userId: userIdFromToken } = req.user || {};
     if (!userIdFromToken) { await transaction.rollback(); return res.status(401).json({ message: 'No autenticado' }); }
 
-    //Ruleta activa
-    const ruleta = await Ruleta.findOne({
-      where: { id: ruletaId, activo: true },
-      transaction, lock: transaction.LOCK.UPDATE
-    });
-    if (!ruleta) { await transaction.rollback(); return res.status(404).json({ message: 'Ruleta no disponible' }); }
-
-    //Intentos disponibles (periodo vigente)
-    const hoy = new Date().toISOString().slice(0,10);
-    const intento = await IntentoUsuario.findOne({
+    const hoy = new Date().toISOString().slice(0, 10);
+    const intentoDisponible = await IntentoUsuario.findOne({
       where: {
         usuario_id: userIdFromToken,
         periodo_inicio: { [Op.lte]: hoy },
         periodo_fin: { [Op.gte]: hoy },
         intentos_asignados: { [Op.gt]: sequelize.col('intentos_consumidos') }
       },
-      transaction, lock: transaction.LOCK.UPDATE
+      include: [{ model: IntentoRegla, as: 'regla' }],
+      transaction: t,
+      lock: t.LOCK.UPDATE
     });
-    if (!intento) { await transaction.rollback(); return res.status(403).json({ message: 'Sin intentos disponibles' }); }
 
-    //Segmentos/premios activos
+    if (!intentoDisponible) {
+      await t.rollback();
+      return res.status(403).json({ error: 'No tienes intentos disponibles.' });
+    }
+
+    // 2. Ruleta activa
+    const ruletaActiva = await Ruleta.findOne({
+      where: { activo: true },
+      transaction: t,
+      lock: t.LOCK.UPDATE
+    });
+    if (!ruletaActiva) {
+      await t.rollback();
+      return res.status(404).json({ error: 'No hay ruleta activa.' });
+    }
+
+    // 3. Segmentos activos con premios activos
     const segmentos = await RuletaPremio.findAll({
-      where: { ruleta_id: ruleta.id, activo: true },
+      where: { ruleta_id: ruletaActiva.id, activo: true },
       include: [{ model: Premio, as: 'premio', where: { activo: true } }],
-      transaction, lock: transaction.LOCK.UPDATE
+      transaction: t,
+      lock: t.LOCK.UPDATE
     });
-    if (!segmentos.length) { await transaction.rollback(); return res.status(409).json({ message: 'Ruleta sin segmentos activos' }); }
 
+    if (!segmentos.length) {
+      await t.rollback();
+      return res.status(409).json({ error: 'Ruleta sin segmentos activos.' });
+    }
+
+    const totalProb = segmentos.reduce((sum, seg) => sum + (seg.probabilidad_pct || 0), 0);
+    if (totalProb > 100) {
+      await t.rollback();
+      return res.status(500).json({ error: 'Probabilidades inválidas.' });
+    }
+
+    // 4. Giro aleatorio
     const ganador = pickWeighted(segmentos);
-    const premio = ganador?.premio || null;
+    let premioGanado = ganador ? ganador.premio : null;
 
-    //Consumir intento
-    intento.intentos_consumidos += 1;
-    await intento.save({ transaction });
+    // Fallback sin premio
+    if (!premioGanado) {
+      premioGanado = await Premio.findOne({ where: { nombre: 'Sin Premio', activo: true }, transaction: t });
+      if (!premioGanado) {
+        await t.rollback();
+        return res.status(404).json({ error: 'Premio por defecto no encontrado.' });
+      }
+    }
 
-    //Registrar participación
+    const resultado = premioGanado.nombre === 'Sin Premio' ? 'sin_premio' : 'gano_premio';
+
+    // 5. Consumir intento
+    intentoDisponible.intentos_consumidos += 1;
+    await intentoDisponible.save({ transaction: t });
+
+    // 6. Registrar participación
     const participacion = await Participacion.create({
       usuario_id: userIdFromToken,
-      ruleta_id: ruleta.id,
-      premio_id: premio ? premio.id : null,
+      ruleta_id: ruletaActiva.id,
+      premio_id: premioGanado.id,
       cupon_usuario_id: null,
-      resultado: premio ? 'gano_premio' : 'sin_premio',
-      created_at: new Date()
-    }, { transaction });
+      resultado,
+      fecha_giro: new Date()
+    }, { transaction: t });
 
-    //Si ganó y requiere cupón → generar único con reintentos ante duplicado
-    let cupon = null;
-    if (premio && premio.requiere_cupon) {
-      const vence = calcExpiry(premio);
+    // 7. Generar cupón si aplica
+    let cuponGenerado = null;
+    if (premioGanado && premioGanado.cantidad_a_descontar > 0 && premioGanado.activo) {
+      const vence = calcExpiry(premioGanado);
       for (let i = 0; i < 5; i++) {
         try {
-          cupon = await CuponUsuario.create({
+          cuponGenerado = await CuponUsuario.create({
             usuario_id: userIdFromToken,
-            premio_id: premio.id,
+            premio_id: premioGanado.id,
             codigo: generateCouponCode(16),
             vence_el: vence,
             estado: 'emitido',
-            created_at: new Date(),
-            usado_en: null
-          }, { transaction });
+            usado: false,
+            cantidad_minima: premioGanado.cantidad_minima
+          }, { transaction: t });
           break;
         } catch (e) {
           if (e.name === 'SequelizeUniqueConstraintError') continue;
           throw e;
         }
       }
-      if (!cupon) { await transaction.rollback(); return res.status(500).json({ message: 'No se pudo generar un código único' }); }
+      if (!cuponGenerado) {
+        await t.rollback();
+        return res.status(500).json({ error: 'No se pudo generar cupón único.' });
+      }
 
-      participacion.cupon_usuario_id = cupon.id;
-      await participacion.save({ transaction });
+      participacion.cupon_usuario_id = cuponGenerado.id;
+      await participacion.save({ transaction: t });
+
+      await premioGanado.increment('usos', { transaction: t });
     }
-    await transaction.commit();
-    return res.status(201).json({
-      resultado: participacion.resultado,
-      premio: premio ? {
-        id: premio.id,
-        nombre: premio.nombre,
-        cantidad_a_descontar: premio.cantidad_a_descontar,
-        cantidad_minima: premio.cantidad_minima
+
+    await t.commit();
+
+    res.json({
+      exito: true,
+      ruleta: { id: ruletaActiva.id, imagen_ruleta: ruletaActiva.imagen_ruleta },
+      premio: {
+        id: premioGanado.id,
+        nombre: premioGanado.nombre,
+        descripcion: premioGanado.descripcion,
+        descuento: premioGanado.cantidad_a_descontar
+      },
+      cupon: cuponGenerado ? {
+        codigo: cuponGenerado.codigo,
+        vence_el: cuponGenerado.vence_el,
+        estado: cuponGenerado.estado
       } : null,
-      cupon: cupon ? {
-        id: cupon.id,
-        codigo: cupon.codigo,
-        vence_el: cupon.vence_el,
-        estado: cupon.estado,
-        valor: premio.cantidad_a_descontar
-      } : null
+      participacion_id: participacion.id,
+      resultado
     });
   } catch (error) {
-    await transaction.rollback();
-    console.error('Error en spin:', error);
-    return res.status(500).json({ message: 'Error en el giro', error: error.message });
+    await t.rollback();
+    errorLogger.error(error);
+    res.status(500).json({ message: 'Error al girar ruleta', error: error.message });
   }
 };
