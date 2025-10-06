@@ -3,6 +3,7 @@ const router = express.Router();
 const ruletaController = require('../controllers/ruletaController');
 const { param, body } = require('express-validator');
 const imageUpload = require('../config/multerImageConfig');
+const { authenticateToken } = require('../middlewares/auth');
 
 router.post(
     '/',
@@ -12,6 +13,8 @@ router.post(
     ],
     ruletaController.createRuleta
 );
+
+router.post('/historial', authenticateToken, ruletaController.getHistorial);
 
 router.post('/:id/restaurar', 
     [
