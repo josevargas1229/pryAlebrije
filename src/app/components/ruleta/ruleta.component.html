@@ -1,0 +1,91 @@
+<div class="ruleta" [style.--size.px]="size">
+  <div class="sr-only" aria-live="polite">{{ live() }}</div>
+
+  <div class="stage" role="group" aria-label="Ruleta de premios">
+    <div class="pointer" aria-hidden="true"></div>
+
+    <div
+      class="wheel"
+      [class.spinning]="spinning()"
+      [ngStyle]="transformStyle()"
+      tabindex="0"
+      role="button"
+      aria-label="Girar ruleta"
+      [attr.aria-busy]="spinning()"
+      [attr.aria-disabled]="spinning()"
+      (click)="spinDemo()"
+      (keydown.enter)="spinDemo()"
+      (keydown.space)="spinDemo()"
+    >
+      <svg viewBox="0 0 100 100" class="wheel-svg">
+        <defs>
+          <filter id="shadow">
+            <feDropShadow dx="0" dy="1.5" stdDeviation="1" flood-opacity=".25"/>
+          </filter>
+          <filter id="innerShadow">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+            <feOffset dx="0" dy="1" result="offsetblur"/>
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="0.3"/>
+            </feComponentTransfer>
+            <feMerge>
+              <feMergeNode/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <g filter="url(#shadow)">
+          <!-- Segmentos de la ruleta -->
+          <ng-container *ngFor="let s of drawSegs(); index as i">
+            <path
+              [attr.d]="pathFor(s)"
+              [attr.fill]="s.fill"
+              class="segment"
+            ></path>
+
+            <!-- Texto del segmento -->
+            <text
+              class="seg-label"
+              [attr.transform]="getLabelTransform(s)"
+              text-anchor="middle"
+              dominant-baseline="middle"
+            >
+              {{ s.label }}
+            </text>
+          </ng-container>
+        </g>
+
+        <!-- Centro de la ruleta (hub) -->
+        <circle cx="50" cy="50" r="18" class="hub"></circle>
+
+        <!-- Anillo decorativo -->
+        <circle
+          cx="50"
+          cy="50"
+          r="18"
+          fill="none"
+          stroke="rgba(255,255,255,.2)"
+          stroke-width="0.5"
+        ></circle>
+
+        <!-- Texto del centro -->
+        <text
+          x="50"
+          y="50"
+          text-anchor="middle"
+          dominant-baseline="middle"
+          class="hub-text"
+        >
+          {{ spinning() ? '...' : 'GIRAR' }}
+        </text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" (click)="spinDemo()" [disabled]="spinning()">
+      {{ spinning() ? '⏳ Girando…' : '🎯 Girar Ruleta' }}
+    </button>
+  </div>
+</div>
