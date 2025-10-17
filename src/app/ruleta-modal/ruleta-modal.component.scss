@@ -74,7 +74,7 @@
 .wheel-box {
   display: grid;
   place-items: center;
-  padding: 1.5rem 1rem 1rem;
+  padding: 1.5rem 1rem 2rem;
   position: relative;
   z-index: 1;
 
@@ -93,11 +93,6 @@
   > app-ruleta {
     width: clamp(260px, 70vw, 360px);
     filter: drop-shadow(0 10px 30px rgba(0,0,0,.4));
-
-    // Ocultar el botón y controles dentro del modal
-    ::ng-deep .controls {
-      display: none;
-    }
   }
 }
 
@@ -124,6 +119,10 @@
   }
 }
 
+:host {
+  animation: fadeInScale .3s ease-out;
+}
+
 // Responsive
 @media (max-width: 480px) {
   .title {
@@ -132,7 +131,7 @@
   }
 
   .wheel-box {
-    padding: 1rem .5rem 1rem;
+    padding: 1rem .5rem 1.5rem;
 
     > app-ruleta {
       width: clamp(240px, 75vw, 300px);
