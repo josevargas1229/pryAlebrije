@@ -63,6 +63,11 @@
   align-items: center;
 }
 
+.ruleta-dialog-panel .mdc-dialog__surface { border-radius: 20px !important; overflow: hidden; }
+.ruleta-backdrop { backdrop-filter: blur(2px); background: rgba(0,0,0,.35); }
+
+
+
 .p-breadcrumb .p-breadcrumb-item + .p-breadcrumb-item::before {
   content: ">  ";
   margin: 0 8px;

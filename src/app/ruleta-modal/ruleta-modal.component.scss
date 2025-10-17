@@ -1,0 +1,141 @@
+:host {
+  display: block;
+  width: clamp(300px, 92vw, 480px);
+  padding: 0;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInScale .3s ease-out;
+}
+
+// Patrón de fondo decorativo
+:host::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  border: none;
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  font-size: 1.5rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  transition: all .3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+
+  &:hover {
+    background: rgba(255,255,255,.2);
+    transform: rotate(90deg);
+  }
+}
+
+.title {
+  margin: 2rem 0 0;
+  text-align: center;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,.3);
+  padding: 0 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.subtitle {
+  margin: .5rem 0 1.5rem;
+  text-align: center;
+  color: rgba(255,255,255,.7);
+  font-size: .95rem;
+  padding: 0 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.wheel-box {
+  display: grid;
+  place-items: center;
+  padding: 1.5rem 1rem 1rem;
+  position: relative;
+  z-index: 1;
+
+  // Resplandor detrás de la ruleta
+  &::before {
+    content: '';
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle, rgba(255,200,87,.15) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(40px);
+    z-index: -1;
+  }
+
+  > app-ruleta {
+    width: clamp(260px, 70vw, 360px);
+    filter: drop-shadow(0 10px 30px rgba(0,0,0,.4));
+
+    // Ocultar el botón y controles dentro del modal
+    ::ng-deep .controls {
+      display: none;
+    }
+  }
+}
+
+.footnote {
+  text-align: center;
+  font-size: .85rem;
+  color: rgba(255,255,255,.6);
+  margin: 0;
+  padding: 1rem 1rem 1.5rem;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,.1) 100%);
+}
+
+// Animación sutil de entrada
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Responsive
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.3rem;
+    margin-top: 1.5rem;
+  }
+
+  .wheel-box {
+    padding: 1rem .5rem 1rem;
+
+    > app-ruleta {
+      width: clamp(240px, 75vw, 300px);
+    }
+  }
+}

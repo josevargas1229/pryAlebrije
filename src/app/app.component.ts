@@ -12,6 +12,9 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { filter, map } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
+import { RuletaModalComponent } from './ruleta-modal/ruleta-modal.component';
 
 @Component({
   selector: 'app-root',
@@ -26,7 +29,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
     BreadcrumbModule,
     RouterModule, // Agregado para soportar routerLink
     CommonModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatDialogModule,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
@@ -42,8 +46,11 @@ export class AppComponent {
     private readonly router: Router,
     private readonly companyService: CompanyService,
     private readonly titleService: Title,
-    private readonly activatedRoute: ActivatedRoute
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly dialog: MatDialog
   ) {}
+
+
 
   ngOnInit() {
     this.companyService.companyProfile$.subscribe(profile => {
@@ -77,6 +84,27 @@ export class AppComponent {
     ).subscribe(items => {
       this.BreadcrumbItems = [{ label: 'Home', route: '/home', icon: 'pi pi-home' }, ...items];
     });
+
+     this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe((e) => {
+        const url = e.urlAfterRedirects || e.url;
+        const isHome = url === '/' || url.startsWith('/home');
+
+        // Evita abrir múltiples diálogos si ya hay uno abierto
+        if (isHome && this.dialog.openDialogs.length === 0) {
+          // setTimeout evita ExpressionChangedAfterItHasBeenChecked para primeras cargas
+          setTimeout(() => {
+            this.dialog.open(RuletaModalComponent, {
+              panelClass: 'ruleta-dialog-panel',
+              backdropClass: 'ruleta-backdrop',
+              autoFocus: false
+            });
+          });
+        }
+      });
+
+
   }
   toggleSidebar(): void {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
