@@ -140,6 +140,16 @@
   animation: segmentGlow 1.5s ease-in-out infinite;
 }
 
+.wheel, .wheel-svg { background: transparent !important; }
+.segment { fill-opacity: 1 !important; }
+
+.wheel.disabled {
+  pointer-events: none;     /* bloquea clics/teclas */
+  opacity: .55;             /* feedback visual */
+  filter: grayscale(35%);
+}
+
+
 // Responsive
 @media (max-width: 480px) {
   .seg-label {

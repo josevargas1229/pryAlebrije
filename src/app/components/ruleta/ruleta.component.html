@@ -7,15 +7,17 @@
     <div
       class="wheel"
       [class.spinning]="spinning()"
+      [class.disabled]="disabled"
       [ngStyle]="transformStyle()"
-      tabindex="0"
+      [attr.tabindex]="disabled ? -1 : 0"
       role="button"
       aria-label="Girar ruleta"
       [attr.aria-busy]="spinning()"
       [attr.aria-disabled]="spinning()"
-      (click)="spinDemo()"
-      (keydown.enter)="spinDemo()"
-      (keydown.space)="spinDemo()"
+      [attr.aria-disabled]="spinning() || disabled"
+      (click)="onWheelClick()"
+      (keydown.enter)="onWheelClick()"
+      (keydown.space)="onWheelClick()"
     >
       <svg viewBox="0 0 100 100" class="wheel-svg">
         <defs>
@@ -37,10 +39,12 @@
 
         <g filter="url(#shadow)">
           <!-- Segmentos de la ruleta -->
-          <ng-container *ngFor="let s of drawSegs(); index as i">
+         <ng-container *ngFor="let s of drawSegs(); index as i">
             <path
               [attr.d]="pathFor(s)"
               [attr.fill]="s.fill"
+              stroke="rgba(0,0,0,.08)"
+              stroke-width="0.5"
               class="segment"
             ></path>
 
@@ -77,15 +81,20 @@
           dominant-baseline="middle"
           class="hub-text"
         >
-          {{ spinning() ? '...' : 'GIRAR' }}
+          {{ disabled ? 'BLOQUEADO' : (spinning() ? '...' : 'GIRAR') }}
         </text>
       </svg>
     </div>
   </div>
 
   <div class="controls">
-    <button class="btn" (click)="spinDemo()" [disabled]="spinning()">
-      {{ spinning() ? '⏳ Girando…' : '🎯 Girar Ruleta' }}
-    </button>
+    <button
+  class="btn"
+  (click)="onWheelClick()"
+  [disabled]="spinning() || disabled"
+>
+  {{ spinning() ? '⏳ Girando…' : '🎯 Girar Ruleta' }}
+</button>
+
   </div>
 </div>

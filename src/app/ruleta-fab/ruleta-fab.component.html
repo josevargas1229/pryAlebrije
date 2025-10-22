@@ -1,0 +1,34 @@
+<div
+  class="ruleta-fab"
+  (mousedown)="startDrag($event)"
+  (touchstart)="startDrag($event)"
+  (click)="onClick($event)"
+  title="Gira la ruleta"
+>
+  <div class="ruleta-container">
+    <!-- Flecha superior (marca el premio) -->
+    <div class="ruleta-arrow-top">
+      <div class="arrow-shape-top"></div>
+    </div>
+
+    <!-- Cuerpo principal de la ruleta -->
+    <div class="ruleta-wheel">
+      <div class="wheel-segments">
+        <div class="segment segment-1"></div>
+        <div class="segment segment-2"></div>
+        <div class="segment segment-3"></div>
+        <div class="segment segment-4"></div>
+        <div class="segment segment-5"></div>
+        <div class="segment segment-6"></div>
+      </div>
+
+      <div class="wheel-center">
+        <div class="center-dot"></div>
+      </div>
+
+      <div class="ruleta-arrow-center">
+        <div class="arrow-shape-center"></div>
+      </div>
+    </div>
+  </div>
+</div>
