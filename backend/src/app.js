@@ -11,6 +11,7 @@ const { combinedLogger } = require('./config/logger');
 const rateLimit = require('./config/rateLimitConfig');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
+const asistenciaRoutes = require('./routes/asistenciaRoutes');
 const passwordRoutes = require('./routes/passwordRoutes');
 const emailTypeRoutes = require('./routes/emailTypeRoutes');
 const bloqueosRoutes = require('./routes/bloqueosRoutes');
@@ -90,6 +91,7 @@ app.get('/', (req, res) => {
 });
 app.use('/users', userRoutes);
 app.use('/auth', authRoutes);
+app.use('/asistencias', asistenciaRoutes);
 app.use('/password',passwordRoutes);
 app.use('/email-types',authenticateToken, authorize(ROLES.ADMINISTRADOR), emailTypeRoutes);
 app.use('/email-templates',authenticateToken, authorize(ROLES.ADMINISTRADOR), emailTemplateRoutes);

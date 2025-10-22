@@ -31,6 +31,7 @@ const VerificationCode =require('./VerificationCode')
 const Transaccion = require('./Transaccion');
 const Notificacion = require('./Notificacion');
 const AuthorizationCode = require('./authorizationCode');
+const Asistencia = require('./Asistencia');
 
 // Gamificación
 const Ruleta = require('./ruleta');
@@ -156,7 +157,9 @@ Venta.belongsTo(User, { foreignKey: 'usuario_id' });
 // Asociación entre Empleado y Ventas (Si los empleados pueden registrar ventas)
 Empleado.hasMany(Venta, { foreignKey: 'empleado_id' });
 Venta.belongsTo(Empleado, { foreignKey: 'empleado_id' });
-
+// Asociación entre Empleado y Asistencia
+Empleado.hasMany(Asistencia, { foreignKey: 'empleado_id', as: 'asistencias' });
+Asistencia.belongsTo(Empleado, { foreignKey: 'empleado_id', as: 'empleado' });
 // Asociación entre Venta y DetalleVenta (Una venta puede tener muchos detalles)
 Venta.hasMany(DetalleVenta, { foreignKey: 'venta_id', as: 'detalles' });
 DetalleVenta.belongsTo(Venta, { foreignKey: 'venta_id', as: 'venta' });
@@ -251,6 +254,7 @@ module.exports = {
     LegalDocument,
     ProductoTallaColor,
     Empleado,
+    Asistencia,
     Venta,
     DetalleVenta,
     HistorialActividades,
