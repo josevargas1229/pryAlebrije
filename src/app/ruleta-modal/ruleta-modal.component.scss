@@ -123,6 +123,45 @@
   animation: fadeInScale .3s ease-out;
 }
 
+/* Colorea los mensajes de estado en blanco */
+.mt-3.text-center small {
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* Opcional: efecto sutil de sombra para contraste en fondos oscuros */
+.mt-3.text-center small {
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Si quieres que resalten más los mensajes informativos */
+.mt-3.text-center small:nth-child(1) {
+  color: #fff;
+}
+
+
+.alert {
+  text-align: center;
+  padding: 10px 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #fff;
+  animation: fadeIn 0.3s ease;
+}
+
+.alert.success { background-color: #28a745; } /* verde */
+.alert.info    { background-color: #007bff; } /* azul */
+.alert.error   { background-color: #dc3545; } /* rojo */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
 // Responsive
 @media (max-width: 480px) {
   .title {

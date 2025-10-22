@@ -118,7 +118,7 @@ app.use('/premios', premiosRoutes);
 app.use('/ruletapremios', ruletapremiosRoutes);
 app.use('/ruletas', authenticateToken, ruletaRoutes);
 app.use('/cupones', authenticateToken, cuponRoutes);
-app.use('/ruletas', authenticateToken, ruletaSpinRoutes);
+app.use('/ruleta-spin', authenticateToken, ruletaSpinRoutes);
 app.use(errorHandler);
 module.exports = app;
 
