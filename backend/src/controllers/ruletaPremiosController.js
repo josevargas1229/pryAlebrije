@@ -19,18 +19,30 @@ async function validarSuma(ruletaId, t) {
 
 module.exports = {
   async listByRuleta(req, res) {
-    try {
-      const { ruletaId } = req.params;
-      const rows = await RuletaPremio.findAll({
-        where: { ruleta_id: ruletaId },
-        include: [{ model: Premio, as: 'premio' }],
-        order: [['id','ASC']]
-      });
-      res.json(rows);
-    } catch (e) {
-      res.status(500).json({ message: 'Error al listar segmentos', error: e.message });
-    }
-  },
+  try {
+    const { ruletaId } = req.params;
+    const rows = await RuletaPremio.findAll({
+      where: { ruleta_id: ruletaId },
+      include: [{ model: Premio, as: 'premio' }],
+      order: [['id','ASC']]
+    });
+
+    // 🔢 Cast explícito para evitar '30.00' como string
+    const data = rows.map(r => ({
+      id: r.id,
+      ruleta_id: r.ruleta_id,
+      premio_id: r.premio_id,
+      probabilidad_pct: Number(r.probabilidad_pct ?? 0),
+      activo: !!r.activo,
+      premio: r.premio ? { id: r.premio.id, nombre: r.premio.nombre } : null
+    }));
+
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ message: 'Error al listar segmentos', error: e.message });
+  }
+}
+,
 
 
   async addSegmento(req, res) {

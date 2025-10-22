@@ -1,0 +1,140 @@
+.ruleta-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 100px;
+  height: 110px;
+  cursor: grab;
+  z-index: 3500;
+  user-select: none;
+  touch-action: none;
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.3));
+  transition: transform 0.2s ease;
+}
+
+.ruleta-fab:hover {
+  transform: scale(1.05);
+}
+
+.ruleta-fab:active {
+  cursor: grabbing;
+  transform: scale(0.98);
+}
+
+.ruleta-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ruleta-arrow-top {
+  position: relative;
+  z-index: 2;
+  margin-bottom: -8px;
+}
+
+.arrow-shape-top {
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-top: 25px solid #ff4444;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Ruleta */
+.ruleta-wheel {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  position: relative;
+  background: #2a2a2a;
+  box-shadow: 0 0 0 4px #1a1a1a, 0 0 0 5px #ffd700,
+    inset 0 5px 10px rgba(0, 0, 0, 0.5), 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.wheel-segments {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+}
+
+.segment {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 50%);
+  transform-origin: center;
+}
+
+.segment-1 {
+  background: linear-gradient(135deg, #ff595e 0%, #ff424a 100%);
+  transform: rotate(0deg);
+}
+
+.segment-2 {
+  background: linear-gradient(135deg, #ffca3a 0%, #ffb910 100%);
+  transform: rotate(60deg);
+}
+
+.segment-3 {
+  background: linear-gradient(135deg, #8ac926 0%, #72a617 100%);
+  transform: rotate(120deg);
+}
+
+.segment-4 {
+  background: linear-gradient(135deg, #1982c4 0%, #136ba3 100%);
+  transform: rotate(180deg);
+}
+
+.segment-5 {
+  background: linear-gradient(135deg, #6a4c93 0%, #553a77 100%);
+  transform: rotate(240deg);
+}
+
+.segment-6 {
+  background: linear-gradient(135deg, #ff924c 0%, #ff7630 100%);
+  transform: rotate(300deg);
+}
+
+.wheel-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  background: radial-gradient(circle, #ffffff 0%, #e0e0e0 50%, #c0c0c0 100%);
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+  z-index: 1;
+}
+
+.center-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: radial-gradient(circle, #4a4a4a 0%, #2a2a2a 100%);
+  border-radius: 50%;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.ruleta-fab:not(:active) .ruleta-wheel {
+  animation: breathe 3s ease-in-out infinite;
+}
