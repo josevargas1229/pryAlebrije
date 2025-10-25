@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const AsistenciaController = require('../controllers/asistenciaController');
-const { authenticateToken, authorize, ROLES } = require('./middlewares/auth');
+const { authenticateToken, authorize, ROLES } = require('../middlewares/auth');
 
 router.post('/registrar', authenticateToken, AsistenciaController.registrar);
 router.get('/empleado/:empleado_id', authenticateToken, AsistenciaController.obtenerPorEmpleado);

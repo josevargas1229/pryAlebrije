@@ -1,34 +1,33 @@
 <button class="close" aria-label="Cerrar" (click)="close()">×</button>
 <h2 class="title">🎁 Regalo especial para ti</h2>
 <p class="subtitle">Gira para obtener cupones de recompensa</p>
-  <div *ngIf="alertMsg" class="alert" [ngClass]="alertType">
-  {{ alertMsg }}
-</div>
 <div class="wheel-box" *ngIf="!error; else errorTpl">
-  <app-ruleta [size]="360" [segmentos]="segmentos" [externalControl]="true" [disabled]="!isLogged || intentosDisponibles === null || intentosDisponibles <= 0" (spinClick)="onSpin()"></app-ruleta>
+  <app-ruleta [size]="360" [segmentos]="segmentos" [externalControl]="true"
+    [disabled]="!isLogged || intentosDisponibles === null || intentosDisponibles <= 0"
+    (spinClick)="onSpin()"></app-ruleta>
 
 
   <!-- Mensaje contextual si no hay sesión -->
- <div class="mt-3 text-center">
-  <small *ngIf="intentosCargando">Cargando intentos…</small>
+  <div class="mt-3 text-center">
+    <small *ngIf="intentosCargando">Cargando intentos…</small>
 
-  <ng-container *ngIf="!intentosCargando">
-    <!-- No logueado -->
-    <small *ngIf="!isLogged">
-      Inicia sesión para poder girar la ruleta.
-    </small>
+    <ng-container *ngIf="!intentosCargando">
+      <!-- No logueado -->
+      <small *ngIf="!isLogged">
+        Inicia sesión para poder girar la ruleta.
+      </small>
 
-    <!-- Logueado con conteo -->
-    <small *ngIf="isLogged && (intentosDisponibles ?? -1) > 0">
-      Intentos disponibles: {{ intentosDisponibles }}
-    </small>
+      <!-- Logueado con conteo -->
+      <small *ngIf="isLogged && (intentosDisponibles ?? -1) > 0">
+        Intentos disponibles: {{ intentosDisponibles }}
+      </small>
 
-    <!-- Logueado pero sin intentos -->
-    <small *ngIf="isLogged && (intentosDisponibles ?? -1) === 0">
-      No tienes intentos por el momento.
-    </small>
-  </ng-container>
-</div>
+      <!-- Logueado pero sin intentos -->
+      <small *ngIf="isLogged && (intentosDisponibles ?? -1) === 0">
+        No tienes intentos por el momento.
+      </small>
+    </ng-container>
+  </div>
 
 
 </div>
