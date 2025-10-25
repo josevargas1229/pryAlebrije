@@ -7,6 +7,7 @@ import { RuletaService, SegmentoDTO, SpinResp } from '../services/ruleta/ruleta.
 import { AuthService } from '../services/auth/auth.service'; // <-- tu auth
 import { ToastService } from 'angular-toastify';
 import { PremioModalComponent } from '../premio-modal/premio-modal.component';
+import { ReglasModalComponent } from '../reglas-modal/reglas-modal.component';
 @Component({
   standalone: true,
   selector: 'app-ruleta-modal',
@@ -101,6 +102,13 @@ export class RuletaModalComponent implements OnInit {
     });
   }
 
+  openReglasModal() {
+    this.dialog.open(ReglasModalComponent, {
+      panelClass: 'reglas-dialog-panel',
+      backdropClass: 'reglas-backdrop',
+      autoFocus: false
+    });
+  }
 
   onSpin() {
     if (this.cargando || !this.segmentos.length || this.wheel.spinning()) return;
