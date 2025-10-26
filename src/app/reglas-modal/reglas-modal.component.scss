@@ -1,0 +1,41 @@
+.reglas-container {
+    background-color: #191B31;
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 500px;
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    color: #C6613F;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin-bottom: 20px;
+}
+
+li {
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.close-btn {
+    background-color: #C6613F;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: block;
+    margin: 0 auto;
+}
+
+.close-btn:hover {
+    background-color: #a54e32;
+}
