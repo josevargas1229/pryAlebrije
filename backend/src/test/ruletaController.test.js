@@ -30,11 +30,11 @@ app.post('/ruleta', ruletaController.createRuleta);
 app.get('/ruletas', ruletaController.getAllRuletas);
 app.get('/ruletas/:id', ruletaController.getRuletaById);
 
-describe('🧪 RuletaController', () => {
+describe('RuletaController', () => {
     beforeEach(() => jest.clearAllMocks());
 
     // --- createRuleta ---
-    test('✅ crea ruleta con imágenes válidas', async () => {
+    test('Crea ruleta con imágenes válidas', async () => {
         const mockRuleta = { id: 1, imagen_ruleta: 'img1', imagen_background: 'img2' };
         Ruleta.create.mockResolvedValue(mockRuleta);
         RuletaHistorial.create.mockResolvedValue({});
@@ -54,21 +54,21 @@ describe('🧪 RuletaController', () => {
         expect(RuletaHistorial.create).toHaveBeenCalled();
     });
 
-    test('❌ error si faltan imágenes', async () => {
+    test('Error si faltan imágenes', async () => {
         const res = await request(app).post('/ruleta').send({ activo: true });
         expect(res.status).toBe(400);
         expect(res.body.message).toBe('Se requieren imagen_ruleta e imagen_background');
     });
 
     // --- getAllRuletas ---
-    test('✅ devuelve lista de ruletas', async () => {
+    test('Devuelve lista de ruletas', async () => {
         Ruleta.findAll.mockResolvedValue([{ id: 1, activo: true }]);
         const res = await request(app).get('/ruletas');
         expect(res.status).toBe(200);
         expect(res.body).toEqual([{ id: 1, activo: true }]);
     });
 
-    test('❌ error al obtener ruletas', async () => {
+    test('Error al obtener ruletas', async () => {
         Ruleta.findAll.mockRejectedValue(new Error('DB fail'));
         const res = await request(app).get('/ruletas');
         expect(res.status).toBe(500);
@@ -76,7 +76,7 @@ describe('🧪 RuletaController', () => {
     });
 
     // --- getRuletaById ---
-    test('✅ obtiene ruleta existente', async () => {
+    test('Obtiene ruleta existente', async () => {
         const mockRuleta = { id: 1, imagen_ruleta: 'img1', segmentos: [] };
         Ruleta.findByPk.mockResolvedValue(mockRuleta);
         const res = await request(app).get('/ruletas/1');
@@ -84,7 +84,7 @@ describe('🧪 RuletaController', () => {
         expect(res.body.id).toBe(1);
     });
 
-    test('❌ ruleta inexistente devuelve 404', async () => {
+    test('Ruleta inexistente devuelve 404', async () => {
         Ruleta.findByPk.mockResolvedValue(null);
         const res = await request(app).get('/ruletas/99');
         expect(res.status).toBe(404);
@@ -92,7 +92,7 @@ describe('🧪 RuletaController', () => {
     });
 
     // --- validateProbabilities ---
-    test('✅ validateProbabilities no lanza error si total <= 100', async () => {
+    test('ValidateProbabilities no lanza error si total <= 100', async () => {
         RuletaPremio.findAll.mockResolvedValue([
             { probabilidad_pct: 40 },
             { probabilidad_pct: 60 },
@@ -100,7 +100,7 @@ describe('🧪 RuletaController', () => {
         await expect(ruletaController.validateProbabilities(1)).resolves.not.toThrow();
     });
 
-    test('❌ validateProbabilities lanza error si total > 100', async () => {
+    test('ValidateProbabilities lanza error si total > 100', async () => {
         RuletaPremio.findAll.mockResolvedValue([
             { probabilidad_pct: 70 },
             { probabilidad_pct: 50 },
