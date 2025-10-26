@@ -89,6 +89,7 @@ export class CartComponent
   menuContainer!: ElementRef;
 
   ngAfterViewInit(): void {
+  if (this.menuContainer) {
     const observer = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
@@ -102,6 +103,7 @@ export class CartComponent
     );
     observer.observe(this.menuContainer.nativeElement);
   }
+}
 
   /* ==== SUBSCRIPCIÓN AL SERVICIO ==== */
   ngOnInit(): void {
