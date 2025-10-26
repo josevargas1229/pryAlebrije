@@ -11,6 +11,13 @@ jest.mock('../models/associations', () => ({
     },
 }));
 
+jest.mock('../config/database', () => ({
+    transaction: jest.fn().mockResolvedValue({
+        commit: jest.fn().mockResolvedValue(),
+        rollback: jest.fn().mockResolvedValue()
+    })
+}));
+
 const { Premio } = require('../models/associations');
 
 const app = express();
