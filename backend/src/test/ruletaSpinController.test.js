@@ -11,15 +11,18 @@ jest.mock('../models/associations', () => ({
     IntentoUsuario: { findOne: jest.fn() }
 }));
 
-jest.mock('../config/database', () => ({
-    transaction: jest.fn(() => ({
-        commit: jest.fn(),
-        rollback: jest.fn(),
+jest.mock('../config/database', () => {
+    const mockTransaction = {
+        commit: jest.fn().mockResolvedValue(),
+        rollback: jest.fn().mockResolvedValue(),
         LOCK: { UPDATE: 'UPDATE' },
         finished: false
-    })),
-    col: jest.fn(),
-}));
+    };
+    return {
+        transaction: jest.fn().mockResolvedValue(mockTransaction),
+        col: jest.fn()
+    };
+});
 
 jest.mock('../utils/coupons', () => ({
     generateCouponCode: jest.fn(() => 'ABC123XYZ')

@@ -12,14 +12,17 @@ jest.mock('../models/associations', () => ({
     }
 }));
 
-jest.mock('../config/database', () => ({
-    transaction: jest.fn(() => ({
-        commit: jest.fn(),
-        rollback: jest.fn(),
+jest.mock('../config/database', () => {
+    const mockTransaction = {
+        commit: jest.fn().mockResolvedValue(),
+        rollback: jest.fn().mockResolvedValue(),
         LOCK: { UPDATE: 'UPDATE' }
-    })),
-    query: jest.fn()
-}));
+    };
+    return {
+        transaction: jest.fn().mockResolvedValue(mockTransaction),
+        query: jest.fn()
+    };
+});
 
 const { Ruleta, Premio, RuletaPremio } = require('../models/associations');
 const sequelize = require('../config/database');
@@ -89,12 +92,10 @@ describe('ruletaPremiosController', () => {
                 body: { premio_id: 10, probabilidad_pct: 25, activo: true }
             };
             const res = mockRes();
-
-            const t = await sequelize.transaction();
+            const t = await sequelize.transaction(); // Esto usa el mock definido arriba
             Ruleta.findByPk.mockResolvedValue({ id: 1 });
             Premio.findByPk.mockResolvedValue({ id: 10 });
             RuletaPremio.create.mockResolvedValue({ id: 99, ruleta_id: 1, premio_id: 10 });
-
             RuletaPremio.findAll.mockResolvedValue([{ probabilidad_pct: 25, activo: true }]);
 
             await controller.addSegmento(req, res);
@@ -147,7 +148,7 @@ describe('ruletaPremiosController', () => {
             };
             const res = mockRes();
             const t = await sequelize.transaction();
-            const seg = { probabilidad_pct: 10, activo: false, save: jest.fn(), ruleta_id: 1 };
+            const seg = { probabilidad_pct: 10, activo: false, save: jest.fn().mockResolvedValue(), ruleta_id: 1 };
             RuletaPremio.findOne.mockResolvedValue(seg);
             RuletaPremio.findAll.mockResolvedValue([{ probabilidad_pct: 20, activo: true }]);
 
@@ -177,8 +178,7 @@ describe('ruletaPremiosController', () => {
             const req = { params: { ruletaId: 1, id: 2 } };
             const res = mockRes();
             const t = await sequelize.transaction();
-
-            const seg = { destroy: jest.fn() };
+            const seg = { destroy: jest.fn().mockResolvedValue() };
             RuletaPremio.findOne.mockResolvedValue(seg);
 
             await controller.removeSegmento(req, res);
@@ -192,7 +192,6 @@ describe('ruletaPremiosController', () => {
             const req = { params: { ruletaId: 1, id: 2 } };
             const res = mockRes();
             const t = await sequelize.transaction();
-
             RuletaPremio.findOne.mockResolvedValue(null);
 
             await controller.removeSegmento(req, res);

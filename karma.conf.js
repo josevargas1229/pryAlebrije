@@ -13,7 +13,7 @@ module.exports = function (config) {
             jasmine: {
                 random: false
             },
-            clearContext: false // leave Jasmine Spec Runner output visible in browser
+            clearContext: false
         },
         coverageReporter: {
             dir: require('path').join(__dirname, './coverage/pry-alebrije'),
@@ -25,8 +25,14 @@ module.exports = function (config) {
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: true,
-        browsers: ['ChromeHeadless'],
+        browsers: ['ChromeHeadlessCustom'],
         singleRun: false,
-        restartOnFileChange: true
+        restartOnFileChange: true,
+        customLaunchers: {
+            ChromeHeadlessCustom: {
+                base: 'ChromeHeadless',
+                flags: ['--no-sandbox', '--disable-gpu', '--headless', '--disable-setuid-sandbox']
+            }
+        }
     });
 };

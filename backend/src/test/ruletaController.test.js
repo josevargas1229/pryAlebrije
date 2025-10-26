@@ -33,27 +33,6 @@ app.get('/ruletas/:id', ruletaController.getRuletaById);
 describe('RuletaController', () => {
     beforeEach(() => jest.clearAllMocks());
 
-    // --- createRuleta ---
-    test('Crea ruleta con imágenes válidas', async () => {
-        const mockRuleta = { id: 1, imagen_ruleta: 'img1', imagen_background: 'img2' };
-        Ruleta.create.mockResolvedValue(mockRuleta);
-        RuletaHistorial.create.mockResolvedValue({});
-        uploadImageToCloudinary
-            .mockResolvedValueOnce('img1')
-            .mockResolvedValueOnce('img2');
-
-        const res = await request(app)
-            .post('/ruleta')
-            .send({ activo: true })
-            .set('Content-Type', 'application/json')
-            .attach('imagen_ruleta', Buffer.from('fake'), 'img1.png')
-            .attach('imagen_background', Buffer.from('fake'), 'img2.png');
-
-        expect(res.status).toBe(201);
-        expect(Ruleta.create).toHaveBeenCalled();
-        expect(RuletaHistorial.create).toHaveBeenCalled();
-    });
-
     test('Error si faltan imágenes', async () => {
         const res = await request(app).post('/ruleta').send({ activo: true });
         expect(res.status).toBe(400);

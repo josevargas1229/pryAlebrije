@@ -1,6 +1,6 @@
 const request = require('supertest');
 const express = require('express');
-const premioController = require('../controllers/premioController');
+const premioController = require('../controllers/premiosController');
 
 // Mock de modelo Sequelize
 jest.mock('../models/associations', () => ({
