@@ -1,6 +1,6 @@
-const Asistencia = require('../models/Asistencia');
-const Empleado = require('../models/Empleado');
+const { Asistencia, Empleado, User } = require('../models/associations')
 const { generarQR } = require('../utils/qrGenerator');
+const { Op } = require('sequelize');
 
 class AsistenciaController {
     // Registrar entrada/salida con validación QR
@@ -8,24 +8,72 @@ class AsistenciaController {
         try {
             const { empleado_id, hora_entrada, hora_salida, estado, notas, qr_data } = req.body;
 
-            // Validación básica de QR (ej. verificar si qr_data coincide con ubicación esperada)
+            // Validación básica de QR
             if (qr_data && qr_data.ubicacion !== 'tienda_fisica') {
                 return res.status(400).json({ error: 'QR no válido para esta ubicación' });
             }
 
-            const asistencia = await Asistencia.create({
-                empleado_id,
-                hora_entrada,
-                hora_salida,
-                estado,
-                notas,
-                qr_validado: !!qr_data // Marca como validado si QR presente
+            // Validar que se proporcione exactamente uno de hora_entrada o hora_salida
+            if ((hora_entrada && hora_salida) || (!hora_entrada && !hora_salida)) {
+                return res.status(400).json({ error: 'Debe proporcionarse exactamente una de hora_entrada o hora_salida' });
+            }
+
+            // Obtener la fecha actual (solo la parte de la fecha, sin hora)
+            const today = new Date().toISOString().split('T')[0];
+
+            // Buscar asistencias del empleado para el día actual usando el campo fecha
+            const asistenciaExistente = await Asistencia.findOne({
+                where: {
+                    empleado_id,
+                    fecha: today
+                }
             });
 
-            // Opcional: Generar QR de confirmación
-            const qrConfirmacion = await generarQR({ asistencia_id: asistencia.id, timestamp: new Date() });
+            // Si se intenta registrar una entrada
+            if (hora_entrada) {
+                // Si ya existe una asistencia para el día, no permitir nueva entrada
+                if (asistenciaExistente) {
+                    return res.status(400).json({ error: 'Ya existe una asistencia registrada para hoy. Registra la salida o espera al próximo día.' });
+                }
 
-            res.status(201).json({ asistencia, qr_confirmacion: qrConfirmacion });
+                // Crear nueva asistencia para la entrada
+                const asistencia = await Asistencia.create({
+                    empleado_id,
+                    fecha: today,
+                    hora_entrada,
+                    hora_salida: null,
+                    estado: estado || 'presente',
+                    notas,
+                    qr_validado: !!qr_data
+                });
+
+                // Generar QR de confirmación
+                const qrConfirmacion = await generarQR({ asistencia_id: asistencia.id, timestamp: new Date() });
+
+                return res.status(201).json({ asistencia, qr_confirmacion: qrConfirmacion });
+            }
+
+            // Si se intenta registrar una salida
+            if (hora_salida) {
+                // Validar que exista una asistencia con entrada registrada y sin salida
+                if (!asistenciaExistente || asistenciaExistente.hora_salida) {
+                    return res.status(400).json({ error: 'No hay una entrada registrada para hoy o ya se registró la salida.' });
+                }
+
+                // Actualizar la asistencia existente con la hora de salida
+                const [updated] = await Asistencia.update(
+                    { hora_salida, estado: estado || 'presente', notas, qr_validado: !!qr_data },
+                    { where: { id: asistenciaExistente.id } }
+                );
+
+                if (updated) {
+                    const updatedAsistencia = await Asistencia.findByPk(asistenciaExistente.id);
+                    const qrConfirmacion = await generarQR({ asistencia_id: updatedAsistencia.id, timestamp: new Date() });
+                    return res.status(200).json({ asistencia: updatedAsistencia, qr_confirmacion: qrConfirmacion });
+                } else {
+                    return res.status(500).json({ error: 'Error al actualizar la asistencia' });
+                }
+            }
         } catch (error) {
             res.status(500).json({ error: 'Error al registrar asistencia: ' + error.message });
         }
@@ -37,7 +85,7 @@ class AsistenciaController {
             const { empleado_id } = req.params;
             const asistencias = await Asistencia.findAll({
                 where: { empleado_id },
-                include: [{ model: Empleado, as: 'empleado', include: [{ model: require('./User'), as: 'usuario' }] }]
+                include: [{ model: Empleado, as: 'empleado', include: [{ model: User }] }]
             });
             res.json(asistencias);
         } catch (error) {

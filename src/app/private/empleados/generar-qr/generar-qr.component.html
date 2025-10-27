@@ -1,0 +1,51 @@
+<div class="generar-qr">
+    <div class="qr-container">
+        <div class="header">
+            <h2>Código QR de Tienda</h2>
+            <p class="subtitle">Escanea este código para acceder rápidamente</p>
+        </div>
+
+        <!-- Loader -->
+        <div *ngIf="isLoading" class="loader">
+            <div class="spinner"></div>
+            <p>Generando código QR...</p>
+        </div>
+
+        <!-- QR Code -->
+        <div *ngIf="qrDataUrl && !isLoading" class="qr-wrapper" [class.downloading]="isDownloading">
+            <div class="qr-frame">
+                <img [src]="qrDataUrl" alt="QR Code">
+                <div class="qr-corners">
+                    <div class="corner corner-tl"></div>
+                    <div class="corner corner-tr"></div>
+                    <div class="corner corner-bl"></div>
+                    <div class="corner corner-br"></div>
+                </div>
+            </div>
+
+            <button class="download-btn" (click)="descargarQr()" [disabled]="!qrDataUrl || isDownloading"
+                [class.downloading]="isDownloading">
+                <span class="btn-icon">
+                    <svg *ngIf="!isDownloading" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <svg *ngIf="isDownloading" class="check-icon" xmlns="http://www.w3.org/2000/svg" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </span>
+                <span class="btn-text">{{ isDownloading ? '¡Descargado!' : 'Descargar QR' }}</span>
+            </button>
+        </div>
+
+        <!-- Botón de regenerar si hay error -->
+        <button *ngIf="!qrDataUrl && !isLoading" class="regenerate-btn" (click)="generarQr()">
+            Generar QR
+        </button>
+    </div>
+</div>

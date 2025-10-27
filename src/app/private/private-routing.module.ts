@@ -27,7 +27,12 @@ const routes: Routes = [
     ] 
   },
   { path: 'calculadora', component: ClientGrowComponent, data: { Breadcrumb: "Calculadora" } },
-  { path: 'productos', loadChildren: () => import('./productos/productos.module').then(m => m.ProductosModule), data: { Breadcrumb: "Panel-productos" }  }
+  { path: 'productos', loadChildren: () => import('./productos/productos.module').then(m => m.ProductosModule), data: { Breadcrumb: "Panel-productos" }  },
+  { path: 'empleados', 
+    loadChildren: () => import('./empleados/empleados.module').then(m => m.EmpleadosModule), 
+    data: { Breadcrumb: "Panel-empleados" } 
+  },
+
 ];
 
 @NgModule({

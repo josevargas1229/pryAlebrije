@@ -27,6 +27,7 @@ import { FailurePageComponent } from './success/failure-page/failure-page.compon
 import { PendingPageComponent } from './success/pending-page/pending-page.component';
 import { TransaccionesComponent } from './transacciones/transacciones.component';
 import { NotificacionesComponent } from './notificaciones/notificaciones.component';
+import { AsistenciaEmpleadoComponent } from './asistencia-empleado/asistencia-empleado.component';
 
 export const routes: Routes = [
   //rutas públicas
@@ -64,6 +65,7 @@ export const routes: Routes = [
         ]
       },
       { path: 'admin', loadChildren: () => import('./private/private.module').then(m => m.PrivateModule) },
+      {path: 'asistencia-empleado', component: AsistenciaEmpleadoComponent, data: {Breadcrumb: 'Asistencia-empleado'}}
     ], canActivate: [AuthGuard]
   },
   {

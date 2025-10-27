@@ -1,0 +1,23 @@
+<div class="lista-asistencia">
+    <h2>Lista de Asistencias por Empleado</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Hora Entrada</th>
+                <th>Hora Salida</th>
+                <th>Estado</th>
+                <th>Notas</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let asistencia of asistencias">
+                <td>{{ asistencia.id }}</td>
+                <td>{{ asistencia.hora_entrada | date }}</td>
+                <td>{{ asistencia.hora_salida | date }}</td>
+                <td>{{ asistencia.estado }}</td>
+                <td>{{ asistencia.notas }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

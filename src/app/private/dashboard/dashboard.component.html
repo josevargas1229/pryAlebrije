@@ -25,13 +25,20 @@
           <mat-icon>email</mat-icon>
           Correos
         </a>
-        <a mat-fab extended routerLink="/admin/bloqueos" routerLinkActive="active-link" class="example-button-container">
+        <a mat-fab extended routerLink="/admin/bloqueos" routerLinkActive="active-link"
+          class="example-button-container">
           <mat-icon>lock</mat-icon>
           Bloqueos
         </a>
-        <a mat-fab extended routerLink="/admin/incidencias" routerLinkActive="active-link" class="example-button-container">
+        <a mat-fab extended routerLink="/admin/incidencias" routerLinkActive="active-link"
+          class="example-button-container">
           <mat-icon>history</mat-icon>
           Incidencias
+        </a>
+        <a mat-fab extended routerLink="/admin/empleados" routerLinkActive="active-link"
+          class="example-button-container">
+          <mat-icon>people</mat-icon>
+          Empleados
         </a>
       </mat-nav-list>
     </mat-sidenav>
@@ -44,8 +51,8 @@
         </button>
         <span>Menú</span>
       </mat-toolbar>
-      
-      
+
+
 
       <main class="main-content router">
         <router-outlet></router-outlet>

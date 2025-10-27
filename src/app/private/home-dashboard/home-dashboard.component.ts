@@ -15,6 +15,7 @@ export class HomeDashboardComponent {
     { icon: 'lock', title: 'Gestión de usuarios bloqueados', description: 'Visualiza y gestiona cuentas bloqueadas.', route: '/admin/bloqueos' },
     { icon: 'email', title: 'Gestión de correos', description: 'Crea y personaliza plantillas de correos.', route: '/admin/correos' },
     { icon: 'report', title: 'Incidencias', description: 'Consulta las incidencias registradas.', route: '/admin/incidencias' },
+    { icon: 'people', title: 'Gestión de empleados', description: 'Administra asistencias y QR de empleados.', route: '/admin/empleados' },
   ];
   
 }

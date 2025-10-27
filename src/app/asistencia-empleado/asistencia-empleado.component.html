@@ -1,0 +1,105 @@
+<div class="asistencia-container">
+    <!-- Encabezado -->
+    <div class="header-section">
+        <h2>Registro de Asistencia</h2>
+        <p class="subtitle">Escanea el código QR para registrar tu entrada o salida</p>
+    </div>
+
+    <!-- Toggle Entrada/Salida -->
+    <div class="toggle-container">
+        <button (click)="toggleTipo()" class="toggle-button" [ngClass]="{'entrada': isEntrada, 'salida': !isEntrada}"
+            aria-label="Cambiar tipo de registro">
+            <span class="icon">{{ isEntrada ? '➜' : '←' }}</span>
+            <span class="text">{{ isEntrada ? 'Registrar Entrada' : 'Registrar Salida' }}</span>
+        </button>
+    </div>
+
+    <!-- Escáner QR -->
+    <div class="scanner-container">
+        <div class="scanner-wrapper">
+            <zxing-scanner [formats]="allowedFormats" (scanSuccess)="onScanSuccess($event)"
+                [ngClass]="{'scanning': !scanSuccess && !errorMessage}" aria-label="Escáner de código QR">
+            </zxing-scanner>
+        </div>
+
+        <!-- Estados del escáner -->
+        <div class="scanner-feedback">
+            <p class="scanner-status" *ngIf="!scanSuccess && !errorMessage">
+                <span class="pulse-icon">📷</span>
+                Apunta la cámara al código QR
+            </p>
+            <div class="success-message" *ngIf="scanSuccess" role="alert">
+                <span class="icon">✓</span>
+                ¡Asistencia registrada con éxito!
+            </div>
+            <div class="error-message" *ngIf="errorMessage" role="alert">
+                <span class="icon">⚠</span>
+                {{ errorMessage }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de Asistencias -->
+    <div class="historial-container">
+        <div class="historial-header">
+            <h3>Historial de Asistencias</h3>
+            <button (click)="cargarAsistencias()" class="refresh-button" aria-label="Actualizar historial"
+                title="Actualizar historial">
+                <span class="icon">↻</span>
+                <span class="text">Actualizar</span>
+            </button>
+        </div>
+
+        <!-- Tabla de asistencias -->
+        <div class="table-wrapper" *ngIf="asistencias.length; else noAsistencias">
+            <table class="asistencias-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Entrada</th>
+                        <th>Salida</th>
+                        <th>Estado</th>
+                        <th>Notas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let asist of asistencias" [ngClass]="'estado-' + asist.estado">
+                        <td class="fecha-col">
+                            {{ asist.fecha | date: 'dd/MM/yyyy' }}
+                        </td>
+                        <td class="hora-col">
+                            <span *ngIf="asist.hora_entrada; else sinDato">
+                                {{ asist.hora_entrada }}
+                            </span>
+                        </td>
+                        <td class="hora-col">
+                            <span *ngIf="asist.hora_salida; else sinDato">
+                                {{ asist.hora_salida }}
+                            </span>
+                        </td>
+                        <td class="estado-col">
+                            <span class="badge" [ngClass]="'badge-' + asist.estado">
+                                {{ asist.estado }}
+                            </span>
+                        </td>
+                        <td class="notas-col">{{ asist.notas || '-' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Sin asistencias -->
+        <ng-template #noAsistencias>
+            <div class="empty-state">
+                <span class="empty-icon">📋</span>
+                <p>No hay asistencias registradas</p>
+                <p class="empty-subtitle">Tus registros aparecerán aquí</p>
+            </div>
+        </ng-template>
+
+        <!-- Template para datos vacíos -->
+        <ng-template #sinDato>
+            <span class="sin-dato">-</span>
+        </ng-template>
+    </div>
+</div>

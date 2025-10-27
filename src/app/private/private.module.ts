@@ -47,6 +47,7 @@ import { ProductosModule } from './productos/productos.module';
 import { DashboardPanelComponent } from '../components/dashboard-panel-component/dashboard-panel-component.component';
 import { AuditLogsComponent } from './components/audit-logs/audit-logs.component';
 import { ClientGrowComponent } from './client-grow/client-grow.component';
+import { EmpleadosModule } from './empleados/empleados.module';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -102,6 +103,7 @@ import { ClientGrowComponent } from './client-grow/client-grow.component';
     MatChipListbox,
     DashboardPanelComponent,
     ProductosModule,
+    EmpleadosModule,
   ],
   exports:[
     DashboardComponent,
@@ -115,6 +117,7 @@ import { ClientGrowComponent } from './client-grow/client-grow.component';
     ProductosModule,
     AngularToastifyModule,
     AuditLogsComponent,
+    EmpleadosModule,
   ],
   providers:[ToastService]
 })
