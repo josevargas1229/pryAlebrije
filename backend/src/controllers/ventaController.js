@@ -20,7 +20,7 @@ const preferenceClient = new mercadopago.Preference(mp);
 exports.createVenta = async (req, res) => {
   const transaction = await sequelize.transaction();
   try {
-    const { usuario_id, total, productos, recogerEnTienda, direccion_id } = req.body;
+    const { usuario_id, total, productos, recogerEnTienda, direccion_id, metodo_pago } = req.body;
 
     if (!productos || productos.length === 0) {
       return res.status(400).json({ message: "No se pueden procesar ventas sin productos." });
@@ -94,14 +94,15 @@ exports.createVenta = async (req, res) => {
     }
 
     if (metodo_pago) {
-      await Transaccion.create({
-        venta_id: nuevaVenta.id,
-        usuario_id,
-        metodo_pago,            // 'efectivo' | 'tarjeta' | 'transferencia'
-        estado: 'exitoso',
-        created_at: new Date()
-      }, { transaction });
-    }
+  await Transaccion.create({
+    venta_id: nuevaVenta.id,
+    usuario_id,
+    metodo_pago,
+    estado: 'exitoso',
+    respuesta_raw: null,
+    created_at: new Date()
+  }, { transaction });
+}
 
     await transaction.commit();
     await crearNotificacion({
