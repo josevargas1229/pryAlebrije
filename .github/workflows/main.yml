@@ -39,3 +39,32 @@ jobs:
           Xvfb :99 -screen 0 1024x768x24 &
           echo "DISPLAY=:99" >> $GITHUB_ENV
       - run: npm run test -- --watch=false --browsers=ChromeHeadless
+  deploy:
+    needs: [backend, frontend]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      deployments: write
+    steps:
+      - uses: actions/checkout@v5
+  
+      - name: Deploy Backend to Render
+        id: backend-deploy
+        uses: JorgeLNJunior/render-deploy@v1.4.6
+        with:
+          service_id: ${{ secrets.RENDER_SERVICE_ID_BACKEND }}
+          api_key: ${{ secrets.RENDER_API_KEY }}
+          wait_deploy: true
+          clear_cache: false
+  
+      - name: Deploy Frontend to Render
+        id: frontend-deploy
+        uses: JorgeLNJunior/render-deploy@v1.4.6
+        with:
+          service_id: ${{ secrets.RENDER_SERVICE_ID_FRONTEND }}
+          api_key: ${{ secrets.RENDER_API_KEY }}
+          wait_deploy: true
+          clear_cache: true
+
+      - name: Deployment Success
+        run: echo "✅ Ambos servicios desplegados exitosamente en Render."
