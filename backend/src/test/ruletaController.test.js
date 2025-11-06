@@ -2,26 +2,27 @@ const express = require('express');
 const request = require('supertest');
 const { validationResult } = require('express-validator');
 
-// Mock de dependencias
 jest.mock('../config/cloudinaryConfig', () => ({
     uploadImageToCloudinary: jest.fn(),
 }));
 
 jest.mock('../config/logger', () => ({
-    errorLogger: { error: jest.fn() },
+    combinedLogger: { error: jest.fn() },
 }));
 
 jest.mock('../models/associations', () => ({
-    Ruleta: { create: jest.fn(), findAll: jest.fn(), findByPk: jest.fn() },
+    Ruleta: {
+        create: jest.fn(),
+        findAll: jest.fn(),
+        findByPk: jest.fn()
+    },
     RuletaHistorial: { create: jest.fn(), findByPk: jest.fn() },
     RuletaPremio: { findAll: jest.fn() },
     Participacion: { findAndCountAll: jest.fn() },
-    Premio: {},
-    CuponUsuario: {}
 }));
 
 const { uploadImageToCloudinary } = require('../config/cloudinaryConfig');
-const { Ruleta, RuletaHistorial, RuletaPremio, Participacion } = require('../models/associations');
+const { Ruleta, RuletaHistorial, RuletaPremio } = require('../models/associations');
 const ruletaController = require('../controllers/ruletaController');
 
 const app = express();
@@ -33,6 +34,7 @@ app.get('/ruletas/:id', ruletaController.getRuletaById);
 describe('RuletaController', () => {
     beforeEach(() => jest.clearAllMocks());
 
+    // --- createRuleta ---
     test('Error si faltan imágenes', async () => {
         const res = await request(app).post('/ruleta').send({ activo: true });
         expect(res.status).toBe(400);
@@ -41,10 +43,11 @@ describe('RuletaController', () => {
 
     // --- getAllRuletas ---
     test('Devuelve lista de ruletas', async () => {
-        Ruleta.findAll.mockResolvedValue([{ id: 1, activo: true }]);
+        const mockRuletas = [{ id: 1, activo: true }];
+        Ruleta.findAll.mockResolvedValue(mockRuletas);
         const res = await request(app).get('/ruletas');
         expect(res.status).toBe(200);
-        expect(res.body).toEqual([{ id: 1, activo: true }]);
+        expect(res.body).toEqual(mockRuletas);
     });
 
     test('Error al obtener ruletas', async () => {
@@ -71,7 +74,7 @@ describe('RuletaController', () => {
     });
 
     // --- validateProbabilities ---
-    test('ValidateProbabilities no lanza error si total <= 100', async () => {
+    test('validateProbabilities no lanza error si total <= 100', async () => {
         RuletaPremio.findAll.mockResolvedValue([
             { probabilidad_pct: 40 },
             { probabilidad_pct: 60 },
@@ -79,7 +82,7 @@ describe('RuletaController', () => {
         await expect(ruletaController.validateProbabilities(1)).resolves.not.toThrow();
     });
 
-    test('ValidateProbabilities lanza error si total > 100', async () => {
+    test('validateProbabilities lanza error si total > 100', async () => {
         RuletaPremio.findAll.mockResolvedValue([
             { probabilidad_pct: 70 },
             { probabilidad_pct: 50 },
