@@ -116,7 +116,7 @@ exports.getVentasByUsuario = async (req, res) => {
     const { usuario_id } = req.params;
 
     const ventas = await Venta.findAll({
-      where: { usuario_id: usuario_id },
+      where: { usuario_id },
       include: [
         {
           model: DetalleVenta,
@@ -156,32 +156,48 @@ exports.getVentasByUsuario = async (req, res) => {
               ]
             }
           ]
+        },
+        // ✅ Nuevo include: Transacción
+        {
+          model: Transaccion,
+          as: 'transacciones',
+          attributes: ['metodo_pago', 'estado', 'created_at'],
+          required: false // la venta puede existir sin transacción todavía
         }
       ],
       order: [['fecha_venta', 'DESC']]
     });
 
-    // Map response to match frontend's expected structure
-    const formattedVentas = ventas.map(venta => ({
-      ...venta.toJSON(),
-      detalles: venta.detalles.map(detalle => ({
-        ...detalle.toJSON(),
-        producto_id: detalle.productoTallaColor?.producto?.id || 0,
-        talla_id: detalle.productoTallaColor?.talla_id || 0,
-        color_id: detalle.productoTallaColor?.color_id || 0,
-        producto: detalle.productoTallaColor?.producto || { id: 0, precio: 0, tipoProducto: { nombre: 'Desconocido' }, imagenes: [] },
-        talla: detalle.productoTallaColor?.talla || { talla: 'Desconocida' },
-        color: detalle.productoTallaColor?.color || { color: 'Desconocido', colorHex: '#000000' }
-      }))
-    }));
+    // ✅ Map para incluir metodo_pago directamente en cada venta
+    const formattedVentas = ventas.map(v => {
+      const json = v.toJSON();
+      const metodo_pago =
+        json.transacciones?.[0]?.metodo_pago ||
+        json.metodo_pago ||
+        null;
+
+      return {
+        ...json,
+        metodo_pago, // ← añade el campo esperado por el frontend
+        detalles: json.detalles.map(detalle => ({
+          ...detalle,
+          producto_id: detalle.productoTallaColor?.producto?.id || 0,
+          talla_id: detalle.productoTallaColor?.talla_id || 0,
+          color_id: detalle.productoTallaColor?.color_id || 0,
+          producto: detalle.productoTallaColor?.producto || { id: 0, precio: 0, tipoProducto: { nombre: 'Desconocido' }, imagenes: [] },
+          talla: detalle.productoTallaColor?.talla || { talla: 'Desconocida' },
+          color: detalle.productoTallaColor?.color || { color: 'Desconocido', colorHex: '#000000' }
+        }))
+      };
+    });
 
     return res.status(200).json({ ventas: formattedVentas });
-
   } catch (error) {
     console.error('Error al obtener ventas del usuario:', error);
     return res.status(500).json({ message: "Error al obtener las ventas.", error: error.message });
   }
 };
+
 
 /**
  * Obtener detalles de una venta específica
