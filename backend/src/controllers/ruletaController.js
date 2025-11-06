@@ -1,13 +1,13 @@
 const { validationResult } = require('express-validator');
-const { errorLogger } = require('../config/logger');
+const { combinedLogger } = require('../config/logger');
 const { uploadImageToCloudinary } = require('../config/cloudinaryConfig');
 const { Op } = require('sequelize');
-const { Participacion, Premio, CuponUsuario, Ruleta,RuletaHistorial,RuletaPremio } = require('../models/associations');
+const { Participacion, Premio, CuponUsuario, Ruleta, RuletaHistorial, RuletaPremio } = require('../models/associations');
 exports.createRuleta = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-    const { activo } = req.body;
+    const { activo: activoRaw } = req.body;
     const files = req.files || [];
 
     try {
@@ -18,7 +18,9 @@ exports.createRuleta = async (req, res) => {
         if (!imagenRuletaFile || !imagenBackgroundFile) {
             return res.status(400).json({ message: 'Se requieren imagen_ruleta e imagen_background' });
         }
-
+        const activo = activoRaw !== undefined
+            ? (activoRaw === 'true' || activoRaw === true || activoRaw === '1')
+            : false;
         // Subir imágenes a Cloudinary
         const imagen_ruleta = await uploadImageToCloudinary(imagenRuletaFile);
         const imagen_background = await uploadImageToCloudinary(imagenBackgroundFile);
@@ -36,7 +38,7 @@ exports.createRuleta = async (req, res) => {
 
         res.status(201).json(ruleta);
     } catch (error) {
-        errorLogger.error(error);
+        combinedLogger.error(error);
         res.status(500).json({ message: 'Error al crear ruleta' });
     }
 };
@@ -46,7 +48,7 @@ exports.getAllRuletas = async (req, res) => {
         const ruletas = await Ruleta.findAll();
         res.json(ruletas);
     } catch (error) {
-        errorLogger.error(error);
+        combinedLogger.error(error);
         res.status(500).json({ message: 'Error al obtener ruletas' });
     }
 };
@@ -59,7 +61,7 @@ exports.getRuletaById = async (req, res) => {
         if (!ruleta) return res.status(404).json({ message: 'Ruleta no encontrada' });
         res.json(ruleta);
     } catch (error) {
-        errorLogger.error(error);
+        combinedLogger.error(error);
         res.status(500).json({ message: 'Error al obtener ruleta' });
     }
 };
@@ -67,7 +69,7 @@ exports.getRuletaById = async (req, res) => {
 exports.updateRuleta = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
+    console.log(req.body);
     const { activo } = req.body;
     const files = req.files || [];
 
@@ -76,7 +78,10 @@ exports.updateRuleta = async (req, res) => {
         if (!ruleta) return res.status(404).json({ message: 'Ruleta no encontrada' });
 
         // Preparar datos para actualizar
-        const updateData = { activo: activo ?? ruleta.activo };
+        const updateData = {};
+        if (activo !== undefined) {
+            updateData.activo = activo === 'true' || activo === true;
+        }
         const historialData = {
             ruleta_id: ruleta.id,
             imagen_ruleta: ruleta.imagen_ruleta,
@@ -105,7 +110,7 @@ exports.updateRuleta = async (req, res) => {
 
         res.json(ruleta);
     } catch (error) {
-        errorLogger.error(error);
+        combinedLogger.error(error);
         res.status(500).json({ message: 'Error al actualizar ruleta' });
     }
 };
@@ -117,7 +122,7 @@ exports.deleteRuleta = async (req, res) => {
         await ruleta.destroy();
         res.json({ message: 'Ruleta eliminada' });
     } catch (error) {
-        errorLogger.error(error);
+        combinedLogger.error(error);
         res.status(500).json({ message: 'Error al eliminar ruleta' });
     }
 };
@@ -157,7 +162,7 @@ exports.restaurarDesdeHistorial = async (req, res) => {
 
         res.json({ message: 'Diseño restaurado', ruleta });
     } catch (error) {
-        errorLogger.error(error);
+        combinedLogger.error(error);
         res.status(500).json({ message: 'Error al restaurar' });
     }
 };
@@ -185,7 +190,26 @@ exports.getHistorial = async (req, res) => {
             historial: historial.rows
         });
     } catch (error) {
-        errorLogger.error(error);
+        combinedLogger.error(error);
         res.status(500).json({ message: 'Error al obtener historial', error: error.message });
+    }
+};
+
+exports.getRuletaActiva = async (req, res) => {
+    try {
+        const ruleta = await Ruleta.findOne({
+            attributes: ['id'],
+            where: { activo: true },
+            raw: true
+        });
+
+        if (!ruleta) {
+            return res.status(404).json({ message: 'No hay ruleta activa' });
+        }
+
+        res.json({ id: ruleta.id });
+    } catch (error) {
+        combinedLogger.error(error);
+        res.status(500).json({ message: 'Error al obtener ruleta activa' });
     }
 };

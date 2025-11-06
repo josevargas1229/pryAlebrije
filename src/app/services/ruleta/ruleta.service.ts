@@ -1,8 +1,8 @@
 // src/app/services/ruleta.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, timeout, switchMap, map } from 'rxjs/operators';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, timeout, switchMap, map, tap, shareReplay } from 'rxjs/operators';
 import { environment } from '../../../environments/environment.development';
 
 export interface SegmentoDTO {
@@ -26,11 +26,37 @@ export interface SpinResp {
 export class RuletaService {
   private base = environment.API_URL;
   private segmentosApi = `${this.base}/ruletapremios`;
-  private spinApi      = `${this.base}/ruleta-spin`;
-  private csrfUrl      = `${this.base}/csrf-token`;
+  private spinApi = `${this.base}/ruleta-spin`;
+  private csrfUrl = `${this.base}/csrf-token`;
+  private _activeId: number | null = null;
+  private _activeId$!: Observable<number | null>;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.initActiveId();
+  }
+  private initActiveId() {
+    this._activeId$ = this.http
+      .get<{ id: number }>(`${this.base}/ruletas/activa`, { withCredentials: true })
+      .pipe(
+        map(r => r.id),
+        tap(id => (this._activeId = id)),
+        catchError(err => {
+          this._activeId = null;
+          return of(null);
+        }),
+        // compartimos la misma petición entre todos los suscriptores
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (shareReplay as any)(1)
+      );
+  }
 
+  /** Devuelve el id activo (observable) */
+  getActiveId(): Observable<number | null> {
+    return this._activeId$;
+  }
+  getRuletaById(ruletaId: number): Observable<any> {
+    return this.http.get<any>(`${this.base}/ruletas/${ruletaId}`, { withCredentials: true });
+  }
   getSegmentos(ruletaId: number): Observable<SegmentoDTO[]> {
     return this.http
       .get<SegmentoDTO[]>(`${this.segmentosApi}/public/ruletas/${ruletaId}/segmentos`, { withCredentials: true })
@@ -38,13 +64,13 @@ export class RuletaService {
   }
 
   getIntentosDisponibles(): Observable<{ disponibles: number }> {
-  return this.http
-    .get<{ disponibles: number }>(
-      `${this.spinApi}/intentos`,
-      { withCredentials: true }
-    )
-    .pipe(timeout(8000), catchError(this.handleError));
-}
+    return this.http
+      .get<{ disponibles: number }>(
+        `${this.spinApi}/intentos`,
+        { withCredentials: true }
+      )
+      .pipe(timeout(8000), catchError(this.handleError));
+  }
 
   /** Obtiene token CSRF y hace el POST del giro con el header X-CSRF-Token */
   spin(ruletaId: number): Observable<SpinResp> {

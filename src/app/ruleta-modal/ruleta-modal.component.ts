@@ -25,13 +25,15 @@ export class RuletaModalComponent implements OnInit {
   @ViewChild(RuletaComponent) wheel!: RuletaComponent;
   intentosDisponibles: number | null = null;
   intentosCargando = false;
-  ruletaId = 1;
+  ruletaId: number | null = null;
   cargando = true;
   error = '';
   segmentos: RuletaSegmento[] = [];
   isLogged = false;
   alertMsg: string | null = null;
   alertType: 'success' | 'info' | 'error' | null = null;
+  imagenFondo: string | null = null;
+  imagenRuleta: string | null = null;
 
 
   async ngOnInit() {
@@ -40,14 +42,44 @@ export class RuletaModalComponent implements OnInit {
       const res = await this.auth.checkAuthStatus();
       this.isLogged = !!res?.isValid;
     } catch { this.isLogged = false; }
-
-    this.loadSegs();
-
+    this.loadActiveRuleta();
     this.loadIntentos();
   }
 
   close() { this.dialogRef.close(); }
 
+  private loadActiveRuleta() {
+    this.cargando = true;
+    this.api.getActiveId().subscribe({
+      next: (id) => {
+        this.ruletaId = id;
+        if (!id) {
+          this.error = 'No hay ruleta activa en este momento.';
+          this.cargando = false;
+          return;
+        }
+        this.loadRuletaImages(id);
+      },
+      error: () => {
+        this.error = 'Error al obtener la ruleta activa.';
+        this.cargando = false;
+      }
+    });
+  }
+  private loadRuletaImages(id: number) {
+    this.api.getRuletaById(id).subscribe({
+      next: (ruleta) => {
+        this.imagenFondo = ruleta.imagen_background;
+        this.imagenRuleta = ruleta.imagen_ruleta;
+        this.loadSegs();
+      },
+      error: () => {
+        this.error = 'Error al cargar imágenes de la ruleta.';
+        this.cargando = false;
+      }
+    });
+  }
+  
   private loadIntentos() {
     this.intentosCargando = true;
     this.api.getIntentosDisponibles().subscribe({
@@ -81,7 +113,7 @@ export class RuletaModalComponent implements OnInit {
 
 
   private loadSegs() {
-    this.cargando = true; this.error = '';
+    if (!this.ruletaId) return;
     this.api.getSegmentos(this.ruletaId).subscribe({
       next: (rows) => {
         this.segmentos = this.mapSegs(rows);
@@ -111,7 +143,7 @@ export class RuletaModalComponent implements OnInit {
   }
 
   onSpin() {
-    if (this.cargando || !this.segmentos.length || this.wheel.spinning()) return;
+    if (this.cargando || !this.segmentos.length || this.wheel.spinning() || this.ruletaId === null) return;
 
     // limpiar alerta SOLO al iniciar un nuevo giro
     this.alertMsg = null;

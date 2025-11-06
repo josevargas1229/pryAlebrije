@@ -4,7 +4,7 @@
   padding: 0;
   border-radius: 20px;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
   position: relative;
   overflow: hidden;
   animation: fadeInScale .3s ease-out;
@@ -18,7 +18,7 @@
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,.03) 1px, transparent 1px);
+  background: radial-gradient(circle, rgba(255, 255, 255, .03) 1px, transparent 1px);
   background-size: 30px 30px;
   pointer-events: none;
   z-index: 0;
@@ -29,7 +29,7 @@
   top: 1rem;
   right: 1rem;
   border: none;
-  background: rgba(255,255,255,.1);
+  background: rgba(255, 255, 255, .1);
   color: #fff;
   font-size: 1.5rem;
   width: 36px;
@@ -44,7 +44,7 @@
   line-height: 1;
 
   &:hover {
-    background: rgba(255,255,255,.2);
+    background: rgba(255, 255, 255, .2);
     transform: rotate(90deg);
   }
 }
@@ -64,6 +64,7 @@
   justify-content: center;
   cursor: pointer;
   font-size: 1.2rem;
+  z-index: 10;
 
   &:hover {
     background-color: #a54e32;
@@ -76,7 +77,7 @@
   font-weight: 800;
   font-size: 1.5rem;
   color: #fff;
-  text-shadow: 0 2px 8px rgba(0,0,0,.3);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, .3);
   padding: 0 1rem;
   position: relative;
   z-index: 1;
@@ -85,11 +86,26 @@
 .subtitle {
   margin: .5rem 0 1.5rem;
   text-align: center;
-  color: rgba(255,255,255,.7);
+  color: rgba(255, 255, 255, .7);
   font-size: .95rem;
   padding: 0 1rem;
   position: relative;
   z-index: 1;
+}
+
+// Capa de imagen de fondo temática (detrás de todo)
+.background-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 0;
+  opacity: 0.3; // Ajusta si quieres que sea más o menos visible
+  pointer-events: none;
 }
 
 .wheel-box {
@@ -99,68 +115,74 @@
   position: relative;
   z-index: 1;
 
+  // Contenedor de las capas de ruleta
+  .wheel-container {
+    position: relative;
+    width: clamp(260px, 70vw, 360px);
+    height: clamp(260px, 70vw, 360px);
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, .4));
+  }
+
   // Resplandor detrás de la ruleta
   &::before {
     content: '';
     position: absolute;
     width: 80%;
     height: 80%;
-    background: radial-gradient(circle, rgba(255,200,87,.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255, 200, 87, .15) 0%, transparent 70%);
     border-radius: 50%;
     filter: blur(40px);
     z-index: -1;
   }
+}
 
-  > app-ruleta {
-    width: clamp(260px, 70vw, 360px);
-    filter: drop-shadow(0 10px 30px rgba(0,0,0,.4));
+// Capa de imagen de ruleta estática (capa intermedia)
+.ruleta-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 1;
+  pointer-events: none; // Permite que los clicks pasen a la ruleta funcional
+}
+
+// Ruleta funcional (al frente)
+app-ruleta {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+
+  // Si tu app-ruleta tiene fondo, asegúrate de que sea transparente
+  // Puedes añadir esto en el componente de la ruleta si es necesario
+  ::ng-deep canvas {
+    background: transparent !important;
   }
 }
 
-.footnote {
+.intentos-info {
   text-align: center;
-  font-size: .85rem;
-  color: rgba(255,255,255,.6);
-  margin: 0;
-  padding: 1rem 1rem 1.5rem;
+  padding: 0 2rem;
+  margin-top: 2rem;
   position: relative;
   z-index: 1;
-  background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,.1) 100%);
+  min-height: 1.5rem; // Evita saltos al cambiar el mensaje
 }
 
-// Animación sutil de entrada
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-:host {
-  animation: fadeInScale .3s ease-out;
-}
-
-/* Colorea los mensajes de estado en blanco */
-.mt-3.text-center small {
+.intentos-info small {
   color: #ffffff;
   font-weight: 500;
   font-size: 0.95rem;
-}
-
-/* Opcional: efecto sutil de sombra para contraste en fondos oscuros */
-.mt-3.text-center small {
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+  display: block;
+  line-height: 1.5;
 }
-
-/* Si quieres que resalten más los mensajes informativos */
-.mt-3.text-center small:nth-child(1) {
-  color: #fff;
-}
-
 
 .alert {
   text-align: center;
@@ -171,17 +193,64 @@
   font-size: 14px;
   color: #fff;
   animation: fadeIn 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
-.alert.success { background-color: #28a745; } /* verde */
-.alert.info    { background-color: #007bff; } /* azul */
-.alert.error   { background-color: #dc3545; } /* rojo */
+.alert.success {
+  background-color: #28a745;
+}
+
+.alert.info {
+  background-color: #007bff;
+}
+
+.alert.error {
+  background-color: #dc3545;
+}
+
+.footnote {
+  text-align: center;
+  font-size: .85rem;
+  color: rgba(255, 255, 255, .6);
+  margin: 0;
+  padding: 1rem 1rem 1.5rem;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, .1) 100%);
+}
+
+.error {
+  text-align: center;
+  color: #ff6b6b;
+  padding: 2rem;
+  font-size: 1rem;
+}
+
+// Animaciones
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
 
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 // Responsive
 @media (max-width: 480px) {
@@ -193,8 +262,9 @@
   .wheel-box {
     padding: 1rem .5rem 1.5rem;
 
-    > app-ruleta {
+    .wheel-container {
       width: clamp(240px, 75vw, 300px);
+      height: clamp(240px, 75vw, 300px);
     }
   }
 }
