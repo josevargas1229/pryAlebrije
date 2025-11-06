@@ -48,6 +48,7 @@ import { DashboardPanelComponent } from '../components/dashboard-panel-component
 import { AuditLogsComponent } from './components/audit-logs/audit-logs.component';
 import { ClientGrowComponent } from './client-grow/client-grow.component';
 import { EmpleadosModule } from './empleados/empleados.module';
+import { RuletasModule } from './ruletas/ruletas.module';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -104,6 +105,7 @@ import { EmpleadosModule } from './empleados/empleados.module';
     DashboardPanelComponent,
     ProductosModule,
     EmpleadosModule,
+    RuletasModule
   ],
   exports:[
     DashboardComponent,

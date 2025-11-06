@@ -1,0 +1,77 @@
+<div class="container">
+  <div class="header">
+    <h1>Gestión de Ruletas</h1>
+    <button mat-raised-button color="primary" (click)="openForm()">
+      <mat-icon>add</mat-icon>
+      Crear Ruleta
+    </button>
+  </div>
+
+  <mat-card class="table-card">
+    <table mat-table [dataSource]="ruletas" class="ruletas-table">
+      
+      <!-- Columna de Imagen de Ruleta -->
+      <ng-container matColumnDef="imagen_ruleta">
+        <th mat-header-cell *matHeaderCellDef>Ruleta</th>
+        <td mat-cell *matCellDef="let r">
+          <img [src]="r.imagen_ruleta" alt="Ruleta" class="imagen-preview">
+        </td>
+      </ng-container>
+
+      <!-- Columna de Imagen de Fondo -->
+      <ng-container matColumnDef="imagen_background">
+        <th mat-header-cell *matHeaderCellDef>Fondo</th>
+        <td mat-cell *matCellDef="let r">
+          <img [src]="r.imagen_background" alt="Background" class="imagen-preview">
+        </td>
+      </ng-container>
+
+      <!-- Columna de Estado Activo -->
+      <ng-container matColumnDef="activo">
+        <th mat-header-cell *matHeaderCellDef>Estado</th>
+        <td mat-cell *matCellDef="let r">
+          <mat-chip [class.chip-activo]="r.activo" [class.chip-inactivo]="!r.activo">
+            <mat-icon>{{ r.activo ? 'check_circle' : 'cancel' }}</mat-icon>
+            {{ r.activo ? 'Activo' : 'Inactivo' }}
+          </mat-chip>
+        </td>
+      </ng-container>
+
+      <!-- Columna de Fecha de Creación -->
+      <ng-container matColumnDef="created_at">
+        <th mat-header-cell *matHeaderCellDef>Fecha de Creación</th>
+        <td mat-cell *matCellDef="let r">
+          <div class="fecha-container">
+            <mat-icon class="fecha-icon">calendar_today</mat-icon>
+            <span>{{ r.created_at | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="hora">{{ r.created_at | date:'HH:mm' }}</div>
+        </td>
+      </ng-container>
+
+      <!-- Columna de Acciones -->
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let r">
+          <button mat-icon-button color="primary" (click)="openForm(r)" matTooltip="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="eliminar(r.id)" matTooltip="Eliminar">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns;" class="table-row"></tr>
+    </table>
+
+    <div *ngIf="ruletas.length === 0" class="empty-state">
+      <mat-icon>info</mat-icon>
+      <p>No hay ruletas disponibles</p>
+      <button mat-raised-button color="primary" (click)="openForm()">
+        Crear Primera Ruleta
+      </button>
+    </div>
+  </mat-card>
+</div>
