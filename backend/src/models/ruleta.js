@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, Op } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Ruleta = sequelize.define('Ruleta', {
@@ -7,7 +7,7 @@ const Ruleta = sequelize.define('Ruleta', {
   imagen_background: { type: DataTypes.STRING(512), allowNull: false },
   activo: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
   created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: sequelize.literal('CURRENT_TIMESTAMP') },
-  updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP') }
+  updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW, }
 }, { 
   tableName: 'ruletas', 
   timestamps: false,
@@ -19,7 +19,7 @@ const Ruleta = sequelize.define('Ruleta', {
     },
     beforeUpdate: async (ruleta) => {
       if (ruleta.activo && ruleta.changed('activo')) {
-        await Ruleta.update({ activo: false }, { where: { activo: true, id: { [sequelize.Op.ne]: ruleta.id } } });
+        await Ruleta.update({ activo: false }, { where: { activo: true, id: { [Op.ne]: ruleta.id } } });
       }
     }
   }

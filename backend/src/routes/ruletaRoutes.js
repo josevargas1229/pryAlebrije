@@ -8,7 +8,6 @@ const { authenticateToken } = require('../middlewares/auth');
 router.post(
     '/',
     [
-        body('activo').isBoolean(),
         imageUpload
     ],
     ruletaController.createRuleta
@@ -25,6 +24,7 @@ router.post('/:id/restaurar',
 );
 
 router.get('/', ruletaController.getAllRuletas);
+router.get('/activa', ruletaController.getRuletaActiva);
 
 router.get(
     '/:id',

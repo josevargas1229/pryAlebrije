@@ -1,36 +1,45 @@
 <button class="reglas-btn" aria-label="Ver reglas" (click)="openReglasModal()">?</button>
 <button class="close" aria-label="Cerrar" (click)="close()">×</button>
+
+<!-- Imagen de fondo temática (capa más baja) -->
+<div class="background-layer" [style.background-image]="'url(' + imagenFondo + ')'"></div>
+
 <h2 class="title">🎁 Regalo especial para ti</h2>
 <p class="subtitle">Gira para obtener cupones de recompensa</p>
+
 <div class="wheel-box" *ngIf="!error; else errorTpl">
-  <app-ruleta [size]="360" [segmentos]="segmentos" [externalControl]="true"
-    [disabled]="!isLogged || intentosDisponibles === null || intentosDisponibles <= 0"
-    (spinClick)="onSpin()"></app-ruleta>
-
-
-  <!-- Mensaje contextual si no hay sesión -->
-  <div class="mt-3 text-center">
-    <small *ngIf="intentosCargando">Cargando intentos…</small>
-
-    <ng-container *ngIf="!intentosCargando">
-      <!-- No logueado -->
-      <small *ngIf="!isLogged">
-        Inicia sesión para poder girar la ruleta.
-      </small>
-
-      <!-- Logueado con conteo -->
-      <small *ngIf="isLogged && (intentosDisponibles ?? -1) > 0">
-        Intentos disponibles: {{ intentosDisponibles }}
-      </small>
-
-      <!-- Logueado pero sin intentos -->
-      <small *ngIf="isLogged && (intentosDisponibles ?? -1) === 0">
-        No tienes intentos por el momento.
-      </small>
-    </ng-container>
+  <!-- Contenedor de capas de ruleta -->
+  <div class="wheel-container">
+    <!-- Imagen de ruleta estática (capa intermedia) -->
+    <div class="ruleta-layer" [style.background-image]="'url(' + imagenRuleta + ')'"></div>
+    
+    <!-- Ruleta funcional con lógica (capa superior) -->
+    <app-ruleta 
+      [segmentos]="segmentos" 
+      [externalControl]="true"
+      [disabled]="!isLogged || intentosDisponibles === null || intentosDisponibles <= 0"
+      (spinClick)="onSpin()">
+    </app-ruleta>
   </div>
+</div>
 
+<!-- Mensaje contextual FUERA de wheel-box -->
+<div class="intentos-info">
+  <small *ngIf="intentosCargando">Cargando intentos…</small>
 
+  <ng-container *ngIf="!intentosCargando && !error">
+    <small *ngIf="!isLogged">
+      Inicia sesión para poder girar la ruleta.
+    </small>
+
+    <small *ngIf="isLogged && (intentosDisponibles ?? -1) > 0">
+      Intentos disponibles: {{ intentosDisponibles }}
+    </small>
+
+    <small *ngIf="isLogged && (intentosDisponibles ?? -1) === 0">
+      No tienes intentos por el momento.
+    </small>
+  </ng-container>
 </div>
 
 <ng-template #errorTpl>

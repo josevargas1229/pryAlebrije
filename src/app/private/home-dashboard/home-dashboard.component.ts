@@ -16,6 +16,7 @@ export class HomeDashboardComponent {
     { icon: 'email', title: 'Gestión de correos', description: 'Crea y personaliza plantillas de correos.', route: '/admin/correos' },
     { icon: 'report', title: 'Incidencias', description: 'Consulta las incidencias registradas.', route: '/admin/incidencias' },
     { icon: 'people', title: 'Gestión de empleados', description: 'Administra asistencias y QR de empleados.', route: '/admin/empleados' },
+    { icon: 'casino', title: 'Gestión de ruletas', description: 'Crea, edita y configura las ruletas de descuentos.', route: '/admin/ruletas' }
   ];
-  
+
 }

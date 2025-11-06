@@ -11,8 +11,8 @@ import { LogsComponent } from './logs/logs.component';
 import { ClientGrowComponent } from './client-grow/client-grow.component';
 
 const routes: Routes = [
-  { 
-    path: '', 
+  {
+    path: '',
     component: DashboardComponent,
     children: [
       { path: '', redirectTo: 'inicio', pathMatch: 'full' },
@@ -23,15 +23,21 @@ const routes: Routes = [
       { path: 'correos', component: EmailManagementComponent, data: { Breadcrumb: "Correos" } },
       { path: 'bloqueos', component: BloqueosComponent, data: { Breadcrumb: "Bloqueos" } },
       { path: 'incidencias', component: LogsComponent, data: { Breadcrumb: "Incidencias" } },
-      
-    ] 
+      {
+        path: 'empleados',
+        loadChildren: () => import('./empleados/empleados.module').then(m => m.EmpleadosModule),
+        data: { Breadcrumb: "Panel-empleados" }
+      },
+      {
+        path: 'ruletas',
+        loadChildren: () => import('./ruletas/ruletas.module').then(m => m.RuletasModule),
+        data: { Breadcrumb: "Ruletas" }
+      },
+
+    ]
   },
   { path: 'calculadora', component: ClientGrowComponent, data: { Breadcrumb: "Calculadora" } },
-  { path: 'productos', loadChildren: () => import('./productos/productos.module').then(m => m.ProductosModule), data: { Breadcrumb: "Panel-productos" }  },
-  { path: 'empleados', 
-    loadChildren: () => import('./empleados/empleados.module').then(m => m.EmpleadosModule), 
-    data: { Breadcrumb: "Panel-empleados" } 
-  },
+  { path: 'productos', loadChildren: () => import('./productos/productos.module').then(m => m.ProductosModule), data: { Breadcrumb: "Panel-productos" } },
 
 ];
 

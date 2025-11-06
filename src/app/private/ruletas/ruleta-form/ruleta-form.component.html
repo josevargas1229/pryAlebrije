@@ -1,0 +1,118 @@
+<div class="dialog-container">
+    <h2 mat-dialog-title>
+        <mat-icon>{{ data?.id ? 'edit' : 'add_circle' }}</mat-icon>
+        {{ data?.id ? 'Editar Ruleta' : 'Nueva Ruleta' }}
+    </h2>
+
+    <mat-dialog-content>
+        <form [formGroup]="form" class="ruleta-form">
+
+            <!-- Estado Activo -->
+            <div class="form-section">
+                <div class="section-header">
+                    <mat-icon>toggle_on</mat-icon>
+                    <h3>Estado de la Ruleta</h3>
+                </div>
+                <mat-slide-toggle formControlName="activo" color="primary">
+                    <span class="toggle-label">
+                        {{ form.value.activo ? 'Ruleta Activa' : 'Ruleta Inactiva' }}
+                    </span>
+                </mat-slide-toggle>
+                <p class="helper-text">
+                    Las ruletas activas serán visibles para los usuarios
+                </p>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <!-- Imagen de la Ruleta -->
+            <div class="form-section">
+                <div class="section-header">
+                    <mat-icon>casino</mat-icon>
+                    <h3>Imagen de la Ruleta</h3>
+                </div>
+                <p class="helper-text">Sube la imagen principal de la ruleta que se mostrará girando</p>
+
+                <div class="upload-container">
+                    <input type="file" #fileInputRuleta (change)="onFileChange($event, 'imagen_ruleta')"
+                        accept="image/*" id="imagen_ruleta" hidden>
+
+                    <button mat-raised-button color="primary" type="button" (click)="fileInputRuleta.click()">
+                        <mat-icon>upload</mat-icon>
+                        {{ files['imagen_ruleta'] ? 'Cambiar Imagen' : 'Seleccionar Imagen' }}
+                    </button>
+
+                    <div class="file-info" *ngIf="files['imagen_ruleta']">
+                        <mat-icon>check_circle</mat-icon>
+                        <span>{{ files['imagen_ruleta'].name }}</span>
+                        <button mat-icon-button type="button" (click)="removeFile('imagen_ruleta')"
+                            matTooltip="Eliminar archivo">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+
+                    <div class="preview-container" *ngIf="previewRuleta">
+                        <img [src]="previewRuleta" alt="Preview Ruleta">
+                    </div>
+
+                    <div class="preview-container" *ngIf="!previewRuleta && data?.imagen_ruleta">
+                        <img [src]="data.imagen_ruleta" alt="Imagen actual">
+                        <span class="current-label">Imagen actual</span>
+                    </div>
+                </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <!-- Imagen de Fondo -->
+            <div class="form-section">
+                <div class="section-header">
+                    <mat-icon>wallpaper</mat-icon>
+                    <h3>Imagen de Fondo</h3>
+                </div>
+                <p class="helper-text">Sube la imagen de fondo que se mostrará detrás de la ruleta</p>
+
+                <div class="upload-container">
+                    <input type="file" #fileInputBackground (change)="onFileChange($event, 'imagen_background')"
+                        accept="image/*" id="imagen_background" hidden>
+
+                    <button mat-raised-button color="primary" type="button" (click)="fileInputBackground.click()">
+                        <mat-icon>upload</mat-icon>
+                        {{ files['imagen_background'] ? 'Cambiar Imagen' : 'Seleccionar Imagen' }}
+                    </button>
+
+                    <div class="file-info" *ngIf="files['imagen_background']">
+                        <mat-icon>check_circle</mat-icon>
+                        <span>{{ files['imagen_background'].name }}</span>
+                        <button mat-icon-button type="button" (click)="removeFile('imagen_background')"
+                            matTooltip="Eliminar archivo">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </div>
+
+                    <div class="preview-container" *ngIf="previewBackground">
+                        <img [src]="previewBackground" alt="Preview Background">
+                    </div>
+
+                    <div class="preview-container" *ngIf="!previewBackground && data?.imagen_background">
+                        <img [src]="data.imagen_background" alt="Imagen actual">
+                        <span class="current-label">Imagen actual</span>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button type="button" (click)="dialogRef.close()">
+            <mat-icon>close</mat-icon>
+            Cancelar
+        </button>
+        <button mat-raised-button color="primary" type="button" [disabled]="form.invalid || (!hasChanges() && data?.id)"
+            (click)="guardar()">
+            <mat-icon>save</mat-icon>
+            {{ data?.id ? 'Actualizar' : 'Crear' }}
+        </button>
+    </mat-dialog-actions>
+</div>
