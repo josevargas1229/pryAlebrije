@@ -30,7 +30,7 @@ exports.createVenta = async (req, res) => {
       usuario_id,
       total,
       recoger_en_tienda: recogerEnTienda,
-      estado: 'Pendiente',
+      estado: 'Completada',
       direccion_id: direccion_id || null,
       created_at: new Date()
     }, { transaction });
@@ -90,6 +90,16 @@ exports.createVenta = async (req, res) => {
         cantidad,
         precio_unitario,
         subtotal: +(precio_unitario * cantidad).toFixed(2)
+      }, { transaction });
+    }
+
+    if (metodo_pago) {
+      await Transaccion.create({
+        venta_id: nuevaVenta.id,
+        usuario_id,
+        metodo_pago,            // 'efectivo' | 'tarjeta' | 'transferencia'
+        estado: 'exitoso',
+        created_at: new Date()
       }, { transaction });
     }
 
