@@ -40,20 +40,22 @@
 							"src/styles.scss"
 						],
 						"scripts": [],
-						"prerender": false
+						"prerender": false,
+
+            "serviceWorker": "src/ngsw-config.json"
 					},
 					"configurations": {
 						"production": {
 							"budgets": [
 								{
 									"type": "initial",
-									"maximumWarning": "750kB",
-									"maximumError": "2MB"
+									"maximumWarning": "1500kB",
+									"maximumError": "3MB"
 								},
 								{
 									"type": "anyComponentStyle",
-									"maximumWarning": "10kB",
-									"maximumError": "20kB"
+									"maximumWarning": "20kB",
+									"maximumError": "40kB"
 								}
 							],
 							"outputHashing": "all"

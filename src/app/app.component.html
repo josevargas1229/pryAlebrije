@@ -21,6 +21,10 @@
           </ng-template>
         </ng-template>
       </p-breadcrumb>
+      <div class="app-splash" *ngIf="loadingApp">
+  <img src="assets/images/web-app-manifest-192x192.png" alt="Alebrije" />
+  <div class="spinner"></div>
+</div>
       <router-outlet></router-outlet>
     </main>
     <app-footer></app-footer>

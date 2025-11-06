@@ -5,7 +5,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const {generateToken,doubleCsrfProtection} = require('./config/csrfConfig');
+const { generateToken, doubleCsrfProtection } = require('./config/csrfConfig');
 const corsConfig = require('./config/corsConfig');
 const { combinedLogger } = require('./config/logger');
 const rateLimit = require('./config/rateLimitConfig');
@@ -40,15 +40,34 @@ const ruletaRoutes = require('./routes/ruletaRoutes');
 const cuponRoutes = require('./routes/cuponRoutes');
 const ruletaSpinRoutes = require('./routes/ruletaSpinRoutes');
 const { authenticateToken, authorize, ROLES } = require('./middlewares/auth');
-const app = express();
 
+const app = express();
 app.set('trust proxy', process.env.NODE_ENV === 'production' ? 1 : false);
+
+
+const csrfExcludedRoutes = [
+  '/auth/token',
+  '/auth/login',
+  /^\/auth(\/|$)/,
+
+];
+
+
+function isCsrfExcluded(path) {
+  const clean = (path || '/').replace(/\/+$/, '');
+  return csrfExcludedRoutes.some((r) =>
+    r instanceof RegExp ? r.test(clean) : r === clean
+  );
+}
+
+
 
 // Middleware de seguridad
 app.use(helmet());
 
 // Middleware de configuración CORS
 app.use(corsConfig);
+app.options('*', corsConfig); // maneja OPTIONS global
 
 // Middleware para parsear JSON
 app.use(express.json());
@@ -59,47 +78,41 @@ app.use(rateLimit);
 
 // Ruta para obtener el token CSRF
 app.get('/csrf-token', (req, res) => {
-    const csrfToken = generateToken(req, res);
-    res.json({ csrfToken });
+  const csrfToken = generateToken(req, res);
+  res.json({ csrfToken });
 });
 
-// Middleware de protección CSRF
+// Middleware de protección CSRF (única capa)
 app.use((req, res, next) => {
-  // Excluir rutas específicas del CSRF (por ejemplo, las usadas por Alexa)
-  const csrfExcludedRoutes = [
-    '/auth/token' // token exchange de Alexa
-  ];
-
-  if (csrfExcludedRoutes.includes(req.path)) {
-    return next();
-  }
-
+  if (isCsrfExcluded(req.path)) return next();
   return doubleCsrfProtection(req, res, next);
 });
 
-
 // Integrar Morgan con Winston para el registro de solicitudes HTTP
-app.use(morgan('combined', {
+app.use(
+  morgan('combined', {
     stream: {
-        write: (message) => combinedLogger.info(message.trim()) // Usa combinedLogger aquí
-    }
-}));
+      write: (message) => combinedLogger.info(message.trim()),
+    },
+  })
+);
 
 // Ejemplo de ruta
 app.get('/', (req, res) => {
-    res.send('¡Hola Mundo!');
+  res.send('¡Hola Mundo!');
 });
+
 app.use('/users', userRoutes);
 app.use('/auth', authRoutes);
 app.use('/asistencias', asistenciaRoutes);
-app.use('/password',passwordRoutes);
-app.use('/email-types',authenticateToken, authorize(ROLES.ADMINISTRADOR), emailTypeRoutes);
-app.use('/email-templates',authenticateToken, authorize(ROLES.ADMINISTRADOR), emailTemplateRoutes);
+app.use('/password', passwordRoutes);
+app.use('/email-types', authenticateToken, authorize(ROLES.ADMINISTRADOR), emailTypeRoutes);
+app.use('/email-templates', authenticateToken, authorize(ROLES.ADMINISTRADOR), emailTemplateRoutes);
 app.use('/legal-documents', legalDocumentRoutes);
-app.use('/configuration',authenticateToken, authorize(ROLES.ADMINISTRADOR), configurationRoutes);
-app.use('/bloqueos',authenticateToken, authorize(ROLES.ADMINISTRADOR), bloqueosRoutes);
+app.use('/configuration', authenticateToken, authorize(ROLES.ADMINISTRADOR), configurationRoutes);
+app.use('/bloqueos', authenticateToken, authorize(ROLES.ADMINISTRADOR), bloqueosRoutes);
 app.use('/logs', authenticateToken, authorize(ROLES.ADMINISTRADOR), logsRoutes);
-app.use('/perfil',companyProfileRoutes);
+app.use('/perfil', companyProfileRoutes);
 app.use('/talla', tallaRoutes);
 app.use('/color', colorRoutes);
 app.use('/marca', marcaRoutes);
@@ -109,7 +122,7 @@ app.use('/producto', productoRoutes);
 app.use('/categorias', categoryRoutes);
 app.use('/ventas', authenticateToken, ventasRoutes);
 app.use('/calificacion', calificacionProductoRoutes);
-app.use('/historial',historialRoutes);
+app.use('/historial', historialRoutes);
 app.use('/contacto', contactoRoutes);
 app.use('/transacciones', transaccionesRoutes);
 app.use('/promociones', promocionRoutes);
@@ -119,6 +132,7 @@ app.use('/ruletapremios', ruletapremiosRoutes);
 app.use('/ruletas', authenticateToken, ruletaRoutes);
 app.use('/cupones', authenticateToken, cuponRoutes);
 app.use('/ruleta-spin', authenticateToken, ruletaSpinRoutes);
-app.use(errorHandler);
-module.exports = app;
 
+app.use(errorHandler);
+
+module.exports = app;

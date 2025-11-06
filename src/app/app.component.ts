@@ -13,6 +13,9 @@ import { filter, map } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { RuletaFabComponent } from './ruleta-fab/ruleta-fab.component';
+import { SwUpdatesService } from './sw-updates.service';
+import { ApplicationRef } from '@angular/core';
+import { firstValueFrom} from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -36,6 +39,7 @@ import { RuletaFabComponent } from './ruleta-fab/ruleta-fab.component';
 })
 export class AppComponent {
   title = 'pryAlebrije';
+  loadingApp= true;
   BreadcrumbItems: any[] = [];
   isSidebarCollapsed: boolean = false;
   constructor(
@@ -45,17 +49,25 @@ export class AppComponent {
     private readonly companyService: CompanyService,
     private readonly titleService: Title,
     private readonly activatedRoute: ActivatedRoute,
+    private swUpdates: SwUpdatesService,
+    private appRef: ApplicationRef
   ) {}
 
 
 
-  ngOnInit() {
+  async ngOnInit() {
+
+     await firstValueFrom(this.appRef.isStable.pipe(filter(v => v === true)));
+    this.loadingApp = false;
+
     this.companyService.companyProfile$.subscribe(profile => {
       const companyName = profile?.nombre;
       if (companyName) {
         this.titleService.setTitle(companyName);
       }
     });
+
+    this.swUpdates.init();
 
     this.authService.checkAuthStatus()
       .then(response => {
@@ -81,7 +93,7 @@ export class AppComponent {
     ).subscribe(items => {
       this.BreadcrumbItems = [{ label: 'Home', route: '/home', icon: 'pi pi-home' }, ...items];
     });
-    
+
   }
   toggleSidebar(): void {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;

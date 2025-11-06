@@ -22,6 +22,33 @@
   transition: width 0.3s ease;
 }
 
+.app-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  gap: 16px;
+   background: #003366; // igual que background_color del manifest
+
+  img {
+    background: transparent;
+  width: 140px;
+  height: 140px;
+  }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid #e5e7eb;
+    border-top-color: #1f2937;
+    animation: spin .8s linear infinite;
+  }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+
 .mat-sidenav.collapsed {
   width: 0;
   padding: 0;

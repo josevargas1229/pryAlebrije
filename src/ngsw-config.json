@@ -1,0 +1,79 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/index.html",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/**",
+          "/*.(png|jpg|jpeg|svg|webp|avif)",
+          "/*.(woff2|woff|ttf)"
+        ]
+      }
+    }
+  ],
+
+  "dataGroups": [
+    {
+      "name": "api-home-fast",
+      "urls": [
+        "http://localhost:3000/configuration/**",
+        "http://localhost:3000/promociones/**"
+      ],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 50,
+        "maxAge": "6h",
+        "timeout": "2s"
+      }
+    },
+    {
+      "name": "api-default",
+      "urls": [
+        "http://localhost:3000/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",           
+        "maxAge": "1d",
+        "timeout": "3s"
+      }
+    },
+    {
+      "name": "api-recommender",
+      "urls": [
+        "https://proyectom3.onrender.com/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 30,
+        "maxAge": "12h",
+        "timeout": "3s"
+      }
+    }
+  ],
+
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/auth/**",
+    "!/api/**",
+    "!/assets/**"
+  ]
+}

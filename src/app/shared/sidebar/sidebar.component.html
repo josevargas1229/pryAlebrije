@@ -44,7 +44,20 @@
         <mat-icon class="icon">shopping_basket</mat-icon>
         <span class="title">Mis Compras</span>
       </a>
+
     </ng-container>
+
+    <a
+    mat-list-item
+    routerLink="/asistencia-empleado"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+    matTooltip="Asistencia de empleado">
+    <mat-icon class="icon">badge</mat-icon>
+    <span class="title">Asistencia</span>
+  </a>
+
+
     <a mat-list-item routerLink="/perfil" routerLinkActive="active" matTooltip="Mi perfil" [routerLinkActiveOptions]="{ exact: true }">
       <mat-icon class="icon">person</mat-icon>
       <span class="title">Mi perfil</span>
@@ -55,4 +68,5 @@
       <span class="title">Logout</span>
     </button>
   </ng-container>
+
 </mat-nav-list>

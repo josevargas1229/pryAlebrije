@@ -15,9 +15,7 @@ header {
     //   display: none; /* Oculto por defecto en pantallas grandes */
     // }
 
-    .logo {
-      height: 50px;
-    }
+
 
     button {
       margin-right: 12px;
@@ -26,6 +24,19 @@ header {
       }
     }
   }
+
+
+.logo {
+  width: 130px;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  background: transparent;
+}
+
+
+
+
 
   .center-section {
     flex: 1 1 auto;

@@ -35,6 +35,8 @@ export class HeaderComponent implements OnInit {
   searchText: string = ''; // Almacena el texto de búsqueda
   notificaciones: Notificacion[] = [];
   notificacionesNoLeidas: number = 0;
+  logorl = 'assets/images/manifest-icon-192.maskable.png';
+
 
   constructor(
     private authService: AuthService,

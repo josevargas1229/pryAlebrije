@@ -8,6 +8,8 @@ import { AuthResponse, LoginCredentials } from './auth.models';
 import { Usuario } from '../user/user.models';
 import { Cuenta } from '../account/account.models';
 
+const SESSION_KEY = 'auth.session';
+const REMEMBER_KEY = 'remember_me';
 @Injectable({
   providedIn: 'root'
 })
@@ -20,8 +22,13 @@ export class AuthService implements OnDestroy {
   private eventSubscriptions: Subscription[] = [];
   private authStatusChecked = false;
 
+
   constructor(private readonly http: HttpClient, private readonly router: Router) {
     // No iniciamos el contador aquí, lo haremos solo al autenticar
+    try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (raw) this.currentUserSubject.next(JSON.parse(raw));
+  } catch {}
   }
 
   // Login
@@ -57,14 +64,12 @@ export class AuthService implements OnDestroy {
       // ✅ Usuario verificado: login normal
       if (response?.verified) {
         this.currentUserSubject.next(response);
+         this.persistSession(response);
         this.authStatusChecked = true;
         this.startInactivityListener();
 
-        if (rememberMe) {
-          this.setRememberMe(credenciales);
-        } else {
-          this.clearRememberMe();
-        }
+
+        rememberMe ? this.setRememberMe(credenciales) : this.clearRememberMe();
 
         const redirectUrl = localStorage.getItem('redirectUrl') || '/';
         this.router.navigate([redirectUrl]).then(() => {
@@ -98,37 +103,73 @@ export class AuthService implements OnDestroy {
 
   // Logout
   logout(): Observable<any> {
-    return this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).pipe(
-      tap(() => this.clearSession()),
-      catchError(this.handleError)
-    );
+  if (navigator.onLine === false) {
+    this.clearSession();
+    return new Observable(obs => { obs.next(null); obs.complete(); });
   }
+  return this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true }).pipe(
+    tap(() => this.clearSession()),
+    catchError(this.handleError)
+  );
+}
+
 
   // Verificar estado de autenticación
   async checkAuthStatus(): Promise<any> {
-    if (this.authStatusChecked && this.currentUserSubject.value) {
-      return Promise.resolve(this.currentUserSubject.value);
-    }
-
-    try {
-      const user = await this.http.get(`${this.apiUrl}/check-auth`, { withCredentials: true }).toPromise();
-      this.currentUserSubject.next(user);
-      this.authStatusChecked = true;
-      if (user) {
-        this.startInactivityListener(); // Iniciar contador si hay sesión
-      }
-      return user;
-    } catch (error) {
-      this.clearSession();
-      this.authStatusChecked = true;
-      throw error;
-    }
+  // Si ya hay sesión en memoria o storage, no pegues al backend
+  if (this.currentUserSubject.value) return this.currentUserSubject.value;
+  if (navigator.onLine === false) {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (raw) return JSON.parse(raw);
+    throw new Error('No autenticado');
   }
+
+  try {
+    const user = await this.http.get(`${this.apiUrl}/check-auth`, { withCredentials: true }).toPromise();
+    // Persistir también lo que responda el backend si incluye token/tipo
+    if (user) this.persistSession(user as any);
+    this.authStatusChecked = true;
+    if (user) this.startInactivityListener();
+    return user;
+  } catch (error) {
+    this.clearSession();
+    this.authStatusChecked = true;
+    throw error;
+  }
+}
+
 
   // Estado de autenticación
   isLoggedIn(): Observable<boolean> {
     return this.currentUser.pipe(map(user => !!user));
   }
+
+
+  private persistSession(session: AuthResponse) {
+  // Normaliza estructura guardada
+  const snapshot = { token: session.token, tipo: session.tipo, user: session };
+  localStorage.setItem(SESSION_KEY, JSON.stringify(snapshot));
+  this.currentUserSubject.next(snapshot);
+}
+
+private clearSession(): void {
+  try { localStorage.removeItem(SESSION_KEY); } catch {}
+  this.currentUserSubject.next(null);
+  this.stopInactivityListener();
+}
+
+// Accesos convenientes
+get token(): string | null {
+  const raw = localStorage.getItem(SESSION_KEY);
+  if (!raw) return null;
+  try { return JSON.parse(raw)?.token ?? null; } catch { return null; }
+}
+get role(): number | null {
+  const raw = localStorage.getItem(SESSION_KEY);
+  if (!raw) return null;
+  try { return JSON.parse(raw)?.tipo ?? null; } catch { return null; }
+}
+
 
   // Rol del usuario
   setUserRole(role: number): void {
@@ -197,10 +238,7 @@ export class AuthService implements OnDestroy {
     }, this.inactivityTime);
   }
 
-  private clearSession(): void {
-    this.currentUserSubject.next(null);
-    this.stopInactivityListener();
-  }
+
 
   private stopInactivityListener(): void {
     this.eventSubscriptions.forEach(sub => sub.unsubscribe());
