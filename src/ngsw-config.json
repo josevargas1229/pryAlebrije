@@ -1,7 +1,6 @@
 {
   "$schema": "./node_modules/@angular/service-worker/config/schema.json",
   "index": "/index.html",
-
   "assetGroups": [
     {
       "name": "app",
@@ -29,13 +28,10 @@
       }
     }
   ],
-
   "dataGroups": [
     {
       "name": "api-home-fast",
       "urls": [
-        "http://localhost:3000/configuration/**",
-        "http://localhost:3000/promociones/**",
         "https://alebrije.onrender.com/configuration/**",
         "https://alebrije.onrender.com/promociones/**"
       ],
@@ -49,13 +45,6 @@
     {
       "name": "api-critical-pages",
       "urls": [
-        "http://localhost:3000/menu-catalogo/productos*",
-        "http://localhost:3000/menu-catalogo/productos/producto-detalle/*",
-        "http://localhost:3000/terminos-condiciones",
-        "http://localhost:3000/aviso-privacidad",
-        "http://localhost:3000/deslinde-legal",
-        "http://localhost:3000/contacto",
-
         "https://alebrije.onrender.com/menu-catalogo/productos*",
         "https://alebrije.onrender.com/menu-catalogo/productos/producto-detalle/*",
         "https://alebrije.onrender.com/terminos-condiciones",
@@ -73,7 +62,6 @@
     {
       "name": "api-default",
       "urls": [
-        "http://localhost:3000/**",
         "https://alebrije.onrender.com/**"
       ],
       "cacheConfig": {
@@ -95,7 +83,6 @@
       }
     }
   ],
-
   "navigationUrls": [
     "/**",
     "!/**/*.*",

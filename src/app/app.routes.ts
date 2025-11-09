@@ -34,6 +34,7 @@ import { NoAuthGuard } from './guards/auth/no-auth.guard';
 import { PagenotfoundComponent } from './error/pagenotfound/pagenotfound.component';
 import { Page400errorComponent } from './error/page400error/page400error.component';
 import { Page500errorComponent } from './error/page500error/page500error.component';
+import { ContactoComponent } from './contacto/contacto.component';
 
 export const routes: Routes = [
   // Públicas
@@ -49,6 +50,7 @@ export const routes: Routes = [
   { path: 'pending', component: PendingPageComponent, data: { Breadcrumb: 'Pendiente' } },
   { path: 'transacciones', component: TransaccionesComponent, data: { Breadcrumb: 'Transacciones' } },
   { path: 'notificaciones', component: NotificacionesComponent, data: { Breadcrumb: 'Notificaciones' } },
+  {path: 'contacto', component: ContactoComponent, data: { Breadcrumb: 'Contacto' }},
 
   // Catálogo (público)
   {
