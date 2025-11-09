@@ -13,6 +13,7 @@ import { CartService } from '../../services/cart/cart.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { CalificacionService } from '../../services/califica/calificacion.service';
+import { PrecacheService } from '../../precache.service';
 
 @Component({
   selector: 'app-productos',
@@ -71,17 +72,34 @@ export class ProductosComponent implements OnInit, AfterViewInit {
     private renderer: Renderer2,
     private cartService: CartService,
     private snackBar: MatSnackBar,
-    private calificacionService: CalificacionService
+    private calificacionService: CalificacionService,
+    private precacheService: PrecacheService
   ) { }
 
-  ngOnInit(): void {
+   ngOnInit(): void {
     this.obtenerFiltros();
-    this.loadMoreProducts();
+    const cached = this.precacheService.getCachedProductosTop10?.() || [];
+
+    if (!navigator.onLine && cached.length > 0) {
+      // OFFLINE y hay cache: usarlo
+      const productosMapeados = this.mapearProductos(cached);
+      this.productos = [...productosMapeados];
+      this.filteredProductos = [...productosMapeados];
+      this.totalItems = productosMapeados.length;
+      this.hasMore = false;
+      this.isLoading = false;
+    } else {
+
+      this.loadMoreProducts();
+    }
+
+
     this.searchService.search$.subscribe(text => {
       this.searchText = text;
       this.resetAndLoad();
     });
   }
+
 
   ngAfterViewInit(): void {
     const observer = new IntersectionObserver(
@@ -166,6 +184,23 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   }
 
 
+    private mapearProductos(productos: any[]): any[] {
+    return productos.map(producto => {
+      const tienePromocion = producto.promocion !== null && producto.promocion?.descuento > 0;
+      const precioFinal = tienePromocion
+        ? producto.precio * (1 - producto.promocion.descuento / 100)
+        : producto.precio;
+
+      return {
+        ...producto,
+        imagenPrincipal: this.getImagenPrincipal(producto),
+        tienePromocion,
+        precioFinal
+      };
+    });
+  }
+
+
   loadMoreProducts(): void {
     if (this.isLoading || !this.hasMore) return;
 
@@ -181,22 +216,7 @@ export class ProductosComponent implements OnInit, AfterViewInit {
 
     this.productoService.getAllProductos(params).subscribe({
       next: (response) => {
-
-        const nuevosProductos = response.productos.map(producto => {
-          const tienePromocion = producto.promocion !== null && producto.promocion?.descuento > 0;
-          const precioFinal = tienePromocion
-            ? producto.precio * (1 - producto.promocion.descuento / 100)
-            : producto.precio;
-
-          return {
-            ...producto,
-            imagenPrincipal: this.getImagenPrincipal(producto),
-            tienePromocion,
-            precioFinal
-          };
-        });
-
-
+        const nuevosProductos = this.mapearProductos(response.productos);
         this.productos = [...this.productos, ...nuevosProductos];
         this.filteredProductos = [...this.productos];
         this.totalItems = response.totalItems || this.productos.length;

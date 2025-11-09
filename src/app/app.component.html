@@ -21,6 +21,34 @@
           </ng-template>
         </ng-template>
       </p-breadcrumb>
+
+
+<div *ngIf="!(online$ | async)" class="status-toast status-toast--offline">
+  <div class="status-toast__icon">
+    <span class="material-icons">wifi_off</span>
+  </div>
+  <div class="status-toast__content">
+    <div class="status-toast__title">Sin conexión</div>
+    <div class="status-toast__text">
+      Estás en modo desconectado. Algunas funciones pueden no estar disponibles.
+    </div>
+  </div>
+</div>
+
+
+<div *ngIf="showOnlineBanner" class="status-toast status-toast--online">
+  <div class="status-toast__icon">
+    <span class="material-icons">wifi</span>
+  </div>
+  <div class="status-toast__content">
+    <div class="status-toast__title">Conectado</div>
+    <div class="status-toast__text">
+      Ahora estás en línea. El contenido se actualizará automáticamente.
+    </div>
+  </div>
+</div>
+
+
       <div class="app-splash" *ngIf="loadingApp">
   <img src="assets/images/web-app-manifest-192x192.png" alt="Alebrije" />
   <div class="spinner"></div>

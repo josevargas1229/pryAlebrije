@@ -78,33 +78,6 @@
     </div>
   </div>
 </div>
-
-        <!-- Filtro de Tallas -->
-        <!-- <div class="filtro-item">
-          <div class="filtro-titulo" (click)="toggleSeccion('talla')">
-            <span>Talla</span>
-            <mat-icon>{{ tallaVisibles ? 'remove' : 'add' }}</mat-icon>
-          </div>
-          <div class="filtro-opciones" [class.oculto]="!tallaVisibles">
-            <label *ngFor="let talla of tallas">
-              <input type="checkbox" [(ngModel)]="talla.seleccionado" (change)="applyFilters()" />
-              {{ talla.talla }}
-            </label>
-          </div>
-        </div> -->
-
-        <!-- Filtro de Colores -->
-        <!-- <div class="filtro-item">
-          <div class="filtro-titulo" (click)="toggleSeccion('colores')">
-            <span>Color</span>
-            <mat-icon>{{ coloresVisibles ? 'remove' : 'add' }}</mat-icon>
-          </div>
-          <div class="filtro-opciones color-palette" [class.oculto]="!coloresVisibles">
-            <div *ngFor="let color of colores" class="color-box" [ngStyle]="{ 'background-color': color.colorHex }"
-              (click)="toggleFilter(color, 'color')" [class.selected]="color.seleccionado">
-            </div>
-          </div>
-        </div> -->
       </div>
     </aside>
 

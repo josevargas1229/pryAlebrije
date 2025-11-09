@@ -15,7 +15,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { RuletaFabComponent } from './ruleta-fab/ruleta-fab.component';
 import { SwUpdatesService } from './sw-updates.service';
 import { ApplicationRef } from '@angular/core';
-import { firstValueFrom} from 'rxjs';
+import { firstValueFrom, Observable, Subscription, timer} from 'rxjs';
+import { NetworkStatusService } from './network-status.service';
 
 @Component({
   selector: 'app-root',
@@ -42,6 +43,9 @@ export class AppComponent {
   loadingApp= true;
   BreadcrumbItems: any[] = [];
   isSidebarCollapsed: boolean = false;
+  online$!: Observable<boolean>;
+  showOnlineBanner = false;
+  private sub?: Subscription;
   constructor(
     private readonly authService: AuthService,
     private readonly toastService: ToastService,
@@ -50,7 +54,8 @@ export class AppComponent {
     private readonly titleService: Title,
     private readonly activatedRoute: ActivatedRoute,
     private swUpdates: SwUpdatesService,
-    private appRef: ApplicationRef
+    private appRef: ApplicationRef,
+    private netStatus: NetworkStatusService
   ) {}
 
 
@@ -58,12 +63,21 @@ export class AppComponent {
   async ngOnInit() {
 
      await firstValueFrom(this.appRef.isStable.pipe(filter(v => v === true)));
+      this.online$ = this.netStatus.status$;
+
     this.loadingApp = false;
 
     this.companyService.companyProfile$.subscribe(profile => {
       const companyName = profile?.nombre;
       if (companyName) {
         this.titleService.setTitle(companyName);
+      }
+    });
+
+    this.sub = this.netStatus.status$.subscribe(isOnline => {
+      if (isOnline) {
+        this.showOnlineBanner = true;
+        timer(3000).subscribe(() => (this.showOnlineBanner = false));
       }
     });
 
@@ -114,5 +128,9 @@ export class AppComponent {
     }
 
     return Breadcrumbs;
+  }
+
+   ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 }

@@ -35,7 +35,9 @@
       "name": "api-home-fast",
       "urls": [
         "http://localhost:3000/configuration/**",
-        "http://localhost:3000/promociones/**"
+        "http://localhost:3000/promociones/**",
+        "https://alebrije.onrender.com/configuration/**",
+        "https://alebrije.onrender.com/promociones/**"
       ],
       "cacheConfig": {
         "strategy": "performance",
@@ -45,12 +47,37 @@
       }
     },
     {
-      "name": "api-default",
+      "name": "api-critical-pages",
       "urls": [
-        "http://localhost:3000/**"
+        "http://localhost:3000/menu-catalogo/productos*",
+        "http://localhost:3000/menu-catalogo/productos/producto-detalle/*",
+        "http://localhost:3000/terminos-condiciones",
+        "http://localhost:3000/aviso-privacidad",
+        "http://localhost:3000/deslinde-legal",
+        "http://localhost:3000/contacto",
+
+        "https://alebrije.onrender.com/menu-catalogo/productos*",
+        "https://alebrije.onrender.com/menu-catalogo/productos/producto-detalle/*",
+        "https://alebrije.onrender.com/terminos-condiciones",
+        "https://alebrije.onrender.com/aviso-privacidad",
+        "https://alebrije.onrender.com/deslinde-legal",
+        "https://alebrije.onrender.com/contacto"
       ],
       "cacheConfig": {
-        "strategy": "freshness",           
+        "strategy": "performance",
+        "maxSize": 100,
+        "maxAge": "7d",
+        "timeout": "2s"
+      }
+    },
+    {
+      "name": "api-default",
+      "urls": [
+        "http://localhost:3000/**",
+        "https://alebrije.onrender.com/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
         "maxAge": "1d",
         "timeout": "3s"
       }
