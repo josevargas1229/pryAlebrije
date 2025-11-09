@@ -1,25 +1,26 @@
 const { doubleCsrf } = require('csrf-csrf');
-const IS_PROD = process.env.NODE_ENV === 'production';
-
+require('dotenv').config();
 const doubleCsrfOptions = {
-  getSecret: () => process.env.CSRF_SECRET || 'dev-secret',
-  cookieName: 'csrf-token',
-  cookieOptions: {
-    httpOnly: true,
-    secure: IS_PROD,                     // false en dev
-    sameSite: IS_PROD ? 'None' : 'Lax',  // Lax en dev
-    path: '/',
-  },
-  size: 64,
-  ignoredMethods: ['GET', 'HEAD', 'OPTIONS'],
-  getTokenFromRequest: (req) =>
-    req.headers['x-csrf-token'] || req.headers['csrf-token'],
+    getSecret: () => 'yourSecretKey',
+    cookieName: 'x-csrf-token', // Nombre de la cookie que almacenará el token CSRF
+    cookieOptions: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Usa cookies seguras en producción
+        sameSite: process.env.NODE_ENV === 'production'?'None':'Strict',
+    },
+    size: 64, // Tamaño del token CSRF
+    ignoredMethods: ['GET', 'HEAD', 'OPTIONS'], // Métodos ignorados por la protección CSRF
+    getTokenFromRequest: (req) => req.headers["x-csrf-token"],
 };
 
 const {
-  invalidCsrfTokenError,
-  generateToken,
-  doubleCsrfProtection,
+    invalidCsrfTokenError, // Error en caso de que el token CSRF sea inválido
+    generateToken, // Genera el token CSRF
+    doubleCsrfProtection, // Middleware de protección CSRF
 } = doubleCsrf(doubleCsrfOptions);
 
-module.exports = { invalidCsrfTokenError, generateToken, doubleCsrfProtection };
+module.exports = {
+    invalidCsrfTokenError,
+    generateToken,
+    doubleCsrfProtection,
+};

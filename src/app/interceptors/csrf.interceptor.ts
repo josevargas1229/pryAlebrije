@@ -7,15 +7,20 @@ export const csrfInterceptor: HttpInterceptorFn = (req, next) => {
   const csrfService = inject(CsrfService);
 
   // Solo interceptamos métodos que necesitan CSRF
-  // csrf.interceptor.ts
-if (['POST','PUT','PATCH','DELETE'].includes(req.method) && !req.url.endsWith('/auth/login')) {
-  return csrfService.getCsrfToken().pipe(
-    switchMap(csrfToken => next(req.clone({
-      setHeaders: { 'x-csrf-token': csrfToken },
-      withCredentials: true
-    })))
-  );
-}
-return next(req);
+  if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
+    return csrfService.getCsrfToken().pipe(
+      switchMap(csrfToken => {
+        const clonedRequest = req.clone({
+          setHeaders: {
+            'x-csrf-token': csrfToken
+          },
+          withCredentials: true
+        });
+        return next(clonedRequest);
+      })
+    );
+  }
 
+  // Si es GET u otro método, no lo modificamos
+  return next(req);
 };
