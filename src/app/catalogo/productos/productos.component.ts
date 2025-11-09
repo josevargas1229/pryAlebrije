@@ -75,39 +75,51 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   ) { }
 
      ngOnInit(): void {
-    this.obtenerFiltros();
+  this.obtenerFiltros();
 
-    if (!navigator.onLine) {
-      // OFFLINE: intentar cargar productos desde localStorage
-      const raw = localStorage.getItem('pwa.cache.productosTop10');
+  if (!navigator.onLine) {
+    // OFFLINE: intentar cargar productos desde localStorage
+    const raw = localStorage.getItem('pwa.cache.productosTop10');
 
-      if (raw) {
-        const productosCacheados = JSON.parse(raw);
-        const productosMapeados = this.mapearProductos(productosCacheados);
+    if (raw) {
+      const productosCacheados = JSON.parse(raw);
+      const productosMapeados = this.mapearProductos(productosCacheados);
 
-        this.productos = [...productosMapeados];
-        this.filteredProductos = [...productosMapeados];
-        this.totalItems = productosMapeados.length;
-        this.hasMore = false;
-        this.isLoading = false;
-      } else {
-        // Offline y sin cache: no hay nada que mostrar
-        this.productos = [];
-        this.filteredProductos = [];
-        this.totalItems = 0;
-        this.hasMore = false;
-        this.isLoading = false;
-      }
+      this.productos = [...productosMapeados];
+      this.filteredProductos = [...productosMapeados];
+      this.totalItems = productosMapeados.length;
+      this.hasMore = false;
+      this.isLoading = false;
     } else {
-      // ONLINE: comportamiento normal
-      this.loadMoreProducts();
+      // Offline y sin cache: no hay nada que mostrar
+      this.productos = [];
+      this.filteredProductos = [];
+      this.totalItems = 0;
+      this.hasMore = false;
+      this.isLoading = false;
     }
-
-    this.searchService.search$.subscribe(text => {
-      this.searchText = text;
-      this.resetAndLoad();
-    });
+  } else {
+    // ONLINE: comportamiento normal
+    this.loadMoreProducts();
   }
+
+  // IMPORTANTE: aquí diferenciamos el comportamiento online / offline
+  this.searchService.search$.subscribe(text => {
+    this.searchText = text;
+
+    if (navigator.onLine) {
+      // ONLINE: recargar desde API con filtros y búsqueda
+      this.resetAndLoad();
+    } else {
+      // OFFLINE: filtrar solo lo que ya tenemos en memoria
+      const term = this.searchText.trim().toLowerCase();
+      this.filteredProductos = this.productos.filter(p =>
+        (p.nombre || '').toLowerCase().includes(term)
+      );
+    }
+  });
+}
+
 
 
 
@@ -272,13 +284,35 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   }
 
 
-  resetAndLoad(): void {
-    this.currentPage = 1;
-    this.productos = [];
-    this.filteredProductos = [];
-    this.hasMore = true;
+ resetAndLoad(): void {
+  this.currentPage = 1;
+  this.productos = [];
+  this.filteredProductos = [];
+  this.hasMore = true;
+
+  if (!navigator.onLine) {
+    // OFFLINE: recargar desde cache local
+    const raw = localStorage.getItem('pwa.cache.productosTop10');
+
+    if (raw) {
+      const productosCacheados = JSON.parse(raw);
+      const productosMapeados = this.mapearProductos(productosCacheados);
+
+      this.productos = [...productosMapeados];
+      this.filteredProductos = [...productosMapeados];
+      this.totalItems = productosMapeados.length;
+      this.hasMore = false;
+      this.isLoading = false;
+    } else {
+      // sin cache y sin red: no hay nada que hacer
+      this.isLoading = false;
+    }
+  } else {
+    // ONLINE: flujo normal
     this.loadMoreProducts();
   }
+}
+
 
   obtenerFiltros(): void {
     this.productoService.getAllFilters().subscribe({
