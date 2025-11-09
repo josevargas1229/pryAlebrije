@@ -13,7 +13,6 @@ import { CartService } from '../../services/cart/cart.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { CalificacionService } from '../../services/califica/calificacion.service';
-import { PrecacheService } from '../../precache.service';
 
 @Component({
   selector: 'app-productos',
@@ -73,32 +72,43 @@ export class ProductosComponent implements OnInit, AfterViewInit {
     private cartService: CartService,
     private snackBar: MatSnackBar,
     private calificacionService: CalificacionService,
-    private precacheService: PrecacheService
   ) { }
 
-   ngOnInit(): void {
+     ngOnInit(): void {
     this.obtenerFiltros();
-    const cached = this.precacheService.getCachedProductosTop10?.() || [];
 
-    if (!navigator.onLine && cached.length > 0) {
-      // OFFLINE y hay cache: usarlo
-      const productosMapeados = this.mapearProductos(cached);
-      this.productos = [...productosMapeados];
-      this.filteredProductos = [...productosMapeados];
-      this.totalItems = productosMapeados.length;
-      this.hasMore = false;
-      this.isLoading = false;
+    if (!navigator.onLine) {
+      // OFFLINE: intentar cargar productos desde localStorage
+      const raw = localStorage.getItem('pwa.cache.productosTop10');
+
+      if (raw) {
+        const productosCacheados = JSON.parse(raw);
+        const productosMapeados = this.mapearProductos(productosCacheados);
+
+        this.productos = [...productosMapeados];
+        this.filteredProductos = [...productosMapeados];
+        this.totalItems = productosMapeados.length;
+        this.hasMore = false;
+        this.isLoading = false;
+      } else {
+        // Offline y sin cache: no hay nada que mostrar
+        this.productos = [];
+        this.filteredProductos = [];
+        this.totalItems = 0;
+        this.hasMore = false;
+        this.isLoading = false;
+      }
     } else {
-
+      // ONLINE: comportamiento normal
       this.loadMoreProducts();
     }
-
 
     this.searchService.search$.subscribe(text => {
       this.searchText = text;
       this.resetAndLoad();
     });
   }
+
 
 
   ngAfterViewInit(): void {
@@ -217,6 +227,15 @@ export class ProductosComponent implements OnInit, AfterViewInit {
     this.productoService.getAllProductos(params).subscribe({
       next: (response) => {
         const nuevosProductos = this.mapearProductos(response.productos);
+
+        // GUARDAR TOP 10 DE LA PRIMERA PÁGINA EN LOCALSTORAGE
+        if (this.currentPage === 1) {
+          const top10 = nuevosProductos.slice(0, 10);
+          localStorage.setItem(
+            'pwa.cache.productosTop10',
+            JSON.stringify(top10)
+          );
+        }
         this.productos = [...this.productos, ...nuevosProductos];
         this.filteredProductos = [...this.productos];
         this.totalItems = response.totalItems || this.productos.length;
