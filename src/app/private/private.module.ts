@@ -49,6 +49,8 @@ import { AuditLogsComponent } from './components/audit-logs/audit-logs.component
 import { ClientGrowComponent } from './client-grow/client-grow.component';
 import { EmpleadosModule } from './empleados/empleados.module';
 import { RuletasModule } from './ruletas/ruletas.module';
+import { ReportesGamificacionComponent } from './reportes-gamificacion/reportes-gamificacion.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -64,7 +66,8 @@ import { RuletasModule } from './ruletas/ruletas.module';
     CompanySettingsComponent,
     LegalSettingsComponent,
     AuditLogsComponent,
-    ClientGrowComponent
+    ClientGrowComponent,
+    ReportesGamificacionComponent
   ],
   imports: [
     CommonModule,
@@ -105,7 +108,8 @@ import { RuletasModule } from './ruletas/ruletas.module';
     DashboardPanelComponent,
     ProductosModule,
     EmpleadosModule,
-    RuletasModule
+    RuletasModule,
+    MatProgressSpinnerModule
   ],
   exports:[
     DashboardComponent,

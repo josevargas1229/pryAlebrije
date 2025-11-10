@@ -9,6 +9,7 @@ import { ConfiguracionSistemaComponent } from './configuracion-sistema/configura
 import { BloqueosComponent } from './bloqueos/bloqueos.component';
 import { LogsComponent } from './logs/logs.component';
 import { ClientGrowComponent } from './client-grow/client-grow.component';
+import { ReportesGamificacionComponent } from './reportes-gamificacion/reportes-gamificacion.component';
 
 const routes: Routes = [
   {
@@ -38,6 +39,11 @@ const routes: Routes = [
   loadChildren: () => import('./premios/premios.module').then(m => m.PremiosModule),
   data: { Breadcrumb: "Premios" }
 },
+{
+        path: 'gamificacion-reportes',
+        component: ReportesGamificacionComponent,
+        data: { Breadcrumb: 'Reportes gamificación' }
+      },
     ]
   },
   { path: 'calculadora', component: ClientGrowComponent, data: { Breadcrumb: "Calculadora" } },

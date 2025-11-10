@@ -23,7 +23,6 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-
 .status-toast__icon {
   display: flex;
   align-items: center;
@@ -78,16 +77,55 @@
   }
 }
 
-
-/* Responsivo: centrar en pantallas muy pequeñas */
+/* Responsivo: móviles */
 @media (max-width: 600px) {
   .status-toast {
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
+    top: 8px;             /* antes usabas bottom, pero el toast es superior */
+    right: 8px;
+    left: 8px;            /* ocupa casi todo el ancho */
     max-width: none;
+    padding: 10px 12px;
+    border-radius: 10px;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  .status-toast__icon {
+    width: 26px;
+    height: 26px;
+  }
+
+  .status-toast__icon .material-icons {
+    font-size: 18px;
+  }
+
+  .status-toast__title {
+    font-size: 13px;
+  }
+
+  .status-toast__text {
+    font-size: 11px;
   }
 }
+
+/* Extra pequeño (teléfonos muy angostos) */
+@media (max-width: 380px) {
+  .status-toast {
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    padding: 8px 10px;
+  }
+
+  .status-toast__title {
+    font-size: 12px;
+  }
+
+  .status-toast__text {
+    font-size: 10px;
+  }
+}
+
 
 
 

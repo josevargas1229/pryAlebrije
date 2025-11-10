@@ -39,6 +39,7 @@ const ruletapremiosRoutes = require('./routes/ruletapremiosRoutes');
 const ruletaRoutes = require('./routes/ruletaRoutes');
 const cuponRoutes = require('./routes/cuponRoutes');
 const ruletaSpinRoutes = require('./routes/ruletaSpinRoutes');
+const reportesRoutes = require('./routes/reportesRoutes');
 const { authenticateToken, authorize, ROLES } = require('./middlewares/auth');
 const app = express();
 
@@ -119,6 +120,7 @@ app.use('/ruletapremios', ruletapremiosRoutes);
 app.use('/ruletas', authenticateToken, ruletaRoutes);
 app.use('/cupones', authenticateToken, cuponRoutes);
 app.use('/ruleta-spin', authenticateToken, ruletaSpinRoutes);
+app.use('/reportes', authenticateToken, reportesRoutes);
 app.use(errorHandler);
 
 module.exports = app;
