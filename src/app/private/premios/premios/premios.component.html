@@ -1,0 +1,193 @@
+<div class="container">
+
+  <!-- HEADER PRINCIPAL -->
+  <div class="header">
+    <h1>Gestión de premios y ruletas</h1>
+
+    <!-- acceso directo al catálogo de premios -->
+    <button mat-raised-button color="primary" (click)="goNuevoPremio()">
+      <mat-icon>add</mat-icon>
+      Nuevo premio
+    </button>
+  </div>
+
+  <!-- CARD: RULETA + PROBABILIDADES -->
+  <mat-card class="table-card">
+    <mat-card-content>
+
+      <div class="filters">
+        <mat-form-field appearance="outline">
+          <mat-label>Ruleta</mat-label>
+          <mat-select [(ngModel)]="selectedRuletaId" (selectionChange)="onRuletaChange()">
+            <mat-option *ngFor="let r of ruletas" [value]="r.id">
+              {{ r.nombre }} <span *ngIf="r.activo"> (activa)</span>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary"
+                (click)="addSegmento()"
+                [disabled]="!selectedRuletaId || loadingSegmentos || !premios.length">
+          <mat-icon>add</mat-icon>
+          Añadir premio a ruleta
+        </button>
+      </div>
+
+      <div *ngIf="loadingSegmentos || loadingRuletas" class="loading">
+        <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+      </div>
+
+      <ng-container *ngIf="!loadingSegmentos && selectedRuletaId">
+
+        <table mat-table [dataSource]="segmentos" class="ruletas-table mat-elevation-z2">
+
+          <ng-container matColumnDef="premio">
+            <th mat-header-cell *matHeaderCellDef>Premio</th>
+            <td mat-cell *matCellDef="let s">
+              {{ s.premio?.nombre || ('#' + s.premio_id) }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="probabilidad">
+            <th mat-header-cell *matHeaderCellDef>Probabilidad (%)</th>
+            <td mat-cell *matCellDef="let s">
+              {{ s.probabilidad_pct | number:'1.0-2' }}
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="activo">
+            <th mat-header-cell *matHeaderCellDef>Activo</th>
+            <td mat-cell *matCellDef="let s">
+              <mat-chip [ngClass]="s.activo ? 'chip-activo' : 'chip-inactivo'" selected>
+                <mat-icon>{{ s.activo ? 'check_circle' : 'cancel' }}</mat-icon>
+                {{ s.activo ? 'Activo' : 'Inactivo' }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef>Acciones</th>
+            <td mat-cell *matCellDef="let s">
+              <button mat-icon-button color="primary"
+                      (click)="editSegmento(s)"
+                      matTooltip="Editar probabilidad">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn"
+                      (click)="deleteSegmento(s)"
+                      matTooltip="Eliminar">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="table-header-row"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
+        </table>
+
+        <div *ngIf="!segmentos?.length" class="empty-state">
+          <mat-icon>pie_chart</mat-icon>
+          <p>No hay segmentos configurados para esta ruleta.</p>
+          <button mat-stroked-button color="primary" (click)="addSegmento()">
+            <mat-icon>add</mat-icon>
+            Añadir primer premio
+          </button>
+        </div>
+
+        <div class="total">
+          Total probabilidad activa:
+          <strong [class.error]="totalProbabilidad !== 100">
+            {{ totalProbabilidad | number:'1.0-2' }}%
+          </strong>
+        </div>
+
+      </ng-container>
+
+      <div *ngIf="error" class="error">{{ error }}</div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- CARD: CATÁLOGO DE PREMIOS -->
+  <mat-card class="table-card mt-24">
+    <mat-card-content>
+
+      <div class="header secondary-header">
+        <h1>Catálogo de premios</h1>
+        <button mat-stroked-button color="primary" (click)="goNuevoPremio()">
+          <mat-icon>add</mat-icon>
+          Nuevo premio
+        </button>
+      </div>
+
+      <table mat-table [dataSource]="premios" class="ruletas-table mat-elevation-z2">
+
+        <ng-container matColumnDef="nombre">
+          <th mat-header-cell *matHeaderCellDef>Nombre</th>
+          <td mat-cell *matCellDef="let p">{{ p.nombre }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="descripcion">
+          <th mat-header-cell *matHeaderCellDef>Descripción</th>
+          <td mat-cell *matCellDef="let p">
+            {{ p.descripcion || '-' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="descuento">
+          <th mat-header-cell *matHeaderCellDef>Descuento</th>
+          <td mat-cell *matCellDef="let p">
+            {{ p.cantidad_a_descontar }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="minimo">
+          <th mat-header-cell *matHeaderCellDef>Mínimo</th>
+          <td mat-cell *matCellDef="let p">
+            {{ p.cantidad_minima }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="activoPremio">
+          <th mat-header-cell *matHeaderCellDef>Estado</th>
+          <td mat-cell *matCellDef="let p">
+            <mat-chip [ngClass]="p.activo ? 'chip-activo' : 'chip-inactivo'" selected>
+              <mat-icon>{{ p.activo ? 'check_circle' : 'cancel' }}</mat-icon>
+              {{ p.activo ? 'Activo' : 'Inactivo' }}
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="accionesPremio">
+          <th mat-header-cell *matHeaderCellDef>Acciones</th>
+          <td mat-cell *matCellDef="let p">
+            <button mat-icon-button color="primary"
+                    (click)="editPremio(p)"
+                    matTooltip="Editar premio">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn"
+                    (click)="deletePremio(p)"
+                    matTooltip="Eliminar premio">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['nombre','descripcion','descuento','minimo','activoPremio','accionesPremio']"
+            class="table-header-row"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['nombre','descripcion','descuento','minimo','activoPremio','accionesPremio'];"
+            class="table-row"></tr>
+      </table>
+
+      <div *ngIf="!premios?.length" class="empty-state">
+        <mat-icon>card_giftcard</mat-icon>
+        <p>No hay premios configurados todavía.</p>
+        <button mat-stroked-button color="primary" (click)="goNuevoPremio()">
+          <mat-icon>add</mat-icon>
+          Crear primer premio
+        </button>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+</div>
