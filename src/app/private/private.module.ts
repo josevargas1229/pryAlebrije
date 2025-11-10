@@ -49,6 +49,8 @@ import { AuditLogsComponent } from './components/audit-logs/audit-logs.component
 import { ClientGrowComponent } from './client-grow/client-grow.component';
 import { EmpleadosModule } from './empleados/empleados.module';
 import { RuletasModule } from './ruletas/ruletas.module';
+import { MatFormField } from '@angular/material/form-field';
+import { ReportesGamificacionComponent } from './reportes-gamificacion/reportes-gamificacion.component';
 @NgModule({
   declarations: [
     DashboardComponent,
@@ -64,7 +66,8 @@ import { RuletasModule } from './ruletas/ruletas.module';
     CompanySettingsComponent,
     LegalSettingsComponent,
     AuditLogsComponent,
-    ClientGrowComponent
+    ClientGrowComponent,
+    ReportesGamificacionComponent
   ],
   imports: [
     CommonModule,
@@ -94,6 +97,7 @@ import { RuletasModule } from './ruletas/ruletas.module';
     MatDialogActions,
     MatDialogClose,
     MatTooltipModule,
+    MatFormField,
     AngularToastifyModule,
     MatCheckboxModule,
     MatSelectModule,
