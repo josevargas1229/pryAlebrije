@@ -18,6 +18,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatCardModule } from '@angular/material/card';   // 👈 FALTA ESTE
 
 describe('PremiosComponent', () => {
   let component: PremiosComponent;
@@ -42,7 +43,6 @@ describe('PremiosComponent', () => {
         HttpClientTestingModule,
         MatDialogModule,
         BrowserAnimationsModule,
-        // Material usado en el template
         MatIconModule,
         MatTableModule,
         MatButtonModule,
@@ -50,6 +50,7 @@ describe('PremiosComponent', () => {
         MatSlideToggleModule,
         MatTooltipModule,
         MatProgressSpinnerModule,
+        MatCardModule,      // 👈 IMPORTA MAT-CARD
       ],
       providers: [
         { provide: PremioService, useValue: premioServiceMock },
