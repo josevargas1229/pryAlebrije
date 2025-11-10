@@ -1,0 +1,104 @@
+<div class="container">
+  <div class="header">
+    <h1>Dashboard de gamificación</h1>
+
+    <div class="filters">
+      <mat-form-field appearance="outline">
+        <mat-label>Desde</mat-label>
+        <input matInput type="date" [(ngModel)]="from" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Hasta</mat-label>
+        <input matInput type="date" [(ngModel)]="to" />
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" (click)="applyFilter()">
+        <mat-icon>filter_alt</mat-icon>
+        Aplicar
+      </button>
+
+      <button mat-stroked-button color="primary" (click)="resetFilter()">
+        <mat-icon>refresh</mat-icon>
+        Reset
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+  </div>
+
+  <div *ngIf="!loading && data">
+
+    <!-- Tarjetas resumen -->
+    <div class="summary-cards">
+      <mat-card class="summary-card">
+        <mat-card-title>
+          <mat-icon>casino</mat-icon>
+          Giros totales
+        </mat-card-title>
+        <mat-card-content>
+          <div class="summary-value">{{ totalGiros }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card">
+        <mat-card-title>
+          <mat-icon>card_giftcard</mat-icon>
+          Cupones usados
+        </mat-card-title>
+        <mat-card-content>
+          <div class="summary-value">{{ totalCuponesUsados }}</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="charts-grid">
+
+     <mat-card class="chart-card">
+  <mat-card-title>Giros totales acumulados</mat-card-title>
+  <mat-card-content>
+    <div class="chart-wrapper">
+      <canvas #acumuladoChart></canvas>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+
+      <mat-card class="chart-card">
+        <mat-card-title>Giros por día</mat-card-title>
+        <mat-card-content>
+          <div class="chart-wrapper">
+            <canvas #girosChart></canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="chart-card">
+        <mat-card-title>Premios más entregados</mat-card-title>
+        <mat-card-content>
+          <div class="chart-wrapper">
+            <canvas #premiosChart></canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="chart-card">
+        <mat-card-title>Cupones usados por día</mat-card-title>
+        <mat-card-content>
+          <div class="chart-wrapper">
+            <canvas #cuponesChart></canvas>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+
+    </div>
+  </div>
+
+  <div *ngIf="error" class="error">
+    {{ error }}
+  </div>
+</div>
