@@ -10,6 +10,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { NgChartsModule } from 'ng2-charts';
+import { MatFormField } from '@angular/material/select';
 
 describe('ReportesGamificacionComponent', () => {
   let component: ReportesGamificacionComponent;
@@ -29,7 +30,8 @@ describe('ReportesGamificacionComponent', () => {
         MatTableModule,
         MatButtonModule,
         MatProgressSpinnerModule,
-        NgChartsModule, // si tu template usa <canvas baseChart>
+        NgChartsModule,
+        MatFormField
       ],
     }).compileComponents();
 
