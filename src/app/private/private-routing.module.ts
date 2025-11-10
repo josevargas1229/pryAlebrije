@@ -33,7 +33,11 @@ const routes: Routes = [
         loadChildren: () => import('./ruletas/ruletas.module').then(m => m.RuletasModule),
         data: { Breadcrumb: "Ruletas" }
       },
-
+     {
+  path: 'premios',
+  loadChildren: () => import('./premios/premios.module').then(m => m.PremiosModule),
+  data: { Breadcrumb: "Premios" }
+},
     ]
   },
   { path: 'calculadora', component: ClientGrowComponent, data: { Breadcrumb: "Calculadora" } },

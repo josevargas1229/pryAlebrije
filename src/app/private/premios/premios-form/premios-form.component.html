@@ -1,0 +1,82 @@
+<div class="container">
+  <mat-card class="form-card">
+    <div class="form-header">
+      <mat-icon>card_giftcard</mat-icon>
+      <div>
+        <h2>{{ premioId ? 'Editar premio' : 'Nuevo premio' }}</h2>
+        <p class="helper-text">
+          Define el nombre, descuento y condiciones del premio que se usará en las ruletas.
+        </p>
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <!-- Nombre -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="nombre" />
+        <mat-error *ngIf="form.get('nombre')?.hasError('required')">
+          Nombre requerido.
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Descripción -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Descripción</mat-label>
+        <textarea matInput formControlName="descripcion" rows="3"></textarea>
+      </mat-form-field>
+
+      <!-- Vigencia -->
+      <div class="row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Días de vigencia</mat-label>
+          <input matInput type="number" formControlName="dias_vigencia" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Vence el</mat-label>
+          <input matInput type="date" formControlName="vence_el" />
+        </mat-form-field>
+      </div>
+
+      <!-- Montos -->
+      <div class="row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Cantidad a descontar</mat-label>
+          <input matInput type="number" formControlName="cantidad_a_descontar" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Cantidad mínima</mat-label>
+          <input matInput type="number" formControlName="cantidad_minima" />
+        </mat-form-field>
+      </div>
+
+      <!-- Flags -->
+      <div class="flags-row">
+        <mat-checkbox formControlName="requiere_cupon">
+          Requiere cupón
+        </mat-checkbox>
+
+        <mat-checkbox formControlName="activo">
+          Activo
+        </mat-checkbox>
+      </div>
+
+      <div *ngIf="error" class="error">{{ error }}</div>
+
+      <div class="actions">
+        <button mat-button type="button" (click)="cancel()">
+          <mat-icon>close</mat-icon>
+          Cancelar
+        </button>
+
+        <button mat-raised-button color="primary" type="submit"
+                [disabled]="form.invalid || loading">
+          <mat-icon>save</mat-icon>
+          Guardar
+        </button>
+      </div>
+    </form>
+  </mat-card>
+</div>

@@ -1,0 +1,56 @@
+<div class="dialog-container">
+  <h2 mat-dialog-title>
+    <mat-icon>pie_chart</mat-icon>
+    {{ data.title }}
+  </h2>
+
+  <mat-dialog-content>
+    <form class="ruleta-form">
+
+      <div class="form-section">
+        <div class="section-header">
+          <mat-icon>card_giftcard</mat-icon>
+          <h3>Datos del premio</h3>
+        </div>
+
+        <p class="helper-text">
+          Selecciona el premio que aparecerá en la ruleta y define su probabilidad de salida.
+        </p>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Premio</mat-label>
+          <mat-select [(ngModel)]="premio_id" name="premioId" [disabled]="!!data.segmento">
+            <mat-option *ngFor="let p of data.premios" [value]="p.id">
+              {{ p.nombre }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Probabilidad (%)</mat-label>
+          <input matInput type="number"
+                 [(ngModel)]="probabilidad_pct"
+                 name="probabilidad"
+                 min="0" max="100" />
+        </mat-form-field>
+
+        <mat-checkbox [(ngModel)]="activo" name="activo">
+          <span class="toggle-label">Activo</span>
+        </mat-checkbox>
+
+        <div *ngIf="error" class="error">{{ error }}</div>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancelar()">
+      <mat-icon>close</mat-icon>
+      Cancelar
+    </button>
+    <button mat-raised-button color="primary" (click)="guardar()">
+      <mat-icon>save</mat-icon>
+      Guardar
+    </button>
+  </mat-dialog-actions>
+</div>
