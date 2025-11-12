@@ -13,8 +13,6 @@ export class PoliticasPrivacidadComponent implements OnInit, AfterViewInit {
   // Fallback embebido por si el storage viene vacío
   private readonly FALLBACK_HTML = `
   <div class="politicas-privacidad fade-in">
-  <h1>Políticas de Privacidad</h1>
-
   <table border="0" style="text-align:left;color:#000000;font-family:Arial,Helvetica,sans-serif;font-weight:lighter;font-size:20px;width:100%;margin-left:10%;padding:0;margin:0;border:none;border-collapse:collapse;" align="center">
     <tr>
       <td style="text-align:center;color:#000000;font-family:Arial,Helvetica,sans-serif;font-weight:bold;font-size:20px;">

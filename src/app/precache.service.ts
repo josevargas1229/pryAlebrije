@@ -180,11 +180,6 @@ private readonly TERMINOS_HTML = `
   <h1>Términos y Condiciones</h1>
 
   <table border="0" style="text-align:left;color:#000000;font-family:Arial,Helvetica,sans-serif;font-weight:lighter;font-size:20px;width:100%;margin-left:10%;padding:0;margin:0;border:none;border-collapse:collapse;" align="center">
-    <tr>
-      <td style="text-align:center;color:#000000;font-family:Arial,Helvetica,sans-serif;font-weight:bold;font-size:20px;">
-        TÉRMINOS Y CONDICIONES DE USO
-      </td>
-    </tr>
     <tr><td>&nbsp;</td></tr>
   </table>
 

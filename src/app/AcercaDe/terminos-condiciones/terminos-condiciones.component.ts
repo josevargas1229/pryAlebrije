@@ -12,7 +12,6 @@ export class TerminosCondicionesComponent implements OnInit, AfterViewInit {
 
   private readonly FALLBACK_HTML = `
   <div class="terminos-condiciones fade-in">
-  <h1>Términos y Condiciones</h1>
 
   <table border="0" style="text-align:left;color:#000000;font-family:Arial,Helvetica,sans-serif;font-weight:lighter;font-size:20px;width:100%;margin-left:10%;padding:0;margin:0;border:none;border-collapse:collapse;" align="center">
     <tr>
