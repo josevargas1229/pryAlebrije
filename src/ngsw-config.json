@@ -47,9 +47,6 @@
       "urls": [
         "https://alebrije.onrender.com/menu-catalogo/productos*",
         "https://alebrije.onrender.com/menu-catalogo/productos/producto-detalle/*",
-        "https://alebrije.onrender.com/terminos-condiciones",
-        "https://alebrije.onrender.com/aviso-privacidad",
-        "https://alebrije.onrender.com/deslinde-legal",
         "https://alebrije.onrender.com/contacto"
       ],
       "cacheConfig": {
