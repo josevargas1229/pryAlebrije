@@ -420,7 +420,7 @@ private readonly TERMINOS_HTML = `
     return forkJoin({
       productosTop10: productosTop10$,
       detallesTop10: detallesTop10$,
-      staticDocs$: staticDocs$,
+      staticDocs: staticDocs$,
       contacto: contacto$
     });
   }
@@ -479,18 +479,6 @@ private readonly TERMINOS_HTML = `
   getCachedDetallesTop10(): DetalleProductoCache[] {
     const raw = localStorage.getItem('pwa.cache.productosDetallesTop10');
     return raw ? JSON.parse(raw) : [];
-  }
-
-  getCachedTerminos(): string | null {
-    return localStorage.getItem('pwa.cache.terminos');
-  }
-
-  getCachedAviso(): string | null {
-    return localStorage.getItem('pwa.cache.aviso');
-  }
-
-  getCachedDeslinde(): string | null {
-    return localStorage.getItem('pwa.cache.deslinde');
   }
 
   getCachedContacto(): string | null {

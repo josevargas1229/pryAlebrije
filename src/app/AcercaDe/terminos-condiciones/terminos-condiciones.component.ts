@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 
 @Component({
   selector: 'app-terminos-condiciones',
@@ -6,7 +6,7 @@ import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
   templateUrl: './terminos-condiciones.component.html',
   styleUrls: ['./terminos-condiciones.component.scss'],
 })
-export class TerminosCondicionesComponent implements OnInit {
+export class TerminosCondicionesComponent implements OnInit, AfterViewInit {
   @ViewChild('content', { static: false }) content!: ElementRef;
   documentHTML = '';
 
@@ -182,4 +182,5 @@ export class TerminosCondicionesComponent implements OnInit {
       ? fromStorage
       : this.FALLBACK_HTML;
   }
+   ngAfterViewInit() { queueMicrotask(() => this.content?.nativeElement.classList.add('show')); }
 }

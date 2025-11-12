@@ -1,11 +1,12 @@
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 
 @Component({
   selector: 'app-politicas-privacidad',
+  standalone: true,
   templateUrl: './politicas-privacidad.component.html',
   styleUrls: ['./politicas-privacidad.component.scss'],
 })
-export class PoliticasPrivacidadComponent implements OnInit {
+export class PoliticasPrivacidadComponent implements OnInit, AfterViewInit {
   @ViewChild('content', { static: false }) content!: ElementRef;
   documentHTML = '';
 
@@ -163,4 +164,5 @@ export class PoliticasPrivacidadComponent implements OnInit {
       ? fromStorage
       : this.FALLBACK_HTML;
   }
+   ngAfterViewInit() { queueMicrotask(() => this.content?.nativeElement.classList.add('show')); }
 }
