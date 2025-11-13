@@ -75,16 +75,28 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.productoId = +id;
-        // Determinar si estamos en la ruta de previsualización
-        this.esPrevisualizacion = this.router.url.includes('/preview');
-        this.obtenerProductoDetalle(this.productoId);
-        this.obtenerProductosRelacionados(this.productoId);
-        this.obtenerCalificacionProducto();
-      }
-    });
+  const id = params.get('id');
+  if (id) {
+    this.productoId = +id;
+    // Determinar si estamos en la ruta de previsualización
+    this.esPrevisualizacion = this.router.url.includes('/preview');
+
+    this.obtenerProductoDetalle(this.productoId);
+
+    // Solo pedir cosas “extra” si hay conexión
+    if (navigator.onLine) {
+      this.obtenerProductosRelacionados(this.productoId);
+      this.obtenerCalificacionProducto();
+    } else {
+      // Valores neutros para que la UI no truene
+      this.calificacionPromedio = 0;
+      this.totalCalificaciones = 0;
+      this.estrellasArray = Array(5).fill(0);
+      this.ranking = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    }
+  }
+});
+
 
     this.authService.checkAuthStatus().then(user => {
       if (user) {
@@ -102,22 +114,28 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   }
 
   verificarSiYaCalifico(): void {
-    if (this.usuario && this.usuario.userId) {
-      this.calificacionService.verificarCalificacionUsuario(this.productoId, this.usuario.userId)
-        .subscribe({
-          next: (response: any) => {
-            if (response.yaCalifico) {
-              this.yaCalifico = true;
-              this.calificacionPromedio = response.calificacion;
-              this.estrellasArray = Array(5).fill(0).map((_, index) => index < response.calificacion ? 1 : 0);
-            }
-          },
-          error: (error) => {
-            console.error('Error al verificar si ya calificó:', error);
-          }
-        });
-    }
+  // Si no hay red, no intentes ir al backend
+  if (!navigator.onLine) {
+    return;
   }
+
+  if (this.usuario && this.usuario.userId) {
+    this.calificacionService.verificarCalificacionUsuario(this.productoId, this.usuario.userId)
+      .subscribe({
+        next: (response: any) => {
+          if (response.yaCalifico) {
+            this.yaCalifico = true;
+            this.calificacionPromedio = response.calificacion;
+            this.estrellasArray = Array(5).fill(0).map((_, index) => index < response.calificacion ? 1 : 0);
+          }
+        },
+        error: (error) => {
+          console.error('Error al verificar si ya calificó:', error);
+        }
+      });
+  }
+}
+
 
   ngAfterViewInit(): void {
     const observer = new IntersectionObserver(
@@ -347,14 +365,34 @@ irADetalleProducto(productoId: number): void {
   }
 
   obtenerCalificacionProducto(): void {
-    this.calificacionService.getCalificacionProducto(this.productoId).subscribe(response => {
-      this.calificacionPromedio = response.promedio;
-      this.totalCalificaciones = response.total;
-      this.calcularRanking(response.detalle); // Siempre se calcula el ranking
-    }, error => {
-      console.error('Error al obtener calificación del producto:', error);
-    });
+  // Si no hay conexión, no dispares la llamada
+  if (!navigator.onLine) {
+    this.calificacionPromedio = 0;
+    this.totalCalificaciones = 0;
+    this.estrellasArray = Array(5).fill(0);
+    this.ranking = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    return;
   }
+
+  this.calificacionService.getCalificacionProducto(this.productoId)
+    .subscribe({
+      next: (response) => {
+        this.calificacionPromedio = response.promedio || 0;
+        this.totalCalificaciones = response.total || 0;
+        this.estrellasArray = Array(5).fill(0).map((_, i) => i < this.calificacionPromedio ? 1 : 0);
+        this.calcularRanking(response.detalle || []);
+      },
+      error: (error) => {
+        console.error('Error al obtener calificación del producto:', error);
+        // Valores neutros para que la vista siga funcionando
+        this.calificacionPromedio = 0;
+        this.totalCalificaciones = 0;
+        this.estrellasArray = Array(5).fill(0);
+        this.ranking = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+      }
+    });
+}
+
 
 
 
