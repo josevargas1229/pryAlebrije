@@ -55,29 +55,6 @@
         "maxAge": "7d",
         "timeout": "2s"
       }
-    },
-    {
-      "name": "api-default",
-      "urls": [
-        "https://alebrije.onrender.com/**"
-      ],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxAge": "1d",
-        "timeout": "3s"
-      }
-    },
-    {
-      "name": "api-recommender",
-      "urls": [
-        "https://proyectom3.onrender.com/**"
-      ],
-      "cacheConfig": {
-        "strategy": "freshness",
-        "maxSize": 30,
-        "maxAge": "12h",
-        "timeout": "3s"
-      }
     }
   ],
   "navigationUrls": [
