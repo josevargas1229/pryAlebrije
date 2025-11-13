@@ -14,6 +14,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { CalificacionService } from '../../services/califica/calificacion.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { RecomendacionService, Recomendacion } from '../../services/recomendacion/recomendacion.service';
+import { PrecacheService, DetalleProductoCache } from '../../precache.service';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 @Component({
@@ -70,48 +71,51 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
     private calificacionService: CalificacionService,
     private readonly router: Router,
     private recomendacionService: RecomendacionService,
-    private authService: AuthService
+    private authService: AuthService,
+    private precacheService: PrecacheService
   ) { }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-  const id = params.get('id');
-  if (id) {
-    this.productoId = +id;
-    // Determinar si estamos en la ruta de previsualización
-    this.esPrevisualizacion = this.router.url.includes('/preview');
+  this.route.paramMap.subscribe(params => {
+    const id = params.get('id');
+    if (id) {
+      this.productoId = +id;
+      // Determinar si estamos en la ruta de previsualización
+      this.esPrevisualizacion = this.router.url.includes('/preview');
 
-    this.obtenerProductoDetalle(this.productoId);
-
-    // Solo pedir cosas “extra” si hay conexión
-    if (navigator.onLine) {
-      this.obtenerProductosRelacionados(this.productoId);
-      this.obtenerCalificacionProducto();
-    } else {
-      // Valores neutros para que la UI no truene
-      this.calificacionPromedio = 0;
-      this.totalCalificaciones = 0;
-      this.estrellasArray = Array(5).fill(0);
-      this.ranking = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    }
-  }
-});
-
-
-    this.authService.checkAuthStatus().then(user => {
-      if (user) {
-        console.log("Usuario autenticado:", user);
-        this.usuario = user;
-        this.verificarSiYaCalifico();
+      if (navigator.onLine) {
+        // ONLINE → flujo normal
+        this.obtenerProductoDetalle(this.productoId);
+        this.obtenerProductosRelacionados(this.productoId);
+        this.obtenerCalificacionProducto();
       } else {
-        console.warn("No se encontró un usuario autenticado.");
-        this.usuario = null;
-      }
-    }).catch(error => {
-      console.error("Error al obtener usuario:", error);
-    });
+        // OFFLINE → NO llamar API, usar cache
+        this.cargarProductoDesdeCache(this.productoId);
 
-  }
+        // Dejar calificaciones y relacionados en estado neutro
+        this.calificacionPromedio = 0;
+        this.totalCalificaciones = 0;
+        this.estrellasArray = Array(5).fill(0);
+        this.ranking = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+        this.productosRelacionados = [];
+      }
+    }
+  });
+
+  this.authService.checkAuthStatus().then(user => {
+    if (user) {
+      console.log("Usuario autenticado:", user);
+      this.usuario = user;
+      this.verificarSiYaCalifico();
+    } else {
+      console.warn("No se encontró un usuario autenticado.");
+      this.usuario = null;
+    }
+  }).catch(error => {
+    console.error("Error al obtener usuario:", error);
+  });
+}
+
 
   verificarSiYaCalifico(): void {
   // Si no hay red, no intentes ir al backend
@@ -156,23 +160,104 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
   }
 
   obtenerProductoDetalle(id: number): void {
-  this.productoService.getProductoById(id).subscribe(response => {
-    this.producto = response.producto;
+  this.productoService.getProductoById(id).subscribe({
+    next: (response) => {
+      this.producto = response.producto;
 
-    const tienePromocion = this.producto.promocion !== null && this.producto.promocion?.descuento > 0;
-    const precioFinal = tienePromocion
-      ? this.producto.precio * (1 - this.producto.promocion.descuento / 100)
-      : this.producto.precio;
+      const tienePromocion = this.producto.promocion !== null && this.producto.promocion?.descuento > 0;
+      const precioFinal = tienePromocion
+        ? this.producto.precio * (1 - this.producto.promocion.descuento / 100)
+        : this.producto.precio;
 
-    this.producto.tienePromocion = tienePromocion;
-    this.producto.precioFinal = precioFinal;
+      this.producto.tienePromocion = tienePromocion;
+      this.producto.precioFinal = precioFinal;
 
-    console.log('Producto obtenido:', this.producto);
-    this.inicializarDatos();
-  }, error => {
-    console.error('Error al obtener detalles del producto:', error);
+      // OPCIONAL: si tu backend ya trae imagenPrincipal, úsala
+      if (this.producto.imagenPrincipal) {
+        this.imagenPrincipal = this.producto.imagenPrincipal;
+      }
+
+      // GUARDAR UNA VERSIÓN CACHEADA MÍNIMA PARA MODO OFFLINE
+      try {
+        const cache: DetalleProductoCache = {
+          id: this.producto.id,
+          tipoProducto: this.producto.tipo?.nombre || 'Tipo desconocido',
+          marca: this.producto.marca?.nombre || 'Marca desconocida',
+          categoria: this.producto.categoria?.nombre || 'Categoría desconocida',
+          talla: 'Sin talla',
+          color: 'Color desconocido',
+          precio: this.producto.precio,
+          imagen: this.producto.imagenPrincipal || 'assets/images/ropa.jpg',
+          stock: 0,
+          talla_id: null,
+          color_id: null
+        };
+
+        // Reutilizamos el mismo key pattern que PrecacheService
+        localStorage.setItem(
+          `pwa.cache.producto.${this.producto.id}`,
+          JSON.stringify(cache)
+        );
+      } catch (e) {
+        console.warn('No se pudo cachear el producto en localStorage', e);
+      }
+
+      console.log('Producto obtenido:', this.producto);
+      this.inicializarDatos();
+    },
+    error: (error) => {
+      console.error('Error al obtener detalles del producto:', error);
+    }
   });
 }
+
+private cargarProductoDesdeCache(id: number): void {
+  // Intentar leer el detalle simplificado de PrecacheService
+  const cache = this.precacheService.getCachedDetalleById(id)
+    || this.leerCacheLocalProducto(id); // fallback si hace falta
+
+  if (!cache) {
+    console.warn('Sin conexión y sin producto cacheado para id', id);
+    return;
+  }
+
+  // Construimos un objeto producto mínimo para que la plantilla no truene
+  this.producto = {
+    id: cache.id,
+    tipo: { nombre: cache.tipoProducto },
+    marca: { nombre: cache.marca },
+    categoria: { nombre: cache.categoria },
+    precio: cache.precio,
+    promocion: null,
+    tallasColoresStock: [],
+    imagenPrincipal: cache.imagen,
+    tienePromocion: false,
+    precioFinal: cache.precio
+  };
+
+  this.imagenPrincipal = cache.imagen || 'assets/images/ropa.jpg';
+  this.imagenesActuales = [{ url: this.imagenPrincipal }];
+
+  // No habrá tallas/colores offline, así que dejamos arrays vacíos
+  this.coloresUnicos = [];
+  this.tallasUnicas = [];
+
+  // inicializarDatos no hace nada peligroso si tallasColoresStock está vacío
+  this.inicializarDatos();
+}
+
+// Fallback a lo que guardaste manualmente en localStorage dentro de obtenerProductoDetalle
+private leerCacheLocalProducto(id: number): DetalleProductoCache | null {
+  const raw = localStorage.getItem(`pwa.cache.producto.${id}`);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as DetalleProductoCache;
+  } catch {
+    return null;
+  }
+}
+
+
 
 obtenerProductosRelacionados(productId: number): void {
   this.recomendacionService.obtenerRelacionados(productId, 8).subscribe({
