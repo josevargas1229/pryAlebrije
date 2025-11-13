@@ -342,7 +342,7 @@ private readonly TERMINOS_HTML = `
     const productosTop10$ = this.http
       .get<ProductoLista[]>(`${this.API_BASE}/menu-catalogo/productos`)
       .pipe(
-        map(items => items.slice(0, 10)),
+        map(items => items.slice(0, 70)),
         tap(items => {
           localStorage.setItem(
             'pwa.cache.productosTop10',

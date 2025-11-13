@@ -212,18 +212,17 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
 }
 
 private cargarProductoDesdeCache(id: number): void {
-  // Intentar leer el detalle simplificado de PrecacheService
-  const cache = this.precacheService.getCachedDetalleById(id)
-    || this.leerCacheLocalProducto(id); // fallback si hace falta
+  const cache = this.leerCacheLocalProducto(id);
 
   if (!cache) {
     console.warn('Sin conexión y sin producto cacheado para id', id);
     return;
   }
 
-  // Construimos un objeto producto mínimo para que la plantilla no truene
   this.producto = {
     id: cache.id,
+    // si no guardas nombre en el cache, puedes poner un fallback
+    nombre: (cache as any).nombre || 'Producto offline',
     tipo: { nombre: cache.tipoProducto },
     marca: { nombre: cache.marca },
     categoria: { nombre: cache.categoria },
@@ -237,14 +236,11 @@ private cargarProductoDesdeCache(id: number): void {
 
   this.imagenPrincipal = cache.imagen || 'assets/images/ropa.jpg';
   this.imagenesActuales = [{ url: this.imagenPrincipal }];
-
-  // No habrá tallas/colores offline, así que dejamos arrays vacíos
   this.coloresUnicos = [];
   this.tallasUnicas = [];
-
-  // inicializarDatos no hace nada peligroso si tallasColoresStock está vacío
   this.inicializarDatos();
 }
+
 
 // Fallback a lo que guardaste manualmente en localStorage dentro de obtenerProductoDetalle
 private leerCacheLocalProducto(id: number): DetalleProductoCache | null {
