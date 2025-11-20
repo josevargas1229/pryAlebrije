@@ -341,34 +341,39 @@ private readonly TERMINOS_HTML = `
 
   preloadCriticalData() {
   // 1) PRECARGA LISTA TOP 12
-  const productosTop12$ = this.http
-    .get<any>(`${this.API_BASE}/menu-catalogo/productos`)
-    .pipe(
-      map(resp => {
-        // Soportar ambas formas de respuesta: array directo o { productos: [...] }
-        const lista = Array.isArray(resp)
-          ? resp
-          : Array.isArray(resp?.productos)
-            ? resp.productos
-            : [];
+const productosTop12$ = this.http
+  .get<{ productos: any[]; totalItems: number }>(
+    `${this.API_BASE}/menu-catalogo/productos`,
+    {
+      // Usa los mismos parámetros que en ProductoService.getAllProductos
+      params: {
+        page: 1,
+        pageSize: 12,
+        estado: 'true'
+      }
+    }
+  )
+  .pipe(
+    map(resp => {
+      const lista = resp?.productos || [];
+      console.log('[PRECACHE] productos recibidos:', lista.length);
+      const top12 = lista.slice(0, 12);
+      console.log('[PRECACHE] guardando en cache', top12.length, 'productos');
+      return top12;
+    }),
+    tap(top12 => {
+      localStorage.setItem(
+        'pwa.cache.productosTop10',
+        JSON.stringify(top12)
+      );
+      console.log('[PRECACHE] pwa.cache.productosTop10 guardado');
+    }),
+    catchError(err => {
+      console.error('Error precargando lista de productos', err);
+      return of([] as any[]);
+    })
+  );
 
-        const top12 = lista.slice(0, 12);
-        console.log('[PRECACHE] productos recibidos:', lista.length, ' – guardando:', top12.length);
-        return top12;
-      }),
-      tap(top12 => {
-        // Guardamos los 12 productos COMPLETOS
-        localStorage.setItem(
-          'pwa.cache.productosTop10',
-          JSON.stringify(top12)
-        );
-        console.log('[PRECACHE] pwa.cache.productosTop10 guardado');
-      }),
-      catchError(err => {
-        console.error('Error precargando lista de productos', err);
-        return of([] as any[]);
-      })
-    );
 
   // 2) PRECARGA DETALLES DE ESOS 12
   const detallesTop12$ = productosTop12$.pipe(
