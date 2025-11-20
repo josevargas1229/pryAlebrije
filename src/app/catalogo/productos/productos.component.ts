@@ -239,15 +239,6 @@ export class ProductosComponent implements OnInit, AfterViewInit {
     this.productoService.getAllProductos(params).subscribe({
       next: (response) => {
         const nuevosProductos = this.mapearProductos(response.productos);
-
-        // GUARDAR TOP 10 DE LA PRIMERA PÁGINA EN LOCALSTORAGE
-        if (this.currentPage === 1) {
-          const top10 = nuevosProductos.slice(0, 10);
-          localStorage.setItem(
-            'pwa.cache.productosTop10',
-            JSON.stringify(top10)
-          );
-        }
         this.productos = [...this.productos, ...nuevosProductos];
         this.filteredProductos = [...this.productos];
         this.totalItems = response.totalItems || this.productos.length;
