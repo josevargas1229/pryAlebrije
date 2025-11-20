@@ -340,89 +340,104 @@ private readonly TERMINOS_HTML = `
 `;
 
   preloadCriticalData() {
-    const productosTop12$ = this.http
-  .get<any[]>(`${this.API_BASE}/menu-catalogo/productos`)
-  .pipe(
-    // Tomamos solo los primeros 12 productos
-    map(items => (items || []).slice(0, 12)),
-    tap(productos => {
-      // Guardamos los 12 productos COMPLETOS tal como vienen del backend
-      localStorage.setItem(
-        'pwa.cache.productosTop10',
-        JSON.stringify(productos)
+  // 1) PRECARGA LISTA TOP 12
+  const productosTop12$ = this.http
+    .get<any>(`${this.API_BASE}/menu-catalogo/productos`)
+    .pipe(
+      map(resp => {
+        // Soportar ambas formas de respuesta: array directo o { productos: [...] }
+        const lista = Array.isArray(resp)
+          ? resp
+          : Array.isArray(resp?.productos)
+            ? resp.productos
+            : [];
+
+        const top12 = lista.slice(0, 12);
+        console.log('[PRECACHE] productos recibidos:', lista.length, ' – guardando:', top12.length);
+        return top12;
+      }),
+      tap(top12 => {
+        // Guardamos los 12 productos COMPLETOS
+        localStorage.setItem(
+          'pwa.cache.productosTop10',
+          JSON.stringify(top12)
+        );
+        console.log('[PRECACHE] pwa.cache.productosTop10 guardado');
+      }),
+      catchError(err => {
+        console.error('Error precargando lista de productos', err);
+        return of([] as any[]);
+      })
+    );
+
+  // 2) PRECARGA DETALLES DE ESOS 12
+  const detallesTop12$ = productosTop12$.pipe(
+    switchMap((productos: any[]) => {
+      if (!productos.length) {
+        console.warn('[PRECACHE] Ningún producto para precargar detalles');
+        return of([] as DetalleProductoCache[]);
+      }
+
+      const detailRequests = productos.map(p =>
+        this.http
+          .get<any>(
+            `${this.API_BASE}/menu-catalogo/productos/producto-detalle/${p.id}`
+          )
+          .pipe(
+            map(prod => this.mapDetalleProducto(prod)),
+            catchError(err => {
+              console.error('Error precargando detalle de producto', p.id, err);
+              return of(null as DetalleProductoCache | null);
+            })
+          )
       );
-    }),
-    catchError(err => {
-      console.error('Error precargando lista de productos', err);
-      return of([] as any[]);
+
+      return forkJoin(detailRequests).pipe(
+        map(detalles =>
+          detalles.filter(
+            (d): d is DetalleProductoCache => d !== null
+          )
+        ),
+        tap(detalles => {
+          localStorage.setItem(
+            'pwa.cache.productosDetallesTop10',
+            JSON.stringify(detalles)
+          );
+          console.log('[PRECACHE] pwa.cache.productosDetallesTop10 guardado con', detalles.length, 'elementos');
+        })
+      );
     })
   );
 
+  // 3) DOCUMENTOS ESTÁTICOS YA LOS TENÍAS
+  const staticDocs$ = of(true).pipe(
+    tap(() => {
+      localStorage.setItem('pwa.cache.avisoPrivacidadHTML', this.PRIVACIDAD_HTML);
+      localStorage.setItem('pwa.cache.terminosCondicionesHTML', this.TERMINOS_HTML);
+    })
+  );
 
-      const staticDocs$ = of(true).pipe(
-  tap(() => {
-    localStorage.setItem('pwa.cache.avisoPrivacidadHTML', this.PRIVACIDAD_HTML);
-    localStorage.setItem('pwa.cache.terminosCondicionesHTML', this.TERMINOS_HTML);
-  })
-);
-
-    //PRECARGAR DETALLES
-    const detallesTop12$ = productosTop12$.pipe(
-      switchMap(productos => {
-        if (!productos.length) return of([] as DetalleProductoCache[]);
-
-        const detailRequests = productos.map(p =>
-          this.http
-            .get<any>(
-              `${this.API_BASE}/menu-catalogo/productos/producto-detalle/${p.id}`
-            )
-            .pipe(
-              map(prod => this.mapDetalleProducto(prod)),
-              catchError(err => {
-                console.error(
-                  'Error precargando detalle de producto',
-                  p.id,
-                  err
-                );
-                return of(null as DetalleProductoCache | null);
-              })
-            )
-        );
-
-        return forkJoin(detailRequests).pipe(
-          map(detalles =>
-            detalles.filter(
-              (d): d is DetalleProductoCache => d !== null
-            )
-          ),
-          tap(detalles => {
-            localStorage.setItem(
-              'pwa.cache.productosDetallesTop10',
-              JSON.stringify(detalles)
-            );
-          })
-        );
+  const contacto$ = this.http
+    .get(`${this.API_BASE}/contacto`, { responseType: 'text' })
+    .pipe(
+      tap(html => {
+        localStorage.setItem('pwa.cache.contacto', html);
+      }),
+      catchError(err => {
+        console.error('Error precargando contacto', err);
+        return of(null);
       })
     );
-    const contacto$ = this.http
-      .get(`${this.API_BASE}/contacto`, { responseType: 'text' })
-      .pipe(
-        tap(html => {
-          localStorage.setItem('pwa.cache.contacto', html);
-        }),
-        catchError(err => {
-          console.error('Error precargando contacto', err);
-          return of(null);
-        })
-      );
 
-    return forkJoin({
-      productosTop10: productosTop12$,
-      detallesTop10: detallesTop12$,
-      staticDocs: staticDocs$,
-      contacto: contacto$
-    });
-  }
+  // 4) DEVOLVER TODO JUNTO PARA EL APP_INITIALIZER
+  return forkJoin({
+    productosTop12: productosTop12$,
+    detallesTop12: detallesTop12$,
+    staticDocs: staticDocs$,
+    contacto: contacto$
+  });
+}
+
 
 
   private mapDetalleProducto(producto: any): DetalleProductoCache {
