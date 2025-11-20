@@ -338,88 +338,110 @@ private readonly TERMINOS_HTML = `
 
 `;
 
-  preloadCriticalData() {
-    //LISTA DE PRODUCTOS
-    const productosTop10$ = this.http
-      .get<ProductoLista[]>(`${this.API_BASE}/menu-catalogo/productos`)
-      .pipe(
-         map(items => (items || []).slice(0, 12)),
-        tap(items => {
-          localStorage.setItem(
-            'pwa.cache.productosTop10',
-            JSON.stringify(items)
-          );
-        }),
-        catchError(err => {
-          console.error('Error precargando lista de productos', err);
-          return of([] as ProductoLista[]);
-        })
-      );
-
-      const staticDocs$ = of(true).pipe(
-  tap(() => {
-    localStorage.setItem('pwa.cache.avisoPrivacidadHTML', this.PRIVACIDAD_HTML);
-    localStorage.setItem('pwa.cache.terminosCondicionesHTML', this.TERMINOS_HTML);
-  })
-);
-
-    //PRECARGAR DETALLES
-    const detallesTop10$ = productosTop10$.pipe(
-      switchMap(productos => {
-        if (!productos.length) return of([] as DetalleProductoCache[]);
-
-        const detailRequests = productos.map(p =>
-          this.http
-            .get<any>(
-              `${this.API_BASE}/menu-catalogo/productos/producto-detalle/${p.id}`
-            )
-            .pipe(
-              map(prod => this.mapDetalleProducto(prod)),
-              catchError(err => {
-                console.error(
-                  'Error precargando detalle de producto',
-                  p.id,
-                  err
-                );
-                return of(null as DetalleProductoCache | null);
-              })
-            )
+precacheProductosTop12() {
+  return this.http
+    .get<{ productos: any[]; totalItems: number }>(
+      `${this.API_BASE}/menu-catalogo/productos`,
+      {
+        params: {
+          page: 1,
+          pageSize: 12,
+          estado: 'true'
+          // sin search: traerá los primeros 12 activos
+        }
+      }
+    )
+    .pipe(
+      map(resp => resp.productos || []),
+      tap(productos => {
+        localStorage.setItem(
+          'pwa.cache.productosTop10',
+          JSON.stringify(productos)
         );
-
-        return forkJoin(detailRequests).pipe(
-          map(detalles =>
-            detalles.filter(
-              (d): d is DetalleProductoCache => d !== null
-            )
-          ),
-          tap(detalles => {
-            localStorage.setItem(
-              'pwa.cache.productosDetallesTop10',
-              JSON.stringify(detalles)
-            );
-          })
+        console.log(
+          '[PRECACHE] Guardados',
+          productos.length,
+          'productos en pwa.cache.productosTop10'
         );
+      }),
+      catchError(err => {
+        console.error('[PRECACHE] Error precargando productos', err);
+        return of([] as any[]);
       })
     );
-    const contacto$ = this.http
-      .get(`${this.API_BASE}/contacto`, { responseType: 'text' })
-      .pipe(
-        tap(html => {
-          localStorage.setItem('pwa.cache.contacto', html);
-        }),
-        catchError(err => {
-          console.error('Error precargando contacto', err);
-          return of(null);
-        })
+}
+
+
+  preloadCriticalData() {
+  // LISTA DE PRODUCTOS (TOP 12) usando el método nuevo
+  const productosTop10$ = this.precacheProductosTop12();
+
+  const staticDocs$ = of(true).pipe(
+    tap(() => {
+      localStorage.setItem('pwa.cache.avisoPrivacidadHTML', this.PRIVACIDAD_HTML);
+      localStorage.setItem('pwa.cache.terminosCondicionesHTML', this.TERMINOS_HTML);
+    })
+  );
+
+  // PRECARGAR DETALLES
+  const detallesTop10$ = productosTop10$.pipe(
+    switchMap(productos => {
+      if (!productos.length) return of([] as DetalleProductoCache[]);
+
+      const detailRequests = productos.map(p =>
+        this.http
+          .get<any>(
+            `${this.API_BASE}/menu-catalogo/productos/producto-detalle/${p.id}`
+          )
+          .pipe(
+            map(prod => this.mapDetalleProducto(prod)),
+            catchError(err => {
+              console.error(
+                'Error precargando detalle de producto',
+                p.id,
+                err
+              );
+              return of(null as DetalleProductoCache | null);
+            })
+          )
       );
 
-    return forkJoin({
-      productosTop10: productosTop10$,
-      detallesTop10: detallesTop10$,
-      staticDocs: staticDocs$,
-      contacto: contacto$
-    });
-  }
+      return forkJoin(detailRequests).pipe(
+        map(detalles =>
+          detalles.filter(
+            (d): d is DetalleProductoCache => d !== null
+          )
+        ),
+        tap(detalles => {
+          localStorage.setItem(
+            'pwa.cache.productosDetallesTop10',
+            JSON.stringify(detalles)
+          );
+        })
+      );
+    })
+  );
+
+  const contacto$ = this.http
+    .get(`${this.API_BASE}/contacto`, { responseType: 'text' })
+    .pipe(
+      tap(html => {
+        localStorage.setItem('pwa.cache.contacto', html);
+      }),
+      catchError(err => {
+        console.error('Error precargando contacto', err);
+        return of(null);
+      })
+    );
+
+  return forkJoin({
+    productosTop10: productosTop10$,
+    detallesTop10: detallesTop10$,
+    staticDocs: staticDocs$,
+    contacto: contacto$
+  });
+}
+
 
 
   private mapDetalleProducto(producto: any): DetalleProductoCache {
