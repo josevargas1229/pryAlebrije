@@ -10,6 +10,7 @@ interface ProductoLista {
 
 export interface DetalleProductoCache {
   id: number;
+  nombre: string;
   tipoProducto: string;
   marca: string;
   categoria: string;
@@ -21,6 +22,7 @@ export interface DetalleProductoCache {
   talla_id: number | null;
   color_id: number | null;
 }
+
 
 @Injectable({ providedIn: 'root' })
 export class PrecacheService {
@@ -338,22 +340,24 @@ private readonly TERMINOS_HTML = `
 `;
 
   preloadCriticalData() {
-    //LISTA DE PRODUCTOS
-    const productosTop10$ = this.http
-      .get<ProductoLista[]>(`${this.API_BASE}/menu-catalogo/productos`)
-      .pipe(
-        map(items => items.slice(0, 10)),
-        tap(items => {
-          localStorage.setItem(
-            'pwa.cache.productosTop10',
-            JSON.stringify(items)
-          );
-        }),
-        catchError(err => {
-          console.error('Error precargando lista de productos', err);
-          return of([] as ProductoLista[]);
-        })
+    const productosTop12$ = this.http
+  .get<any[]>(`${this.API_BASE}/menu-catalogo/productos`)
+  .pipe(
+    // Tomamos solo los primeros 12 productos
+    map(items => (items || []).slice(0, 12)),
+    tap(productos => {
+      // Guardamos los 12 productos COMPLETOS tal como vienen del backend
+      localStorage.setItem(
+        'pwa.cache.productosTop10',
+        JSON.stringify(productos)
       );
+    }),
+    catchError(err => {
+      console.error('Error precargando lista de productos', err);
+      return of([] as any[]);
+    })
+  );
+
 
       const staticDocs$ = of(true).pipe(
   tap(() => {
@@ -363,7 +367,7 @@ private readonly TERMINOS_HTML = `
 );
 
     //PRECARGAR DETALLES
-    const detallesTop10$ = productosTop10$.pipe(
+    const detallesTop12$ = productosTop12$.pipe(
       switchMap(productos => {
         if (!productos.length) return of([] as DetalleProductoCache[]);
 
@@ -413,8 +417,8 @@ private readonly TERMINOS_HTML = `
       );
 
     return forkJoin({
-      productosTop10: productosTop10$,
-      detallesTop10: detallesTop10$,
+      productosTop10: productosTop12$,
+      detallesTop10: detallesTop12$,
       staticDocs: staticDocs$,
       contacto: contacto$
     });
@@ -451,25 +455,28 @@ private readonly TERMINOS_HTML = `
       null;
 
     return {
-      id: producto.id,
-      tipoProducto: producto.tipo?.nombre || 'Tipo desconocido',
-      marca: producto.marca?.nombre || 'Marca desconocida',
-      categoria: producto.categoria?.nombre || 'Categoría desconocida',
-      talla,
-      color,
-      precio: producto.precio,
-      imagen: producto.imagenPrincipal || 'assets/images/ropa.jpg',
-      stock: varianteConStock.stock ?? 0,
-      talla_id,
-      color_id
-    };
+  id: producto.id,
+  nombre: producto.nombre || 'Producto sin nombre',
+  tipoProducto: producto.tipo?.nombre || 'Tipo desconocido',
+  marca: producto.marca?.nombre || 'Marca desconocida',
+  categoria: producto.categoria?.nombre || 'Categoría desconocida',
+  talla,
+  color,
+  precio: producto.precio,
+  imagen: producto.imagenPrincipal || 'assets/images/ropa.jpg',
+  stock: varianteConStock.stock ?? 0,
+  talla_id,
+  color_id
+};
+
   }
 
 
-  getCachedProductosTop10(): ProductoLista[] {
-    const raw = localStorage.getItem('pwa.cache.productosTop10');
-    return raw ? JSON.parse(raw) : [];
-  }
+  getCachedProductosTop10(): any[] {
+  const raw = localStorage.getItem('pwa.cache.productosTop10');
+  return raw ? JSON.parse(raw) : [];
+}
+
 
   getCachedDetallesTop10(): DetalleProductoCache[] {
     const raw = localStorage.getItem('pwa.cache.productosDetallesTop10');

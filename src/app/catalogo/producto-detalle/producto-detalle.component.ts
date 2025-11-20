@@ -177,30 +177,30 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
         this.imagenPrincipal = this.producto.imagenPrincipal;
       }
 
-      // GUARDAR UNA VERSIÓN CACHEADA MÍNIMA PARA MODO OFFLINE
-      try {
-        const cache: DetalleProductoCache = {
-          id: this.producto.id,
-          tipoProducto: this.producto.tipo?.nombre || 'Tipo desconocido',
-          marca: this.producto.marca?.nombre || 'Marca desconocida',
-          categoria: this.producto.categoria?.nombre || 'Categoría desconocida',
-          talla: 'Sin talla',
-          color: 'Color desconocido',
-          precio: this.producto.precio,
-          imagen: this.producto.imagenPrincipal || 'assets/images/ropa.jpg',
-          stock: 0,
-          talla_id: null,
-          color_id: null
-        };
+     try {
+  const cache: DetalleProductoCache = {
+    id: this.producto.id,
+    nombre: this.producto.nombre || 'Producto sin nombre',
+    tipoProducto: this.producto.tipo?.nombre || 'Tipo desconocido',
+    marca: this.producto.marca?.nombre || 'Marca desconocida',
+    categoria: this.producto.categoria?.nombre || 'Categoría desconocida',
+    talla: 'Sin talla',
+    color: 'Color desconocido',
+    precio: this.producto.precio,
+    imagen: this.producto.imagenPrincipal || 'assets/images/ropa.jpg',
+    stock: 0,
+    talla_id: null,
+    color_id: null
+  };
 
-        // Reutilizamos el mismo key pattern que PrecacheService
-        localStorage.setItem(
-          `pwa.cache.producto.${this.producto.id}`,
-          JSON.stringify(cache)
-        );
-      } catch (e) {
-        console.warn('No se pudo cachear el producto en localStorage', e);
-      }
+  localStorage.setItem(
+    `pwa.cache.producto.${this.producto.id}`,
+    JSON.stringify(cache)
+  );
+} catch (e) {
+  console.warn('No se pudo cachear el producto en localStorage', e);
+}
+
 
       console.log('Producto obtenido:', this.producto);
       this.inicializarDatos();
@@ -212,7 +212,9 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
 }
 
 private cargarProductoDesdeCache(id: number): void {
-  const cache = this.leerCacheLocalProducto(id);
+  const cache =
+    this.precacheService.getCachedDetalleById(id) ??
+    this.leerCacheLocalProducto(id);
 
   if (!cache) {
     console.warn('Sin conexión y sin producto cacheado para id', id);
@@ -221,8 +223,7 @@ private cargarProductoDesdeCache(id: number): void {
 
   this.producto = {
     id: cache.id,
-    // si no guardas nombre en el cache, puedes poner un fallback
-    nombre: (cache as any).nombre || 'Producto offline',
+    nombre: cache.nombre || 'Producto offline',
     tipo: { nombre: cache.tipoProducto },
     marca: { nombre: cache.marca },
     categoria: { nombre: cache.categoria },
@@ -242,16 +243,19 @@ private cargarProductoDesdeCache(id: number): void {
 }
 
 
+
+
 // Fallback a lo que guardaste manualmente en localStorage dentro de obtenerProductoDetalle
-private leerCacheLocalProducto(id: number): DetalleProductoCache | null {
+private leerCacheLocalProducto(id: number): DetalleProductoCache | undefined {
   const raw = localStorage.getItem(`pwa.cache.producto.${id}`);
-  if (!raw) return null;
+  if (!raw) return undefined;
   try {
     return JSON.parse(raw) as DetalleProductoCache;
   } catch {
-    return null;
+    return undefined;
   }
 }
+
 
 
 

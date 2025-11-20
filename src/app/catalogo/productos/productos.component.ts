@@ -13,6 +13,7 @@ import { CartService } from '../../services/cart/cart.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { CalificacionService } from '../../services/califica/calificacion.service';
+import { PrecacheService } from '../../precache.service';
 
 @Component({
   selector: 'app-productos',
@@ -72,36 +73,37 @@ export class ProductosComponent implements OnInit, AfterViewInit {
     private cartService: CartService,
     private snackBar: MatSnackBar,
     private calificacionService: CalificacionService,
+    private precacheService: PrecacheService,
   ) { }
 
      ngOnInit(): void {
   this.obtenerFiltros();
 
   if (!navigator.onLine) {
-    // OFFLINE: intentar cargar productos desde localStorage
-    const raw = localStorage.getItem('pwa.cache.productosTop10');
+  // OFFLINE: cargar productos desde el precache
+  const productosCacheados = this.precacheService.getCachedProductosTop10();
 
-    if (raw) {
-      const productosCacheados = JSON.parse(raw);
-      const productosMapeados = this.mapearProductos(productosCacheados);
+  if (productosCacheados.length) {
+    const productosMapeados = this.mapearProductos(productosCacheados);
 
-      this.productos = [...productosMapeados];
-      this.filteredProductos = [...productosMapeados];
-      this.totalItems = productosMapeados.length;
-      this.hasMore = false;
-      this.isLoading = false;
-    } else {
-      // Offline y sin cache: no hay nada que mostrar
-      this.productos = [];
-      this.filteredProductos = [];
-      this.totalItems = 0;
-      this.hasMore = false;
-      this.isLoading = false;
-    }
+    this.productos = [...productosMapeados];
+    this.filteredProductos = [...productosMapeados];
+    this.totalItems = productosMapeados.length;
+    this.hasMore = false;
+    this.isLoading = false;
   } else {
-    // ONLINE: comportamiento normal
-    this.loadMoreProducts();
+    // Offline y sin cache: no hay nada que mostrar
+    this.productos = [];
+    this.filteredProductos = [];
+    this.totalItems = 0;
+    this.hasMore = false;
+    this.isLoading = false;
   }
+} else {
+  // ONLINE: comportamiento normal
+  this.loadMoreProducts();
+}
+
 
   // IMPORTANTE: aquí diferenciamos el comportamiento online / offline
   this.searchService.search$.subscribe(text => {
@@ -282,26 +284,26 @@ export class ProductosComponent implements OnInit, AfterViewInit {
   this.hasMore = true;
 
   if (!navigator.onLine) {
-    // OFFLINE: recargar desde cache local
-    const raw = localStorage.getItem('pwa.cache.productosTop10');
+  // OFFLINE: recargar desde el precache
+  const productosCacheados = this.precacheService.getCachedProductosTop10();
 
-    if (raw) {
-      const productosCacheados = JSON.parse(raw);
-      const productosMapeados = this.mapearProductos(productosCacheados);
+  if (productosCacheados.length) {
+    const productosMapeados = this.mapearProductos(productosCacheados);
 
-      this.productos = [...productosMapeados];
-      this.filteredProductos = [...productosMapeados];
-      this.totalItems = productosMapeados.length;
-      this.hasMore = false;
-      this.isLoading = false;
-    } else {
-      // sin cache y sin red: no hay nada que hacer
-      this.isLoading = false;
-    }
+    this.productos = [...productosMapeados];
+    this.filteredProductos = [...productosMapeados];
+    this.totalItems = productosMapeados.length;
+    this.hasMore = false;
+    this.isLoading = false;
   } else {
-    // ONLINE: flujo normal
-    this.loadMoreProducts();
+    // sin cache y sin red: no hay nada que hacer
+    this.isLoading = false;
   }
+} else {
+  // ONLINE: flujo normal
+  this.loadMoreProducts();
+}
+
 }
 
 
