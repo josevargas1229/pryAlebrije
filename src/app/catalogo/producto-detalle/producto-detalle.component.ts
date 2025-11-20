@@ -177,7 +177,7 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
         this.imagenPrincipal = this.producto.imagenPrincipal;
       }
 
-     try {
+      try {
   const cache: DetalleProductoCache = {
     id: this.producto.id,
     nombre: this.producto.nombre || 'Producto sin nombre',
@@ -212,9 +212,13 @@ export class ProductoDetalleComponent implements OnInit, AfterViewInit {
 }
 
 private cargarProductoDesdeCache(id: number): void {
-  const cache =
-    this.precacheService.getCachedDetalleById(id) ??
-    this.leerCacheLocalProducto(id);
+  // 1) Intentar usar el precache masivo (pwa.cache.productosDetallesTop10)
+  let cache = this.precacheService.getCachedDetalleById(id);
+
+  // 2) Si no está ahí, usar el cache por-id (pwa.cache.producto.{id})
+  if (!cache) {
+    cache = this.leerCacheLocalProducto(id) as DetalleProductoCache | null;
+  }
 
   if (!cache) {
     console.warn('Sin conexión y sin producto cacheado para id', id);
@@ -244,17 +248,16 @@ private cargarProductoDesdeCache(id: number): void {
 
 
 
-
-// Fallback a lo que guardaste manualmente en localStorage dentro de obtenerProductoDetalle
-private leerCacheLocalProducto(id: number): DetalleProductoCache | undefined {
+private leerCacheLocalProducto(id: number): DetalleProductoCache | null {
   const raw = localStorage.getItem(`pwa.cache.producto.${id}`);
-  if (!raw) return undefined;
+  if (!raw) return null;
   try {
     return JSON.parse(raw) as DetalleProductoCache;
   } catch {
-    return undefined;
+    return null;
   }
 }
+
 
 
 

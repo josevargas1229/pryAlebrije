@@ -23,7 +23,6 @@ export interface DetalleProductoCache {
   color_id: number | null;
 }
 
-
 @Injectable({ providedIn: 'root' })
 export class PrecacheService {
   private http = inject(HttpClient);
@@ -340,109 +339,87 @@ private readonly TERMINOS_HTML = `
 `;
 
   preloadCriticalData() {
-  // 1) PRECARGA LISTA TOP 12
-const productosTop12$ = this.http
-  .get<{ productos: any[]; totalItems: number }>(
-    `${this.API_BASE}/menu-catalogo/productos`,
-    {
-      // Usa los mismos parámetros que en ProductoService.getAllProductos
-      params: {
-        page: 1,
-        pageSize: 12,
-        estado: 'true'
-      }
-    }
-  )
-  .pipe(
-    map(resp => {
-      const lista = resp?.productos || [];
-      console.log('[PRECACHE] productos recibidos:', lista.length);
-      const top12 = lista.slice(0, 12);
-      console.log('[PRECACHE] guardando en cache', top12.length, 'productos');
-      return top12;
-    }),
-    tap(top12 => {
-      localStorage.setItem(
-        'pwa.cache.productosTop10',
-        JSON.stringify(top12)
-      );
-      console.log('[PRECACHE] pwa.cache.productosTop10 guardado');
-    }),
-    catchError(err => {
-      console.error('Error precargando lista de productos', err);
-      return of([] as any[]);
-    })
-  );
-
-
-  // 2) PRECARGA DETALLES DE ESOS 12
-  const detallesTop12$ = productosTop12$.pipe(
-    switchMap((productos: any[]) => {
-      if (!productos.length) {
-        console.warn('[PRECACHE] Ningún producto para precargar detalles');
-        return of([] as DetalleProductoCache[]);
-      }
-
-      const detailRequests = productos.map(p =>
-        this.http
-          .get<any>(
-            `${this.API_BASE}/menu-catalogo/productos/producto-detalle/${p.id}`
-          )
-          .pipe(
-            map(prod => this.mapDetalleProducto(prod)),
-            catchError(err => {
-              console.error('Error precargando detalle de producto', p.id, err);
-              return of(null as DetalleProductoCache | null);
-            })
-          )
-      );
-
-      return forkJoin(detailRequests).pipe(
-        map(detalles =>
-          detalles.filter(
-            (d): d is DetalleProductoCache => d !== null
-          )
-        ),
-        tap(detalles => {
+    //LISTA DE PRODUCTOS
+    const productosTop10$ = this.http
+      .get<ProductoLista[]>(`${this.API_BASE}/menu-catalogo/productos`)
+      .pipe(
+         map(items => (items || []).slice(0, 12)),
+        tap(items => {
           localStorage.setItem(
-            'pwa.cache.productosDetallesTop10',
-            JSON.stringify(detalles)
+            'pwa.cache.productosTop10',
+            JSON.stringify(items)
           );
-          console.log('[PRECACHE] pwa.cache.productosDetallesTop10 guardado con', detalles.length, 'elementos');
+        }),
+        catchError(err => {
+          console.error('Error precargando lista de productos', err);
+          return of([] as ProductoLista[]);
         })
       );
-    })
-  );
 
-  // 3) DOCUMENTOS ESTÁTICOS YA LOS TENÍAS
-  const staticDocs$ = of(true).pipe(
-    tap(() => {
-      localStorage.setItem('pwa.cache.avisoPrivacidadHTML', this.PRIVACIDAD_HTML);
-      localStorage.setItem('pwa.cache.terminosCondicionesHTML', this.TERMINOS_HTML);
-    })
-  );
+      const staticDocs$ = of(true).pipe(
+  tap(() => {
+    localStorage.setItem('pwa.cache.avisoPrivacidadHTML', this.PRIVACIDAD_HTML);
+    localStorage.setItem('pwa.cache.terminosCondicionesHTML', this.TERMINOS_HTML);
+  })
+);
 
-  const contacto$ = this.http
-    .get(`${this.API_BASE}/contacto`, { responseType: 'text' })
-    .pipe(
-      tap(html => {
-        localStorage.setItem('pwa.cache.contacto', html);
-      }),
-      catchError(err => {
-        console.error('Error precargando contacto', err);
-        return of(null);
+    //PRECARGAR DETALLES
+    const detallesTop10$ = productosTop10$.pipe(
+      switchMap(productos => {
+        if (!productos.length) return of([] as DetalleProductoCache[]);
+
+        const detailRequests = productos.map(p =>
+          this.http
+            .get<any>(
+              `${this.API_BASE}/menu-catalogo/productos/producto-detalle/${p.id}`
+            )
+            .pipe(
+              map(prod => this.mapDetalleProducto(prod)),
+              catchError(err => {
+                console.error(
+                  'Error precargando detalle de producto',
+                  p.id,
+                  err
+                );
+                return of(null as DetalleProductoCache | null);
+              })
+            )
+        );
+
+        return forkJoin(detailRequests).pipe(
+          map(detalles =>
+            detalles.filter(
+              (d): d is DetalleProductoCache => d !== null
+            )
+          ),
+          tap(detalles => {
+            localStorage.setItem(
+              'pwa.cache.productosDetallesTop10',
+              JSON.stringify(detalles)
+            );
+          })
+        );
       })
     );
+    const contacto$ = this.http
+      .get(`${this.API_BASE}/contacto`, { responseType: 'text' })
+      .pipe(
+        tap(html => {
+          localStorage.setItem('pwa.cache.contacto', html);
+        }),
+        catchError(err => {
+          console.error('Error precargando contacto', err);
+          return of(null);
+        })
+      );
 
-  // 4) DEVOLVER TODO JUNTO PARA EL APP_INITIALIZER
-  return forkJoin({
-    productosTop12: productosTop12$,
-    detallesTop12: detallesTop12$,
-    staticDocs: staticDocs$,
-    contacto: contacto$
-  });
-}
-
+    return forkJoin({
+      productosTop10: productosTop10$,
+      detallesTop10: detallesTop10$,
+      staticDocs: staticDocs$,
+      contacto: contacto$
+    });
+  }
 
 
   private mapDetalleProducto(producto: any): DetalleProductoCache {
@@ -475,28 +452,26 @@ const productosTop12$ = this.http
       null;
 
     return {
-  id: producto.id,
-  nombre: producto.nombre || 'Producto sin nombre',
-  tipoProducto: producto.tipo?.nombre || 'Tipo desconocido',
-  marca: producto.marca?.nombre || 'Marca desconocida',
-  categoria: producto.categoria?.nombre || 'Categoría desconocida',
-  talla,
-  color,
-  precio: producto.precio,
-  imagen: producto.imagenPrincipal || 'assets/images/ropa.jpg',
-  stock: varianteConStock.stock ?? 0,
-  talla_id,
-  color_id
-};
-
+      id: producto.id,
+      nombre: producto.nombre || 'Producto sin nombre',
+      tipoProducto: producto.tipo?.nombre || 'Tipo desconocido',
+      marca: producto.marca?.nombre || 'Marca desconocida',
+      categoria: producto.categoria?.nombre || 'Categoría desconocida',
+      talla,
+      color,
+      precio: producto.precio,
+      imagen: producto.imagenPrincipal || 'assets/images/ropa.jpg',
+      stock: varianteConStock.stock ?? 0,
+      talla_id,
+      color_id
+    };
   }
 
 
-  getCachedProductosTop10(): any[] {
-  const raw = localStorage.getItem('pwa.cache.productosTop10');
-  return raw ? JSON.parse(raw) : [];
-}
-
+  getCachedProductosTop10(): ProductoLista[] {
+    const raw = localStorage.getItem('pwa.cache.productosTop10');
+    return raw ? JSON.parse(raw) : [];
+  }
 
   getCachedDetallesTop10(): DetalleProductoCache[] {
     const raw = localStorage.getItem('pwa.cache.productosDetallesTop10');
@@ -507,8 +482,9 @@ const productosTop12$ = this.http
     return localStorage.getItem('pwa.cache.contacto');
   }
 
-  getCachedDetalleById(id: number): DetalleProductoCache | undefined {
-    const all = this.getCachedDetallesTop10();
-    return all.find(d => d.id === id);
-  }
+  getCachedDetalleById(id: number): DetalleProductoCache | null {
+  const all = this.getCachedDetallesTop10();
+  return all.find(d => d.id === id) ?? null;
+}
+
 }
