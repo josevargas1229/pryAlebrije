@@ -417,65 +417,77 @@ private readonly TERMINOS_HTML = `
     });
   }
 
-  // *** MODIFICADO: adaptado al JSON de la lista (tipoNombre, imagenes[0].url, variantes con strings) ***
   private mapDetalleProducto(producto: any): DetalleProductoCache {
-    const variantes = producto.variantes || producto.variantesProducto || [];
-    const varianteConStock =
-      variantes.find((v: any) => v.stock > 0) ||
-      variantes[0] ||
-      {};
+  const variantes = producto.variantes || producto.variantesProducto || [];
+  const varianteConStock =
+    variantes.find((v: any) => v.stock > 0) ||
+    variantes[0] ||
+    {};
 
-    const talla =
-      (typeof varianteConStock.talla === 'string'
-        ? varianteConStock.talla
-        : varianteConStock.talla?.nombre) ||
-      varianteConStock.tallaNombre ||
-      'Sin talla';
+  // talla y color: aceptan string simple o objeto { nombre }
+  const talla =
+    (typeof varianteConStock.talla === 'string'
+      ? varianteConStock.talla
+      : varianteConStock.talla?.nombre) ||
+    varianteConStock.tallaNombre ||
+    'Sin talla';
 
-    const color =
-      (typeof varianteConStock.color === 'string'
-        ? varianteConStock.color
-        : varianteConStock.color?.nombre) ||
-      varianteConStock.colorNombre ||
-      'Color desconocido';
+  const color =
+    (typeof varianteConStock.color === 'string'
+      ? varianteConStock.color
+      : varianteConStock.color?.nombre) ||
+    varianteConStock.colorNombre ||
+    'Color desconocido';
 
-    const talla_id =
-      varianteConStock.talla_id ??
-      varianteConStock.tallaId ??
-      null;
+  const talla_id =
+    varianteConStock.talla_id ??
+    varianteConStock.tallaId ??
+    null;
 
-    const color_id =
-      varianteConStock.color_id ??
-      varianteConStock.colorId ??
-      null;
+  const color_id =
+    varianteConStock.color_id ??
+    varianteConStock.colorId ??
+    null;
 
-    return {
-      id: producto.id,
-      nombre: producto.nombre || 'Producto sin nombre',
-      tipoProducto:
-        producto.tipo?.nombre ||
-        producto.tipoNombre ||
-        'Tipo desconocido',
-      marca:
-        producto.marca?.nombre ||
-        producto.marcaNombre ||
-        'Marca desconocida',
-      categoria:
-        producto.categoria?.nombre ||
-        producto.categoriaNombre ||
-        'Categoría desconocida',
-      talla,
-      color,
-      precio: producto.precio != null ? Number(producto.precio) : 0,
-      imagen:
-        producto.imagenPrincipal ||
-        producto.imagen ||
-        (producto.imagenes?.[0]?.url ?? 'assets/images/ropa.jpg'),
-      stock: varianteConStock.stock ?? producto.stock ?? 0,
-      talla_id,
-      color_id
-    };
-  }
+  return {
+    id: producto.id,
+    nombre: producto.nombre || 'Producto sin nombre',
+    // tipoNombre viene en el listado
+    tipoProducto:
+      producto.tipo?.nombre ||
+      producto.tipoNombre ||
+      'Tipo desconocido',
+
+    // OJO: con el JSON que mostraste NO hay marca ni categoría,
+    // así que estos dos seguirán en "desconocida" hasta que el backend los incluya
+    marca:
+      producto.marca?.nombre ||
+      producto.marcaNombre ||
+      'Marca desconocida',
+
+    categoria:
+      producto.categoria?.nombre ||
+      producto.categoriaNombre ||
+      'Categoría desconocida',
+
+    talla,
+    color,
+
+    precio: producto.precio != null ? Number(producto.precio) : 0,
+
+    imagen:
+      producto.imagenPrincipal ||
+      producto.imagen ||
+      (producto.imagenes?.[0]?.url ?? 'assets/images/ropa.jpg'),
+
+    // si la variante no trae stock, usamos el stock total del producto
+    stock: varianteConStock.stock ?? producto.stock ?? 0,
+
+    talla_id,
+    color_id
+  };
+}
+
 
   getCachedProductosTop10(): ProductoLista[] {
     const raw = localStorage.getItem('pwa.cache.productosTop10');
