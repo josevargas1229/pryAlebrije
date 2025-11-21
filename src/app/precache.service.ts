@@ -338,43 +338,33 @@ private readonly TERMINOS_HTML = `
 
 `;
 
-precacheProductosTop12() {
-  return this.http
-    .get<{ productos: any[]; totalItems: number }>(
-      `${this.API_BASE}/menu-catalogo/productos`,
-      {
-        params: {
-          page: 1,
-          pageSize: 12,
-          estado: 'true'
-          // sin search: traerá los primeros 12 activos
-        }
-      }
-    )
+
+
+
+  preloadCriticalData() {
+  console.log('[PRECACHE] preloadCriticalData() ejecutado');
+
+  // LISTA DE PRODUCTOS (top 12)
+  const productosTop10$ = this.http
+    .get<ProductoLista[]>(`${this.API_BASE}/menu-catalogo/productos`)
     .pipe(
-      map(resp => resp.productos || []),
-      tap(productos => {
+      map(items => (items || []).slice(0, 12)),
+      tap(items => {
         localStorage.setItem(
           'pwa.cache.productosTop10',
-          JSON.stringify(productos)
+          JSON.stringify(items)
         );
         console.log(
           '[PRECACHE] Guardados',
-          productos.length,
+          items.length,
           'productos en pwa.cache.productosTop10'
         );
       }),
       catchError(err => {
-        console.error('[PRECACHE] Error precargando productos', err);
-        return of([] as any[]);
+        console.error('Error precargando lista de productos', err);
+        return of([] as ProductoLista[]);
       })
     );
-}
-
-
-  preloadCriticalData() {
-  // LISTA DE PRODUCTOS (TOP 12) usando el método nuevo
-  const productosTop10$ = this.precacheProductosTop12();
 
   const staticDocs$ = of(true).pipe(
     tap(() => {
@@ -417,6 +407,11 @@ precacheProductosTop12() {
             'pwa.cache.productosDetallesTop10',
             JSON.stringify(detalles)
           );
+          console.log(
+            '[PRECACHE] Guardados',
+            detalles.length,
+            'detalles en pwa.cache.productosDetallesTop10'
+          );
         })
       );
     })
@@ -441,6 +436,7 @@ precacheProductosTop12() {
     contacto: contacto$
   });
 }
+
 
 
 

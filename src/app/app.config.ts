@@ -9,25 +9,15 @@ import { errorInterceptor } from './interceptors/error.interceptor';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideServiceWorker } from '@angular/service-worker';
 import { isDevMode } from '@angular/core';
-import { PrecacheService } from './precache.service';
 import { SwUpdatesService } from './sw-updates.service';
 
 export function appInitFactory() {
-  const precache = inject(PrecacheService);
   const swUpdates = inject(SwUpdatesService);
 
   return () => {
-    // Inicializa la lógica de actualización de versión
+    // Solo inicializa actualizaciones de versión del SW
     swUpdates.init();
-
-    // Precarga datos críticos. Si falla, NO rompe el arranque.
-    return precache
-      .preloadCriticalData()
-      .toPromise()
-      .catch(err => {
-        console.error('Precache falló, continúo sin cache inicial', err);
-        return null;
-      });
+    // No retornas ninguna Promise/Observable aquí
   };
 }
 
@@ -47,7 +37,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideAnimations(),
 
-      provideServiceWorker('ngsw-worker.js', {
+    provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
     }),

@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, OnDestroy, ApplicationRef } from '@angular/core';
 import { Router, NavigationEnd, ActivatedRoute, RouterOutlet, RouterModule } from '@angular/router';
 import { HeaderComponent } from './shared/header/header.component';
 import { FooterComponent } from './shared/footer/footer.component';
@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { RuletaFabComponent } from './ruleta-fab/ruleta-fab.component';
 import { SwUpdatesService } from './sw-updates.service';
-import { ApplicationRef } from '@angular/core';
+import { PrecacheService } from './precache.service';
 import { firstValueFrom, Observable, Subscription, timer} from 'rxjs';
 import { NetworkStatusService } from './network-status.service';
 
@@ -38,7 +38,7 @@ import { NetworkStatusService } from './network-status.service';
   styleUrls: ['./app.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy{
   title = 'pryAlebrije';
   loadingApp= true;
   BreadcrumbItems: any[] = [];
@@ -55,7 +55,8 @@ export class AppComponent {
     private readonly activatedRoute: ActivatedRoute,
     private swUpdates: SwUpdatesService,
     private appRef: ApplicationRef,
-    private netStatus: NetworkStatusService
+    private netStatus: NetworkStatusService,
+    private readonly precacheService: PrecacheService
   ) {}
 
 
@@ -64,6 +65,17 @@ export class AppComponent {
 
      await firstValueFrom(this.appRef.isStable.pipe(filter(v => v === true)));
       this.online$ = this.netStatus.status$;
+
+
+      // 🔹 Lanzar precarga de datos críticos al arrancar la app
+  this.precacheService.preloadCriticalData().subscribe({
+    next: () => {
+      console.log('[PRECACHE] preloadCriticalData completado desde AppComponent');
+    },
+    error: (err) => {
+      console.error('[PRECACHE] Error en preloadCriticalData desde AppComponent', err);
+    }
+  });
 
     this.loadingApp = false;
 
@@ -81,7 +93,6 @@ export class AppComponent {
       }
     });
 
-    this.swUpdates.init();
 
     this.authService.checkAuthStatus()
       .then(response => {
