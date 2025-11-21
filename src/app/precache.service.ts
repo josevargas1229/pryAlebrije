@@ -345,8 +345,6 @@ private readonly TERMINOS_HTML = `
 
   preloadCriticalData() {
     console.log('[PRECACHE] preloadCriticalData() ejecutado');
-
-    // USAR ProductoService, igual que en el componente de productos
     const productosTop10$ = this.productoService
       .getAllProductos({
         page: 1,
@@ -379,47 +377,23 @@ private readonly TERMINOS_HTML = `
       })
     );
 
-    // PRECARGAR DETALLES
     const detallesTop10$ = productosTop10$.pipe(
-      switchMap(productos => {
-        if (!productos.length) return of([] as DetalleProductoCache[]);
-
-        const detailRequests = productos.map(p =>
-          this.http
-            .get<any>(
-              `${this.API_BASE}/menu-catalogo/productos/producto-detalle/${p.id}`
-            )
-            .pipe(
-              map(prod => this.mapDetalleProducto(prod)),
-              catchError(err => {
-                console.error(
-                  'Error precargando detalle de producto',
-                  p.id,
-                  err
-                );
-                return of(null as DetalleProductoCache | null);
-              })
-            )
+      map((productos: any[]) => {
+        const detalles: DetalleProductoCache[] = productos.map(p =>
+          this.mapDetalleProducto(p)
         );
 
-        return forkJoin(detailRequests).pipe(
-          map(detalles =>
-  (detalles as (DetalleProductoCache | null)[]).filter(
-    (d): d is DetalleProductoCache => d !== null
-  )
-),
-          tap(detalles => {
-            localStorage.setItem(
-              'pwa.cache.productosDetallesTop10',
-              JSON.stringify(detalles)
-            );
-            console.log(
-              '[PRECACHE] Guardados',
-              detalles.length,
-              'detalles en pwa.cache.productosDetallesTop10'
-            );
-          })
+        localStorage.setItem(
+          'pwa.cache.productosDetallesTop10',
+          JSON.stringify(detalles)
         );
+        console.log(
+          '[PRECACHE] Guardados',
+          detalles.length,
+          'detalles en pwa.cache.productosDetallesTop10'
+        );
+
+        return detalles;
       })
     );
 
@@ -443,8 +417,8 @@ private readonly TERMINOS_HTML = `
     });
   }
 
+  // *** MODIFICADO: adaptado al JSON de la lista (tipoNombre, imagenes[0].url, variantes con strings) ***
   private mapDetalleProducto(producto: any): DetalleProductoCache {
-
     const variantes = producto.variantes || producto.variantesProducto || [];
     const varianteConStock =
       variantes.find((v: any) => v.stock > 0) ||
@@ -452,12 +426,16 @@ private readonly TERMINOS_HTML = `
       {};
 
     const talla =
-      varianteConStock.talla?.nombre ||
+      (typeof varianteConStock.talla === 'string'
+        ? varianteConStock.talla
+        : varianteConStock.talla?.nombre) ||
       varianteConStock.tallaNombre ||
       'Sin talla';
 
     const color =
-      varianteConStock.color?.nombre ||
+      (typeof varianteConStock.color === 'string'
+        ? varianteConStock.color
+        : varianteConStock.color?.nombre) ||
       varianteConStock.colorNombre ||
       'Color desconocido';
 
@@ -474,14 +452,26 @@ private readonly TERMINOS_HTML = `
     return {
       id: producto.id,
       nombre: producto.nombre || 'Producto sin nombre',
-      tipoProducto: producto.tipo?.nombre || 'Tipo desconocido',
-      marca: producto.marca?.nombre || 'Marca desconocida',
-      categoria: producto.categoria?.nombre || 'Categoría desconocida',
+      tipoProducto:
+        producto.tipo?.nombre ||
+        producto.tipoNombre ||
+        'Tipo desconocido',
+      marca:
+        producto.marca?.nombre ||
+        producto.marcaNombre ||
+        'Marca desconocida',
+      categoria:
+        producto.categoria?.nombre ||
+        producto.categoriaNombre ||
+        'Categoría desconocida',
       talla,
       color,
-      precio: producto.precio,
-      imagen: producto.imagenPrincipal || 'assets/images/ropa.jpg',
-      stock: varianteConStock.stock ?? 0,
+      precio: producto.precio != null ? Number(producto.precio) : 0,
+      imagen:
+        producto.imagenPrincipal ||
+        producto.imagen ||
+        (producto.imagenes?.[0]?.url ?? 'assets/images/ropa.jpg'),
+      stock: varianteConStock.stock ?? producto.stock ?? 0,
       talla_id,
       color_id
     };
