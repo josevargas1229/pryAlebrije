@@ -344,27 +344,52 @@ private readonly TERMINOS_HTML = `
   preloadCriticalData() {
   console.log('[PRECACHE] preloadCriticalData() ejecutado');
 
-  // LISTA DE PRODUCTOS (top 12)
   const productosTop10$ = this.http
-    .get<ProductoLista[]>(`${this.API_BASE}/menu-catalogo/productos`)
-    .pipe(
-      map(items => (items || []).slice(0, 12)),
-      tap(items => {
-        localStorage.setItem(
-          'pwa.cache.productosTop10',
-          JSON.stringify(items)
+  .get(`${this.API_BASE}/menu-catalogo/productos`, {
+    params: {
+      page: 1,
+      pageSize: 12,
+      estado: 'true'
+    },
+    responseType: 'text' as 'json'  // <-- clave
+  })
+  .pipe(
+    map((raw: any) => {
+      if (!raw) {
+        return [];
+      }
+
+      let parsed: any;
+      try {
+        parsed = JSON.parse(raw as string);
+      } catch (e) {
+        console.warn(
+          '[PRECACHE] Respuesta no JSON en /menu-catalogo/productos, no se precargan productos',
+          e
         );
-        console.log(
-          '[PRECACHE] Guardados',
-          items.length,
-          'productos en pwa.cache.productosTop10'
-        );
-      }),
-      catchError(err => {
-        console.error('Error precargando lista de productos', err);
-        return of([] as ProductoLista[]);
-      })
-    );
+        return [];
+      }
+
+      const productos = (parsed.productos ?? []) as any[];
+      return productos.slice(0, 12);
+    }),
+    tap(productos => {
+      localStorage.setItem(
+        'pwa.cache.productosTop10',
+        JSON.stringify(productos)
+      );
+      console.log(
+        '[PRECACHE] Guardados',
+        productos.length,
+        'productos en pwa.cache.productosTop10 (APP INIT)'
+      );
+    }),
+    catchError(err => {
+      console.error('[PRECACHE] Error precargando lista de productos', err);
+      return of([] as any[]);
+    })
+  );
+
 
   const staticDocs$ = of(true).pipe(
     tap(() => {
